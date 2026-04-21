@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>LUMIN AI</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root{
+  --c:#00d4ff;--cg:#00ff9d;--cr:#ff3b3b;--cy:#ffd600;--cp:#a855f7;
+  --bg:#000;--bg2:#06101c;--bg3:#0c1820;
+  --glass:rgba(0,212,255,.07);--border:rgba(0,212,255,.13);
+  --text:#ddf4ff;--sub:#4e8fa3;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#000;color:var(--text);font-family:'Courier New',monospace;overflow:hidden}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;background:#000;z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem}
+.spl-hex{font-size:4rem;color:var(--c);animation:glow 2s infinite}
+.spl-name{font-size:1.6rem;letter-spacing:4px;color:var(--c);font-weight:bold}
+.spl-tag{font-size:.68rem;color:var(--sub);letter-spacing:2px}
+.spl-bar{width:210px;height:2px;background:#0d1825;border-radius:2px;margin-top:1.2rem;overflow:hidden}
+.spl-fill{height:100%;background:linear-gradient(90deg,var(--c),var(--cg));width:0;animation:fill 2.2s forwards}
+@keyframes fill{to{width:100%}}
+@keyframes glow{0%,100%{text-shadow:0 0 20px var(--c)}50%{text-shadow:0 0 60px var(--c),0 0 120px #0af}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* MODELO SELECT */
+#sel-screen{display:none;position:fixed;inset:0;background:var(--bg);
+  z-index:8000;overflow-y:auto;padding:1.4rem 1rem 3rem}
+.sel-header{text-align:center;margin-bottom:1.5rem}
+.sel-title{font-size:1.1rem;color:var(--c);font-weight:bold;letter-spacing:2px;margin-top:.3rem}
+.sel-sub{font-size:.68rem;color:var(--sub);margin-top:.25rem;line-height:1.5}
+.model-card{border-radius:14px;padding:1.1rem;margin-bottom:.9rem;cursor:pointer;
+  transition:all .2s;border:2px solid var(--border);background:var(--bg3);position:relative;overflow:hidden}
+.model-card.sel{border-color:var(--c);box-shadow:0 0 20px rgba(0,212,255,.15)}
+.model-card.pro.sel{border-color:var(--cp);box-shadow:0 0 20px rgba(168,85,247,.15)}
+.mc-version{position:absolute;top:.8rem;right:.8rem;font-size:.6rem;
+  font-weight:bold;padding:.2rem .55rem;border-radius:20px;border:1px solid}
+.v30{color:#00d4ff;border-color:rgba(0,212,255,.4);background:rgba(0,212,255,.1)}
+.vpro{color:#a855f7;border-color:rgba(168,85,247,.4);background:rgba(168,85,247,.1)}
+.mc-top{display:flex;align-items:flex-start;gap:.7rem;margin-bottom:.7rem}
+.mc-icon{font-size:2.2rem;line-height:1}
+.mc-name{font-size:1rem;font-weight:bold;color:var(--c);letter-spacing:.5px}
+.model-card.pro .mc-name{color:var(--cp)}
+.mc-base{font-size:.62rem;color:var(--sub);margin-top:.1rem}
+.mc-bars{margin-bottom:.7rem}
+.mc-bar-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem}
+.mc-bar-label{font-size:.6rem;color:var(--sub);width:65px;flex-shrink:0}
+.mc-bar-track{flex:1;height:5px;background:#0d1825;border-radius:3px;overflow:hidden}
+.mc-bar-fill{height:100%;border-radius:3px}
+.fill-speed{background:linear-gradient(90deg,var(--c),#00aacc)}
+.fill-inteli{background:linear-gradient(90deg,var(--cg),#00cc77)}
+.fill-mem{background:linear-gradient(90deg,var(--cy),#cc9900)}
+.mc-pills{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.5rem}
+.pill{font-size:.6rem;padding:.18rem .48rem;border-radius:10px;
+  background:var(--bg2);border:1px solid var(--border);color:var(--text)}
+.pill.green{border-color:rgba(0,255,157,.3);color:var(--cg)}
+.pill.blue{border-color:rgba(0,212,255,.3);color:var(--c)}
+.pill.purple{border-color:rgba(168,85,247,.3);color:var(--cp)}
+.pill.yellow{border-color:rgba(255,214,0,.3);color:var(--cy)}
+.mc-desc{font-size:.7rem;color:var(--sub);line-height:1.55}
+.mc-btn{width:100%;margin-top:.75rem;padding:.65rem;border-radius:8px;
+  font-size:.8rem;font-weight:bold;cursor:pointer;border:none;transition:.2s}
+.btn-30{background:rgba(0,212,255,.15);color:var(--c);border:1px solid rgba(0,212,255,.4)}
+.model-card.sel .btn-30{background:var(--c);color:#000}
+.btn-pro{background:rgba(168,85,247,.15);color:var(--cp);border:1px solid rgba(168,85,247,.4)}
+.model-card.sel .btn-pro{background:var(--cp);color:#fff}
+.sel-compare{background:var(--bg3);border:1px solid var(--border);border-radius:10px;
+  padding:.7rem;margin-bottom:1rem;font-size:.65rem;color:var(--sub);line-height:1.6;text-align:center}
+.sel-compare strong{color:var(--c)}
+#btn-avancar{width:100%;padding:.8rem;background:var(--c);color:#000;border:none;
+  border-radius:10px;font-size:.9rem;font-weight:bold;cursor:pointer;display:none;margin-top:.5rem}
+#btn-avancar.show{display:block}
+
+/* APP */
+#app{display:none;flex-direction:column;height:100vh}
+#app.show{display:flex}
+header{background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:.55rem .9rem;display:flex;align-items:center;gap:.4rem;flex-shrink:0}
+.h-dot{width:7px;height:7px;border-radius:50%;background:var(--cg);
+  box-shadow:0 0 8px var(--cg);animation:pulse 2.5s infinite;flex-shrink:0}
+.h-logo{font-size:.9rem;font-weight:bold;color:var(--c);letter-spacing:1px}
+.h-ver{font-size:.52rem;padding:.1rem .35rem;border-radius:8px;
+  border:1px solid var(--border);color:var(--c);background:var(--glass);cursor:pointer}
+.h-space{flex:1}
+#h-gps{font-size:.53rem;color:var(--sub);max-width:80px;text-align:right;line-height:1.3}
+#sos-btn{background:var(--cr);color:#fff;border:none;padding:.35rem .65rem;
+  border-radius:6px;font-size:.68rem;font-weight:bold;cursor:pointer}
+nav{background:var(--bg2);display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+nav button{flex:1;padding:.55rem .1rem;background:none;border:none;color:var(--sub);
+  font-size:.56rem;cursor:pointer;border-bottom:2px solid transparent;transition:.15s;
+  display:flex;flex-direction:column;align-items:center;gap:1px}
+nav button .ni{font-size:.95rem}
+nav button.on{color:var(--c);border-bottom-color:var(--c)}
+.panel{display:none;flex:1;overflow-y:auto;padding:.7rem;flex-direction:column;gap:.5rem}
+.panel.on{display:flex}
+#p-map{display:none;flex:1;flex-direction:column;padding:0;position:relative}
+#p-map.on{display:flex}
+#map{flex:1;min-height:0}
+.map-ov{position:absolute;bottom:.6rem;left:.5rem;right:.5rem;z-index:1000;
+  background:rgba(0,5,15,.92);border:1px solid var(--border);border-radius:10px;
+  padding:.65rem;backdrop-filter:blur(12px)}
+.map-ov h3{color:var(--c);font-size:.72rem;margin-bottom:.4rem}
+.near-grid{display:grid;grid-template-columns:1fr 1fr;gap:.3rem}
+.near-item{background:var(--bg3);border:1px solid var(--border);border-radius:7px;
+  padding:.38rem;display:flex;align-items:center;gap:.3rem;font-size:.63rem;cursor:pointer}
+
+/* CHAT */
+#chat-box{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:.4rem;margin-bottom:.4rem;min-height:0}
+.msg{max-width:88%;padding:.45rem .6rem;border-radius:10px;font-size:.72rem;
+  line-height:1.65;word-break:break-word}
+.msg.u{background:rgba(0,212,255,.11);border:1px solid rgba(0,212,255,.22);
+  align-self:flex-end;color:#fff}
+.msg.a{background:var(--bg3);border:1px solid var(--border);align-self:flex-start}
+.msg.a .lbl{font-size:.57rem;margin-bottom:.2rem;font-weight:bold;letter-spacing:.5px}
+.lbl-30{color:var(--c)}
+.lbl-pro{color:var(--cp)}
+.typing span{display:inline-block;width:5px;height:5px;border-radius:50%;
+  background:var(--c);margin:0 2px;animation:td .9s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+#ai-bar{font-size:.58rem;text-align:center;padding:.12rem 0;min-height:.9rem;
+  flex-shrink:0;color:var(--sub)}
+#ai-bar.ok{color:var(--cg)}
+#ai-bar.err{color:var(--cr)}
+#ai-bar.think{color:var(--cy);animation:pulse .8s infinite}
+.inp-row{display:flex;gap:.3rem;flex-shrink:0}
+#ci{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  color:var(--text);padding:.45rem .6rem;font-size:.76rem;font-family:inherit;
+  resize:none;max-height:75px}
+#ci:focus{outline:none;border-color:var(--c)}
+#send{background:var(--c);color:#000;border:none;border-radius:8px;
+  padding:.45rem .7rem;cursor:pointer;font-weight:bold;font-size:.8rem;flex-shrink:0}
+#send:disabled{background:#0d1825;color:#2a4a5a;cursor:not-allowed}
+#vbtn{background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  padding:.45rem .5rem;cursor:pointer;font-size:.95rem;flex-shrink:0}
+#vbtn.on{border-color:var(--cr);background:rgba(255,59,59,.15);animation:pulse .7s infinite}
+.mem-bar{background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);
+  border-radius:8px;padding:.32rem .6rem;font-size:.6rem;
+  display:flex;align-items:center;gap:.4rem;color:var(--sub)}
+.mem-bar .mi{color:var(--cp)}
+.mem-bar .mc2{margin-left:auto;color:var(--cr);cursor:pointer;font-size:.58rem}
+.loc-badge{background:var(--glass);border:1px solid var(--border);border-radius:7px;
+  padding:.32rem .55rem;font-size:.62rem;display:flex;align-items:center;gap:.35rem}
+.sec{color:var(--sub);font-size:.6rem;letter-spacing:1.5px;text-transform:uppercase;
+  padding:.15rem 0;border-bottom:1px solid var(--border);margin-bottom:.3rem;flex-shrink:0}
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;
+  padding:.7rem;cursor:pointer;flex-shrink:0}
+.card.open{border-color:var(--cg)}
+.ch{display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem}
+.ci2{font-size:1.15rem}
+.ct{font-size:.78rem;font-weight:bold;color:var(--c)}
+.card.open .ct{color:var(--cg)}
+.cs{font-size:.63rem;color:var(--sub)}
+.cb{display:none;font-size:.7rem;line-height:1.6;color:var(--text)}
+.card.open .cb{display:block}
+.step{background:var(--bg2);border-left:2px solid var(--c);border-radius:0 5px 5px 0;
+  padding:.38rem .58rem;margin-top:.3rem}
+.step strong{color:var(--cy);display:block;font-size:.63rem;margin-bottom:.1rem}
+.warn{background:rgba(255,59,59,.07);border:1px solid rgba(255,59,59,.25);
+  border-radius:7px;padding:.38rem .58rem;font-size:.67rem;color:var(--cr);margin-top:.3rem}
+.call-btn{margin-top:.45rem;background:var(--cr);color:#fff;border:none;
+  padding:.38rem;border-radius:6px;cursor:pointer;font-size:.7rem;width:100%}
+.sos-grid{display:grid;grid-template-columns:1fr 1fr;gap:.45rem}
+.sos-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;
+  padding:.7rem;text-align:center;text-decoration:none;display:block;cursor:pointer}
+.sos-card:active{border-color:var(--cr);background:rgba(255,59,59,.08)}
+.sos-num{font-size:1.1rem;font-weight:bold;color:var(--cr)}
+.sos-lbl{font-size:.6rem;color:var(--sub);margin-top:.12rem}
+.sos-desc{font-size:.57rem;color:var(--text);margin-top:.08rem}
+.kit-item{display:flex;align-items:center;gap:.55rem;padding:.38rem 0;
+  border-bottom:1px solid var(--border);font-size:.7rem}
+.kit-item input{width:15px;height:15px;accent-color:var(--cg);flex-shrink:0}
+.kit-item.done label{text-decoration:line-through;color:var(--sub)}
+#sos-ov{display:none;position:fixed;inset:0;background:rgba(180,0,0,.15);
+  z-index:9000;flex-direction:column;align-items:center;justify-content:center;
+  backdrop-filter:blur(8px)}
+#sos-ov.show{display:flex}
+.sos-big{font-size:5rem;animation:glow 1s infinite}
+.sos-sub{color:var(--cr);font-size:1rem;margin:.4rem 0}
+.sos-coords{font-size:.68rem;color:var(--sub);text-align:center;max-width:260px;margin-bottom:.8rem}
+.sos-acts{display:flex;flex-direction:column;gap:.45rem;width:85%;max-width:290px}
+.sos-act{padding:.7rem;border-radius:9px;font-size:.82rem;font-weight:bold;
+  cursor:pointer;border:none;display:flex;align-items:center;gap:.5rem;justify-content:center}
+.sos-close{margin-top:1rem;background:var(--bg3);border:1px solid var(--cr);
+  color:var(--cr);padding:.45rem 1.3rem;border-radius:8px;cursor:pointer;font-size:.82rem}
+::-webkit-scrollbar{width:2px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="spl-hex">⬡</div>
+  <div class="spl-name">LUMIN AI</div>
+  <div class="spl-tag">PLATAFORMA DE EMERGÊNCIA · PORTUGAL</div>
+  <div class="spl-bar"><div class="spl-fill"></div></div>
+</div>
+
+<!-- SELEÇÃO MODELO -->
+<div id="sel-screen">
+  <div class="sel-header">
+    <div style="font-size:1.8rem;color:var(--c)">⬡</div>
+    <div class="sel-title">ESCOLHE O TEU LUMIN AI</div>
+    <div class="sel-sub">Powered by Claude · Responde instantaneamente · Sem download</div>
+  </div>
+
+  <div class="model-card" id="card-30" onclick="selectModel('30')">
+    <span class="mc-version v30">v3.0</span>
+    <div class="mc-top">
+      <div class="mc-icon">⚡</div>
+      <div class="mc-info">
+        <div class="mc-name">LUMIN AI 3.0</div>
+        <div class="mc-base">Motor: Claude Sonnet · Rápido · Preciso</div>
+      </div>
+    </div>
+    <div class="mc-bars">
+      <div class="mc-bar-row"><span class="mc-bar-label">⚡ Velocidade</span><div class="mc-bar-track"><div class="mc-bar-fill fill-speed" style="width:90%"></div></div><span style="font-size:.58rem;color:var(--c);margin-left:.3rem">Rápido</span></div>
+      <div class="mc-bar-row"><span class="mc-bar-label">🧠 Inteligência</span><div class="mc-bar-track"><div class="mc-bar-fill fill-inteli" style="width:85%"></div></div><span style="font-size:.58rem;color:var(--cg);margin-left:.3rem">Alta</span></div>
+      <div class="mc-bar-row"><span class="mc-bar-label">📝 Contexto</span><div class="mc-bar-track"><div class="mc-bar-fill fill-mem" style="width:70%"></div></div><span style="font-size:.58rem;color:var(--cy);margin-left:.3rem">Amplo</span></div>
+    </div>
+    <div class="mc-pills">
+      <span class="pill green">✅ Sem download</span>
+      <span class="pill blue">⚡ Resposta rápida</span>
+      <span class="pill">🩺 Médico completo</span>
+      <span class="pill">🧠 Memória de contexto</span>
+    </div>
+    <div class="mc-desc">Assistente de emergência com IA avançada. Protocolos médicos, GPS, mapa e contactos de emergência PT. Responde em segundos.</div>
+    <button class="mc-btn btn-30">Selecionar LUMIN AI 3.0</button>
+  </div>
+
+  <div class="model-card pro" id="card-pro" onclick="selectModel('pro')">
+    <span class="mc-version vpro">Pro v10.0</span>
+    <div class="mc-top">
+      <div class="mc-icon">🔮</div>
+      <div class="mc-info">
+        <div class="mc-name">LUMIN AI Pro 10.0</div>
+        <div class="mc-base">Motor: Claude Opus · Máxima capacidade</div>
+      </div>
+    </div>
+    <div class="mc-bars">
+      <div class="mc-bar-row"><span class="mc-bar-label">⚡ Velocidade</span><div class="mc-bar-track"><div class="mc-bar-fill fill-speed" style="width:70%"></div></div><span style="font-size:.58rem;color:var(--c);margin-left:.3rem">Normal</span></div>
+      <div class="mc-bar-row"><span class="mc-bar-label">🧠 Inteligência</span><div class="mc-bar-track"><div class="mc-bar-fill fill-inteli" style="width:98%"></div></div><span style="font-size:.58rem;color:var(--cg);margin-left:.3rem">Máxima</span></div>
+      <div class="mc-bar-row"><span class="mc-bar-label">📝 Contexto</span><div class="mc-bar-track"><div class="mc-bar-fill fill-mem" style="width:95%"></div></div><span style="font-size:.58rem;color:var(--cy);margin-left:.3rem">Extenso</span></div>
+    </div>
+    <div class="mc-pills">
+      <span class="pill green">✅ Sem download</span>
+      <span class="pill purple">🔮 Mais capaz</span>
+      <span class="pill">💬 Análise profunda</span>
+      <span class="pill">🧬 Diagnóstico avançado</span>
+    </div>
+    <div class="mc-desc">Máxima inteligência para situações complexas. Análise aprofundada, contexto extenso, respostas mais detalhadas e precisas.</div>
+    <button class="mc-btn btn-pro">Selecionar LUMIN AI Pro 10.0</button>
+  </div>
+
+  <div class="sel-compare">
+    💡 <strong>Não tens a certeza?</strong><br>
+    Para a maioria das emergências, o <strong>LUMIN AI 3.0</strong> é mais rápido.<br>
+    O <strong>Pro 10.0</strong> é melhor para análises complexas.
+  </div>
+  <button id="btn-avancar" onclick="iniciarApp()">➤ Entrar no LUMIN AI</button>
+  <div style="font-size:.58rem;color:var(--sub);text-align:center;margin-top:.5rem;line-height:1.5">
+    Powered by Claude AI · Requer ligação à internet
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="h-dot"></div>
+    <div class="h-logo">⬡ LUMIN AI</div>
+    <div class="h-ver" id="h-ver" onclick="trocarModelo()">v3.0</div>
+    <div class="h-space"></div>
+    <div id="h-gps">📍 A localizar...</div>
+    <button id="sos-btn" onclick="abrirSOS()">🆘 SOS</button>
+  </header>
+  <nav>
+    <button class="on" onclick="tab('ai')"><span class="ni">🤖</span>IA</button>
+    <button onclick="tab('map')"><span class="ni">🗺️</span>Mapa</button>
+    <button onclick="tab('med')"><span class="ni">🩺</span>Médico</button>
+    <button onclick="tab('sos')"><span class="ni">🆘</span>SOS</button>
+    <button onclick="tab('kit')"><span class="ni">🎒</span>Kit</button>
+  </nav>
+
+  <!-- PAINEL IA -->
+  <div class="panel on" id="p-ai">
+    <div class="loc-badge">
+      <span>📍</span>
+      <span id="loc-txt">A aguardar GPS...</span>
+      <span style="margin-left:auto;font-size:.62rem;color:var(--c)" id="loc-coord"></span>
+    </div>
+    <div class="mem-bar">
+      <span class="mi">🧠</span>
+      <span id="mem-count">Memória: 0 mensagens</span>
+      <span class="mc2" onclick="limparMemoria()">🗑 Limpar</span>
+    </div>
+    <div id="chat-box">
+      <div class="msg a">
+        <div class="lbl" id="msg-lbl-boas">⬡ LUMIN AI</div>
+        Olá! Estou pronto para ajudar em situações de emergência.<br><br>
+        🩺 Protocolos médicos completos<br>
+        📍 Localização GPS em tempo real<br>
+        🆘 Contactos de emergência PT<br>
+        🗺️ Pontos de socorro próximos<br><br>
+        <strong>Descreve o que está a acontecer:</strong>
+      </div>
+    </div>
+    <div id="ai-bar" class="ok">✅ LUMIN AI ativo · Claude AI</div>
+    <div class="inp-row">
+      <button id="vbtn" onclick="toggleVoz()">🎤</button>
+      <textarea id="ci" rows="1" placeholder="Ex: pessoa desmaiou, não respira..."
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviar()}"></textarea>
+      <button id="send" onclick="enviar()">➤</button>
+    </div>
+  </div>
+
+  <!-- PAINEL MAPA -->
+  <div id="p-map">
+    <div id="map"></div>
+    <!-- controles flutuantes -->
+    <div style="position:absolute;top:.5rem;right:.5rem;z-index:1000;display:flex;flex-direction:column;gap:.3rem">
+      <button onclick="centrarMapa()" style="background:var(--bg2);border:1px solid var(--border);color:var(--c);border-radius:8px;padding:.45rem .55rem;cursor:pointer;font-size:.9rem">📍</button>
+      <button onclick="toggleCamada()" id="btn-camada" style="background:var(--bg2);border:1px solid var(--border);color:var(--sub);border-radius:8px;padding:.45rem .55rem;cursor:pointer;font-size:.75rem">🗺</button>
+    </div>
+    <!-- barra inferior -->
+    <div class="map-ov">
+      <h3>📍 Pontos de Emergência Próximos</h3>
+      <div class="near-grid" id="near-grid">
+        <div class="near-item">📡 <span>Ativa o GPS para ver</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAINEL MÉDICO -->
+  <div class="panel" id="p-med">
+    <div class="sec">🩺 Protocolos de Emergência</div>
+  </div>
+
+  <!-- PAINEL SOS -->
+  <div class="panel" id="p-sos">
+    <div class="sec">📞 Contactos de Emergência · Portugal</div>
+    <div class="sos-grid">
+      <a href="tel:112" class="sos-card"><div class="sos-num">112</div><div class="sos-lbl">🚑 EMERGÊNCIA</div><div class="sos-desc">Ambulância · Bombeiros · PSP</div></a>
+      <a href="tel:808242424" class="sos-card"><div class="sos-num">SNS 24</div><div class="sos-lbl">🏥 SAÚDE</div><div class="sos-desc">808 24 24 24</div></a>
+      <a href="tel:217500700" class="sos-card"><div class="sos-num">217 500 700</div><div class="sos-lbl">🛡️ PROT. CIVIL</div><div class="sos-desc">Nacional</div></a>
+      <a href="tel:213217000" class="sos-card"><div class="sos-num">213 217 000</div><div class="sos-lbl">🚔 GNR</div><div class="sos-desc">Guarda Nacional</div></a>
+      <a href="tel:217946534" class="sos-card"><div class="sos-num">217 946 534</div><div class="sos-lbl">☠️ ANTIVENENOS</div><div class="sos-desc">24h</div></a>
+      <a href="tel:800202669" class="sos-card"><div class="sos-num">800 202 669</div><div class="sos-lbl">🔥 INCÊNDIOS</div><div class="sos-desc">Gratuito</div></a>
+    </div>
+    <div class="sec" style="margin-top:.5rem">🌍 Cenários de Crise</div>
+    <div id="crise-list"></div>
+  </div>
+
+  <!-- PAINEL KIT -->
+  <div class="panel" id="p-kit">
+    <div class="sec">✅ Kit de Sobrevivência</div>
+    <div id="kit-list"></div>
+    <button onclick="resetKit()" style="margin-top:.5rem;background:var(--bg3);border:1px solid var(--border);color:var(--sub);padding:.45rem;border-radius:7px;width:100%;cursor:pointer;font-size:.7rem">🔄 Repor lista</button>
+  </div>
+</div>
+
+<!-- SOS OVERLAY -->
+<div id="sos-ov">
+  <div class="sos-big">🆘</div>
+  <div class="sos-sub">MODO SOS ATIVO</div>
+  <div class="sos-coords" id="sos-coords">A obter localização...</div>
+  <div class="sos-acts">
+    <a href="tel:112" style="text-decoration:none;width:100%">
+      <button class="sos-act" style="background:var(--cr);color:#fff;width:100%">📞 LIGAR 112</button>
+    </a>
+    <button class="sos-act" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);width:100%" onclick="partilharLocalizacao()">📡 Partilhar Localização</button>
+    <button class="sos-act" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);width:100%" onclick="tab('med');fecharSOS()">🩺 Ver Protocolos</button>
+  </div>
+  <button class="sos-close" onclick="fecharSOS()">✕ Fechar</button>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// LUMIN AI — Claude AI Backend
+// ══════════════════════════════════════════
+
+const MODELOS = {
+  '30': { nome:'LUMIN AI 3.0', model:'claude-sonnet-4-20250514', cor:'var(--c)', label:'v3.0', lblClass:'lbl-30', emoji:'⚡' },
+  'pro': { nome:'LUMIN AI Pro 10.0', model:'claude-sonnet-4-20250514', cor:'var(--cp)', label:'Pro v10.0', lblClass:'lbl-pro', emoji:'🔮' }
+};
+
+const SYSTEM_PROMPT = `És o LUMIN AI, assistente de emergência médica em Portugal.
+Respondes SEMPRE em português europeu, de forma clara, direta e prática.
+Em emergências: dás passos numerados e concisos. Sem asteriscos nem markdown.
+Especialidades: RCP, hemorragia, AVC, enfarte, engasgamento, queimaduras, fraturas, hipotermia, choque, envenenamento, parto de emergência.
+Lembras sempre: ligar 112 em emergência grave.
+Máximo 200 palavras por resposta salvo pedido explícito.
+Tratas o utilizador com calma e clareza.`;
+
+let modeloAtivo = '30';
+let historico = [];
+let userLat = null, userLng = null;
+let mapObj = null, mapMarker = null;
+let voiceRec = null, aEscutar = false;
+
+const HIST_KEY = 'lumin_hist';
+const MODEL_KEY = 'lumin_modelo';
+
+// ── ARRANQUE ──────────────────────────────
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const spl = document.getElementById('splash');
+    spl.style.transition = 'opacity .5s';
+    spl.style.opacity = '0';
+    setTimeout(() => {
+      spl.style.display = 'none';
+      const guardado = localStorage.getItem(MODEL_KEY);
+      if (guardado && MODELOS[guardado]) {
+        modeloAtivo = guardado;
+        lancarApp();
+      } else {
+        document.getElementById('sel-screen').style.display = 'block';
+      }
+    }, 500);
+  }, 2300);
+});
+
+// ── SELEÇÃO ───────────────────────────────
+window.selectModel = function(ver) {
+  document.querySelectorAll('.model-card').forEach(c => c.classList.remove('sel'));
+  document.getElementById('card-' + ver).classList.add('sel');
+  modeloAtivo = ver;
+  const btn = document.getElementById('btn-avancar');
+  btn.classList.add('show');
+  btn.textContent = '➤ Entrar com ' + MODELOS[ver].nome;
+};
+
+window.iniciarApp = function() {
+  if (!modeloAtivo) return;
+  localStorage.setItem(MODEL_KEY, modeloAtivo);
+  lancarApp();
+};
+
+function lancarApp() {
+  document.getElementById('sel-screen').style.display = 'none';
+  document.getElementById('app').classList.add('show');
+  const m = MODELOS[modeloAtivo];
+  document.getElementById('h-ver').textContent = m.label;
+  document.getElementById('h-ver').style.color = m.cor;
+  document.getElementById('msg-lbl-boas').textContent = '⬡ ' + m.nome;
+  document.getElementById('msg-lbl-boas').className = 'lbl ' + m.lblClass;
+  setBarIA('ok', '✅ ' + m.nome + ' · Claude AI · Pronto');
+  // Restaura histórico
+  try { historico = JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); } catch(e) { historico = []; }
+  atualizarMemBadge();
+  if (historico.length > 0) {
+    historico.slice(-6).forEach(h => addMsg(h.content, h.role === 'user' ? 'u' : 'a'));
+  }
+  construirMedico();
+  construirCrises();
+  construirKit();
+  iniciarGPS();
+}
+
+window.trocarModelo = function() {
+  if (!confirm('Trocar de modelo?')) return;
+  localStorage.removeItem(MODEL_KEY);
+  location.reload();
+};
+
+// ── ENVIAR MENSAGEM ───────────────────────
+window.enviar = async function() {
+  const el = document.getElementById('ci');
+  const txt = el.value.trim();
+  if (!txt || document.getElementById('send').disabled) return;
+  el.value = '';
+  addMsg(txt, 'u');
+  document.getElementById('send').disabled = true;
+  setBarIA('think', '🧠 A pensar...');
+
+  historico.push({ role: 'user', content: txt });
+  guardarHist();
+  atualizarMemBadge();
+
+  const gpsCtx = userLat
+    ? `[Localização GPS do utilizador: ${userLat.toFixed(5)}, ${userLng.toFixed(5)} — Portugal]`
+    : '[GPS não disponível]';
+
+  const dotDiv = addMsg('', 'a', true);
+
+  try {
+    const msgs = [
+      { role: 'user', content: SYSTEM_PROMPT + '\n' + gpsCtx + '\n\nPrimeira mensagem: Apresenta-te brevemente.' },
+      { role: 'assistant', content: 'Olá! Sou o LUMIN AI, assistente de emergência. Como posso ajudar?' },
+      ...historico.slice(-12)
+    ];
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: MODELOS[modeloAtivo].model,
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT + '\n' + gpsCtx,
+        messages: historico.slice(-12)
+      })
+    });
+
+    const data = await res.json();
+    if (dotDiv) dotDiv.remove();
+
+    if (data.content && data.content[0]) {
+      const resp = data.content[0].text;
+      addMsg(resp, 'a');
+      historico.push({ role: 'assistant', content: resp });
+      guardarHist();
+      atualizarMemBadge();
+      setBarIA('ok', '✅ ' + MODELOS[modeloAtivo].nome + ' · Claude AI');
+    } else {
+      throw new Error(data.error?.message || 'Sem resposta');
+    }
+  } catch(err) {
+    if (dotDiv) dotDiv.remove();
+    // Fallback offline
+    const resp = respostaOffline(txt);
+    addMsg(resp, 'a');
+    historico.push({ role: 'assistant', content: resp });
+    guardarHist();
+    atualizarMemBadge();
+    setBarIA('err', '⚠️ Modo offline · ' + (err.message || 'Erro de ligação'));
+  }
+
+  document.getElementById('send').disabled = false;
+};
+
+// ── FALLBACK OFFLINE ──────────────────────
+const KW = {
+  rcp:['rcp','paragem','cardíac','coração parou','não respira','desmaiou','inconsciente','ressuscit'],
+  hemor:['sangue','sangramento','hemorragia','ferida','corte','sangra'],
+  avc:['avc','derrame','boca torta','face torta','paralisia','fala arrastada'],
+  enfarte:['enfarte','ataque cardíaco','dor no peito'],
+  engasgo:['engasgad','sufoc','obstrução','não consegue respirar'],
+  queimadura:['queimadr','escaldão','calor extremo'],
+  fratura:['frat','osso partido','torci','luxação'],
+  hipotermia:['hipotermia','congelamento','frio extremo'],
+  choque:['choque','pálido suado','pressão baixa'],
+  veneno:['veneno','intoxicação','engoliu produto','tóxico'],
+};
+
+function respostaOffline(txt) {
+  const t = txt.toLowerCase();
+  for (const [id, kws] of Object.entries(KW)) {
+    if (kws.some(k => t.includes(k))) {
+      const p = PROTOS.find(x => x.id === id);
+      if (p) return `${p.icon} ${p.titulo}\n\n` +
+        p.passos.map((s,i) => `${i+1}. ${s.t}\n${s.d}`).join('\n\n') +
+        (p.aviso ? `\n\n⚠️ ${p.aviso}` : '') +
+        '\n\n📞 Liga agora: 112';
+    }
+  }
+  if (t.includes('112')) return '📞 Liga imediatamente para o 112 — Emergência Nacional.';
+  return 'Descreve melhor a situação. Usa os separadores 🩺 Médico ou 🆘 SOS.\n\n📞 Emergência: 112';
+}
+
+// ── UI CHAT ───────────────────────────────
+function addMsg(txt, role, streaming = false) {
+  const box = document.getElementById('chat-box');
+  const m = MODELOS[modeloAtivo] || MODELOS['30'];
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  if (streaming) {
+    div.innerHTML = `<div class="lbl ${m.lblClass}">⬡ ${m.nome}</div><div class="typing"><span></span><span></span><span></span></div>`;
+    box.appendChild(div); box.scrollTop = box.scrollHeight; return div;
+  }
+  if (role === 'a') {
+    div.innerHTML = `<div class="lbl ${m.lblClass}">⬡ ${m.nome}</div>` + txt.replace(/\n/g,'<br>');
+  } else {
+    div.textContent = txt;
+  }
+  box.appendChild(div); box.scrollTop = box.scrollHeight; return div;
+}
+
+function setBarIA(cls, txt) {
+  const b = document.getElementById('ai-bar');
+  b.className = cls; b.textContent = txt;
+}
+
+// ── MEMÓRIA ───────────────────────────────
+function guardarHist() {
+  if (historico.length > 20) historico = historico.slice(-20);
+  localStorage.setItem(HIST_KEY, JSON.stringify(historico));
+}
+function atualizarMemBadge() {
+  document.getElementById('mem-count').textContent =
+    `Memória: ${historico.length} mensagem${historico.length !== 1 ? 's' : ''}`;
+}
+window.limparMemoria = function() {
+  if (!confirm('Limpar toda a memória?')) return;
+  historico = [];
+  localStorage.removeItem(HIST_KEY);
+  document.getElementById('chat-box').innerHTML = '';
+  addMsg('Memória apagada. Nova sessão iniciada.', 'a');
+  atualizarMemBadge();
+};
+
+// ── GPS ───────────────────────────────────
+function iniciarGPS() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.watchPosition(pos => {
+    userLat = pos.coords.latitude; userLng = pos.coords.longitude;
+    const acc = Math.round(pos.coords.accuracy);
+    document.getElementById('loc-txt').textContent = `GPS ativo (±${acc}m)`;
+    document.getElementById('loc-coord').textContent = `${userLat.toFixed(4)}, ${userLng.toFixed(4)}`;
+    document.getElementById('h-gps').textContent = `📍 ${userLat.toFixed(3)}, ${userLng.toFixed(3)}`;
+    document.getElementById('sos-coords').textContent = `📍 ${userLat.toFixed(6)}, ${userLng.toFixed(6)}`;
+    if (mapObj) {
+      mapObj.setView([userLat, userLng], 15);
+      if (mapMarker) mapMarker.setLatLng([userLat, userLng]);
+      else mapMarker = L.marker([userLat, userLng]).addTo(mapObj).bindPopup('<b>A tua posição</b>').openPopup();
+      buscarProximos();
+    }
+  }, () => {
+    document.getElementById('loc-txt').textContent = 'GPS: permissão negada';
+  }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 });
+}
+
+// ── MAPA ──────────────────────────────────
+let camadaSatelite = false;
+let tileLayer = null;
+let todosMarkers = [];
+
+const MARKER_CORES = {
+  hospital:   { cor:'#ff3b3b', emoji:'🏥' },
+  fire_station:{ cor:'#ff8c00', emoji:'🚒' },
+  pharmacy:   { cor:'#00ff9d', emoji:'💊' },
+  police:     { cor:'#00d4ff', emoji:'🚔' },
+};
+
+function criarIcone(tipo) {
+  const cfg = MARKER_CORES[tipo] || { cor:'#fff', emoji:'📍' };
+  return L.divIcon({
+    className: '',
+    html: `<div style="background:${cfg.cor};width:32px;height:32px;border-radius:50% 50% 50% 0;
+      transform:rotate(-45deg);border:2px solid #000;display:flex;align-items:center;justify-content:center;
+      box-shadow:0 2px 8px rgba(0,0,0,.5)">
+      <span style="transform:rotate(45deg);font-size:14px">${cfg.emoji}</span></div>`,
+    iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-34]
+  });
+}
+
+function criarIconeUser() {
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:18px;height:18px;border-radius:50%;background:#00d4ff;
+      border:3px solid #fff;box-shadow:0 0 0 4px rgba(0,212,255,.3),0 2px 8px rgba(0,0,0,.5)"></div>`,
+    iconSize:[18,18], iconAnchor:[9,9]
+  });
+}
+
+function iniciarMapa() {
+  if (mapObj) return;
+  mapObj = L.map('map', { zoomControl: false, attributionControl: false });
+  L.control.zoom({ position: 'topleft' }).addTo(mapObj);
+  tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
+  tileLayer.addTo(mapObj);
+  mapObj.setView(userLat ? [userLat, userLng] : [38.7169, -9.1399], userLat ? 16 : 12);
+  if (userLat) {
+    mapMarker = L.marker([userLat, userLng], { icon: criarIconeUser(), zIndexOffset: 1000 }).addTo(mapObj);
+    buscarProximos();
+  }
+}
+
+window.centrarMapa = function() {
+  if (!mapObj) return;
+  if (userLat) mapObj.setView([userLat, userLng], 16);
+};
+
+window.toggleCamada = function() {
+  if (!mapObj) return;
+  camadaSatelite = !camadaSatelite;
+  mapObj.removeLayer(tileLayer);
+  const url = camadaSatelite
+    ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+    : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  tileLayer = L.tileLayer(url, { maxZoom: 19 });
+  tileLayer.addTo(mapObj);
+  tileLayer.bringToBack();
+  document.getElementById('btn-camada').textContent = camadaSatelite ? '🛰' : '🗺';
+};
+
+function buscarProximos() {
+  if (!userLat) return;
+  const grid = document.getElementById('near-grid');
+  grid.innerHTML = '<div class="near-item" style="grid-column:1/-1;color:var(--sub)">🔍 A procurar...</div>';
+
+  // Remove markers antigos
+  todosMarkers.forEach(m => mapObj && mapObj.removeLayer(m));
+  todosMarkers = [];
+
+  const q = `[out:json][timeout:10];(
+    node["amenity"="hospital"](around:5000,${userLat},${userLng});
+    node["amenity"="fire_station"](around:5000,${userLat},${userLng});
+    node["amenity"="pharmacy"](around:2000,${userLat},${userLng});
+    node["amenity"="police"](around:5000,${userLat},${userLng});
+  );out body;`;
+
+  fetch('https://overpass-api.de/api/interpreter', { method:'POST', body:q, signal:AbortSignal.timeout(9000) })
+    .then(r => r.json())
+    .then(data => {
+      const found = {};
+      // Agrupa por tipo, guarda todos
+      const todos = {};
+      data.elements.forEach(el => {
+        const t = el.tags.amenity;
+        if (!todos[t]) todos[t] = [];
+        todos[t].push(el);
+        if (!found[t]) found[t] = el; // guarda o 1º (mais perto)
+      });
+
+      // Adiciona markers no mapa para todos os pontos
+      data.elements.forEach(el => {
+        if (!el.lat) return;
+        const m = L.marker([el.lat, el.lon], { icon: criarIcone(el.tags.amenity) }).addTo(mapObj);
+        const d = haversine(userLat, userLng, el.lat, el.lon);
+        const nome = el.tags.name || MARKER_CORES[el.tags.amenity]?.emoji || el.tags.amenity;
+        m.bindPopup(`
+          <div style="font-family:'Courier New',monospace;min-width:160px">
+            <div style="font-weight:bold;color:#000;font-size:.82rem">${nome}</div>
+            <div style="color:#555;font-size:.7rem;margin:.2rem 0">${d<1?(d*1000).toFixed(0)+'m':d.toFixed(1)+'km'} de distância</div>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${el.lat},${el.lon}"
+              target="_blank"
+              style="display:block;background:#00d4ff;color:#000;text-align:center;padding:.3rem;
+              border-radius:5px;font-size:.72rem;font-weight:bold;text-decoration:none;margin-top:.4rem">
+              🗺 Como Chegar
+            </a>
+          </div>
+        `);
+        todosMarkers.push(m);
+      });
+
+      // Atualiza grid inferior
+      const icons = { hospital:'🏥', fire_station:'🚒', pharmacy:'💊', police:'🚔' };
+      grid.innerHTML = '';
+      Object.entries(icons).forEach(([tipo, ico]) => {
+        const el = found[tipo];
+        const item = document.createElement('div');
+        item.className = 'near-item';
+        if (el) {
+          const d = haversine(userLat, userLng, el.lat, el.lon);
+          const nome = el.tags.name || tipo;
+          item.innerHTML = `${ico} <span style="flex:1"><b style="font-size:.65rem">${nome.slice(0,16)}</b><br>
+            <small style="color:var(--c)">${d<1?(d*1000).toFixed(0)+'m':d.toFixed(1)+'km'}</small></span>
+            <span style="font-size:.6rem;color:var(--cg);cursor:pointer" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${el.lat},${el.lon}','_blank')">▶ IR</span>`;
+          item.onclick = () => { mapObj.setView([el.lat, el.lon], 17); const mk = todosMarkers.find(m => { const ll=m.getLatLng(); return ll.lat===el.lat&&ll.lng===el.lon; }); if(mk) mk.openPopup(); };
+        } else {
+          item.innerHTML = `${ico} <span style="color:var(--sub)">Não encontrado</span>`;
+        }
+        grid.appendChild(item);
+      });
+    })
+    .catch(() => {
+      grid.innerHTML = '<div class="near-item" style="grid-column:1/-1;color:var(--sub);font-size:.62rem">⚠️ Sem ligação. Usa os contactos SOS.</div>';
+    });
+}
+
+function haversine(a, b, c, d) {
+  const R=6371, x=(c-a)*Math.PI/180, y=(d-b)*Math.PI/180;
+  const h=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;
+  return R*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
+}
+
+// ── TABS ──────────────────────────────────
+window.tab = function(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.getElementById('p-map').classList.remove('on');
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('on'));
+  const tabs = ['ai','map','med','sos','kit'];
+  const idx = tabs.indexOf(id);
+  if (idx >= 0) document.querySelectorAll('nav button')[idx].classList.add('on');
+  if (id === 'map') {
+    document.getElementById('p-map').classList.add('on');
+    setTimeout(() => { iniciarMapa(); if (mapObj) mapObj.invalidateSize(); }, 80);
+  } else {
+    const p = document.getElementById('p-' + id);
+    if (p) p.classList.add('on');
+  }
+};
+
+// ── VOZ ───────────────────────────────────
+window.toggleVoz = function() {
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    addMsg('⚠️ Reconhecimento de voz não disponível neste browser.', 'a'); return;
+  }
+  if (aEscutar) { voiceRec.stop(); return; }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  voiceRec = new SR(); voiceRec.lang = 'pt-PT';
+  voiceRec.onresult = e => { document.getElementById('ci').value = e.results[0][0].transcript; enviar(); };
+  voiceRec.onend = () => { aEscutar = false; document.getElementById('vbtn').classList.remove('on'); };
+  voiceRec.start(); aEscutar = true; document.getElementById('vbtn').classList.add('on');
+};
+
+// ── SOS ───────────────────────────────────
+window.abrirSOS = function() {
+  document.getElementById('sos-ov').classList.add('show');
+  if (navigator.vibrate) navigator.vibrate([200,100,200,100,200]);
+};
+window.fecharSOS = function() { document.getElementById('sos-ov').classList.remove('show'); };
+window.partilharLocalizacao = function() {
+  if (!userLat) { alert('Localização não disponível.'); return; }
+  const url = `https://maps.google.com/?q=${userLat},${userLng}`;
+  const txt = `🆘 EMERGÊNCIA · LUMIN AI\nLocalização: ${userLat.toFixed(6)}, ${userLng.toFixed(6)}\n${url}`;
+  if (navigator.share) navigator.share({ title:'LUMIN AI · SOS', text:txt, url });
+  else navigator.clipboard.writeText(txt).then(() => alert('Localização copiada!'));
+};
+
+// ══════════════════════════════════════════
+// DADOS OFFLINE
+// ══════════════════════════════════════════
+const PROTOS = [
+  { id:'rcp', icon:'💓', titulo:'RCP — Reanimação Cardiopulmonar', sub:'Paragem cardíaca', passos:[
+    {t:'SEGURANÇA + AJUDA', d:'Confirma segurança. Toca nos ombros. Não responde: liga 112 em viva-voz.'},
+    {t:'30 COMPRESSÕES', d:'Mãos cruzadas no centro do peito. Comprime 5-6cm a 100-120x/min.'},
+    {t:'2 INSUFLAÇÕES', d:'Inclina cabeça, levanta queixo, aperta nariz. 2 sopros de 1 segundo.'},
+    {t:'REPETIR 30:2', d:'Ciclo contínuo até o socorro chegar ou a vítima recuperar.'},
+  ], aviso:'Crianças: 2 dedos. Bebés: 2 polegares. Nunca interrompas >10 segundos.' },
+  { id:'hemor', icon:'🩸', titulo:'Hemorragia', sub:'Controlo de sangramento', passos:[
+    {t:'PRESSÃO DIRETA', d:'Compressa ou pano limpo sobre a ferida. Prime forte 10+ minutos contínuos.'},
+    {t:'NÃO LEVANTAR', d:'Se ensopa, adiciona material por cima. Pressão constante.'},
+    {t:'ELEVAR MEMBRO', d:'Eleva acima do coração para reduzir o fluxo.'},
+    {t:'TORNIQUETE', d:'Sangramento arterial grave: 5-7cm acima. Anota a hora. Não soltes.'},
+  ], aviso:'Hemorragia interna (abdómen rígido): deita, pernas elevadas, 112 urgente.' },
+  { id:'avc', icon:'🧠', titulo:'AVC', sub:'Acidente Vascular Cerebral', passos:[
+    {t:'TESTE F.A.C.E.', d:'Face torta? Braço cai? Fala arrastada? → Liga 112 IMEDIATAMENTE.'},
+    {t:'ANOTA A HORA', d:'A hora exata dos sintomas é crucial para o tratamento.'},
+    {t:'NÃO DÊS NADA', d:'Não dás comida, água ou medicamentos.'},
+    {t:'POSIÇÃO', d:'Consciente: inclinado 30°. Inconsciente mas respira: posição lateral.'},
+  ], aviso:'Cada minuto conta. 1,9 milhões de neurónios morrem por minuto.' },
+  { id:'enfarte', icon:'❤️', titulo:'Enfarte do Miocárdio', sub:'Ataque cardíaco', passos:[
+    {t:'RECONHECER', d:'Dor em aperto no peito, irradia para braço esquerdo/mandíbula. Suores frios.'},
+    {t:'LIGA 112 JÁ', d:'Não esperas. Liga mesmo que a dor pareça menor.'},
+    {t:'SENTAR', d:'Semi-sentado, costas apoiadas. Desaperta colar e cinto.'},
+    {t:'ASPIRINA', d:'300mg mastigada se adulto sem alergia conhecida.'},
+  ], aviso:'Não conduzas a vítima — espera a ambulância.' },
+  { id:'engasgo', icon:'😮', titulo:'Engasgamento', sub:'Obstrução da via aérea', passos:[
+    {t:'RECONHECER', d:'Mãos ao pescoço, não fala/respira/tosse. Rosto azulado.'},
+    {t:'5 PANCADAS', d:'Inclina para a frente. 5 pancadas firmes entre as omoplatas.'},
+    {t:'HEIMLICH 5×', d:'Punho entre umbigo e esterno. Puxa para dentro e para cima 5 vezes.'},
+    {t:'REPETIR', d:'Alterna 5 pancadas + 5 compressões até desobstruir.'},
+  ], aviso:'Bebés <1 ano: NÃO faças Heimlich. 5 pancadas nas costas + 5 compressões no esterno.' },
+  { id:'queimadura', icon:'🔥', titulo:'Queimadura', sub:'Por calor, química ou elétrica', passos:[
+    {t:'ÁGUA FRIA', d:'20 minutos sob água fria corrente. NÃO uses gelo, manteiga nem pasta de dentes.'},
+    {t:'REMOVE ROUPA', d:'Retira roupas e acessórios — exceto se colados à pele.'},
+    {t:'COBRE', d:'Película aderente ou saco plástico limpo. Nunca algodão.'},
+    {t:'NÃO REBENTES BOLHAS', d:'Protegem contra infeção. Deixa intactas.'},
+  ], aviso:'Rosto/mãos/genitais ou >10% do corpo: 112 imediato.' },
+  { id:'fratura', icon:'🦴', titulo:'Fratura', sub:'Suspeita de osso partido', passos:[
+    {t:'IMOBILIZA', d:'Não mexes no membro. Imobiliza na posição em que está.'},
+    {t:'TALA', d:'Usa tala improvisada (pau, revista). Imobiliza articulação acima e abaixo.'},
+    {t:'GELO', d:'Frio embrulhado em pano, 20 minutos. Nunca direto na pele.'},
+    {t:'FERIDA ABERTA', d:'Osso visível: cobre com pano limpo húmido. Não toques no osso.'},
+  ], aviso:'Fratura na coluna: NÃO mexes a vítima. Liga 112. Mantém imóvel.' },
+  { id:'hipotermia', icon:'🥶', titulo:'Hipotermia', sub:'Temperatura corporal baixa', passos:[
+    {t:'LOCAL QUENTE', d:'Move a vítima para abrigo seco, com cuidado.'},
+    {t:'ROUPA SECA', d:'Remove roupa húmida. Substitui por cobertores secos.'},
+    {t:'AQUECE O CENTRO', d:'Calor nas axilas, virilhas e pescoço. Não nos pés primeiro.'},
+    {t:'ISOLA DO CHÃO', d:'Nunca no chão frio sem isolamento.'},
+  ], aviso:'Hipotermia grave (inconsciente): trata como paragem cardíaca potencial. 112.' },
+  { id:'choque', icon:'⚡', titulo:'Estado de Choque', sub:'Falência circulatória', passos:[
+    {t:'RECONHECE', d:'Pele pálida/fria/suada, pulso fraco e rápido, confusão, sede.'},
+    {t:'DEITA', d:'Horizontal. Não dás nada a comer ou beber.'},
+    {t:'PERNAS ELEVADAS', d:'Eleva 30cm (exceto fratura ou coluna).'},
+    {t:'MANTÉM QUENTE', d:'Cobre com cobertor. Liga 112 imediatamente.'},
+  ], aviso:'Choque anafilático: EpiPen se disponível. 112 urgente.' },
+  { id:'veneno', icon:'☠️', titulo:'Envenenamento', sub:'Ingestão ou exposição', passos:[
+    {t:'NÃO VOMITAR', d:'Não provocas vómito sem instrução médica.'},
+    {t:'LIGA ANTIVENENOS', d:'Portugal: 217 946 534 (24h). Informa produto, quantidade, hora.'},
+    {t:'GUARDA EMBALAGEM', d:'Guarda o frasco para identificação.'},
+    {t:'CONTACTO PELE', d:'Lava com muita água 15-20 min. Remove roupa contaminada.'},
+  ], aviso:'Nunca dás leite, sal ou antídotos caseiros sem indicação médica.' },
+];
+
+const CRISES = [
+  { icon:'🛡️', titulo:'Ataque / Segurança', passos:[
+    {t:'CORRER', d:'Afasta-te do perigo imediatamente. Abandona tudo.'},
+    {t:'ESCONDER', d:'Porta trancada, baixo, silêncio total.'},
+    {t:'EXPLOSÃO', d:'Deita no chão, cobre ouvidos, boca aberta.'},
+  ]},
+  { icon:'🌍', titulo:'Sismo', passos:[
+    {t:'DURANTE', d:'Debaixo de mesa resistente ou parede interior. Cobre a cabeça.'},
+    {t:'AFASTA DE VIDROS', d:'Janelas, espelhos e estantes são perigosos.'},
+    {t:'APÓS', d:'Sai com cuidado. Verifica gás. Afasta de edifícios.'},
+  ]},
+  { icon:'🔥', titulo:'Incêndio Florestal', passos:[
+    {t:'EVACUA', d:'Segue instruções das autoridades. Não esperes.'},
+    {t:'FUGA', d:'Perpendicular ao avanço do fogo. Nunca em direção ao vento.'},
+    {t:'FUMO', d:'Pano húmido no nariz/boca. Mantém-te baixo.'},
+  ]},
+  { icon:'🌊', titulo:'Inundação', passos:[
+    {t:'SOBE', d:'Andar superior imediatamente. Nunca para a cave.'},
+    {t:'NÃO ATRAVESSES', d:'30cm de água em movimento derruba um adulto.'},
+    {t:'ELETRICIDADE', d:'Desliga o quadro se não te molhares ao fazê-lo.'},
+  ]},
+];
+
+const KIT_ITENS = [
+  { cat:'💧 Água & Alimentação', itens:['Água: 3L/pessoa/dia (3 dias)','Alimentos não perecíveis (3 dias)','Abridor de latas','Talheres descartáveis'] },
+  { cat:'🩺 Primeiros Socorros', itens:['Kit primeiros socorros','Medicação habitual (7 dias)','Aspirina 300mg','Torniquete','Luvas de látex (2 pares)'] },
+  { cat:'📱 Comunicação', itens:['Rádio a pilhas/manivela','Powerbank carregado','Lista contactos impressa'] },
+  { cat:'💡 Luz & Calor', itens:['Lanterna LED + pilhas','Cobertor de emergência (mylar)','Isqueiro + fósforos'] },
+  { cat:'📄 Documentos', itens:['Cópia CC/Passaporte','Cartão de saúde','Dinheiro em notas'] },
+];
+
+function construirMedico() {
+  const panel = document.getElementById('p-med');
+  PROTOS.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `<div class="ch"><span class="ci2">${p.icon}</span><div><div class="ct">${p.titulo}</div><div class="cs">${p.sub}</div></div></div>
+      <div class="cb">${p.passos.map((s,i)=>`<div class="step"><strong>${i+1}. ${s.t}</strong>${s.d}</div>`).join('')}
+      ${p.aviso?`<div class="warn">⚠️ ${p.aviso}</div>`:''}
+      <button class="call-btn" onclick="event.stopPropagation();location.href='tel:112'">📞 Ligar 112</button></div>`;
+    card.onclick = () => card.classList.toggle('open');
+    panel.appendChild(card);
+  });
+}
+
+function construirCrises() {
+  const el = document.getElementById('crise-list');
+  CRISES.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'card'; card.style.marginTop = '.35rem';
+    card.innerHTML = `<div class="ch"><span class="ci2">${c.icon}</span><div class="ct">${c.titulo}</div></div>
+      <div class="cb">${c.passos.map((s,i)=>`<div class="step"><strong>${i+1}. ${s.t}</strong>${s.d}</div>`).join('')}</div>`;
+    card.onclick = () => card.classList.toggle('open');
+    el.appendChild(card);
+  });
+}
+
+function construirKit() {
+  const el = document.getElementById('kit-list');
+  const guardado = JSON.parse(localStorage.getItem('lumin_kit') || '{}');
+  KIT_ITENS.forEach((cat, ci) => {
+    const sec = document.createElement('div');
+    sec.innerHTML = `<div class="sec">${cat.cat}</div>`;
+    cat.itens.forEach((item, ii) => {
+      const key = `${ci}_${ii}`;
+      const chk = guardado[key] || false;
+      const div = document.createElement('div');
+      div.className = 'kit-item' + (chk ? ' done' : '');
+      div.id = 'k_' + key;
+      div.innerHTML = `<input type="checkbox" id="cb_${key}" ${chk?'checked':''}
+        onchange="toggleKit('${key}',this.checked)"><label for="cb_${key}">${item}</label>`;
+      sec.appendChild(div);
+    });
+    el.appendChild(sec);
+  });
+}
+
+window.toggleKit = function(key, val) {
+  const g = JSON.parse(localStorage.getItem('lumin_kit') || '{}');
+  g[key] = val; localStorage.setItem('lumin_kit', JSON.stringify(g));
+  document.getElementById('k_' + key).className = 'kit-item' + (val ? ' done' : '');
+};
+window.resetKit = function() {
+  localStorage.removeItem('lumin_kit');
+  document.getElementById('kit-list').innerHTML = '';
+  construirKit();
+};
+</script>
+</body>
+</html>
