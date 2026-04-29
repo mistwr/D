@@ -11,11 +11,10 @@ export function Sidebar({ userRole }: SidebarProps) {
 
   const parceiroLinks = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/vendas', label: 'Minhas Vendas', icon: ShoppingCart },
-    { href: '/vendas/novo', label: 'Nova Venda', icon: PlusCircle },
-    { href: '/contratos', label: 'Contratos', icon: FileCheck },
+    { href: '/vendas', label: 'As Minhas Vendas', icon: ShoppingCart },
+    { href: '/vendas/novo', label: 'Registar Nova Venda', icon: PlusCircle },
+    { href: '/contratos', label: 'Os Meus Contratos', icon: FileCheck },
     { href: '/simulador', label: 'Simulador', icon: Calculator },
-    { href: '/documentos', label: 'Documentos', icon: FolderOpen },
     { href: '/publicacoes', label: 'Publicacoes', icon: FileText },
   ]
 

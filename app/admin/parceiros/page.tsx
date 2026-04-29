@@ -445,10 +445,11 @@ export default function ParceirosPage() {
                                 <div>
                                   <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Servico</label>
                                   <select value={comServico} onChange={e => {
-                                    const s = e.target.value as any
+                                    const s = e.target.value as typeof SERVICOS[number]
                                     setComServico(s)
-                                    setComOperadora(OPERADORAS[s][0])
-                                    if (s === 'telecom') setComPlano('1P')
+                                    setComOperadora(OPERADORAS[s]?.[0] ?? '')
+                                    setComPlano(s === 'telecom' ? '1P' : '')
+                                    setComValor('')
                                   }}
                                     className="w-full rounded-lg px-3 py-2 text-sm outline-none" style={inputStyle}>
                                     {SERVICOS.map(s => <option key={s} value={s}>{SERVICO_LABEL[s]}</option>)}

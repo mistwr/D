@@ -27,17 +27,28 @@ export async function GET(req: NextRequest) {
 
   const sp = req.nextUrl.searchParams
   const vendaId = sp.get('venda_id')
-  if (!vendaId) return NextResponse.json({ documentos: [] })
+  const tipo = sp.get('tipo') // 'contrato' = documentos sem venda_id do próprio parceiro
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
 
-  const { data: venda } = await supabase.from('vendas').select('user_id').eq('id', vendaId).single()
-  if (!venda) return NextResponse.json({ error: 'Venda não encontrada' }, { status: 404 })
-  if (!isAdmin && venda.user_id !== user.id) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
-
   const svc = service()
-  const { data: docs } = await svc.from('documentos').select('*').eq('venda_id', vendaId).order('created_at', { ascending: false })
+  let query = svc.from('documentos').select('*').order('created_at', { ascending: false })
+
+  if (tipo === 'contrato') {
+    // Contratos do parceiro actual (sem venda associada)
+    query = query.eq('uploaded_by', user.id).is('venda_id', null)
+  } else if (vendaId) {
+    // Documentos de uma venda específica
+    const { data: venda } = await supabase.from('vendas').select('user_id').eq('id', vendaId).single()
+    if (!venda) return NextResponse.json({ error: 'Venda não encontrada' }, { status: 404 })
+    if (!isAdmin && venda.user_id !== user.id) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
+    query = query.eq('venda_id', vendaId)
+  } else {
+    return NextResponse.json({ documentos: [] })
+  }
+
+  const { data: docs } = await query
 
   // Gerar URLs assinadas
   const withUrls = await Promise.all((docs ?? []).map(async (doc: any) => {
@@ -55,21 +66,25 @@ export async function POST(req: Request) {
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
   const formData = await req.formData()
-  const vendaId = formData.get('venda_id') as string
+  const vendaId = (formData.get('venda_id') as string) || null
+  const tipo = formData.get('tipo') as string | null
   const file = formData.get('file') as File | null
 
-  if (!vendaId || !file) return NextResponse.json({ error: 'Campos obrigatórios: venda_id, file' }, { status: 400 })
-
-  const { data: venda } = await supabase.from('vendas').select('user_id').eq('id', vendaId).single()
-  if (!venda) return NextResponse.json({ error: 'Venda não encontrada' }, { status: 404 })
+  if (!file) return NextResponse.json({ error: 'Ficheiro obrigatório' }, { status: 400 })
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
-  if (!isAdmin && venda.user_id !== user.id) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
+
+  // Se tem venda_id, verificar permissão
+  if (vendaId) {
+    const { data: venda } = await supabase.from('vendas').select('user_id').eq('id', vendaId).single()
+    if (!venda) return NextResponse.json({ error: 'Venda não encontrada' }, { status: 404 })
+    if (!isAdmin && venda.user_id !== user.id) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
+  }
 
   const svc = service()
-  const ext = file.name.split('.').pop() ?? 'pdf'
-  const filePath = `${vendaId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
+  const folder = vendaId ?? `contratos/${user.id}`
+  const filePath = `${folder}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
 
   const arrayBuffer = await file.arrayBuffer()
   const { error: uploadError } = await svc.storage.from('documentos').upload(filePath, arrayBuffer, {
@@ -79,7 +94,7 @@ export async function POST(req: Request) {
   if (uploadError) return NextResponse.json({ error: 'Erro ao fazer upload: ' + uploadError.message }, { status: 500 })
 
   const { data: doc, error: dbErr } = await svc.from('documentos').insert({
-    venda_id: vendaId,
+    venda_id: vendaId ?? null,
     file_name: file.name,
     file_type: getFileType(file.name),
     file_path: filePath,

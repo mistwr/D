@@ -55,10 +55,25 @@ export async function GET(req: NextRequest) {
   }
 
   // Todas as vendas
-  let query = supabase.from('vendas').select('*, profiles!user_id(full_name)').order('created_at', { ascending: false })
+  let query = supabase.from('vendas').select('*').order('created_at', { ascending: false })
   if (!isAdmin) query = query.eq('user_id', user.id)
-  const { data: vendas } = await query
-  const enriched = (vendas ?? []).map((v: any) => ({ ...v, parceiro_name: v.profiles?.full_name ?? 'Desconhecido', profiles: undefined }))
+  const { data: vendas, error: vendasError } = await query
+  if (vendasError) return NextResponse.json({ error: vendasError.message }, { status: 500 })
+
+  // Enriquecer com nome do parceiro (batch lookup)
+  let profileMap: Record<string, string> = {}
+  if (isAdmin && vendas && vendas.length > 0) {
+    const userIds = [...new Set(vendas.map((v: any) => v.user_id))]
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, full_name')
+      .in('id', userIds)
+    profiles?.forEach((p: any) => { profileMap[p.id] = p.full_name })
+  }
+  const enriched = (vendas ?? []).map((v: any) => ({
+    ...v,
+    parceiro_name: profileMap[v.user_id] ?? 'Desconhecido',
+  }))
   return NextResponse.json({ vendas: enriched })
 }
 
