@@ -18,12 +18,13 @@ export async function POST(req: Request) {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   const body = await req.json()
 
-  // Admin a alterar password de outro utilizador
-  if (body.target_user_id && body.target_user_id !== user.id) {
+  // Admin a alterar password de outro utilizador (aceita target_user_id ou parceiro_id)
+  const targetId = body.target_user_id || body.parceiro_id
+  if (targetId && targetId !== user.id) {
     if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin pode alterar passwords de terceiros' }, { status: 403 })
     if (!body.new_password || body.new_password.length < 6) return NextResponse.json({ error: 'Password deve ter pelo menos 6 caracteres' }, { status: 400 })
     const svc = service()
-    const { error } = await svc.auth.admin.updateUserById(body.target_user_id, { password: body.new_password })
+    const { error } = await svc.auth.admin.updateUserById(targetId, { password: body.new_password })
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ success: true })
   }
