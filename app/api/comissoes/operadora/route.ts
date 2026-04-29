@@ -1,5 +1,14 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
+
+function service() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
 
 export async function GET(request: Request) {
   const supabase = await createClient()
@@ -38,11 +47,12 @@ export async function POST(request: Request) {
   const body = await request.json()
   const { parceiro_id, servico, operadora, plano, valor_comissao } = body
 
-  if (!parceiro_id || !servico || !operadora) {
-    return NextResponse.json({ error: 'Campos obrigatorios em falta' }, { status: 400 })
+  if (!parceiro_id || !servico || !operadora || valor_comissao === undefined || valor_comissao === '') {
+    return NextResponse.json({ error: 'Preencha todos os campos: parceiro, servico, operadora e valor' }, { status: 400 })
   }
 
-  const { data, error } = await supabase
+  const svc = service()
+  const { data, error } = await svc
     .from('comissoes_operadora')
     .upsert({
       parceiro_id,
@@ -53,10 +63,9 @@ export async function POST(request: Request) {
       updated_at: new Date().toISOString(),
     }, { onConflict: 'parceiro_id,servico,operadora,plano' })
     .select()
-    .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ comissao: data })
+  return NextResponse.json({ comissao: data?.[0] ?? null })
 }
 
 export async function DELETE(request: Request) {
@@ -70,7 +79,8 @@ export async function DELETE(request: Request) {
   const body = await request.json()
   const { parceiro_id, servico, operadora, plano } = body
 
-  const { error } = await supabase
+  const svc = service()
+  const { error } = await svc
     .from('comissoes_operadora')
     .delete()
     .eq('parceiro_id', parceiro_id)
