@@ -96,7 +96,7 @@ export default function SobrePage() {
           <div className="p-8 rounded-lg" style={{ background: '#fef3c7', borderColor: '#fcd34d', borderWidth: '2px' }}>
             <h4 className="text-2xl font-bold mb-4" style={{ color: '#92400e' }}>⚡ Energia</h4>
             <div className="space-y-2">
-              {['EDP', 'Endesa', 'Galp', 'Iberdrola', 'Gold Energy', 'Luzboa'].map(op => (
+              {['EDP', 'Endesa', 'Galp', 'Iberdrola', 'Gold Energy', 'Luzboa', 'Yes Energy'].map(op => (
                 <div key={op} className="flex items-center gap-2" style={{ color: '#78350f' }}>
                   <span>✓</span> {op}
                 </div>

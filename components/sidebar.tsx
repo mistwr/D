@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Send, Users, FileText, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck } from 'lucide-react'
+import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Send, Users, FileText, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound } from 'lucide-react'
 
 interface SidebarProps { userRole: string }
 
@@ -11,23 +11,25 @@ export function Sidebar({ userRole }: SidebarProps) {
 
   const parceiroLinks = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/vendas', label: 'Minhas Vendas', icon: ShoppingCart },
-    { href: '/vendas/novo', label: 'Nova Venda', icon: PlusCircle },
-    { href: '/contratos', label: 'Contratos', icon: FileCheck },
+    { href: '/vendas', label: 'As Minhas Vendas', icon: ShoppingCart },
+    { href: '/vendas/novo', label: 'Registar Nova Venda', icon: PlusCircle },
+    { href: '/contratos', label: 'Os Meus Contratos', icon: FileCheck },
+    { href: '/comissoes', label: 'As Minhas Comissoes', icon: Percent },
     { href: '/simulador', label: 'Simulador', icon: Calculator },
-    { href: '/documentos', label: 'Documentos', icon: FolderOpen },
     { href: '/publicacoes', label: 'Publicacoes', icon: FileText },
   ]
 
   const adminLinks = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/parceiros', label: 'Parceiros', icon: Users },
+    { href: '/admin/vendas', label: 'Vendas', icon: ShoppingCart },
     { href: '/admin/campanhas', label: 'Campanhas', icon: Megaphone },
     { href: '/admin/publicar', label: 'Publicar', icon: Send },
     { href: '/admin/comissoes', label: 'Comissoes', icon: Percent },
     { href: '/admin/contratos', label: 'Contratos', icon: FileCheck },
     { href: '/admin/documentos', label: 'Documentos', icon: Upload },
     { href: '/admin/import', label: 'Import Excel', icon: FileSpreadsheet },
+    { href: '/admin/passwords', label: 'Passwords', icon: KeyRound },
   ]
 
   const links = userRole === 'admin' ? adminLinks : parceiroLinks

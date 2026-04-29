@@ -10,7 +10,7 @@ interface CampanhaPDF { id: string; file_name: string; uploaded_at: string }
 interface Campanha { id: string; title: string; operator: string; service_type: string; description: string; status: string; created_at: string; pdf_count: number }
 
 const TELECOM_OPS = ['MEO', 'NOS', 'Vodafone', 'NOWO']
-const ENERGIA_OPS = ['EDP', 'Endesa', 'Galp', 'Iberdrola', 'Gold Energy', 'Luzboa']
+const ENERGIA_OPS = ['EDP', 'Endesa', 'Galp', 'Iberdrola', 'Gold Energy', 'Luzboa', 'Yes Energy']
 
 export default function CampanhasPage() {
   const router = useRouter()
