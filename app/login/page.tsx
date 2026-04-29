@@ -48,24 +48,18 @@ export default function LoginPage() {
           <p className="mt-1 text-sm" style={{ color: '#6b7280' }}>Plataforma CRM</p>
         </div>
 
-        <div className="mb-6 rounded-lg p-3" style={{ background: '#eef2ff', border: '1px solid #c7d2fe' }}>
-          <p className="text-center text-xs font-medium" style={{ color: '#4338ca' }}>
-            Admin: <span className="font-bold">admin</span> / <span className="font-bold">admin</span>
-          </p>
-        </div>
-
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {error && <div className="rounded-lg p-3 text-sm" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>{error}</div>}
           <div>
             <label className="mb-1.5 block text-sm font-medium" style={{ color: '#374151' }}>Email</label>
-            <input type="text" value={email} onChange={e => setEmail(e.target.value)} required
-              className="w-full rounded-lg px-4 py-2.5 text-sm outline-none transition" placeholder="admin"
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
+              className="w-full rounded-lg px-4 py-2.5 text-sm outline-none transition" placeholder="o-seu@email.com"
               style={{ background: '#fff', border: '1px solid #d1d5db', color: '#111827' }} />
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium" style={{ color: '#374151' }}>Password</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
-              className="w-full rounded-lg px-4 py-2.5 text-sm outline-none transition" placeholder="admin"
+              className="w-full rounded-lg px-4 py-2.5 text-sm outline-none transition" placeholder="••••••••"
               style={{ background: '#fff', border: '1px solid #d1d5db', color: '#111827' }} />
           </div>
           <button type="submit" disabled={loading}
@@ -75,10 +69,10 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm" style={{ color: '#6b7280' }}>
-          {'Parceiro? '}<Link href="/register" className="font-medium" style={{ color: '#4338ca' }}>Criar conta</Link>
+        <p className="mt-6 text-center text-xs" style={{ color: '#9ca3af' }}>
+          Acesso restrito. Contacte o administrador para obter credenciais.
         </p>
-        <p className="mt-4 text-center text-xs">
+        <p className="mt-3 text-center text-xs">
           <Link href="/sobre" className="underline" style={{ color: '#6b7280' }}>Saber mais sobre o CRM</Link>
         </p>
       </div>

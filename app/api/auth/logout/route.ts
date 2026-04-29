@@ -1,14 +1,8 @@
 import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 
 export async function POST() {
-  console.log('[v0] Logout: Removendo sessão')
-  const res = NextResponse.json({ ok: true })
-  res.cookies.set('sd_session', '', {
-    httpOnly: true,
-    path: '/',
-    sameSite: 'lax',
-    maxAge: 0,
-  })
-  console.log('[v0] Logout: Cookie removido')
-  return res
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  return NextResponse.json({ ok: true })
 }

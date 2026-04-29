@@ -1,64 +1,69 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import { getUserById, getComissao, setComissao, calcComissaoParceiro, getAllComissoes } from '@/lib/store'
-import * as supabaseStore from '@/lib/supabase-store'
+import { createClient } from '@/lib/supabase/server'
 
-async function getUser() {
-  const jar = await cookies()
-  const t = jar.get('sd_session')?.value
-  if (!t) return null
-  try { const { id } = JSON.parse(Buffer.from(t, 'base64').toString()); return getUserById(id) ?? null } catch { return null }
-}
-
-// GET - parceiro ve as suas comissoes, admin ve todas ou de um parceiro
 export async function GET(req: NextRequest) {
-  const user = await getUser()
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const isAdmin = profile?.role === 'admin'
   const parceiroId = req.nextUrl.searchParams.get('parceiro_id')
+  const targetId = isAdmin && parceiroId ? parceiroId : user.id
 
-  // Parceiro ve as suas proprias comissoes + simulacao
-  if (user.role === 'parceiro') {
-    const com = getComissao(user.id)
-    const calc = calcComissaoParceiro(user.id)
-    return NextResponse.json({ comissao: com || null, calculo: calc })
+  const { data: com } = await supabase.from('comissoes').select('*').eq('parceiro_id', targetId).single()
+
+  // Calcular comissões estimadas com base nas vendas
+  const { data: vendas } = await supabase
+    .from('vendas')
+    .select('amount, service_type, operator, client_name, status')
+    .eq('user_id', targetId)
+    .in('status', ['pago', 'processado', 'ativa'])
+
+  let energia = 0
+  let telecom = 0
+  const detalhes: any[] = []
+
+  if (com && vendas) {
+    for (const v of vendas) {
+      let comissao = 0
+      if (v.service_type === 'energia') {
+        comissao = (v.amount * (com.energia_percent / 100)) + com.energia_fixo
+        energia += comissao
+      } else {
+        comissao = (v.amount * (com.telecom_percent / 100)) + com.telecom_fixo
+        telecom += comissao
+      }
+      detalhes.push({ ...v, comissao: parseFloat(comissao.toFixed(2)) })
+    }
   }
 
-  // Admin ve comissao de um parceiro especifico
-  if (parceiroId) {
-    const com = getComissao(parceiroId)
-    const calc = calcComissaoParceiro(parceiroId)
-    return NextResponse.json({ comissao: com || null, calculo: calc })
-  }
-
-  // Admin ve todas
-  return NextResponse.json({ comissoes: getAllComissoes() })
+  return NextResponse.json({
+    comissao: com ?? null,
+    calculo: { energia: parseFloat(energia.toFixed(2)), telecom: parseFloat(telecom.toFixed(2)), total: parseFloat((energia + telecom).toFixed(2)), detalhes }
+  })
 }
 
-// POST - admin define comissao de um parceiro OU importa comissoes por operadora
 export async function POST(req: Request) {
-  const user = await getUser()
-  if (!user || user.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
+
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const body = await req.json()
-
-  // Import de comissões por operadora (Excel/CSV)
-  if (body.action === 'import') {
-    const imported = await supabaseStore.importComissoesExcel(user.id, body.linhas)
-    const comissoes = await supabaseStore.getComissoesPorOperadora(user.id)
-    return NextResponse.json({ imported, comissoes })
-  }
-
-  // Definir comissão por parceiro (método antigo)
   if (!body.parceiro_id) return NextResponse.json({ error: 'parceiro_id obrigatorio' }, { status: 400 })
 
-  const comissao = setComissao(body.parceiro_id, {
+  const { data: comissao, error } = await supabase.from('comissoes').upsert({
+    parceiro_id: body.parceiro_id,
     energia_percent: parseFloat(body.energia_percent) || 0,
     telecom_percent: parseFloat(body.telecom_percent) || 0,
     energia_fixo: parseFloat(body.energia_fixo) || 0,
     telecom_fixo: parseFloat(body.telecom_fixo) || 0,
-  })
+    updated_at: new Date().toISOString(),
+  }, { onConflict: 'parceiro_id' }).select().single()
 
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ comissao })
 }
-

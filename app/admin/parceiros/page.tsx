@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { Users, ShoppingCart, Mail, Building2, Percent, Save, Zap, Flame } from 'lucide-react'
+import { Users, ShoppingCart, Mail, Building2, Percent, Save, Zap, Flame, Plus, X, Eye, EyeOff } from 'lucide-react'
 
 interface Parceiro { id: string; full_name: string; email: string; company_name: string }
 interface Venda { id: string; user_id: string; client_name: string; amount: number; status: string; service_type: string; operator: string }
 interface Comissao { energia_percent: number; telecom_percent: number; energia_fixo: number; telecom_fixo: number }
 interface Calculo { energia: number; telecom: number; total: number; detalhes: any[] }
+interface NovoForm { email: string; password: string; full_name: string; company_name: string; phone: string }
 
 export default function ParceirosPage() {
   const router = useRouter()
@@ -23,6 +24,12 @@ export default function ParceirosPage() {
   const [calculo, setCalculo] = useState<Calculo | null>(null)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [showNovo, setShowNovo] = useState(false)
+  const [novoForm, setNovoForm] = useState<NovoForm>({ email: '', password: '', full_name: '', company_name: '', phone: '' })
+  const [novoLoading, setNovoLoading] = useState(false)
+  const [novoError, setNovoError] = useState('')
+  const [novoSuccess, setNovoSuccess] = useState('')
+  const [showPass, setShowPass] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -55,6 +62,30 @@ export default function ParceirosPage() {
     setTab('vendas')
     setSaved(false)
     await loadComissao(pid)
+  }
+
+  async function criarParceiro() {
+    setNovoError('')
+    setNovoSuccess('')
+    if (!novoForm.email || !novoForm.password || !novoForm.full_name) {
+      setNovoError('Email, password e nome são obrigatórios')
+      return
+    }
+    setNovoLoading(true)
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(novoForm),
+    })
+    const data = await res.json()
+    setNovoLoading(false)
+    if (!res.ok) { setNovoError(data.error || 'Erro ao criar parceiro'); return }
+    setNovoSuccess(`Parceiro ${data.user.full_name} criado com sucesso!`)
+    setNovoForm({ email: '', password: '', full_name: '', company_name: '', phone: '' })
+    // Recarregar lista
+    const p = await fetch('/api/vendas?parceiros=1', { credentials: 'include' }).then(r => r.json())
+    setParceiros(p.parceiros || [])
+    setTimeout(() => { setShowNovo(false); setNovoSuccess('') }, 2000)
   }
 
   async function saveComissao() {
@@ -92,13 +123,83 @@ export default function ParceirosPage() {
         <Sidebar userRole="admin" />
         <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-8">
-            <div className="flex items-center gap-3 mb-8">
-              <Users size={28} style={{ color: '#4338ca' }} />
-              <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Parceiros</h1>
-                <p className="text-sm" style={{ color: '#6b7280' }}>{parceiros.length} parceiros registados - Definir comissoes por parceiro</p>
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <Users size={28} style={{ color: '#4338ca' }} />
+                <div>
+                  <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Parceiros</h1>
+                  <p className="text-sm" style={{ color: '#6b7280' }}>{parceiros.length} parceiros - Gerir e definir comissoes</p>
+                </div>
               </div>
+              <button onClick={() => { setShowNovo(true); setNovoError(''); setNovoSuccess('') }}
+                className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition"
+                style={{ background: '#4338ca' }}>
+                <Plus size={16} /> Novo Parceiro
+              </button>
             </div>
+
+            {/* Modal Novo Parceiro */}
+            {showNovo && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                <div className="w-full max-w-md rounded-2xl shadow-2xl" style={{ background: '#fff' }}>
+                  <div className="flex items-center justify-between p-6" style={{ borderBottom: '1px solid #e5e7eb' }}>
+                    <h2 className="text-lg font-bold" style={{ color: '#111827' }}>Criar Novo Parceiro</h2>
+                    <button onClick={() => setShowNovo(false)} className="rounded-lg p-1.5 transition hover:bg-gray-100">
+                      <X size={20} style={{ color: '#6b7280' }} />
+                    </button>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    {novoError && <div className="rounded-lg p-3 text-sm" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>{novoError}</div>}
+                    {novoSuccess && <div className="rounded-lg p-3 text-sm" style={{ background: '#f0fdf4', border: '1px solid #86efac', color: '#166534' }}>{novoSuccess}</div>}
+                    <div>
+                      <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Nome Completo *</label>
+                      <input type="text" value={novoForm.full_name} onChange={e => setNovoForm(f => ({ ...f, full_name: e.target.value }))}
+                        className="w-full rounded-lg px-3 py-2.5 text-sm outline-none" placeholder="João Silva"
+                        style={{ border: '1px solid #d1d5db', color: '#111827' }} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Email *</label>
+                      <input type="email" value={novoForm.email} onChange={e => setNovoForm(f => ({ ...f, email: e.target.value }))}
+                        className="w-full rounded-lg px-3 py-2.5 text-sm outline-none" placeholder="joao@empresa.com"
+                        style={{ border: '1px solid #d1d5db', color: '#111827' }} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Password *</label>
+                      <div className="relative">
+                        <input type={showPass ? 'text' : 'password'} value={novoForm.password} onChange={e => setNovoForm(f => ({ ...f, password: e.target.value }))}
+                          className="w-full rounded-lg px-3 py-2.5 text-sm outline-none pr-10" placeholder="Mínimo 6 caracteres"
+                          style={{ border: '1px solid #d1d5db', color: '#111827' }} />
+                        <button type="button" onClick={() => setShowPass(s => !s)} className="absolute right-3 top-2.5">
+                          {showPass ? <EyeOff size={16} style={{ color: '#9ca3af' }} /> : <Eye size={16} style={{ color: '#9ca3af' }} />}
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Empresa</label>
+                      <input type="text" value={novoForm.company_name} onChange={e => setNovoForm(f => ({ ...f, company_name: e.target.value }))}
+                        className="w-full rounded-lg px-3 py-2.5 text-sm outline-none" placeholder="Nome da empresa"
+                        style={{ border: '1px solid #d1d5db', color: '#111827' }} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Telefone</label>
+                      <input type="tel" value={novoForm.phone} onChange={e => setNovoForm(f => ({ ...f, phone: e.target.value }))}
+                        className="w-full rounded-lg px-3 py-2.5 text-sm outline-none" placeholder="+351 912 345 678"
+                        style={{ border: '1px solid #d1d5db', color: '#111827' }} />
+                    </div>
+                    <div className="flex gap-3 pt-2">
+                      <button onClick={() => setShowNovo(false)} className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition"
+                        style={{ border: '1px solid #d1d5db', color: '#374151' }}>
+                        Cancelar
+                      </button>
+                      <button onClick={criarParceiro} disabled={novoLoading} className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition disabled:opacity-50"
+                        style={{ background: '#4338ca' }}>
+                        {novoLoading ? 'A criar...' : 'Criar Parceiro'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {parceiros.length === 0 ? (
               <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>

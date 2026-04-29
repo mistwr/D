@@ -1,24 +1,27 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import { getUserById, getNotificacoesByUser, markNotificacaoRead } from '@/lib/store'
-
-async function getUser() {
-  const jar = await cookies()
-  const t = jar.get('sd_session')?.value
-  if (!t) return null
-  try { const { id } = JSON.parse(Buffer.from(t, 'base64').toString()); return getUserById(id) ?? null } catch { return null }
-}
+import { createClient } from '@/lib/supabase/server'
 
 export async function GET() {
-  const user = await getUser()
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
-  return NextResponse.json({ notificacoes: getNotificacoesByUser(user.id) })
+
+  const { data } = await supabase
+    .from('notificacoes')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(50)
+
+  return NextResponse.json({ notificacoes: data ?? [] })
 }
 
 export async function PATCH(req: Request) {
-  const user = await getUser()
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
+
   const { id } = await req.json()
-  markNotificacaoRead(id)
+  await supabase.from('notificacoes').update({ is_read: true }).eq('id', id).eq('user_id', user.id)
   return NextResponse.json({ ok: true })
 }

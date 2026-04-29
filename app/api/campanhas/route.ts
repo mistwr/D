@@ -1,49 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import { getUserById, getCampanhas, getCampanhaById, createCampanha, getCampanhaPDFs, addCampanhaPDF, getAllCampanhaPDFs } from '@/lib/store'
-
-async function getUser() {
-  const jar = await cookies()
-  const t = jar.get('sd_session')?.value
-  if (!t) return null
-  try { const { id } = JSON.parse(Buffer.from(t, 'base64').toString()); return getUserById(id) ?? null } catch { return null }
-}
+import { createClient } from '@/lib/supabase/server'
 
 export async function GET(req: NextRequest) {
-  const user = await getUser()
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
+
   const id = req.nextUrl.searchParams.get('id')
   if (id) {
-    const c = getCampanhaById(id)
-    if (!c) return NextResponse.json({ error: 'Nao encontrada' }, { status: 404 })
-    return NextResponse.json({ campanha: c, pdfs: getCampanhaPDFs(id) })
+    const { data: campanha } = await supabase.from('campanhas').select('*').eq('id', id).single()
+    if (!campanha) return NextResponse.json({ error: 'Nao encontrada' }, { status: 404 })
+    return NextResponse.json({ campanha })
   }
-  const campanhas = getCampanhas()
-  const allPdfs = getAllCampanhaPDFs()
-  const enriched = campanhas.map(c => ({ ...c, pdf_count: allPdfs.filter(p => p.campanha_id === c.id).length }))
-  return NextResponse.json({ campanhas: enriched })
+
+  const { data: campanhas } = await supabase.from('campanhas').select('*').order('created_at', { ascending: false })
+  return NextResponse.json({ campanhas: campanhas ?? [] })
 }
 
 export async function POST(req: Request) {
-  const user = await getUser()
-  if (!user || user.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
+
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
+
   const body = await req.json()
-
-  // Upload PDF para campanha existente
-  if (body.action === 'upload_pdf') {
-    const c = getCampanhaById(body.campanha_id)
-    if (!c) return NextResponse.json({ error: 'Campanha nao encontrada' }, { status: 404 })
-    const pdf = addCampanhaPDF(body.campanha_id, body.file_name)
-    return NextResponse.json({ pdf, pdfs: getCampanhaPDFs(body.campanha_id) })
-  }
-
-  // Criar campanha
-  const campanha = createCampanha({
+  const { data: campanha, error } = await supabase.from('campanhas').insert({
     title: body.title,
-    operator: body.operator,
-    service_type: body.service_type || 'telecom',
-    description: body.description || '',
-    status: body.status || 'ativa',
-  })
+    operator: body.operator ?? '',
+    service_type: body.service_type ?? 'telecom',
+    description: body.description ?? '',
+    status: body.status ?? 'ativa',
+  }).select().single()
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ campanha })
+}
+
+export async function PATCH(req: Request) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
+
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
+
+  const { id, ...updates } = await req.json()
+  await supabase.from('campanhas').update(updates).eq('id', id)
+  return NextResponse.json({ ok: true })
 }

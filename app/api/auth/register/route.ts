@@ -1,64 +1,75 @@
+// Endpoint exclusivo para o admin criar parceiros
 import { NextResponse } from 'next/server'
-import { createUser as createUserLocal, getUserByEmail as getUserByEmailLocal } from '@/lib/store'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 
 export async function POST(req: Request) {
+  // Verificar que é o admin a fazer o pedido
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.role !== 'admin') {
+    return NextResponse.json({ error: 'Apenas o admin pode criar parceiros' }, { status: 403 })
+  }
+
   const { email, password, full_name, company_name, phone } = await req.json()
-  console.log('[v0] /api/auth/register: email=', email, 'full_name=', full_name)
-  
+
   if (!email || !password || !full_name) {
-    console.log('[v0] /api/auth/register: Campos obrigatorios em falta')
-    return NextResponse.json({ error: 'Campos obrigatorios em falta' }, { status: 400 })
+    return NextResponse.json({ error: 'Email, password e nome são obrigatórios' }, { status: 400 })
   }
 
-  // Verificar se email já existe
-  const existing = getUserByEmailLocal(email)
-  console.log('[v0] /api/auth/register: Email existe?', !!existing)
-  
-  if (existing) {
-    return NextResponse.json({ error: 'Email ja registado' }, { status: 409 })
-  }
+  // Usar service role para criar o utilizador sem precisar de confirmação de email
+  const serviceClient = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
 
-  // Criar utilizador localmente
-  console.log('[v0] /api/auth/register: Criando user no local store...')
-  const user = createUserLocal({
+  const { data, error } = await serviceClient.auth.admin.createUser({
     email,
     password,
-    full_name,
-    role: 'parceiro',
-    company_name: company_name || '',
-    phone: phone || '',
-  })
-
-  console.log('[v0] /api/auth/register: User criado?', !!user, 'id:', user?.id)
-  
-  if (!user) {
-    console.log('[v0] /api/auth/register: Falha ao criar user')
-    return NextResponse.json({ error: 'Erro ao criar conta' }, { status: 500 })
-  }
-
-  // Criar token e cookie
-  const token = Buffer.from(JSON.stringify({ id: user.id, role: user.role })).toString('base64')
-  console.log('[v0] /api/auth/register: Token criado:', token.substring(0, 20) + '...')
-  
-  const res = NextResponse.json({
-    user: { 
-      id: user.id, 
-      email: user.email, 
-      full_name: user.full_name, 
-      role: user.role,
-      company_name: user.company_name
+    email_confirm: true,
+    user_metadata: {
+      full_name,
+      role: 'parceiro',
+      company_name: company_name ?? '',
+      phone: phone ?? '',
     }
   })
-  
-  res.cookies.set('sd_session', token, {
-    httpOnly: true,
-    path: '/',
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 7,
-    secure: process.env.NODE_ENV === 'production',
-  })
-  
-  console.log('[v0] /api/auth/register: Cookie setado com sucesso!')
-  return res
-}
 
+  if (error) {
+    if (error.message.includes('already registered')) {
+      return NextResponse.json({ error: 'Email já registado' }, { status: 409 })
+    }
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  // Garantir profile (trigger devia criar, mas por segurança)
+  await serviceClient.from('profiles').upsert({
+    id: data.user.id,
+    full_name,
+    role: 'parceiro',
+    company_name: company_name ?? '',
+    phone: phone ?? '',
+  }, { onConflict: 'id' })
+
+  return NextResponse.json({
+    user: {
+      id: data.user.id,
+      email: data.user.email,
+      full_name,
+      role: 'parceiro',
+      company_name: company_name ?? '',
+    }
+  })
+}
