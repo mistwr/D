@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Upload, X, Check, AlertCircle } from 'lucide-react'
 
-const OPERADORAS_ENERGIA = ['EDP', 'Endesa', 'Portologos', 'Repsol', 'Iberdrola']
+const OPERADORAS_ENERGIA = ['EDP', 'Endesa', 'Portologos', 'Repsol', 'Iberdrola', 'Yes Energy']
 const OPERADORAS_TELECOM = ['MEO', 'NOS', 'Vodafone', 'DIGI']
 
 interface ComissaoRow {

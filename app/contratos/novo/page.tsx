@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
-const OPERADORAS_ENERGIA = ['EDP', 'Endesa', 'Portologos', 'Repsol', 'Iberdrola']
+const OPERADORAS_ENERGIA = ['EDP', 'Endesa', 'Portologos', 'Repsol', 'Iberdrola', 'Yes Energy']
 const OPERADORAS_TELECOM = ['MEO', 'NOS', 'Vodafone', 'DIGI']
 
 export default function NovoContratoPage() {

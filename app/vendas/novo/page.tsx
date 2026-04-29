@@ -156,7 +156,7 @@ export default function NovaVendaPage() {
                     <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Operadora *</label>
                     <select value={form.operator} onChange={e => update('operator', e.target.value)}
                       className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={inputStyle}>
-                      {(form.service_type === 'telecom' ? ['MEO', 'NOS', 'Vodafone', 'NOWO'] : ['EDP', 'Endesa', 'Galp', 'Iberdrola', 'Gold Energy', 'Luzboa']).map(o => (
+                      {(form.service_type === 'telecom' ? ['MEO', 'NOS', 'Vodafone', 'NOWO'] : ['EDP', 'Endesa', 'Galp', 'Iberdrola', 'Gold Energy', 'Luzboa', 'Yes Energy']).map(o => (
                         <option key={o} value={o}>{o}</option>
                       ))}
                     </select>

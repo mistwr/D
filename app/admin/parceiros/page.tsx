@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { Users, ShoppingCart, Mail, Building2, Percent, Save, Zap, Flame, Plus, X, Eye, EyeOff } from 'lucide-react'
+import { Users, ShoppingCart, Mail, Building2, Percent, Save, Zap, Flame, Plus, X, Eye, EyeOff, Trash2, AlertTriangle } from 'lucide-react'
 
 interface Parceiro { id: string; full_name: string; email: string; company_name: string }
 interface Venda { id: string; user_id: string; client_name: string; amount: number; status: string; service_type: string; operator: string }
@@ -30,6 +30,9 @@ export default function ParceirosPage() {
   const [novoError, setNovoError] = useState('')
   const [novoSuccess, setNovoSuccess] = useState('')
   const [showPass, setShowPass] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState<Parceiro | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
 
   useEffect(() => {
     async function load() {
@@ -62,6 +65,22 @@ export default function ParceirosPage() {
     setTab('vendas')
     setSaved(false)
     await loadComissao(pid)
+  }
+
+  async function apagarParceiro(parceiro: Parceiro) {
+    setDeleting(true)
+    setDeleteError('')
+    const res = await fetch(`/api/parceiros/${parceiro.id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    })
+    const data = await res.json()
+    setDeleting(false)
+    if (!res.ok) { setDeleteError(data.error || 'Erro ao apagar parceiro'); return }
+    setConfirmDelete(null)
+    if (selected === parceiro.id) setSelected(null)
+    const p = await fetch('/api/vendas?parceiros=1', { credentials: 'include' }).then(r => r.json())
+    setParceiros(p.parceiros || [])
   }
 
   async function criarParceiro() {
@@ -137,6 +156,43 @@ export default function ParceirosPage() {
                 <Plus size={16} /> Novo Parceiro
               </button>
             </div>
+
+            {/* Modal Confirmar Apagar */}
+            {confirmDelete && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                <div className="w-full max-w-sm rounded-2xl shadow-2xl" style={{ background: '#fff' }}>
+                  <div className="p-6 text-center">
+                    <div className="mx-auto mb-4 flex items-center justify-center w-12 h-12 rounded-full" style={{ background: '#fef2f2' }}>
+                      <AlertTriangle size={24} style={{ color: '#dc2626' }} />
+                    </div>
+                    <h2 className="text-lg font-bold mb-2" style={{ color: '#111827' }}>Apagar Parceiro</h2>
+                    <p className="text-sm mb-1" style={{ color: '#374151' }}>
+                      Tem a certeza que quer apagar <strong>{confirmDelete.full_name}</strong>?
+                    </p>
+                    <p className="text-xs mb-5" style={{ color: '#6b7280' }}>
+                      Esta ação é irreversível e remove todas as vendas e dados associados.
+                    </p>
+                    {deleteError && (
+                      <div className="mb-4 rounded-lg p-3 text-sm" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>
+                        {deleteError}
+                      </div>
+                    )}
+                    <div className="flex gap-3">
+                      <button onClick={() => { setConfirmDelete(null); setDeleteError('') }}
+                        className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition"
+                        style={{ border: '1px solid #d1d5db', color: '#374151' }}>
+                        Cancelar
+                      </button>
+                      <button onClick={() => apagarParceiro(confirmDelete)} disabled={deleting}
+                        className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition disabled:opacity-50"
+                        style={{ background: '#dc2626' }}>
+                        {deleting ? 'A apagar...' : 'Apagar'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Modal Novo Parceiro */}
             {showNovo && (
@@ -219,24 +275,33 @@ export default function ParceirosPage() {
                       {parceiros.map(p => {
                         const isActive = selected === p.id
                         return (
-                          <button key={p.id} onClick={() => selectParceiro(p.id)} className="w-full text-left p-4 transition-colors"
+                          <div key={p.id} className="relative group"
                             style={{ borderBottom: '1px solid #f3f4f6', background: isActive ? '#eef2ff' : '#fff' }}>
-                            <p className="font-medium text-sm" style={{ color: '#111827' }}>{p.full_name}</p>
-                            <div className="flex items-center gap-1 mt-1">
-                              <Mail size={12} style={{ color: '#9ca3af' }} />
-                              <span className="text-xs" style={{ color: '#6b7280' }}>{p.email}</span>
-                            </div>
-                            {p.company_name && (
-                              <div className="flex items-center gap-1 mt-0.5">
-                                <Building2 size={12} style={{ color: '#9ca3af' }} />
-                                <span className="text-xs" style={{ color: '#6b7280' }}>{p.company_name}</span>
+                            <button onClick={() => selectParceiro(p.id)} className="w-full text-left p-4 pr-12 transition-colors">
+                              <p className="font-medium text-sm" style={{ color: '#111827' }}>{p.full_name}</p>
+                              <div className="flex items-center gap-1 mt-1">
+                                <Mail size={12} style={{ color: '#9ca3af' }} />
+                                <span className="text-xs" style={{ color: '#6b7280' }}>{p.email}</span>
                               </div>
-                            )}
-                            <div className="flex gap-3 mt-2">
-                              <span className="text-xs font-medium" style={{ color: '#4338ca' }}>{getParceiroVendas(p.id).length} vendas</span>
-                              <span className="text-xs font-medium" style={{ color: '#059669' }}>{'\u20AC'}{getTotal(p.id).toFixed(2)}</span>
-                            </div>
-                          </button>
+                              {p.company_name && (
+                                <div className="flex items-center gap-1 mt-0.5">
+                                  <Building2 size={12} style={{ color: '#9ca3af' }} />
+                                  <span className="text-xs" style={{ color: '#6b7280' }}>{p.company_name}</span>
+                                </div>
+                              )}
+                              <div className="flex gap-3 mt-2">
+                                <span className="text-xs font-medium" style={{ color: '#4338ca' }}>{getParceiroVendas(p.id).length} vendas</span>
+                                <span className="text-xs font-medium" style={{ color: '#059669' }}>{'\u20AC'}{getTotal(p.id).toFixed(2)}</span>
+                              </div>
+                            </button>
+                            <button
+                              onClick={e => { e.stopPropagation(); setDeleteError(''); setConfirmDelete(p) }}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                              style={{ background: '#fef2f2' }}
+                              title="Apagar parceiro">
+                              <Trash2 size={15} style={{ color: '#dc2626' }} />
+                            </button>
+                          </div>
                         )
                       })}
                     </div>

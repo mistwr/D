@@ -82,6 +82,7 @@ export async function POST(req: Request) {
     contract_type: body.contract_type || '',
     service_type: body.service_type || 'telecom',
     operator: body.operator || '',
+    plano: body.plano || '',
     status: 'pendente',
     notes: body.notes || '',
   }).select().single()
