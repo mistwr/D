@@ -26,7 +26,8 @@ export async function GET(req: NextRequest) {
   const { data: comissoesOp } = await supabase
     .from('comissoes_operadora')
     .select('*')
-    .order('servico_type').order('operadora').order('plano')
+    .eq('parceiro_id', parceiroId)
+    .order('servico').order('operadora').order('plano')
 
   // Calcular comissoes das vendas do parceiro
   const { data: vendas } = await supabase
@@ -42,7 +43,7 @@ export async function GET(req: NextRequest) {
     let com = 0
     const opRow = (comissoesOp ?? []).find(o =>
       o.operadora === v.operator &&
-      o.servico_type === v.service_type &&
+      o.servico === v.service_type &&
       (v.service_type !== 'telecom' || !o.plano || o.plano === '' || o.plano === v.plano)
     )
     if (opRow) {
@@ -81,32 +82,19 @@ export async function POST(req: NextRequest) {
 
   // Importar/guardar tabela de operadoras via upload Excel
   if (body.action === 'upsert_operadora') {
-    const { operadora, servico_type, plano, valor_comissao, percentagem } = body
+    const { parceiro_id, servico, operadora, plano, valor_comissao } = body
+    if (!parceiro_id || !servico || !operadora) return NextResponse.json({ error: 'Campos obrigatorios em falta' }, { status: 400 })
     const { error } = await svc.from('comissoes_operadora').upsert({
-      operadora, servico_type, plano: plano ?? '',
+      parceiro_id,
+      servico,
+      operadora,
+      plano: plano ?? '',
       valor_comissao: parseFloat(valor_comissao) || 0,
-      percentagem: parseFloat(percentagem) || 0,
-      created_by: user.id,
       updated_at: new Date().toISOString(),
-    }, { onConflict: 'operadora,servico_type,plano' })
+    }, { onConflict: 'parceiro_id,servico,operadora,plano' })
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    const { data: comissoesOp } = await svc.from('comissoes_operadora').select('*').order('servico_type').order('operadora').order('plano')
+    const { data: comissoesOp } = await svc.from('comissoes_operadora').select('*').eq('parceiro_id', parceiro_id).order('servico').order('operadora').order('plano')
     return NextResponse.json({ success: true, comissoesOp })
-  }
-
-  if (body.action === 'import_operadoras') {
-    let imported = 0
-    for (const row of body.linhas ?? []) {
-      const { error } = await svc.from('comissoes_operadora').upsert({
-        operadora: row.operadora, servico_type: row.servico_type, plano: row.plano ?? '',
-        valor_comissao: parseFloat(row.valor_comissao) || 0,
-        percentagem: parseFloat(row.percentagem) || 0,
-        created_by: user.id, updated_at: new Date().toISOString(),
-      }, { onConflict: 'operadora,servico_type,plano' })
-      if (!error) imported++
-    }
-    const { data: comissoesOp } = await svc.from('comissoes_operadora').select('*').order('servico_type').order('operadora').order('plano')
-    return NextResponse.json({ imported, comissoesOp: comissoesOp ?? [] })
   }
 
   // Guardar comissao base de parceiro
