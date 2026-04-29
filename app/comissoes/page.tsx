@@ -1,0 +1,162 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Navbar } from '@/components/navbar'
+import { Sidebar } from '@/components/sidebar'
+import { Percent, Zap, Flame, Shield, Wifi } from 'lucide-react'
+
+interface ComissaoOp {
+  id: string
+  servico: string
+  operadora: string
+  plano: string
+  valor_comissao: number
+}
+
+const SERVICO_LABEL: Record<string, string> = {
+  energia: 'Energia', gas: 'Gas', seguros: 'Seguros', telecom: 'Telecom',
+}
+
+function ServicoIcon({ servico }: { servico: string }) {
+  if (servico === 'telecom') return <Wifi size={15} style={{ color: '#4338ca' }} />
+  if (servico === 'energia') return <Zap size={15} style={{ color: '#d97706' }} />
+  if (servico === 'gas')    return <Flame size={15} style={{ color: '#dc2626' }} />
+  return <Shield size={15} style={{ color: '#059669' }} />
+}
+
+const SERVICO_STYLE: Record<string, { bg: string; color: string; border: string }> = {
+  telecom:  { bg: '#eef2ff', color: '#4338ca', border: '#c7d2fe' },
+  energia:  { bg: '#fef3c7', color: '#92400e', border: '#fde68a' },
+  gas:      { bg: '#fee2e2', color: '#991b1b', border: '#fecaca' },
+  seguros:  { bg: '#f0fdf4', color: '#166534', border: '#86efac' },
+}
+
+export default function ComissoesPage() {
+  const router = useRouter()
+  const [user, setUser]     = useState<any>(null)
+  const [comissoes, setComissoes] = useState<ComissaoOp[]>([])
+  const [loading, setLoading]     = useState(true)
+
+  useEffect(() => {
+    async function load() {
+      const me = await fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).catch(() => null)
+      if (!me?.user) { router.push('/login'); return }
+      if (me.user.role === 'admin') { router.push('/admin/parceiros'); return }
+      setUser(me.user)
+
+      const res = await fetch('/api/comissoes/operadora', { credentials: 'include' }).then(r => r.json())
+      setComissoes(res.comissoes || [])
+      setLoading(false)
+    }
+    load()
+  }, [router])
+
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
+    </div>
+  )
+
+  // Agrupar por servico
+  const grouped: Record<string, ComissaoOp[]> = {}
+  for (const c of comissoes) {
+    if (!grouped[c.servico]) grouped[c.servico] = []
+    grouped[c.servico].push(c)
+  }
+
+  const totalPorServico = (items: ComissaoOp[]) => items.reduce((s, c) => s + c.valor_comissao, 0)
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+      <Navbar user={user} />
+      <div className="flex">
+        <Sidebar userRole="parceiro" />
+        <main className="flex-1 md:ml-64 pt-16">
+          <div className="p-4 md:p-8">
+
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-8">
+              <Percent size={28} style={{ color: '#4338ca' }} />
+              <div>
+                <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>As Minhas Comissoes</h1>
+                <p className="text-sm" style={{ color: '#6b7280' }}>
+                  {comissoes.length === 0
+                    ? 'Ainda nao tem comissoes definidas'
+                    : `${comissoes.length} comissao(oes) definidas pelo administrador`}
+                </p>
+              </div>
+            </div>
+
+            {comissoes.length === 0 ? (
+              <div className="rounded-xl p-16 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                <Percent size={48} className="mx-auto mb-4" style={{ color: '#d1d5db' }} />
+                <p className="text-base font-medium" style={{ color: '#374151' }}>Nenhuma comissao atribuida</p>
+                <p className="text-sm mt-1" style={{ color: '#9ca3af' }}>O administrador ainda nao definiu as suas comissoes. Contacte o suporte.</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {Object.entries(grouped).map(([servico, items]) => {
+                  const st = SERVICO_STYLE[servico] || { bg: '#f3f4f6', color: '#374151', border: '#d1d5db' }
+                  return (
+                    <div key={servico} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                      {/* Cabecalho do servico */}
+                      <div className="flex items-center justify-between px-6 py-4" style={{ background: st.bg, borderBottom: `1px solid ${st.border}` }}>
+                        <div className="flex items-center gap-2">
+                          <ServicoIcon servico={servico} />
+                          <h2 className="font-bold text-base" style={{ color: st.color }}>
+                            {SERVICO_LABEL[servico] || servico}
+                          </h2>
+                          <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: st.border, color: st.color }}>
+                            {items.length} entrada{items.length !== 1 ? 's' : ''}
+                          </span>
+                        </div>
+                        <span className="text-sm font-bold" style={{ color: st.color }}>
+                          Total: €{totalPorServico(items).toFixed(2)}
+                        </span>
+                      </div>
+
+                      {/* Tabela */}
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>Operadora</th>
+                              {servico === 'telecom' && (
+                                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>Plano</th>
+                              )}
+                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>Comissao por Venda</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {items.map((c, i) => (
+                              <tr key={i} style={{ borderBottom: i < items.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
+                                <td className="px-5 py-3.5 text-sm font-semibold" style={{ color: '#111827' }}>{c.operadora}</td>
+                                {servico === 'telecom' && (
+                                  <td className="px-5 py-3.5">
+                                    <span className="px-2.5 py-1 rounded-full text-xs font-bold" style={{ background: '#e0e7ff', color: '#4338ca' }}>
+                                      {c.plano || '—'}
+                                    </span>
+                                  </td>
+                                )}
+                                <td className="px-5 py-3.5">
+                                  <span className="text-base font-bold" style={{ color: '#059669' }}>
+                                    €{Number(c.valor_comissao).toFixed(2)}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+    </div>
+  )
+}

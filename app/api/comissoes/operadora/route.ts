@@ -6,9 +6,15 @@ export async function GET(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Nao autenticado' }, { status: 401 })
 
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const isAdmin = profile?.role === 'admin'
+
   const { searchParams } = new URL(request.url)
-  const parceiro_id = searchParams.get('parceiro_id')
-  if (!parceiro_id) return NextResponse.json({ error: 'parceiro_id obrigatorio' }, { status: 400 })
+  // Admin pode pedir comissoes de qualquer parceiro via ?parceiro_id=
+  // Parceiro vê sempre as suas próprias (sem parâmetro ou com o seu próprio id)
+  const parceiro_id = isAdmin
+    ? (searchParams.get('parceiro_id') ?? user.id)
+    : user.id
 
   const { data, error } = await supabase
     .from('comissoes_operadora')

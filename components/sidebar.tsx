@@ -14,6 +14,7 @@ export function Sidebar({ userRole }: SidebarProps) {
     { href: '/vendas', label: 'As Minhas Vendas', icon: ShoppingCart },
     { href: '/vendas/novo', label: 'Registar Nova Venda', icon: PlusCircle },
     { href: '/contratos', label: 'Os Meus Contratos', icon: FileCheck },
+    { href: '/comissoes', label: 'As Minhas Comissoes', icon: Percent },
     { href: '/simulador', label: 'Simulador', icon: Calculator },
     { href: '/publicacoes', label: 'Publicacoes', icon: FileText },
   ]

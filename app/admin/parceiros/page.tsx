@@ -519,8 +519,10 @@ export default function ParceirosPage() {
                                         <td className="px-4 py-3 text-sm" style={{ color: '#374151' }}>{c.plano || '—'}</td>
                                         <td className="px-4 py-3 text-sm font-bold" style={{ color: '#059669' }}>€{c.valor_comissao.toFixed(2)}</td>
                                         <td className="px-4 py-3">
-                                          <button onClick={() => deleteComissaoOp(c)} className="rounded p-1 hover:bg-red-50">
-                                            <X size={14} style={{ color: '#dc2626' }} />
+                                          <button onClick={() => deleteComissaoOp(c)}
+                                            className="rounded-lg p-1.5 transition-colors hover:bg-red-50"
+                                            title="Apagar comissao">
+                                            <Trash2 size={14} style={{ color: '#dc2626' }} />
                                           </button>
                                         </td>
                                       </tr>
