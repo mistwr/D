@@ -27,8 +27,8 @@ export default function NovaVendaPage() {
   const [uploadProgress, setUploadProgress] = useState('')
   const [form, setForm] = useState({
     client_name: '', client_email: '', client_phone: '', client_address: '',
-    amount: '', description: '', contract_type: 'servico', notes: '',
-    service_type: 'telecom' as string, operator: 'MEO' as string,
+    amount: '', description: '', contract_type: '', notes: '',
+    service_type: 'telecom' as string, operator: 'MEO' as string, plano: '',
   })
 
   useEffect(() => {
@@ -143,33 +143,53 @@ export default function NovaVendaPage() {
               {/* Servico */}
               <div className="rounded-xl p-6 shadow-sm" style={{ background: '#ffffff', border: '1px solid #e5e7eb' }}>
                 <h2 className="text-base font-semibold mb-4" style={{ color: '#111827' }}>Tipo de Servico</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Servico *</label>
-                    <select value={form.service_type} onChange={e => { update('service_type', e.target.value); update('operator', e.target.value === 'telecom' ? 'MEO' : 'EDP') }}
-                      className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={inputStyle}>
+                    <select value={form.service_type} onChange={e => {
+                      const st = e.target.value
+                      update('service_type', st)
+                      update('plano', '')
+                      update('operator', st === 'telecom' ? 'MEO' : st === 'seguros' ? 'Fidelidade' : 'EDP')
+                    }} className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={inputStyle}>
                       <option value="telecom">Telecomunicacoes</option>
                       <option value="energia">Energia</option>
+                      <option value="gas">Gas</option>
+                      <option value="seguros">Seguros</option>
                     </select>
                   </div>
                   <div>
                     <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Operadora *</label>
                     <select value={form.operator} onChange={e => update('operator', e.target.value)}
                       className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={inputStyle}>
-                      {(form.service_type === 'telecom' ? ['MEO', 'NOS', 'Vodafone', 'NOWO'] : ['EDP', 'Endesa', 'Galp', 'Iberdrola', 'Gold Energy', 'Luzboa', 'Yes Energy']).map(o => (
+                      {(form.service_type === 'telecom'
+                        ? ['MEO', 'NOS', 'Vodafone', 'NOWO', 'DIGI']
+                        : form.service_type === 'seguros'
+                        ? ['Fidelidade', 'Tranquilidade', 'Allianz', 'Generali', 'AXA', 'Zurich']
+                        : ['EDP', 'Endesa', 'Galp', 'Iberdrola', 'Gold Energy', 'Luzboa', 'Yes Energy', 'Repsol', 'Portologos']
+                      ).map(o => (
                         <option key={o} value={o}>{o}</option>
                       ))}
                     </select>
                   </div>
+                  {form.service_type === 'telecom' && (
+                    <div>
+                      <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Plano</label>
+                      <select value={form.plano} onChange={e => update('plano', e.target.value)}
+                        className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={inputStyle}>
+                        <option value="">Selecionar plano</option>
+                        <option value="1P">1P (1 servico)</option>
+                        <option value="2P">2P (2 servicos)</option>
+                        <option value="3P">3P (3 servicos)</option>
+                        <option value="4P">4P (4 servicos)</option>
+                      </select>
+                    </div>
+                  )}
                   <div>
-                    <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Tipo de Contrato</label>
-                    <select value={form.contract_type} onChange={e => update('contract_type', e.target.value)}
-                      className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={inputStyle}>
-                      <option value="servico">Servico</option>
-                      <option value="produto">Produto</option>
-                      <option value="consultoria">Consultoria</option>
-                      <option value="manutencao">Manutencao</option>
-                    </select>
+                    <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Descricao do contrato</label>
+                    <input type="text" value={form.contract_type} onChange={e => update('contract_type', e.target.value)}
+                      className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={inputStyle}
+                      placeholder="Ex: Contrato residencial 2 anos" />
                   </div>
                 </div>
               </div>
