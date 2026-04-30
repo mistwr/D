@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Send, Users, FileText, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound } from 'lucide-react'
+import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Send, Users, FileText, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper } from 'lucide-react'
 
 interface SidebarProps { userRole: string }
 
@@ -15,8 +15,9 @@ export function Sidebar({ userRole }: SidebarProps) {
     { href: '/vendas/novo', label: 'Registar Nova Venda', icon: PlusCircle },
     { href: '/contratos', label: 'Os Meus Contratos', icon: FileCheck },
     { href: '/comissoes', label: 'As Minhas Comissoes', icon: Percent },
+    { href: '/campanhas', label: 'Campanhas', icon: Megaphone },
+    { href: '/publicacoes', label: 'Publicacoes', icon: Newspaper },
     { href: '/simulador', label: 'Simulador', icon: Calculator },
-    { href: '/publicacoes', label: 'Publicacoes', icon: FileText },
   ]
 
   const adminLinks = [
