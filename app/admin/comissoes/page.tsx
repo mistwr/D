@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
+import Image from 'next/image'
 import { Percent, Plus, Trash2, X, Check, Zap, Flame, Shield, ArrowLeft, Users } from 'lucide-react'
 import Link from 'next/link'
 
@@ -13,13 +14,21 @@ const OPERADORAS: Record<string, string[]> = {
   seguros:  ['Fidelidade', 'Tranquilidade', 'Allianz', 'Generali', 'AXA', 'Zurich', 'Ageas'],
   telecom:  ['MEO', 'NOS', 'Vodafone', 'NOWO', 'DIGI'],
 }
+const LOGOS: Record<string, string> = {
+  MEO: '/operadoras/meo.jpg',
+  NOS: '/operadoras/nos.jpg',
+  Vodafone: '/operadoras/vodafone.jpg',
+  NOWO: '/operadoras/nowo.jpg',
+  DIGI: '/operadoras/digi.jpg',
+}
 const PLANOS_TELECOM = ['1P', '2P', '3P', '4P']
 const SERVICOS = ['energia', 'gas', 'seguros', 'telecom'] as const
 type Servico = typeof SERVICOS[number]
+type Modelo = 'fixo' | 'mensalidade'
 
 interface Parceiro { id: string; full_name: string; email: string; company_name: string }
-interface ComissaoOp { id: string; servico: string; operadora: string; plano: string; valor_comissao: number }
-interface FormRow { servico: Servico; operadora: string; plano: string; valor_comissao: string }
+interface ComissaoOp { id: string; servico: string; operadora: string; plano: string; valor_comissao: number; modelo: Modelo; meses: number; valor_mensal: number }
+interface FormRow { servico: Servico; operadora: string; plano: string; modelo: Modelo; valor_comissao: string; meses: string; valor_mensal: string }
 
 export default function AdminComissoesPage() {
   const router = useRouter()
@@ -32,7 +41,7 @@ export default function AdminComissoesPage() {
   const [tab, setTab] = useState<Servico>('energia')
 
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState<FormRow>({ servico: 'energia', operadora: 'EDP', plano: '', valor_comissao: '' })
+  const [form, setForm] = useState<FormRow>({ servico: 'energia', operadora: 'EDP', plano: '', modelo: 'fixo', valor_comissao: '', meses: '12', valor_mensal: '' })
   const [saving, setSaving] = useState(false)
 
   const [msg, setMsg] = useState('')
@@ -69,13 +78,15 @@ export default function AdminComissoesPage() {
   }
 
   function openForm() {
-    setForm({ servico: tab, operadora: OPERADORAS[tab][0], plano: tab === 'telecom' ? '1P' : '', valor_comissao: '' })
+    setForm({ servico: tab, operadora: OPERADORAS[tab][0], plano: tab === 'telecom' ? '1P' : '', modelo: 'fixo', valor_comissao: '', meses: '12', valor_mensal: '' })
     setShowForm(true)
   }
 
   async function saveRow() {
     if (!selectedParceiro) { flash('Selecione primeiro um parceiro', 'err'); return }
-    if (!form.valor_comissao) { flash('Valor de comissao obrigatorio', 'err'); return }
+    const isMensalidade = form.servico === 'telecom' && form.modelo === 'mensalidade'
+    if (isMensalidade && (!form.valor_mensal || !form.meses)) { flash('Preencha valor mensal e numero de meses', 'err'); return }
+    if (!isMensalidade && !form.valor_comissao) { flash('Valor de comissao obrigatorio', 'err'); return }
     setSaving(true)
     const res = await fetch('/api/comissoes/operadora', {
       method: 'POST',
@@ -86,7 +97,10 @@ export default function AdminComissoesPage() {
         servico: form.servico,
         operadora: form.operadora,
         plano: form.servico === 'telecom' ? form.plano : '',
-        valor_comissao: parseFloat(form.valor_comissao) || 0,
+        modelo: form.servico === 'telecom' ? form.modelo : 'fixo',
+        valor_comissao: isMensalidade ? 0 : (parseFloat(form.valor_comissao) || 0),
+        meses: isMensalidade ? (parseInt(form.meses) || 12) : 0,
+        valor_mensal: isMensalidade ? (parseFloat(form.valor_mensal) || 0) : 0,
       }),
     })
     const data = await res.json()
@@ -247,26 +261,44 @@ export default function AdminComissoesPage() {
                         <thead>
                           <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
                             <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Operadora</th>
-                            {tab === 'telecom' && (
+                            {tab === 'telecom' && <>
                               <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Plano</th>
-                            )}
-                            <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Valor (EUR)</th>
+                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Modelo</th>
+                            </>}
+                            <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Valor</th>
                             <th className="px-5 py-3" />
                           </tr>
                         </thead>
                         <tbody>
                           {tabData.map(c => (
                             <tr key={c.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                              <td className="px-5 py-4 font-medium text-sm" style={{ color: '#111827' }}>{c.operadora}</td>
-                              {tab === 'telecom' && (
+                              <td className="px-5 py-4">
+                                <div className="flex items-center gap-2.5">
+                                  {LOGOS[c.operadora] && (
+                                    <div className="h-7 w-7 rounded overflow-hidden flex-shrink-0">
+                                      <Image src={LOGOS[c.operadora]} alt={c.operadora} width={28} height={28} className="object-cover w-full h-full" />
+                                    </div>
+                                  )}
+                                  <span className="font-medium text-sm" style={{ color: '#111827' }}>{c.operadora}</span>
+                                </div>
+                              </td>
+                              {tab === 'telecom' && <>
                                 <td className="px-5 py-4">
                                   <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: '#e0e7ff', color: '#4338ca' }}>
                                     {c.plano || '-'}
                                   </span>
                                 </td>
-                              )}
+                                <td className="px-5 py-4">
+                                  <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: c.modelo === 'mensalidade' ? '#fef3c7' : '#f0fdf4', color: c.modelo === 'mensalidade' ? '#92400e' : '#166534' }}>
+                                    {c.modelo === 'mensalidade' ? 'Mensalidade' : 'Fixo'}
+                                  </span>
+                                </td>
+                              </>}
                               <td className="px-5 py-4 font-semibold text-sm" style={{ color: '#059669' }}>
-                                {'\u20AC'}{(c.valor_comissao ?? 0).toFixed(2)}
+                                {c.modelo === 'mensalidade' && c.meses > 0
+                                  ? <span>{'\u20AC'}{(c.valor_mensal ?? 0).toFixed(2)}<span className="font-normal text-xs ml-1" style={{ color: '#6b7280' }}>x{c.meses}m</span></span>
+                                  : <span>{'\u20AC'}{(c.valor_comissao ?? 0).toFixed(2)}</span>
+                                }
                               </td>
                               <td className="px-5 py-4 text-right">
                                 <button onClick={() => deleteRow(c)}
@@ -328,21 +360,58 @@ export default function AdminComissoesPage() {
                 </select>
               </div>
               {form.servico === 'telecom' && (
-                <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Plano</label>
-                  <select value={form.plano} onChange={e => setForm(f => ({ ...f, plano: e.target.value }))}
-                    className="w-full rounded-lg px-3 py-2.5 text-sm" style={inputStyle}>
-                    {PLANOS_TELECOM.map(p => <option key={p} value={p}>{p}</option>)}
-                  </select>
-                </div>
+                <>
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Plano</label>
+                    <select value={form.plano} onChange={e => setForm(f => ({ ...f, plano: e.target.value }))}
+                      className="w-full rounded-lg px-3 py-2.5 text-sm" style={inputStyle}>
+                      {PLANOS_TELECOM.map(p => <option key={p} value={p}>{p}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Modelo de comissao</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(['fixo', 'mensalidade'] as Modelo[]).map(m => (
+                        <button key={m} type="button"
+                          onClick={() => setForm(f => ({ ...f, modelo: m }))}
+                          className="rounded-lg px-3 py-2.5 text-sm font-medium border transition"
+                          style={{ background: form.modelo === m ? '#4338ca' : '#fff', color: form.modelo === m ? '#fff' : '#374151', border: form.modelo === m ? '1px solid #4338ca' : '1px solid #d1d5db' }}>
+                          {m === 'fixo' ? 'Valor Fixo' : 'Mensalidade'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
               )}
+              {form.servico === 'telecom' && form.modelo === 'mensalidade' ? (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Valor mensal (EUR)</label>
+                    <input type="number" step="0.01" min="0" value={form.valor_mensal}
+                      onChange={e => setForm(f => ({ ...f, valor_mensal: e.target.value }))}
+                      className="w-full rounded-lg px-3 py-2.5 text-sm" style={inputStyle}
+                      placeholder="Ex: 8.00" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>N.º de meses</label>
+                    <input type="number" step="1" min="1" max="60" value={form.meses}
+                      onChange={e => setForm(f => ({ ...f, meses: e.target.value }))}
+                      className="w-full rounded-lg px-3 py-2.5 text-sm" style={inputStyle}
+                      placeholder="Ex: 12" />
+                  </div>
+                  <div className="col-span-2 rounded-lg p-3 text-xs" style={{ background: '#fef3c7', color: '#92400e' }}>
+                    Total estimado: <strong>{'\u20AC'}{((parseFloat(form.valor_mensal) || 0) * (parseInt(form.meses) || 0)).toFixed(2)}</strong> ({form.meses || 0} meses x {'\u20AC'}{parseFloat(form.valor_mensal || '0').toFixed(2)}/mes)
+                  </div>
+                </div>
+              ) : (
               <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Valor Fixo (EUR)</label>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Valor fixo (EUR)</label>
                 <input type="number" step="0.01" min="0" value={form.valor_comissao}
                   onChange={e => setForm(f => ({ ...f, valor_comissao: e.target.value }))}
                   className="w-full rounded-lg px-3 py-2.5 text-sm" style={inputStyle}
                   placeholder="Ex: 25.00" />
               </div>
+              )}
               <div className="flex gap-3 pt-2">
                 <button onClick={() => setShowForm(false)} className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium"
                   style={{ border: '1px solid #d1d5db', color: '#374151' }}>Cancelar</button>

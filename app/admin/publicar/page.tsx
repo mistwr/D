@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { Send, CheckCircle2, Users } from 'lucide-react'
+import { Send, CheckCircle2, Users, FileUp, FileText, Trash2, X } from 'lucide-react'
 
 interface Parceiro { id: string; full_name: string; email: string; company_name: string }
-interface Publicacao { id: string; title: string; message: string; parceiro_name: string; document_name: string; created_at: string }
+interface Publicacao { id: string; title: string; content: string; file_name: string; author_name: string; created_at: string }
 
 export default function PublicarPage() {
   const router = useRouter()
@@ -16,7 +16,8 @@ export default function PublicarPage() {
   const [publicacoes, setPublicacoes] = useState<Publicacao[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedParceiros, setSelectedParceiros] = useState<string[]>([])
-  const [form, setForm] = useState({ title: '', message: '', document_name: '' })
+  const [form, setForm] = useState({ title: '', message: '' })
+  const [ficheiro, setFicheiro] = useState<File | null>(null)
   const [sending, setSending] = useState(false)
   const [success, setSuccess] = useState(false)
 
@@ -47,14 +48,15 @@ export default function PublicarPage() {
     e.preventDefault()
     setSending(true)
     setSuccess(false)
-    await fetch('/api/publicacoes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ ...form, parceiro_ids: selectedParceiros.length > 0 ? selectedParceiros : undefined }),
-    })
+    const fd = new FormData()
+    fd.append('title', form.title)
+    fd.append('content', form.message)
+    if (selectedParceiros.length > 0) fd.append('parceiro_ids', selectedParceiros.join(','))
+    if (ficheiro) fd.append('file', ficheiro)
+    await fetch('/api/publicacoes/upload', { method: 'POST', credentials: 'include', body: fd })
     setSuccess(true)
-    setForm({ title: '', message: '', document_name: '' })
+    setForm({ title: '', message: '' })
+    setFicheiro(null)
     setSelectedParceiros([])
     const pub = await fetch('/api/publicacoes', { credentials: 'include' }).then(r => r.json())
     setPublicacoes(pub.publicacoes || [])
@@ -110,9 +112,27 @@ export default function PublicarPage() {
                         placeholder="Escreva a mensagem ou instrucoes para os parceiros..." />
                     </div>
                     <div>
-                      <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Nome do documento (opcional)</label>
-                      <input type="text" value={form.document_name} onChange={e => setForm(f => ({ ...f, document_name: e.target.value }))}
-                        className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={inputStyle} placeholder="tabela-precos-meo-2026.pdf" />
+                      <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Ficheiro anexo (opcional)</label>
+                      {ficheiro ? (
+                        <div className="flex items-center justify-between rounded-lg px-4 py-3" style={{ background: '#f0f9ff', border: '1px solid #bae6fd' }}>
+                          <div className="flex items-center gap-2">
+                            <FileText size={16} style={{ color: '#0284c7' }} />
+                            <span className="text-sm font-medium" style={{ color: '#0284c7' }}>{ficheiro.name}</span>
+                            <span className="text-xs" style={{ color: '#6b7280' }}>({(ficheiro.size / 1024).toFixed(0)} KB)</span>
+                          </div>
+                          <button type="button" onClick={() => setFicheiro(null)} className="rounded p-1 hover:bg-blue-100">
+                            <X size={14} style={{ color: '#0284c7' }} />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="flex items-center gap-3 cursor-pointer rounded-lg px-4 py-3 transition-colors"
+                          style={{ background: '#f9fafb', border: '1px dashed #d1d5db' }}>
+                          <FileUp size={18} style={{ color: '#6b7280' }} />
+                          <span className="text-sm" style={{ color: '#6b7280' }}>Clique para seleccionar — PDF, Excel, CSV, PNG, JPG (max 20MB)</span>
+                          <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.png,.jpg,.jpeg" className="hidden"
+                            onChange={e => { if (e.target.files?.[0]) setFicheiro(e.target.files[0]); e.target.value = '' }} />
+                        </label>
+                      )}
                     </div>
                     <button type="submit" disabled={sending || !form.title}
                       className="flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-medium text-white text-sm disabled:opacity-50" style={{ background: '#4338ca' }}>
@@ -167,13 +187,19 @@ export default function PublicarPage() {
                 <div className="divide-y" style={{ borderColor: '#f3f4f6' }}>
                   {publicacoes.slice(0, 20).map(p => (
                     <div key={p.id} className="p-4">
-                      <div className="flex justify-between items-start">
-                        <div>
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm" style={{ color: '#111827' }}>{p.title}</p>
-                          {p.message && <p className="text-xs mt-1" style={{ color: '#6b7280' }}>{p.message.substring(0, 100)}</p>}
-                          <span className="text-xs mt-1 inline-block" style={{ color: '#4338ca' }}>Para: {p.parceiro_name}</span>
+                          {p.content && <p className="text-xs mt-1 truncate" style={{ color: '#6b7280' }}>{p.content.substring(0, 100)}</p>}
+                          {p.file_name && (
+                            <div className="flex items-center gap-1 mt-1">
+                              <FileText size={12} style={{ color: '#0284c7' }} />
+                              <span className="text-xs" style={{ color: '#0284c7' }}>{p.file_name}</span>
+                            </div>
+                          )}
+                          {p.author_name && <span className="text-xs mt-1 inline-block" style={{ color: '#9ca3af' }}>por {p.author_name}</span>}
                         </div>
-                        <span className="text-xs" style={{ color: '#9ca3af' }}>{new Date(p.created_at).toLocaleDateString('pt-PT')}</span>
+                        <span className="text-xs flex-shrink-0" style={{ color: '#9ca3af' }}>{new Date(p.created_at).toLocaleDateString('pt-PT')}</span>
                       </div>
                     </div>
                   ))}

@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { Megaphone, Plus, Wifi, WifiOff, FileUp, FileText, Zap, Flame, ChevronDown, ChevronUp, Share2 } from 'lucide-react'
+import { Megaphone, Plus, Wifi, WifiOff, FileUp, FileText, Zap, Flame, ChevronDown, ChevronUp, Share2, Trash2, Download } from 'lucide-react'
 
-interface CampanhaPDF { id: string; file_name: string; uploaded_at: string }
+interface CampanhaPDF { id: string; file_name: string; file_type: string; file_size: number; signed_url: string | null; created_at: string }
 interface Campanha { id: string; title: string; operator: string; service_type: string; description: string; status: string; created_at: string; pdf_count: number }
 
 const TELECOM_OPS = ['MEO', 'NOS', 'Vodafone', 'NOWO']
@@ -51,34 +51,34 @@ export default function CampanhasPage() {
     if (expandedId === id) { setExpandedId(null); return }
     setExpandedId(id)
     if (!pdfs[id]) {
-      const res = await fetch(`/api/campanhas?id=${id}`, { credentials: 'include' }).then(r => r.json())
-      setPdfs(prev => ({ ...prev, [id]: res.pdfs || [] }))
+      const res = await fetch(`/api/campanhas/ficheiros?campanha_id=${id}`, { credentials: 'include' }).then(r => r.json())
+      setPdfs(prev => ({ ...prev, [id]: res.ficheiros || [] }))
     }
   }
 
-  async function uploadPDF(campanhaId: string, fileName: string) {
+  async function handleFileSelect(campanhaId: string, e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files
+    if (!files || files.length === 0) return
     setUploading(campanhaId)
-    const res = await fetch('/api/campanhas', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ action: 'upload_pdf', campanha_id: campanhaId, file_name: fileName }),
-    })
-    const data = await res.json()
-    if (data.pdfs) {
-      setPdfs(prev => ({ ...prev, [campanhaId]: data.pdfs }))
-      setCampanhas(prev => prev.map(c => c.id === campanhaId ? { ...c, pdf_count: data.pdfs.length } : c))
+    for (let i = 0; i < files.length; i++) {
+      const fd = new FormData()
+      fd.append('campanha_id', campanhaId)
+      fd.append('file', files[i])
+      const res = await fetch('/api/campanhas/ficheiros', { method: 'POST', credentials: 'include', body: fd })
+      const data = await res.json()
+      if (data.ficheiro) {
+        setPdfs(prev => ({ ...prev, [campanhaId]: [data.ficheiro, ...(prev[campanhaId] ?? [])] }))
+        setCampanhas(prev => prev.map(c => c.id === campanhaId ? { ...c, pdf_count: (c.pdf_count ?? 0) + 1 } : c))
+      }
     }
     setUploading(null)
+    e.target.value = ''
   }
 
-  function handleFileSelect(campanhaId: string, e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files
-    if (!files) return
-    for (let i = 0; i < files.length; i++) {
-      uploadPDF(campanhaId, files[i].name)
-    }
-    e.target.value = ''
+  async function deleteFicheiro(campanhaId: string, ficheiroId: string) {
+    await fetch('/api/campanhas/ficheiros', { method: 'DELETE', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: ficheiroId }) })
+    setPdfs(prev => ({ ...prev, [campanhaId]: (prev[campanhaId] ?? []).filter(f => f.id !== ficheiroId) }))
+    setCampanhas(prev => prev.map(c => c.id === campanhaId ? { ...c, pdf_count: Math.max(0, (c.pdf_count ?? 1) - 1) } : c))
   }
 
   const operators = form.service_type === 'telecom' ? TELECOM_OPS : ENERGIA_OPS
@@ -205,42 +205,52 @@ export default function CampanhasPage() {
                           {c.description && <p className="text-sm py-3" style={{ color: '#6b7280' }}>{c.description}</p>}
 
                           <div className="flex items-center justify-between mb-3 pt-2">
-                            <h4 className="text-sm font-semibold" style={{ color: '#374151' }}>Documentos PDF</h4>
-                            <label className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer text-white" style={{ background: '#4338ca' }}>
+                            <h4 className="text-sm font-semibold" style={{ color: '#374151' }}>Ficheiros ({campPdfs.length})</h4>
+                            <label className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer text-white" style={{ background: uploading === c.id ? '#6366f1' : '#4338ca', opacity: uploading === c.id ? 0.7 : 1 }}>
                               <FileUp size={14} />
-                              {uploading === c.id ? 'A carregar...' : 'Carregar PDF'}
-                              <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx" multiple onChange={e => handleFileSelect(c.id, e)} className="hidden" />
+                              {uploading === c.id ? 'A carregar...' : 'Carregar ficheiro'}
+                              <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.png,.jpg,.jpeg" multiple disabled={uploading === c.id} onChange={e => handleFileSelect(c.id, e)} className="hidden" />
                             </label>
                           </div>
 
                           {campPdfs.length === 0 ? (
                             <div className="rounded-lg p-6 text-center" style={{ background: '#f9fafb', border: '1px dashed #d1d5db' }}>
                               <FileText size={32} style={{ color: '#d1d5db' }} className="mx-auto mb-2" />
-                              <p className="text-sm" style={{ color: '#6b7280' }}>Nenhum PDF carregado para esta campanha</p>
-                              <p className="text-xs" style={{ color: '#9ca3af' }}>Carregue tabelas de precos, contratos e materiais de venda</p>
+                              <p className="text-sm" style={{ color: '#6b7280' }}>Nenhum ficheiro carregado</p>
+                              <p className="text-xs" style={{ color: '#9ca3af' }}>PDF, Word, Excel, CSV, PNG, JPG</p>
                             </div>
                           ) : (
                             <div className="flex flex-col gap-2">
                               {campPdfs.map(pdf => (
                                 <div key={pdf.id} className="flex items-center justify-between rounded-lg p-3" style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
                                   <div className="flex items-center gap-3">
-                                    <FileText size={18} style={{ color: '#dc2626' }} />
+                                    <FileText size={18} style={{ color: pdf.file_type === 'image' ? '#0891b2' : '#dc2626' }} />
                                     <div>
                                       <p className="text-sm font-medium" style={{ color: '#111827' }}>{pdf.file_name}</p>
-                                      <p className="text-xs" style={{ color: '#9ca3af' }}>{new Date(pdf.uploaded_at).toLocaleDateString('pt-PT')}</p>
+                                      <p className="text-xs" style={{ color: '#9ca3af' }}>{pdf.file_type.toUpperCase()} &middot; {new Date(pdf.created_at).toLocaleDateString('pt-PT')}</p>
                                     </div>
                                   </div>
-                                  <button
-                                    onClick={() => {
-                                      const text = `*Campanha: ${c.title}*%0AOperadora: ${c.operator}%0A%0ADocumento: ${pdf.file_name}%0A%0A${c.description || ''}`
+                                  <div className="flex items-center gap-2">
+                                    {pdf.signed_url && (
+                                      <a href={pdf.signed_url} download={pdf.file_name} target="_blank" rel="noreferrer"
+                                        className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
+                                        style={{ background: '#eff6ff', color: '#1d4ed8' }}>
+                                        <Download size={12} /> Download
+                                      </a>
+                                    )}
+                                    <button onClick={() => {
+                                      const text = `*Campanha: ${c.title}*%0AOperadora: ${c.operator}%0A%0ADocumento: ${pdf.file_name}`
                                       window.open(`https://wa.me/?text=${text}`, '_blank')
-                                    }}
-                                    className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium"
-                                    style={{ background: '#dcfce7', color: '#166534' }}
-                                    title="Enviar documento por WhatsApp"
-                                  >
-                                    <Share2 size={12} /> Enviar
-                                  </button>
+                                    }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
+                                      style={{ background: '#dcfce7', color: '#166534' }}>
+                                      <Share2 size={12} /> WhatsApp
+                                    </button>
+                                    <button onClick={() => deleteFicheiro(c.id, pdf.id)}
+                                      className="rounded-lg p-1.5" style={{ background: '#fef2f2' }}
+                                      title="Apagar ficheiro">
+                                      <Trash2 size={13} style={{ color: '#dc2626' }} />
+                                    </button>
+                                  </div>
                                 </div>
                               ))}
                             </div>

@@ -45,10 +45,10 @@ export async function POST(request: Request) {
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Sem permissao' }, { status: 403 })
 
   const body = await request.json()
-  const { parceiro_id, servico, operadora, plano, valor_comissao } = body
+  const { parceiro_id, servico, operadora, plano, valor_comissao, modelo, meses, valor_mensal } = body
 
-  if (!parceiro_id || !servico || !operadora || valor_comissao === undefined || valor_comissao === '') {
-    return NextResponse.json({ error: 'Preencha todos os campos: parceiro, servico, operadora e valor' }, { status: 400 })
+  if (!parceiro_id || !servico || !operadora) {
+    return NextResponse.json({ error: 'Preencha todos os campos obrigatorios: parceiro, servico e operadora' }, { status: 400 })
   }
 
   const svc = service()
@@ -59,7 +59,10 @@ export async function POST(request: Request) {
       servico,
       operadora,
       plano: plano || '',
+      modelo: modelo || 'fixo',
       valor_comissao: parseFloat(valor_comissao) || 0,
+      meses: parseInt(meses) || 0,
+      valor_mensal: parseFloat(valor_mensal) || 0,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'parceiro_id,servico,operadora,plano' })
     .select()
