@@ -1,16 +1,38 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { Megaphone, Plus, Wifi, WifiOff, FileUp, FileText, Zap, Flame, ChevronDown, ChevronUp, Share2 } from 'lucide-react'
+import {
+  Megaphone, Plus, Wifi, WifiOff, FileUp, FileText, Zap, Flame,
+  ChevronDown, ChevronUp, Share2, Trash2, Download, ImagePlus, Shield, X
+} from 'lucide-react'
 
-interface CampanhaPDF { id: string; file_name: string; uploaded_at: string }
-interface Campanha { id: string; title: string; operator: string; service_type: string; description: string; status: string; created_at: string; pdf_count: number }
+interface CampanhaPDF { id: string; file_name: string; file_type: string; file_size: number; signed_url: string | null; created_at: string }
+interface Campanha { id: string; title: string; operator: string; service_type: string; description: string; status: string; logo_url: string; logo_path: string; created_at: string; pdf_count: number }
 
-const TELECOM_OPS = ['MEO', 'NOS', 'Vodafone', 'NOWO']
-const ENERGIA_OPS = ['EDP', 'Endesa', 'Galp', 'Iberdrola', 'Gold Energy', 'Luzboa', 'Yes Energy']
+const ALL_OPERADORAS: Record<string, string[]> = {
+  telecom:  ['MEO', 'NOS', 'Vodafone', 'NOWO', 'DIGI'],
+  energia:  ['EDP', 'Endesa', 'Galp', 'Iberdrola', 'Gold Energy', 'Luzboa', 'Yes Energy', 'Repsol', 'Portologos'],
+  gas:      ['EDP', 'Endesa', 'Galp', 'Iberdrola', 'Gold Energy', 'Luzboa', 'Yes Energy', 'Repsol', 'Portologos'],
+  seguros:  ['Fidelidade', 'Tranquilidade', 'Allianz', 'Generali', 'AXA', 'Zurich', 'Ageas'],
+}
+
+const SVC_META: Record<string, { label: string; color: string; bg: string }> = {
+  telecom: { label: 'Telecom',  color: '#4338ca', bg: '#eef2ff' },
+  energia: { label: 'Energia',  color: '#d97706', bg: '#fef3c7' },
+  gas:     { label: 'Gas',      color: '#dc2626', bg: '#fee2e2' },
+  seguros: { label: 'Seguros',  color: '#16a34a', bg: '#f0fdf4' },
+}
+
+function formatSize(bytes: number) {
+  if (!bytes) return ''
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
 
 export default function CampanhasPage() {
   const router = useRouter()
@@ -18,11 +40,19 @@ export default function CampanhasPage() {
   const [campanhas, setCampanhas] = useState<Campanha[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ title: '', operator: 'MEO', service_type: 'telecom' as 'telecom' | 'energia', description: '' })
+  const [form, setForm] = useState({ title: '', operator: 'MEO', service_type: 'telecom', description: '' })
   const [saving, setSaving] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [pdfs, setPdfs] = useState<Record<string, CampanhaPDF[]>>({})
   const [uploading, setUploading] = useState<string | null>(null)
+  const [uploadingLogo, setUploadingLogo] = useState<string | null>(null)
+  const [deletingCamp, setDeletingCamp] = useState<string | null>(null)
+  const [msg, setMsg] = useState<{ text: string; type: 'ok' | 'err' } | null>(null)
+
+  function flash(text: string, type: 'ok' | 'err' = 'ok') {
+    setMsg({ text, type })
+    setTimeout(() => setMsg(null), 3000)
+  }
 
   useEffect(() => {
     async function load() {
@@ -38,54 +68,93 @@ export default function CampanhasPage() {
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault()
+    if (!form.title.trim()) return
     setSaving(true)
     const res = await fetch('/api/campanhas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(form) })
     const data = await res.json()
-    if (data.campanha) setCampanhas(prev => [{ ...data.campanha, pdf_count: 0 }, ...prev])
-    setShowForm(false)
-    setForm({ title: '', operator: 'MEO', service_type: 'telecom', description: '' })
+    if (data.campanha) {
+      setCampanhas(prev => [{ ...data.campanha, pdf_count: 0, logo_url: '' }, ...prev])
+      setShowForm(false)
+      setForm({ title: '', operator: 'MEO', service_type: 'telecom', description: '' })
+      flash('Campanha criada')
+    } else {
+      flash(data.error || 'Erro ao criar', 'err')
+    }
     setSaving(false)
+  }
+
+  async function toggleStatus(c: Campanha) {
+    const newStatus = c.status === 'ativa' ? 'inativa' : 'ativa'
+    const res = await fetch('/api/campanhas', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ id: c.id, status: newStatus }) })
+    if (res.ok) setCampanhas(prev => prev.map(x => x.id === c.id ? { ...x, status: newStatus } : x))
+  }
+
+  async function deleteCampanha(id: string) {
+    if (!confirm('Apagar campanha e todos os seus ficheiros?')) return
+    setDeletingCamp(id)
+    await fetch('/api/campanhas', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ id }) })
+    setCampanhas(prev => prev.filter(c => c.id !== id))
+    if (expandedId === id) setExpandedId(null)
+    setDeletingCamp(null)
+    flash('Campanha apagada')
+  }
+
+  async function handleLogoUpload(campanhaId: string, file: File) {
+    setUploadingLogo(campanhaId)
+    const fd = new FormData()
+    fd.append('campanha_id', campanhaId)
+    fd.append('file', file)
+    const res = await fetch('/api/campanhas', { method: 'POST', credentials: 'include', body: fd })
+    const data = await res.json()
+    if (data.logo_url) {
+      setCampanhas(prev => prev.map(c => c.id === campanhaId ? { ...c, logo_url: data.logo_url } : c))
+      flash('Logo actualizado')
+    } else {
+      flash(data.error || 'Erro no upload', 'err')
+    }
+    setUploadingLogo(null)
   }
 
   async function toggleExpand(id: string) {
     if (expandedId === id) { setExpandedId(null); return }
     setExpandedId(id)
     if (!pdfs[id]) {
-      const res = await fetch(`/api/campanhas?id=${id}`, { credentials: 'include' }).then(r => r.json())
-      setPdfs(prev => ({ ...prev, [id]: res.pdfs || [] }))
+      const res = await fetch(`/api/campanhas/ficheiros?campanha_id=${id}`, { credentials: 'include' }).then(r => r.json())
+      setPdfs(prev => ({ ...prev, [id]: res.ficheiros || [] }))
     }
   }
 
-  async function uploadPDF(campanhaId: string, fileName: string) {
+  async function handleFileSelect(campanhaId: string, e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files
+    if (!files || files.length === 0) return
     setUploading(campanhaId)
-    const res = await fetch('/api/campanhas', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ action: 'upload_pdf', campanha_id: campanhaId, file_name: fileName }),
-    })
-    const data = await res.json()
-    if (data.pdfs) {
-      setPdfs(prev => ({ ...prev, [campanhaId]: data.pdfs }))
-      setCampanhas(prev => prev.map(c => c.id === campanhaId ? { ...c, pdf_count: data.pdfs.length } : c))
+    for (let i = 0; i < files.length; i++) {
+      const fd = new FormData()
+      fd.append('campanha_id', campanhaId)
+      fd.append('file', files[i])
+      const res = await fetch('/api/campanhas/ficheiros', { method: 'POST', credentials: 'include', body: fd })
+      const data = await res.json()
+      if (data.ficheiro) {
+        setPdfs(prev => ({ ...prev, [campanhaId]: [data.ficheiro, ...(prev[campanhaId] ?? [])] }))
+        setCampanhas(prev => prev.map(c => c.id === campanhaId ? { ...c, pdf_count: (c.pdf_count ?? 0) + 1 } : c))
+      }
     }
     setUploading(null)
-  }
-
-  function handleFileSelect(campanhaId: string, e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files
-    if (!files) return
-    for (let i = 0; i < files.length; i++) {
-      uploadPDF(campanhaId, files[i].name)
-    }
     e.target.value = ''
   }
 
-  const operators = form.service_type === 'telecom' ? TELECOM_OPS : ENERGIA_OPS
+  async function deleteFicheiro(campanhaId: string, ficheiroId: string) {
+    await fetch('/api/campanhas/ficheiros', { method: 'DELETE', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: ficheiroId }) })
+    setPdfs(prev => ({ ...prev, [campanhaId]: (prev[campanhaId] ?? []).filter(f => f.id !== ficheiroId) }))
+    setCampanhas(prev => prev.map(c => c.id === campanhaId ? { ...c, pdf_count: Math.max(0, (c.pdf_count ?? 1) - 1) } : c))
+  }
+
+  const inputStyle = { background: '#fff', border: '1px solid #d1d5db', color: '#111827' }
+  const currentOps = ALL_OPERADORAS[form.service_type] ?? []
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8f9fb' }}>
-      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4338ca' }} />
     </div>
   )
 
@@ -96,57 +165,71 @@ export default function CampanhasPage() {
         <Sidebar userRole="admin" />
         <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-8">
+
+            {/* Toast */}
+            {msg && (
+              <div className="fixed top-20 right-6 z-50 rounded-lg px-4 py-3 text-sm font-medium shadow-lg"
+                style={{ background: msg.type === 'ok' ? '#f0fdf4' : '#fef2f2', color: msg.type === 'ok' ? '#166534' : '#dc2626', border: `1px solid ${msg.type === 'ok' ? '#bbf7d0' : '#fecaca'}` }}>
+                {msg.text}
+              </div>
+            )}
+
             <div className="flex justify-between items-center mb-8">
               <div className="flex items-center gap-3">
-                <Megaphone size={28} style={{ color: '#4338ca' }} />
+                <div className="rounded-xl p-2.5" style={{ background: '#eef2ff' }}>
+                  <Megaphone size={24} style={{ color: '#4338ca' }} />
+                </div>
                 <div>
-                  <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>{'Campanhas & Materiais'}</h1>
-                  <p className="text-sm" style={{ color: '#6b7280' }}>Crie campanhas por operadora e carregue PDFs de materiais de venda</p>
+                  <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Campanhas</h1>
+                  <p className="text-sm" style={{ color: '#6b7280' }}>Gerir campanhas e materiais por operadora</p>
                 </div>
               </div>
-              <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 rounded-lg px-4 py-2.5 font-medium text-white text-sm" style={{ background: '#4338ca' }}>
-                <Plus size={16} /> Nova Campanha
+              <button onClick={() => setShowForm(!showForm)}
+                className="flex items-center gap-2 rounded-lg px-4 py-2.5 font-medium text-white text-sm"
+                style={{ background: '#4338ca' }}>
+                {showForm ? <X size={16} /> : <Plus size={16} />}
+                {showForm ? 'Cancelar' : 'Nova Campanha'}
               </button>
             </div>
 
+            {/* Formulário criar campanha */}
             {showForm && (
-              <form onSubmit={handleCreate} className="rounded-xl p-6 shadow-sm mb-8" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                <h2 className="font-semibold mb-4" style={{ color: '#111827' }}>Criar Campanha</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <div>
+              <form onSubmit={handleCreate} className="rounded-xl p-6 shadow-sm mb-6" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                <h2 className="font-semibold mb-5" style={{ color: '#111827' }}>Nova Campanha</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                  <div className="lg:col-span-2">
                     <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Titulo *</label>
                     <input type="text" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} required
-                      className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={{ background: '#fff', border: '1px solid #d1d5db', color: '#111827' }} placeholder="Campanha Verao" />
+                      className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={inputStyle} placeholder="Ex: Campanha Verao MEO 2026" />
                   </div>
                   <div>
-                    <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Tipo de Servico *</label>
-                    <select value={form.service_type} onChange={e => setForm(f => ({ ...f, service_type: e.target.value as 'telecom' | 'energia', operator: e.target.value === 'telecom' ? 'MEO' : 'EDP' }))}
-                      className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={{ background: '#fff', border: '1px solid #d1d5db', color: '#111827' }}>
+                    <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Servico *</label>
+                    <select value={form.service_type} onChange={e => {
+                      const s = e.target.value
+                      setForm(f => ({ ...f, service_type: s, operator: ALL_OPERADORAS[s]?.[0] ?? '' }))
+                    }} className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={inputStyle}>
                       <option value="telecom">Telecomunicacoes</option>
                       <option value="energia">Energia</option>
+                      <option value="gas">Gas</option>
+                      <option value="seguros">Seguros</option>
                     </select>
                   </div>
                   <div>
                     <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Operadora *</label>
                     <select value={form.operator} onChange={e => setForm(f => ({ ...f, operator: e.target.value }))}
-                      className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={{ background: '#fff', border: '1px solid #d1d5db', color: '#111827' }}>
-                      {operators.map(o => <option key={o} value={o}>{o}</option>)}
+                      className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={inputStyle}>
+                      {currentOps.map(o => <option key={o} value={o}>{o}</option>)}
                     </select>
                   </div>
                 </div>
-                <div className="mb-4">
+                <div className="mb-5">
                   <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Descricao</label>
-                  <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3}
-                    className="w-full rounded-lg px-4 py-2.5 text-sm outline-none resize-none" style={{ background: '#fff', border: '1px solid #d1d5db', color: '#111827' }} placeholder="Detalhes da campanha..." />
+                  <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2}
+                    className="w-full rounded-lg px-4 py-2.5 text-sm outline-none resize-none" style={inputStyle} placeholder="Detalhes, condicoes e objectivos da campanha..." />
                 </div>
-                <div className="flex gap-3">
-                  <button type="submit" disabled={saving} className="rounded-lg px-5 py-2 text-sm font-medium text-white disabled:opacity-50" style={{ background: '#4338ca' }}>
-                    {saving ? 'A criar...' : 'Criar Campanha'}
-                  </button>
-                  <button type="button" onClick={() => setShowForm(false)} className="rounded-lg px-5 py-2 text-sm font-medium" style={{ color: '#374151', border: '1px solid #d1d5db' }}>
-                    Cancelar
-                  </button>
-                </div>
+                <button type="submit" disabled={saving} className="rounded-lg px-6 py-2.5 text-sm font-medium text-white disabled:opacity-50" style={{ background: '#4338ca' }}>
+                  {saving ? 'A criar...' : 'Criar Campanha'}
+                </button>
               </form>
             )}
 
@@ -159,88 +242,139 @@ export default function CampanhasPage() {
             ) : (
               <div className="flex flex-col gap-4">
                 {campanhas.map(c => {
-                  const expanded = expandedId === c.id
+                  const isOpen = expandedId === c.id
                   const campPdfs = pdfs[c.id] || []
+                  const svc = SVC_META[c.service_type] ?? SVC_META['telecom']
                   return (
                     <div key={c.id} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                      <div className="p-5 flex items-center justify-between cursor-pointer" onClick={() => toggleExpand(c.id)} role="button" tabIndex={0} onKeyDown={e => e.key === 'Enter' && toggleExpand(c.id)}>
-                        <div className="flex items-center gap-4">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ background: c.service_type === 'energia' ? '#fef3c7' : '#e0e7ff' }}>
-                            {c.service_type === 'energia' ? <Flame size={20} style={{ color: '#d97706' }} /> : <Zap size={20} style={{ color: '#4338ca' }} />}
+                      {/* Cabeçalho */}
+                      <div className="p-5 flex items-center gap-4">
+                        {/* Logo / upload */}
+                        <div className="relative group flex-shrink-0">
+                          <div className="h-14 w-14 rounded-xl overflow-hidden flex items-center justify-center"
+                            style={{ background: svc.bg, border: `1px solid ${svc.color}33` }}>
+                            {c.logo_url ? (
+                              <Image src={c.logo_url} alt={c.operator} width={56} height={56} className="object-cover w-full h-full" unoptimized />
+                            ) : (
+                              <Megaphone size={24} style={{ color: svc.color }} />
+                            )}
                           </div>
-                          <div>
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <h3 className="font-bold text-sm" style={{ color: '#111827' }}>{c.title}</h3>
-                              {c.status === 'ativa' ? <Wifi size={14} style={{ color: '#059669' }} /> : <WifiOff size={14} style={{ color: '#9ca3af' }} />}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: '#eef2ff', color: '#4338ca' }}>{c.operator}</span>
-                              <span className="px-2 py-0.5 rounded-full text-xs" style={{ background: c.service_type === 'energia' ? '#fef3c7' : '#e0e7ff', color: c.service_type === 'energia' ? '#92400e' : '#4338ca' }}>
-                                {c.service_type === 'energia' ? 'Energia' : 'Telecom'}
-                              </span>
-                              <span className="text-xs" style={{ color: '#9ca3af' }}>{c.pdf_count} PDF(s)</span>
-                            </div>
-                          </div>
+                          <label className="absolute inset-0 flex items-center justify-center rounded-xl cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                            style={{ background: 'rgba(0,0,0,0.45)' }}
+                            title="Carregar logo">
+                            {uploadingLogo === c.id
+                              ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                              : <ImagePlus size={18} className="text-white" />
+                            }
+                            <input type="file" accept=".png,.jpg,.jpeg,.webp,.svg" className="hidden"
+                              onChange={e => { if (e.target.files?.[0]) handleLogoUpload(c.id, e.target.files[0]); e.target.value = '' }} />
+                          </label>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              const text = `*${c.title}*%0A%0AOperadora: ${c.operator}%0AServico: ${c.service_type === 'energia' ? 'Energia' : 'Telecomunicacoes'}%0A%0A${c.description || 'Consulte os detalhes da campanha.'}`
-                              window.open(`https://wa.me/?text=${text}`, '_blank')
-                            }}
-                            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
-                            style={{ background: '#dcfce7', color: '#166534' }}
-                            title="Enviar por WhatsApp"
-                          >
-                            <Share2 size={13} /> WhatsApp
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <h3 className="font-bold text-sm" style={{ color: '#111827' }}>{c.title}</h3>
+                            {c.operator && (
+                              <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: svc.bg, color: svc.color }}>{c.operator}</span>
+                            )}
+                            <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: svc.bg, color: svc.color }}>{svc.label}</span>
+                          </div>
+                          {c.description && <p className="text-xs line-clamp-1" style={{ color: '#6b7280' }}>{c.description}</p>}
+                          <p className="text-xs mt-0.5" style={{ color: '#9ca3af' }}>{c.pdf_count ?? 0} ficheiro{(c.pdf_count ?? 0) !== 1 ? 's' : ''} &middot; {new Date(c.created_at).toLocaleDateString('pt-PT')}</p>
+                        </div>
+
+                        {/* Acoes */}
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {/* Toggle estado */}
+                          <button onClick={() => toggleStatus(c)}
+                            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium"
+                            style={{ background: c.status === 'ativa' ? '#f0fdf4' : '#f9fafb', color: c.status === 'ativa' ? '#16a34a' : '#6b7280', border: `1px solid ${c.status === 'ativa' ? '#bbf7d0' : '#e5e7eb'}` }}>
+                            {c.status === 'ativa' ? <Wifi size={12} /> : <WifiOff size={12} />}
+                            {c.status === 'ativa' ? 'Activa' : 'Inactiva'}
                           </button>
-                          <span className="text-xs" style={{ color: '#9ca3af' }}>{new Date(c.created_at).toLocaleDateString('pt-PT')}</span>
-                          {expanded ? <ChevronUp size={18} style={{ color: '#6b7280' }} /> : <ChevronDown size={18} style={{ color: '#6b7280' }} />}
+
+                          {/* WhatsApp */}
+                          <button onClick={() => {
+                            const text = `*${c.title}*%0AOperadora: ${c.operator}%0A%0A${c.description || ''}`
+                            window.open(`https://wa.me/?text=${text}`, '_blank')
+                          }} className="flex items-center gap-1 rounded-lg p-1.5 text-xs"
+                            style={{ background: '#dcfce7', color: '#166534' }} title="Enviar por WhatsApp">
+                            <Share2 size={13} />
+                          </button>
+
+                          {/* Expandir */}
+                          <button onClick={() => toggleExpand(c.id)}
+                            className="rounded-lg p-1.5" style={{ background: '#f3f4f6', color: '#374151' }}>
+                            {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                          </button>
+
+                          {/* Apagar campanha */}
+                          <button onClick={() => deleteCampanha(c.id)} disabled={deletingCamp === c.id}
+                            className="rounded-lg p-1.5 transition-colors hover:opacity-80 disabled:opacity-40"
+                            style={{ background: '#fef2f2' }} title="Apagar campanha">
+                            <Trash2 size={14} style={{ color: '#dc2626' }} />
+                          </button>
                         </div>
                       </div>
 
-                      {expanded && (
+                      {/* Ficheiros expandidos */}
+                      {isOpen && (
                         <div className="px-5 pb-5" style={{ borderTop: '1px solid #f3f4f6' }}>
                           {c.description && <p className="text-sm py-3" style={{ color: '#6b7280' }}>{c.description}</p>}
 
                           <div className="flex items-center justify-between mb-3 pt-2">
-                            <h4 className="text-sm font-semibold" style={{ color: '#374151' }}>Documentos PDF</h4>
-                            <label className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer text-white" style={{ background: '#4338ca' }}>
-                              <FileUp size={14} />
-                              {uploading === c.id ? 'A carregar...' : 'Carregar PDF'}
-                              <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx" multiple onChange={e => handleFileSelect(c.id, e)} className="hidden" />
+                            <h4 className="text-sm font-semibold" style={{ color: '#374151' }}>
+                              Ficheiros <span style={{ color: '#9ca3af' }}>({campPdfs.length})</span>
+                            </h4>
+                            <label className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer text-white"
+                              style={{ background: uploading === c.id ? '#6366f1' : '#4338ca', opacity: uploading === c.id ? 0.7 : 1 }}>
+                              <FileUp size={13} />
+                              {uploading === c.id ? 'A carregar...' : 'Carregar ficheiro'}
+                              <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.png,.jpg,.jpeg"
+                                multiple disabled={uploading === c.id}
+                                onChange={e => handleFileSelect(c.id, e)} className="hidden" />
                             </label>
                           </div>
 
                           {campPdfs.length === 0 ? (
                             <div className="rounded-lg p-6 text-center" style={{ background: '#f9fafb', border: '1px dashed #d1d5db' }}>
-                              <FileText size={32} style={{ color: '#d1d5db' }} className="mx-auto mb-2" />
-                              <p className="text-sm" style={{ color: '#6b7280' }}>Nenhum PDF carregado para esta campanha</p>
-                              <p className="text-xs" style={{ color: '#9ca3af' }}>Carregue tabelas de precos, contratos e materiais de venda</p>
+                              <FileText size={28} style={{ color: '#d1d5db' }} className="mx-auto mb-2" />
+                              <p className="text-sm" style={{ color: '#6b7280' }}>Nenhum ficheiro — PDF, Word, Excel, CSV, imagens</p>
                             </div>
                           ) : (
                             <div className="flex flex-col gap-2">
                               {campPdfs.map(pdf => (
-                                <div key={pdf.id} className="flex items-center justify-between rounded-lg p-3" style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                                  <div className="flex items-center gap-3">
-                                    <FileText size={18} style={{ color: '#dc2626' }} />
-                                    <div>
-                                      <p className="text-sm font-medium" style={{ color: '#111827' }}>{pdf.file_name}</p>
-                                      <p className="text-xs" style={{ color: '#9ca3af' }}>{new Date(pdf.uploaded_at).toLocaleDateString('pt-PT')}</p>
+                                <div key={pdf.id} className="flex items-center justify-between rounded-lg p-3 gap-3"
+                                  style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <FileText size={16} style={{ color: pdf.file_type === 'image' ? '#0891b2' : pdf.file_type === 'pdf' ? '#dc2626' : '#6b7280' }} />
+                                    <div className="min-w-0">
+                                      <p className="text-sm font-medium truncate" style={{ color: '#111827' }}>{pdf.file_name}</p>
+                                      <p className="text-xs" style={{ color: '#9ca3af' }}>{pdf.file_type.toUpperCase()} &middot; {formatSize(pdf.file_size)} &middot; {new Date(pdf.created_at).toLocaleDateString('pt-PT')}</p>
                                     </div>
                                   </div>
-                                  <button
-                                    onClick={() => {
-                                      const text = `*Campanha: ${c.title}*%0AOperadora: ${c.operator}%0A%0ADocumento: ${pdf.file_name}%0A%0A${c.description || ''}`
+                                  <div className="flex items-center gap-2 flex-shrink-0">
+                                    {pdf.signed_url && (
+                                      <a href={pdf.signed_url} download={pdf.file_name} target="_blank" rel="noreferrer"
+                                        className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
+                                        style={{ background: '#eff6ff', color: '#1d4ed8' }}>
+                                        <Download size={12} /> Download
+                                      </a>
+                                    )}
+                                    <button onClick={() => {
+                                      const text = `*${c.title}* — ${c.operator}%0ADocumento: ${pdf.file_name}`
                                       window.open(`https://wa.me/?text=${text}`, '_blank')
-                                    }}
-                                    className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium"
-                                    style={{ background: '#dcfce7', color: '#166534' }}
-                                    title="Enviar documento por WhatsApp"
-                                  >
-                                    <Share2 size={12} /> Enviar
-                                  </button>
+                                    }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
+                                      style={{ background: '#dcfce7', color: '#166534' }}>
+                                      <Share2 size={12} />
+                                    </button>
+                                    <button onClick={() => deleteFicheiro(c.id, pdf.id)}
+                                      className="rounded-lg p-1.5" style={{ background: '#fef2f2' }}
+                                      title="Apagar ficheiro">
+                                      <Trash2 size={13} style={{ color: '#dc2626' }} />
+                                    </button>
+                                  </div>
                                 </div>
                               ))}
                             </div>
