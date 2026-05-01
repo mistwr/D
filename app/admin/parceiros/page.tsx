@@ -6,7 +6,7 @@ import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import {
   Users, ShoppingCart, Mail, Building2, Percent, Save, Zap, Flame,
-  Plus, X, Eye, EyeOff, Trash2, AlertTriangle, KeyRound, Shield,
+  Plus, X, Eye, EyeOff, Trash2, AlertTriangle, KeyRound, Shield, Pencil,
 } from 'lucide-react'
 
 const SERVICOS = ['energia', 'gas', 'seguros', 'telecom'] as const
@@ -23,7 +23,7 @@ const SERVICO_LABEL: Record<string, string> = {
 
 interface Parceiro { id: string; full_name: string; email: string; company_name: string }
 interface Venda { id: string; user_id: string; client_name: string; amount: number; status: string; service_type: string; operator: string; plano?: string }
-interface ComissaoOp { servico: string; operadora: string; plano: string; valor_comissao: number }
+interface ComissaoOp { servico: string; operadora: string; plano: string; valor_comissao: number; modelo?: string; num_mensalidades?: number; valor_mensal?: number; percentagem?: number }
 interface NovoForm { email: string; password: string; full_name: string; company_name: string; phone: string }
 
 export default function ParceirosPage() {
@@ -517,12 +517,26 @@ export default function ParceirosPage() {
                                         </td>
                                         <td className="px-4 py-3 text-sm font-medium" style={{ color: '#111827' }}>{c.operadora}</td>
                                         <td className="px-4 py-3 text-sm" style={{ color: '#374151' }}>{c.plano || '—'}</td>
-                                        <td className="px-4 py-3 text-sm font-bold" style={{ color: '#059669' }}>€{c.valor_comissao.toFixed(2)}</td>
+                                        <td className="px-4 py-3 text-sm font-bold" style={{ color: '#059669' }}>
+                                          {c.modelo === 'mensalidade' && (c.num_mensalidades || 0) > 0
+                                            ? <span>{c.num_mensalidades}x €{(c.valor_mensal || 0).toFixed(2)}/mes = €{((c.num_mensalidades || 0) * (c.valor_mensal || 0)).toFixed(2)}</span>
+                                            : c.modelo === 'percentagem'
+                                            ? <span>{c.percentagem || 0}%</span>
+                                            : <span>€{(c.valor_comissao || 0).toFixed(2)}</span>
+                                          }
+                                        </td>
                                         <td className="px-4 py-3">
-                                          <button onClick={() => deleteComissaoOp(c)}
-                                            className="rounded-lg p-1.5 transition-colors hover:bg-red-50"
-                                            title="Apagar comissao">
-                                            <Trash2 size={14} style={{ color: '#dc2626' }} />
+                                          <button
+                                            onClick={() => {
+                                              const s = c.servico as typeof SERVICOS[number]
+                                              setComServico(s)
+                                              setComOperadora(c.operadora)
+                                              setComPlano(c.plano || (s === 'telecom' ? '1P' : ''))
+                                              setComValor(c.valor_comissao > 0 ? c.valor_comissao.toString() : (c.valor_mensal || '').toString())
+                                            }}
+                                            className="rounded-lg p-1.5 transition-colors hover:bg-indigo-50"
+                                            title="Editar comissao">
+                                            <Pencil size={14} style={{ color: '#4338ca' }} />
                                           </button>
                                         </td>
                                       </tr>

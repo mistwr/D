@@ -56,9 +56,39 @@ export default function CampanhasParceiroPage() {
       .finally(() => setLoading(false))
   }, [user])
 
-  function shareWhatsApp(campanha: Campanha, ficheiro: Ficheiro) {
-    const text = `*${campanha.title}*${campanha.operator ? ` — ${campanha.operator}` : ''}\n\n${campanha.description || ''}\n\n${ficheiro.signed_url}`
-    window.open(`https://wa.me/?text=${encodeURIComponent(text.trim())}`, '_blank', 'noreferrer')
+  const [sharingId, setSharingId] = useState<string | null>(null)
+
+  async function shareWhatsApp(campanha: Campanha, ficheiro: Ficheiro) {
+    if (!ficheiro.signed_url) return
+    setSharingId(ficheiro.id)
+    try {
+      // Tentar Web Share API com ficheiro real (funciona no mobile com WhatsApp)
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        try {
+          const response = await fetch(ficheiro.signed_url)
+          const blob = await response.blob()
+          const file = new File([blob], ficheiro.file_name, { type: blob.type || 'application/octet-stream' })
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              title: campanha.title,
+              text: `${campanha.title}${campanha.operator ? ` — ${campanha.operator}` : ''}${campanha.description ? `\n\n${campanha.description}` : ''}`,
+              files: [file],
+            })
+            setSharingId(null)
+            return
+          }
+        } catch {
+          // fallback para wa.me
+        }
+      }
+      // Fallback: abrir WhatsApp com link para download
+      const title = `*${campanha.title}*${campanha.operator ? ` — ${campanha.operator}` : ''}`
+      const desc = campanha.description ? `\n\n${campanha.description}` : ''
+      const link = `\n\n${ficheiro.file_name}:\n${ficheiro.signed_url}`
+      window.open(`https://wa.me/?text=${encodeURIComponent((title + desc + link).trim())}`, '_blank', 'noreferrer')
+    } finally {
+      setSharingId(null)
+    }
   }
 
   async function toggleExpand(id: string) {
@@ -187,10 +217,13 @@ export default function CampanhasParceiroPage() {
                                         style={{ background: '#eef2ff', color: '#4338ca' }}>
                                         <Download size={12} /> Ver
                                       </a>
-                                      <button onClick={() => shareWhatsApp(c, f)}
-                                        className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
+                                      <button
+                                        onClick={() => shareWhatsApp(c, f)}
+                                        disabled={sharingId === f.id}
+                                        className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium disabled:opacity-60"
                                         style={{ background: '#dcfce7', color: '#166534' }}>
-                                        <Share2 size={12} /> WhatsApp
+                                        <Share2 size={12} />
+                                        {sharingId === f.id ? 'A partilhar...' : 'WhatsApp'}
                                       </button>
                                     </div>
                                   )}

@@ -41,6 +41,9 @@ export default function NovaVendaPage() {
   const [files, setFiles] = useState<FileItem[]>([])
   const [uploadProgress, setUploadProgress] = useState('')
 
+  const [comissoes, setComissoes] = useState<any[]>([])
+  const [comissaoEstimada, setComissaoEstimada] = useState<string | null>(null)
+
   const [form, setForm] = useState({
     service_type: 'telecom',
     operator: 'MEO',
@@ -67,9 +70,48 @@ export default function NovaVendaPage() {
   useEffect(() => {
     fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).then(d => {
       if (!d.user) router.push('/login')
-      else setUser(d.user)
+      else {
+        setUser(d.user)
+        // Carregar comissoes do parceiro
+        fetch('/api/comissoes/operadora', { credentials: 'include' })
+          .then(r => r.json())
+          .then(d => setComissoes(d.comissoes || []))
+          .catch(() => {})
+      }
     }).catch(() => router.push('/login'))
   }, [router])
+
+  // Calcular comissao estimada ao mudar operadora/plano (apenas telecom)
+  useEffect(() => {
+    if (form.service_type !== 'telecom') { setComissaoEstimada(null); return }
+    const c = comissoes.find(c =>
+      c.servico === 'telecom' &&
+      c.operadora === form.operator &&
+      (c.plano === form.plano || !c.plano)
+    )
+    if (!c) { setComissaoEstimada(null); return }
+    const amount = parseFloat(form.amount) || 0
+    if (c.modelo === 'mensalidade') {
+      const mens = parseFloat(c.num_mensalidades) || 0
+      const label = mens === 0.5 ? 'meia mensalidade' : mens === 1 ? '1 mensalidade' : `${mens} mensalidades`
+      if (amount > 0) {
+        setComissaoEstimada(`${label} × €${amount.toFixed(2)} = €${(mens * amount).toFixed(2)}`)
+      } else {
+        setComissaoEstimada(`${label} × valor mensal do pacote`)
+      }
+    } else if (c.modelo === 'percentagem') {
+      const pct = parseFloat(c.percentagem) || 0
+      if (amount > 0) {
+        setComissaoEstimada(`${pct}% × €${amount.toFixed(2)} = €${(pct / 100 * amount).toFixed(2)}`)
+      } else {
+        setComissaoEstimada(`${pct}% do valor`)
+      }
+    } else if (c.modelo === 'fixo' || !c.modelo) {
+      setComissaoEstimada(`€${parseFloat(c.valor_comissao).toFixed(2)} por contrato (fixo)`)
+    } else {
+      setComissaoEstimada(null)
+    }
+  }, [form.service_type, form.operator, form.plano, form.amount, comissoes])
 
   function update(field: string, value: string | boolean) {
     setForm(f => ({ ...f, [field]: value }))
@@ -352,9 +394,16 @@ export default function NovaVendaPage() {
                 <h2 className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#6b7280' }}>4. Dados da Venda</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Valor do Contrato (€)</label>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                      {form.service_type === 'telecom' ? 'Valor Mensal do Pacote (€)' : 'Valor do Contrato (€)'}
+                    </label>
                     <input type="number" step="0.01" min="0" value={form.amount} onChange={e => update('amount', e.target.value)}
                       className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp} placeholder="0.00" />
+                    {comissaoEstimada && (
+                      <div className="mt-2 rounded-lg px-3 py-2 text-xs font-medium" style={{ background: '#f0fdf4', color: '#166534', border: '1px solid #86efac' }}>
+                        Comissao estimada: {comissaoEstimada}
+                      </div>
+                    )}
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Descricao</label>

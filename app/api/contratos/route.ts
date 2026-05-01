@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/get-auth-user'
 import { createClient as createService } from '@supabase/supabase-js'
 
 function svc() {

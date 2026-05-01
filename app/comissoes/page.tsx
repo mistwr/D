@@ -70,9 +70,19 @@ export default function ComissoesPage() {
   }
 
   const totalPorServico = (items: ComissaoOp[]) => items.reduce((s, c) => {
-    if (c.modelo === 'mensalidade') return s + (c.num_mensalidades || 0) * (c.valor_mensal || 0)
+    if (c.modelo === 'mensalidade' && (c.valor_mensal || 0) > 0)
+      return s + (c.num_mensalidades || 0) * (c.valor_mensal || 0)
+    if (c.modelo === 'mensalidade') return s // dinamico - nao somavel diretamente
     return s + (c.valor_comissao || 0)
   }, 0)
+
+  function labelMensalidades(n: number): string {
+    if (n === 0.5) return 'meia mensalidade'
+    if (n === 1) return '1 mensalidade'
+    if (n === 1.5) return '1.5 mensalidades'
+    if (Number.isInteger(n)) return `${n} mensalidades`
+    return `${n}x mensalidades`
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
