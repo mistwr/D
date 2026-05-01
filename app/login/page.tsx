@@ -78,14 +78,16 @@ export default function LoginPage() {
 
       {/* ---- LADO ESQUERDO: Slideshow ---- */}
       <div className="relative hidden lg:flex lg:w-[58%] xl:w-[62%] flex-col overflow-hidden">
-        {/* Imagem de fundo com fade */}
-        <div
-          className="absolute inset-0 bg-cover bg-center transition-opacity duration-700"
-          style={{
-            backgroundImage: `url(${SLIDES[current].url})`,
-            opacity: fade ? 1 : 0,
-          }}
-        />
+        {/* Imagens pré-carregadas, só a atual fica visível */}
+        {SLIDES.map((slide, i) => (
+          <img
+            key={slide.url}
+            src={slide.url}
+            alt={slide.caption}
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+            style={{ opacity: i === current && fade ? 1 : 0 }}
+          />
+        ))}
         {/* Overlay escuro gradiente */}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(15,23,42,0.25) 0%, rgba(15,23,42,0.75) 100%)' }} />
 
