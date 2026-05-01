@@ -1,4 +1,4 @@
-import { convertToModelMessages, streamText, UIMessage, consumeStream } from 'ai'
+import { convertToModelMessages, streamText, UIMessage } from 'ai'
 import { createClient } from '@/lib/supabase/server'
 
 export const maxDuration = 30
@@ -68,5 +68,5 @@ Sê sempre prestável, claro e conciso. Se não souberes algo específico, suger
     maxOutputTokens: 500,
   })
 
-  return result.toUIMessageStreamResponse({ consumeSseStream: consumeStream })
+  return result.toUIMessageStreamResponse()
 }
