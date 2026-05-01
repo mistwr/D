@@ -68,7 +68,6 @@ export default function AdminContratosPage() {
   const [filterStatus, setFilterStatus] = useState('todos')
   const [expanded, setExpanded] = useState<string | null>(null)
   const [docsMap, setDocsMap] = useState<Record<string, Doc[]>>({})
-  const [docsLoading, setDocsLoading] = useState<string | null>(null)
   const [viewer, setViewer] = useState<Doc | null>(null)
 
   useEffect(() => {
@@ -78,47 +77,27 @@ export default function AdminContratosPage() {
         if (!me?.user || me.user.role !== 'admin') { router.push('/login'); return }
         setUser(me.user)
 
-        // Buscar contratos
-        const [contratosRes, profilesRes] = await Promise.all([
-          fetch('/api/contratos', { credentials: 'include' }).then(r => r.json()),
-          fetch('/api/admin/parceiros', { credentials: 'include' }).then(r => r.json()).catch(() => ({ parceiros: [] })),
-        ])
-
-        const profilesMap = new Map((profilesRes.parceiros ?? []).map((p: any) => [p.id, p]))
-        const enriched = (contratosRes.contratos ?? []).map((c: Contrato) => {
-          const p: any = profilesMap.get(c.user_id)
-          return {
-            ...c,
-            parceiro_name: p?.full_name ?? p?.name ?? 'Desconhecido',
-            parceiro_email: p?.email ?? '',
-            parceiro_company: p?.company ?? '',
-          }
-        })
+        // Contratos já chegam com parceiro e documentos enriquecidos via API
+        const contratosRes = await fetch('/api/contratos', { credentials: 'include' }).then(r => r.json())
+        const enriched = (contratosRes.contratos ?? []).map((c: any) => ({
+          ...c,
+          parceiro_name: c.parceiro?.full_name ?? 'Desconhecido',
+          parceiro_email: c.parceiro?.email ?? '',
+          parceiro_company: c.parceiro?.company ?? '',
+        }))
         setContratos(enriched)
+        // Popular docsMap com docs já incluídos
+        const dm: Record<string, Doc[]> = {}
+        enriched.forEach((c: any) => { dm[c.id] = c.documentos ?? [] })
+        setDocsMap(dm)
       } catch { router.push('/login') }
       setLoading(false)
     }
     load()
   }, [router])
 
-  async function loadDocs(contratoId: string, userId: string) {
-    if (docsMap[contratoId]) return
-    setDocsLoading(contratoId)
-    try {
-      // Buscar documentos sem venda_id do parceiro (tipo=contrato) — admin consegue ver via service role
-      const res = await fetch(`/api/documentos?tipo=contrato&user_override=${userId}`, { credentials: 'include' })
-      const data = await res.json()
-      setDocsMap(prev => ({ ...prev, [contratoId]: data.documentos ?? [] }))
-    } catch {
-      setDocsMap(prev => ({ ...prev, [contratoId]: [] }))
-    }
-    setDocsLoading(null)
-  }
-
-  async function toggleContrato(c: Contrato) {
-    if (expanded === c.id) { setExpanded(null); return }
-    setExpanded(c.id)
-    await loadDocs(c.id, c.user_id)
+  function toggleContrato(c: Contrato) {
+    setExpanded(prev => prev === c.id ? null : c.id)
   }
 
   const filtered = contratos.filter(c => {
@@ -269,11 +248,7 @@ export default function AdminContratosPage() {
                       {/* Documentos expandidos */}
                       {isOpen && (
                         <div className="p-4">
-                          {docsLoading === c.id ? (
-                            <div className="flex items-center justify-center py-8">
-                              <div className="animate-spin rounded-full h-6 w-6 border-b-2" style={{ borderColor: '#4f46e5' }} />
-                            </div>
-                          ) : docs.length === 0 ? (
+                          {docs.length === 0 ? (
                             <div className="rounded-xl p-6 text-center" style={{ background: '#f9fafb', border: '1px dashed #d1d5db' }}>
                               <FileText size={28} className="mx-auto mb-2" style={{ color: '#d1d5db' }} />
                               <p className="text-sm" style={{ color: '#9ca3af' }}>Nenhum documento carregado neste contrato</p>

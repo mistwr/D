@@ -27,6 +27,8 @@ interface Venda {
   energia_tipo: string
   cpe: string
   cui: string
+  potencia: string
+  escalao: string
   is_dual: boolean
   created_at: string
 }
@@ -293,21 +295,29 @@ export default function VendasPage() {
                       <p className="font-mono font-medium" style={{ color: '#111827' }}>{selectedVenda.client_iban}</p>
                     </div>
                   )}
-                  {selectedVenda.is_dual && (selectedVenda.cpe || selectedVenda.cui) && (
-                    <>
-                      {selectedVenda.cpe && (
-                        <div>
-                          <p className="uppercase tracking-wide font-semibold mb-0.5" style={{ color: '#9ca3af', fontSize: 10 }}>CPE</p>
-                          <p className="font-mono font-medium" style={{ color: '#111827' }}>{selectedVenda.cpe}</p>
-                        </div>
-                      )}
-                      {selectedVenda.cui && (
-                        <div>
-                          <p className="uppercase tracking-wide font-semibold mb-0.5" style={{ color: '#9ca3af', fontSize: 10 }}>CUI</p>
-                          <p className="font-mono font-medium" style={{ color: '#111827' }}>{selectedVenda.cui}</p>
-                        </div>
-                      )}
-                    </>
+                  {selectedVenda.cpe && (
+                    <div>
+                      <p className="uppercase tracking-wide font-semibold mb-0.5" style={{ color: '#9ca3af', fontSize: 10 }}>CPE</p>
+                      <p className="font-mono font-medium" style={{ color: '#111827' }}>{selectedVenda.cpe}</p>
+                    </div>
+                  )}
+                  {selectedVenda.cui && (
+                    <div>
+                      <p className="uppercase tracking-wide font-semibold mb-0.5" style={{ color: '#9ca3af', fontSize: 10 }}>CUI</p>
+                      <p className="font-mono font-medium" style={{ color: '#111827' }}>{selectedVenda.cui}</p>
+                    </div>
+                  )}
+                  {selectedVenda.potencia && (
+                    <div>
+                      <p className="uppercase tracking-wide font-semibold mb-0.5" style={{ color: '#9ca3af', fontSize: 10 }}>Potencia</p>
+                      <p className="font-medium" style={{ color: '#111827' }}>{selectedVenda.potencia} kVA</p>
+                    </div>
+                  )}
+                  {selectedVenda.escalao && (
+                    <div>
+                      <p className="uppercase tracking-wide font-semibold mb-0.5" style={{ color: '#9ca3af', fontSize: 10 }}>Escalao</p>
+                      <p className="font-medium capitalize" style={{ color: '#111827' }}>{selectedVenda.escalao.replace(/-/g, ' ')}</p>
+                    </div>
                   )}
                 </div>
 

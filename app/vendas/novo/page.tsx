@@ -59,6 +59,8 @@ export default function NovaVendaPage() {
     energia_tipo: 'eletricidade',
     cpe: '',
     cui: '',
+    potencia: '',
+    escalao: '',
     is_dual: false,
   })
 
@@ -93,6 +95,8 @@ export default function NovaVendaPage() {
         energia_tipo: form.service_type === 'energia' ? form.energia_tipo : null,
         cpe: form.service_type === 'energia' ? form.cpe : null,
         cui: form.service_type === 'energia' ? form.cui : null,
+        potencia: form.service_type === 'energia' ? form.potencia : null,
+        escalao: form.service_type === 'energia' ? form.escalao : null,
       }
       const res = await fetch('/api/vendas', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
@@ -258,6 +262,34 @@ export default function NovaVendaPage() {
                             placeholder="PT00XXXXXXXXXXXX" />
                         </div>
                       )}
+                      {(form.energia_tipo === 'eletricidade' || form.energia_tipo === 'dual') && (
+                        <div>
+                          <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                            Potencia Contratada <span className="font-normal text-xs" style={{ color: '#9ca3af' }}>(kVA)</span>
+                          </label>
+                          <select value={form.potencia} onChange={e => update('potencia', e.target.value)}
+                            className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp}>
+                            <option value="">Selecionar potencia...</option>
+                            {['1.15', '2.3', '3.45', '4.6', '5.75', '6.9', '10.35', '13.8', '17.25', '20.7', '27.6', '34.5', '41.4'].map(p => (
+                              <option key={p} value={p}>{p} kVA</option>
+                            ))}
+                            <option value="outro">Outro</option>
+                          </select>
+                        </div>
+                      )}
+                      <div>
+                        <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                          Escalao / Ciclo Horario
+                        </label>
+                        <select value={form.escalao} onChange={e => update('escalao', e.target.value)}
+                          className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp}>
+                          <option value="">Selecionar escalao...</option>
+                          <option value="simples">Simples</option>
+                          <option value="bi-horario">Bi-horario (Vazio / Fora de Vazio)</option>
+                          <option value="tri-horario">Tri-horario (Ponta / Cheia / Vazio)</option>
+                          <option value="tetra-horario">Tetra-horario</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 )}

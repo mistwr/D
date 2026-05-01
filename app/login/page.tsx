@@ -57,30 +57,43 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen" style={{ background: '#0f172a' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#0f172a' }}>
 
       {/* ---- LADO ESQUERDO: Slideshow ---- */}
-      <div className="hidden lg:block lg:w-[58%] xl:w-[62%]" style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
-        {/* Imagens absolutas — cada uma ocupa 100% do contentor */}
+      <div style={{
+        display: 'none',
+        position: 'relative',
+        width: '60%',
+        minHeight: '100vh',
+        overflow: 'hidden',
+        flexShrink: 0,
+      }} className="lg-slideshow-panel">
+        <style>{`@media (min-width: 1024px) { .lg-slideshow-panel { display: block !important; } }`}</style>
         {SLIDES.map((slide, i) => (
           <img
             key={slide.id}
             src={slide.url}
             alt={slide.caption}
             style={{
-              position: 'absolute', inset: 0,
+              position: 'absolute',
+              top: 0, left: 0, right: 0, bottom: 0,
               width: '100%', height: '100%',
               objectFit: 'cover',
               opacity: i === current && fade ? 1 : 0,
-              transition: 'opacity 700ms ease-in-out',
+              transition: 'opacity 800ms ease-in-out',
+              zIndex: 1,
             }}
           />
         ))}
-        {/* Overlay escuro gradiente */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(15,23,42,0.25) 0%, rgba(15,23,42,0.75) 100%)' }} />
+        {/* Overlay escuro */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'linear-gradient(to bottom, rgba(15,23,42,0.2) 0%, rgba(15,23,42,0.8) 100%)',
+          zIndex: 2,
+        }} />
 
         {/* Conteudo sobre o slideshow */}
-        <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', height: '100%', minHeight: '100vh', padding: '40px' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 3, display: 'flex', flexDirection: 'column', padding: '40px' }}>
           {/* Logo topo esquerdo */}
           <div className="flex items-center gap-3">
             <div className="h-12 w-12 rounded-xl overflow-hidden flex-shrink-0 shadow-lg" style={{ border: '2px solid rgba(255,255,255,0.2)' }}>
@@ -130,7 +143,7 @@ export default function LoginPage() {
       </div>
 
       {/* ---- LADO DIREITO: Formulario ---- */}
-      <div className="flex flex-1 flex-col items-center justify-center p-6 sm:p-10" style={{ background: '#ffffff' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', background: '#ffffff' }}>
         <div className="w-full max-w-[380px]">
 
           {/* Branding mobile (so visivel sem o painel esquerdo) */}
