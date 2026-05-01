@@ -89,8 +89,11 @@ export async function POST(req: Request) {
   const { data: venda, error } = await supabase.from('vendas').insert({
     user_id: isAdmin && body.user_id ? body.user_id : user.id,
     client_name: body.client_name || '',
-    client_email: body.client_email || '',
+    client_email: body.client_email || null,
     client_phone: body.client_phone || '',
+    client_nif: body.client_nif || null,
+    client_cc: body.client_cc || null,
+    client_iban: body.client_iban || null,
     amount: parseFloat(body.amount) || 0,
     currency: body.currency || 'EUR',
     description: body.description || '',
@@ -100,6 +103,10 @@ export async function POST(req: Request) {
     plano: body.plano || '',
     status: 'pendente',
     notes: body.notes || '',
+    is_dual: body.is_dual || false,
+    energia_tipo: body.energia_tipo || null,
+    cpe: body.cpe || null,
+    cui: body.cui || null,
   }).select().single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

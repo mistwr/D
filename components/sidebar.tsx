@@ -25,7 +25,7 @@ export function Sidebar({ userRole }: SidebarProps) {
     { href: '/admin/parceiros', label: 'Parceiros', icon: Users },
     { href: '/admin/vendas', label: 'Vendas', icon: ShoppingCart },
     { href: '/admin/campanhas', label: 'Campanhas', icon: Megaphone },
-    { href: '/admin/publicar', label: 'Publicar', icon: Send },
+    { href: '/admin/publicacoes', label: 'Publicacoes', icon: Newspaper },
     { href: '/admin/comissoes', label: 'Comissoes', icon: Percent },
     { href: '/admin/contratos', label: 'Contratos', icon: FileCheck },
     { href: '/admin/documentos', label: 'Documentos', icon: Upload },

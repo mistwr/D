@@ -47,7 +47,14 @@ export async function GET(req: NextRequest) {
       (v.service_type !== 'telecom' || !o.plano || o.plano === '' || o.plano === v.plano)
     )
     if (opRow) {
-      com = (opRow.valor_comissao ?? 0) + ((v.amount ?? 0) * ((opRow.percentagem ?? 0) / 100))
+      if (opRow.modelo === 'mensalidade') {
+        com = (parseFloat(opRow.num_mensalidades) || 0) * (parseFloat(opRow.valor_mensal) || 0)
+      } else if (opRow.modelo === 'percentagem') {
+        com = (v.amount ?? 0) * ((parseFloat(opRow.percentagem) || 0) / 100)
+      } else {
+        // fixo
+        com = parseFloat(opRow.valor_comissao) || 0
+      }
     } else if (comissao) {
       if (v.service_type === 'energia') com = ((v.amount ?? 0) * (comissao.energia_percent / 100)) + comissao.energia_fixo
       else com = ((v.amount ?? 0) * (comissao.telecom_percent / 100)) + comissao.telecom_fixo

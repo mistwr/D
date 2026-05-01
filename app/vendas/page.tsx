@@ -12,6 +12,9 @@ interface Venda {
   client_name: string
   client_email: string
   client_phone: string
+  client_nif: string
+  client_cc: string
+  client_iban: string
   amount: number
   status: string
   contract_type: string
@@ -19,6 +22,11 @@ interface Venda {
   operator: string
   plano: string
   description: string
+  notes: string
+  energia_tipo: string
+  cpe: string
+  cui: string
+  is_dual: boolean
   created_at: string
 }
 
@@ -103,8 +111,12 @@ export default function VendasPage() {
   }
 
   const filtered = vendas.filter(v => {
-    const match = v.client_name.toLowerCase().includes(search.toLowerCase()) ||
-      (v.client_email || '').toLowerCase().includes(search.toLowerCase())
+    const q = search.toLowerCase()
+    const match = !q ||
+      (v.client_name || '').toLowerCase().includes(q) ||
+      (v.client_email || '').toLowerCase().includes(q) ||
+      (v.client_nif || '').toLowerCase().includes(q) ||
+      (v.operator || '').toLowerCase().includes(q)
     return match && (filter === 'todos' || v.status === filter)
   })
 
@@ -139,7 +151,7 @@ export default function VendasPage() {
             <div className="flex flex-col md:flex-row gap-3 mb-6">
               <div className="relative flex-1">
                 <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#9ca3af' }} />
-                <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Procurar por cliente..."
+                <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Procurar por nome, NIF ou operadora..."
                   className="w-full pl-9 pr-4 py-2.5 rounded-lg text-sm outline-none"
                   style={{ background: '#fff', border: '1px solid #e5e7eb', color: '#111827' }} />
               </div>
@@ -178,7 +190,8 @@ export default function VendasPage() {
                           <tr key={v.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
                             <td className="px-5 py-4">
                               <p className="font-semibold text-sm" style={{ color: '#111827' }}>{v.client_name}</p>
-                              {v.client_email && <p className="text-xs mt-0.5" style={{ color: '#9ca3af' }}>{v.client_email}</p>}
+                              {v.client_nif && <p className="text-xs mt-0.5 font-mono" style={{ color: '#6b7280' }}>NIF: {v.client_nif}</p>}
+                              {v.client_email && <p className="text-xs" style={{ color: '#9ca3af' }}>{v.client_email}</p>}
                               {v.client_phone && <p className="text-xs" style={{ color: '#9ca3af' }}>{v.client_phone}</p>}
                             </td>
                             <td className="px-5 py-4">
@@ -235,6 +248,30 @@ export default function VendasPage() {
             </div>
 
             <div className="p-6">
+              {/* Detalhes da venda */}
+              <div className="mb-4 rounded-lg p-4 space-y-2" style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                  <div><span style={{ color: '#9ca3af' }}>Servico: </span><span className="font-medium" style={{ color: '#374151' }}>{selectedVenda.service_type} · {selectedVenda.operator}{selectedVenda.plano ? ` · ${selectedVenda.plano}` : ''}</span></div>
+                  <div><span style={{ color: '#9ca3af' }}>Valor: </span><span className="font-semibold" style={{ color: '#111827' }}>€{(selectedVenda.amount || 0).toFixed(2)}</span></div>
+                  {selectedVenda.client_nif && <div><span style={{ color: '#9ca3af' }}>NIF: </span><span className="font-mono font-medium" style={{ color: '#374151' }}>{selectedVenda.client_nif}</span></div>}
+                  {selectedVenda.client_cc && <div><span style={{ color: '#9ca3af' }}>CC: </span><span className="font-mono" style={{ color: '#374151' }}>{selectedVenda.client_cc}</span></div>}
+                  {selectedVenda.client_iban && <div className="col-span-2"><span style={{ color: '#9ca3af' }}>IBAN: </span><span className="font-mono" style={{ color: '#374151' }}>{selectedVenda.client_iban}</span></div>}
+                  {selectedVenda.is_dual && <div className="col-span-2"><span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: '#fef3c7', color: '#92400e' }}>Dual ({selectedVenda.energia_tipo}){selectedVenda.cpe ? ` · CPE: ${selectedVenda.cpe}` : ''}{selectedVenda.cui ? ` · CUI: ${selectedVenda.cui}` : ''}</span></div>}
+                </div>
+                {selectedVenda.description && (
+                  <div className="pt-2" style={{ borderTop: '1px solid #e5e7eb' }}>
+                    <p className="text-xs font-medium mb-0.5" style={{ color: '#6b7280' }}>Descricao</p>
+                    <p className="text-xs leading-relaxed" style={{ color: '#374151' }}>{selectedVenda.description}</p>
+                  </div>
+                )}
+                {selectedVenda.notes && (
+                  <div className="pt-2" style={{ borderTop: '1px solid #e5e7eb' }}>
+                    <p className="text-xs font-medium mb-0.5" style={{ color: '#6b7280' }}>Notas internas</p>
+                    <p className="text-xs leading-relaxed" style={{ color: '#374151' }}>{selectedVenda.notes}</p>
+                  </div>
+                )}
+              </div>
+
               {/* Upload */}
               <label className="flex items-center justify-center gap-2 w-full rounded-xl border-2 border-dashed cursor-pointer py-6 mb-4 transition hover:border-indigo-400"
                 style={{ borderColor: '#d1d5db' }}>

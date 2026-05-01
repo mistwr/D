@@ -19,7 +19,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string; bg: string }
 const STATUSES = Object.keys(STATUS_LABELS)
 
 interface Venda {
-  id: string; client_name: string; amount: number; status: string
+  id: string; client_name: string; client_nif: string; amount: number; status: string
   service_type: string; operator: string; plano: string
   created_at: string; parceiro_name: string; user_id: string
 }
@@ -65,7 +65,8 @@ export default function AdminVendasPage() {
   )
 
   const filtered = vendas.filter(v => {
-    const matchSearch = !search || v.client_name.toLowerCase().includes(search.toLowerCase()) || v.parceiro_name?.toLowerCase().includes(search.toLowerCase())
+    const q = search.toLowerCase()
+    const matchSearch = !q || v.client_name.toLowerCase().includes(q) || (v.parceiro_name || '').toLowerCase().includes(q) || (v.client_nif || '').toLowerCase().includes(q) || (v.operator || '').toLowerCase().includes(q)
     const matchStatus = filterStatus === 'todas' || v.status === filterStatus
     const matchServico = filterServico === 'todos' || v.service_type === filterServico
     return matchSearch && matchStatus && matchServico
@@ -142,7 +143,7 @@ export default function AdminVendasPage() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-                        {['Cliente', 'Parceiro', 'Servico', 'Operadora', 'Valor', 'Data', 'Estado'].map(h => (
+                        {['Cliente / NIF', 'Parceiro', 'Servico', 'Operadora', 'Valor', 'Data', 'Estado'].map(h => (
                           <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>{h}</th>
                         ))}
                       </tr>
@@ -152,7 +153,10 @@ export default function AdminVendasPage() {
                         const st = STATUS_LABELS[v.status] || { label: v.status, color: '#374151', bg: '#f3f4f6' }
                         return (
                           <tr key={v.id} style={{ borderBottom: i < filtered.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
-                            <td className="px-4 py-3 font-medium" style={{ color: '#111827' }}>{v.client_name}</td>
+                            <td className="px-4 py-3">
+                              <p className="font-medium" style={{ color: '#111827' }}>{v.client_name}</p>
+                              {v.client_nif && <p className="text-xs font-mono mt-0.5" style={{ color: '#6b7280' }}>NIF: {v.client_nif}</p>}
+                            </td>
                             <td className="px-4 py-3" style={{ color: '#6b7280' }}>{v.parceiro_name || '—'}</td>
                             <td className="px-4 py-3">
                               <span className="rounded-md px-2 py-0.5 text-xs font-medium" style={{ background: '#eef2ff', color: '#4338ca' }}>
