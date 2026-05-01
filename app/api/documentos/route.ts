@@ -86,18 +86,12 @@ export async function POST(req: Request) {
   const folder = vendaId ?? `contratos/${user.id}`
   const filePath = `${folder}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
 
-  console.log('[v0] documentos POST - user:', user.id, 'filePath:', filePath, 'bucket: documentos')
-
   const arrayBuffer = await file.arrayBuffer()
   const { error: uploadError } = await svc.storage.from('documentos').upload(filePath, arrayBuffer, {
     contentType: file.type || 'application/octet-stream',
     upsert: false,
   })
-  if (uploadError) {
-    console.log('[v0] storage upload error:', uploadError.message, uploadError)
-    return NextResponse.json({ error: 'Erro ao fazer upload: ' + uploadError.message }, { status: 500 })
-  }
-  console.log('[v0] storage upload OK')
+  if (uploadError) return NextResponse.json({ error: 'Erro ao fazer upload: ' + uploadError.message }, { status: 500 })
 
   const { data: doc, error: dbErr } = await svc.from('documentos').insert({
     venda_id: vendaId ?? null,
@@ -108,11 +102,7 @@ export async function POST(req: Request) {
     uploaded_by: user.id,
   }).select().single()
 
-  if (dbErr) {
-    console.log('[v0] DB insert error:', dbErr.message, dbErr)
-    return NextResponse.json({ error: dbErr.message }, { status: 500 })
-  }
-  console.log('[v0] DB insert OK, doc id:', doc?.id)
+  if (dbErr) return NextResponse.json({ error: dbErr.message }, { status: 500 })
 
   // Gerar signed URL para o ficheiro recém-enviado
   const { data: signed } = await svc.storage.from('documentos').createSignedUrl(filePath, 3600)
