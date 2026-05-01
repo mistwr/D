@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { ShoppingCart, Search, ChevronDown } from 'lucide-react'
+import { ShoppingCart, Search, ChevronDown, Trash2 } from 'lucide-react'
 
 const STATUS_LABELS: Record<string, { label: string; color: string; bg: string }> = {
   pendente:   { label: 'Pendente',   color: '#92400e', bg: '#fef3c7' },
@@ -33,6 +33,8 @@ export default function AdminVendasPage() {
   const [filterStatus, setFilterStatus] = useState('todas')
   const [filterServico, setFilterServico] = useState('todos')
   const [updating, setUpdating] = useState<string | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -56,6 +58,21 @@ export default function AdminVendasPage() {
     })
     setVendas(prev => prev.map(v => v.id === id ? { ...v, status } : v))
     setUpdating(null)
+  }
+
+  async function deleteVenda(id: string) {
+    setDeleting(id)
+    const res = await fetch('/api/vendas', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ id }),
+    })
+    if (res.ok) {
+      setVendas(prev => prev.filter(v => v.id !== id))
+    }
+    setDeleting(null)
+    setConfirmDelete(null)
   }
 
   if (loading) return (
@@ -143,7 +160,7 @@ export default function AdminVendasPage() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-                        {['Cliente / NIF', 'Parceiro', 'Servico', 'Operadora', 'Valor', 'Data', 'Estado'].map(h => (
+                        {['Cliente / NIF', 'Parceiro', 'Servico', 'Operadora', 'Valor', 'Data', 'Estado', ''].map(h => (
                           <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>{h}</th>
                         ))}
                       </tr>
@@ -182,6 +199,29 @@ export default function AdminVendasPage() {
                                 </select>
                                 <ChevronDown size={10} className="absolute right-1.5 top-1.5 pointer-events-none" style={{ color: st.color }} />
                               </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              {confirmDelete === v.id ? (
+                                <div className="flex items-center gap-1">
+                                  <button onClick={() => deleteVenda(v.id)} disabled={deleting === v.id}
+                                    className="rounded-lg px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                                    style={{ background: '#dc2626' }}>
+                                    {deleting === v.id ? '...' : 'Confirmar'}
+                                  </button>
+                                  <button onClick={() => setConfirmDelete(null)}
+                                    className="rounded-lg px-2 py-1 text-xs font-medium"
+                                    style={{ background: '#f3f4f6', color: '#374151' }}>
+                                    Cancelar
+                                  </button>
+                                </div>
+                              ) : (
+                                <button onClick={() => setConfirmDelete(v.id)}
+                                  className="rounded-lg p-1.5 transition hover:opacity-80"
+                                  style={{ background: '#fef2f2' }}
+                                  title="Apagar venda">
+                                  <Trash2 size={14} style={{ color: '#dc2626' }} />
+                                </button>
+                              )}
                             </td>
                           </tr>
                         )

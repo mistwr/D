@@ -6,7 +6,7 @@ import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import {
   FileText, Search, Download, Eye, X, ChevronDown, ChevronUp,
-  User, CheckCircle, Clock, Zap, Wifi, Building2, Mail, Phone
+  User, CheckCircle, Clock, Zap, Wifi, Building2, Mail, Phone, Trash2
 } from 'lucide-react'
 
 interface Contrato {
@@ -69,6 +69,38 @@ export default function AdminContratosPage() {
   const [expanded, setExpanded] = useState<string | null>(null)
   const [docsMap, setDocsMap] = useState<Record<string, Doc[]>>({})
   const [viewer, setViewer] = useState<Doc | null>(null)
+  const [confirmDeleteContrato, setConfirmDeleteContrato] = useState<string | null>(null)
+  const [deletingContrato, setDeletingContrato] = useState<string | null>(null)
+  const [confirmDeleteDoc, setConfirmDeleteDoc] = useState<string | null>(null)
+  const [deletingDoc, setDeletingDoc] = useState<string | null>(null)
+
+  async function deleteContrato(id: string) {
+    setDeletingContrato(id)
+    const res = await fetch('/api/contratos', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ id }),
+    })
+    if (res.ok) setContratos(prev => prev.filter(c => c.id !== id))
+    setDeletingContrato(null)
+    setConfirmDeleteContrato(null)
+  }
+
+  async function deleteDoc(id: string, contratoId: string) {
+    setDeletingDoc(id)
+    const res = await fetch('/api/documentos', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ id }),
+    })
+    if (res.ok) {
+      setDocsMap(prev => ({ ...prev, [contratoId]: (prev[contratoId] ?? []).filter(d => d.id !== id) }))
+    }
+    setDeletingDoc(null)
+    setConfirmDeleteDoc(null)
+  }
 
   useEffect(() => {
     async function load() {
@@ -226,7 +258,7 @@ export default function AdminContratosPage() {
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-4 ml-4 flex-shrink-0">
+                        <div className="flex items-center gap-3 ml-4 flex-shrink-0">
                           {/* Assinaturas */}
                           <div className="hidden md:flex items-center gap-2">
                             <span className="text-xs" style={{ color: '#9ca3af' }}>Cliente</span>
@@ -241,6 +273,28 @@ export default function AdminContratosPage() {
                           <span className="text-xs hidden md:block" style={{ color: '#9ca3af' }}>
                             {new Date(c.created_at).toLocaleDateString('pt-PT')}
                           </span>
+                          {confirmDeleteContrato === c.id ? (
+                            <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                              <button onClick={() => deleteContrato(c.id)} disabled={deletingContrato === c.id}
+                                className="rounded-lg px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                                style={{ background: '#dc2626' }}>
+                                {deletingContrato === c.id ? '...' : 'Confirmar'}
+                              </button>
+                              <button onClick={() => setConfirmDeleteContrato(null)}
+                                className="rounded-lg px-2 py-1 text-xs"
+                                style={{ background: '#f3f4f6', color: '#374151' }}>
+                                Cancelar
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={e => { e.stopPropagation(); setConfirmDeleteContrato(c.id) }}
+                              className="rounded-lg p-1.5 transition hover:opacity-80"
+                              style={{ background: '#fef2f2' }}
+                              title="Apagar contrato">
+                              <Trash2 size={14} style={{ color: '#dc2626' }} />
+                            </button>
+                          )}
                           {isOpen ? <ChevronUp size={18} style={{ color: '#9ca3af' }} /> : <ChevronDown size={18} style={{ color: '#9ca3af' }} />}
                         </div>
                       </button>
@@ -293,6 +347,27 @@ export default function AdminContratosPage() {
                                           <span className="text-xs px-3 py-1.5 rounded-lg" style={{ background: '#fee2e2', color: '#991b1b' }}>
                                             URL expirada
                                           </span>
+                                        )}
+                                        {confirmDeleteDoc === d.id ? (
+                                          <div className="flex items-center gap-1">
+                                            <button onClick={() => deleteDoc(d.id, c.id)} disabled={deletingDoc === d.id}
+                                              className="rounded-lg px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                                              style={{ background: '#dc2626' }}>
+                                              {deletingDoc === d.id ? '...' : 'Confirmar'}
+                                            </button>
+                                            <button onClick={() => setConfirmDeleteDoc(null)}
+                                              className="rounded-lg px-2 py-1 text-xs"
+                                              style={{ background: '#f3f4f6', color: '#374151' }}>
+                                              Cancelar
+                                            </button>
+                                          </div>
+                                        ) : (
+                                          <button onClick={() => setConfirmDeleteDoc(d.id)}
+                                            className="rounded-lg p-1.5 transition hover:opacity-80"
+                                            style={{ background: '#fef2f2' }}
+                                            title="Apagar documento">
+                                            <Trash2 size={14} style={{ color: '#dc2626' }} />
+                                          </button>
                                         )}
                                       </div>
                                     </div>

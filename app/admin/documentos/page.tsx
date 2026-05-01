@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { FileText, Search, User, ChevronDown, ChevronUp, Phone, Mail, Building2, Zap, Wifi, Download, Eye, X } from 'lucide-react'
+import { FileText, Search, User, ChevronDown, ChevronUp, Phone, Mail, Building2, Zap, Wifi, Download, Eye, X, Trash2 } from 'lucide-react'
 
 interface Doc {
   id: string
@@ -59,6 +59,21 @@ export default function AdminDocumentosPage() {
   const [expandedParceiro, setExpandedParceiro] = useState<string | null>(null)
   const [filterType, setFilterType] = useState('todos')
   const [viewer, setViewer] = useState<Doc | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState<string | null>(null)
+
+  async function deleteDoc(id: string) {
+    setDeleting(id)
+    const res = await fetch('/api/documentos', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ id }),
+    })
+    if (res.ok) setDocs(prev => prev.filter(d => d.id !== id))
+    setDeleting(null)
+    setConfirmDelete(null)
+  }
 
   useEffect(() => {
     async function load() {
@@ -277,6 +292,27 @@ export default function AdminDocumentosPage() {
                                         <span className="text-xs px-3 py-1.5 rounded-lg" style={{ background: '#fee2e2', color: '#991b1b' }}>
                                           URL expirada
                                         </span>
+                                      )}
+                                      {confirmDelete === d.id ? (
+                                        <div className="flex items-center gap-1">
+                                          <button onClick={() => deleteDoc(d.id)} disabled={deleting === d.id}
+                                            className="rounded-lg px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                                            style={{ background: '#dc2626' }}>
+                                            {deleting === d.id ? '...' : 'Confirmar'}
+                                          </button>
+                                          <button onClick={() => setConfirmDelete(null)}
+                                            className="rounded-lg px-2 py-1 text-xs"
+                                            style={{ background: '#f3f4f6', color: '#374151' }}>
+                                            Cancelar
+                                          </button>
+                                        </div>
+                                      ) : (
+                                        <button onClick={() => setConfirmDelete(d.id)}
+                                          className="rounded-lg p-1.5 transition hover:opacity-80"
+                                          style={{ background: '#fef2f2' }}
+                                          title="Apagar documento">
+                                          <Trash2 size={14} style={{ color: '#dc2626' }} />
+                                        </button>
                                       )}
                                     </div>
                                   </div>

@@ -115,6 +115,38 @@ export async function POST(req: Request) {
   return NextResponse.json({ venda })
 }
 
+export async function DELETE(req: Request) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
+
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Sem permissao' }, { status: 403 })
+
+  const { id } = await req.json()
+  if (!id) return NextResponse.json({ error: 'id obrigatorio' }, { status: 400 })
+
+  const { createClient: svcCreate } = await import('@supabase/supabase-js')
+  const svc = svcCreate(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+
+  // Apagar documentos do storage e da tabela antes de apagar a venda
+  const { data: docs } = await svc.from('documentos').select('id, file_path').eq('venda_id', id)
+  if (docs && docs.length > 0) {
+    const paths = docs.map((d: any) => d.file_path).filter(Boolean)
+    if (paths.length > 0) await svc.storage.from('documentos').remove(paths)
+    await svc.from('documentos').delete().eq('venda_id', id)
+  }
+
+  const { error } = await svc.from('vendas').delete().eq('id', id)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  return NextResponse.json({ ok: true })
+}
+
 export async function PATCH(req: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
