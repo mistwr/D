@@ -117,17 +117,21 @@ export async function POST(req: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
-  const formData = await req.formData()
+  let formData: FormData
+  try {
+    formData = await req.formData()
+  } catch {
+    return NextResponse.json({ error: 'Erro ao ler formulário' }, { status: 400 })
+  }
+
   const vendaId = (formData.get('venda_id') as string) || null
-  const tipo = formData.get('tipo') as string | null
   const file = formData.get('file') as File | null
 
-  if (!file) return NextResponse.json({ error: 'Ficheiro obrigatório' }, { status: 400 })
+  if (!file || file.size === 0) return NextResponse.json({ error: 'Ficheiro obrigatório' }, { status: 400 })
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
 
-  // Se tem venda_id, verificar permissão
   if (vendaId) {
     const { data: venda } = await supabase.from('vendas').select('user_id').eq('id', vendaId).single()
     if (!venda) return NextResponse.json({ error: 'Venda não encontrada' }, { status: 404 })
@@ -136,7 +140,8 @@ export async function POST(req: Request) {
 
   const svc = service()
   const folder = vendaId ?? `contratos/${user.id}`
-  const filePath = `${folder}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
+  const safeFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+  const filePath = `${folder}/${Date.now()}-${safeFileName}`
 
   const arrayBuffer = await file.arrayBuffer()
   const { error: uploadError } = await svc.storage.from('documentos').upload(filePath, arrayBuffer, {
@@ -156,7 +161,6 @@ export async function POST(req: Request) {
 
   if (dbErr) return NextResponse.json({ error: dbErr.message }, { status: 500 })
 
-  // Gerar signed URL para o ficheiro recém-enviado
   const { data: signed } = await svc.storage.from('documentos').createSignedUrl(filePath, 3600)
   return NextResponse.json({ documento: { ...doc, signed_url: signed?.signedUrl ?? null } })
 }

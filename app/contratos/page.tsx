@@ -45,15 +45,23 @@ export default function ContratosPage() {
     if (!file) return
     setUploading(true)
     setUploadError('')
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('tipo', 'contrato')
-    const r = await fetch('/api/documentos', { method: 'POST', credentials: 'include', body: fd })
-    const d = await r.json()
-    setUploading(false)
-    e.target.value = ''
-    if (!r.ok) { setUploadError(d.error || 'Erro ao enviar ficheiro'); return }
-    setContratos(prev => [d.documento, ...prev])
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('tipo', 'contrato')
+      const r = await fetch('/api/documentos', { method: 'POST', credentials: 'include', body: fd })
+      const d = await r.json()
+      if (!r.ok) {
+        setUploadError(d.error || 'Erro ao enviar ficheiro')
+      } else {
+        await loadContratos()
+      }
+    } catch (err: any) {
+      setUploadError('Erro de ligacao: ' + (err?.message || 'desconhecido'))
+    } finally {
+      setUploading(false)
+      if (fileRef.current) fileRef.current.value = ''
+    }
   }
 
   async function handleDelete(id: string) {
@@ -111,23 +119,26 @@ export default function ContratosPage() {
               </div>
             )}
 
-            {/* Zona de drop */}
-            <label className="block mb-6 rounded-2xl border-2 border-dashed cursor-pointer transition hover:border-indigo-400"
-              style={{ borderColor: '#d1d5db', background: '#fff' }}>
-              <input type="file" className="hidden" onChange={handleUpload} disabled={uploading}
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+            {/* Zona de upload — usa o mesmo fileRef do botão do header */}
+            <button
+              type="button"
+              disabled={uploading}
+              onClick={() => fileRef.current?.click()}
+              className="block w-full mb-6 rounded-2xl border-2 border-dashed cursor-pointer transition text-left"
+              style={{ borderColor: uploading ? '#e5e7eb' : '#c7d2fe', background: uploading ? '#fafafa' : '#fafbff' }}
+            >
               <div className="flex flex-col items-center justify-center py-10 gap-3">
                 <div className="rounded-full p-4" style={{ background: '#eef2ff' }}>
-                  <Upload size={24} style={{ color: '#4f46e5' }} />
+                  <Upload size={24} style={{ color: uploading ? '#9ca3af' : '#4f46e5' }} />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-semibold" style={{ color: '#111827' }}>
-                    {uploading ? 'A enviar...' : 'Arraste um ficheiro ou clique para escolher'}
+                  <p className="text-sm font-semibold" style={{ color: uploading ? '#9ca3af' : '#111827' }}>
+                    {uploading ? 'A enviar...' : 'Clique para seleccionar ficheiro'}
                   </p>
                   <p className="text-xs mt-1" style={{ color: '#9ca3af' }}>PDF, Word, imagens — max. 10MB</p>
                 </div>
               </div>
-            </label>
+            </button>
 
             {/* Pesquisa */}
             {contratos.length > 0 && (
@@ -167,10 +178,10 @@ export default function ContratosPage() {
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         {c.signed_url && (
-                          <a href={c.signed_url} target="_blank" rel="noreferrer"
+                          <a href={c.signed_url} download={c.file_name}
                             className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition hover:opacity-80"
                             style={{ background: '#eef2ff', color: '#4f46e5' }}>
-                            <Download size={13} /> Abrir
+                            <Download size={13} /> Download
                           </a>
                         )}
                         <button onClick={() => handleDelete(c.id)} disabled={deleting === c.id}
