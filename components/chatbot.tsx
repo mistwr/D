@@ -19,11 +19,12 @@ export default function Chatbot() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const { messages, input, setInput, sendMessage, status } = useChat({
+  const { messages, input, setInput, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: '/api/chatbot' }),
   })
 
   const isStreaming = status === 'streaming' || status === 'submitted'
+  const hasError = status === 'error'
 
   // header shows streaming state
   useEffect(() => {
@@ -102,17 +103,45 @@ export default function Chatbot() {
 
           {/* Mensagens */}
           <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3" style={{ background: '#f8fafc' }}>
-            {/* Mensagem inicial quando nao ha mensagens */}
+            {/* Estado inicial com sugestoes */}
             {messages.length === 0 && (
+              <div className="space-y-3">
+                <div className="flex items-start gap-2">
+                  <div className="h-7 w-7 rounded-full overflow-hidden flex-shrink-0 mt-0.5">
+                    <Image src="/chatbot-avatar.jpg" alt="Sofia" width={28} height={28} className="object-cover" />
+                  </div>
+                  <div className="rounded-2xl rounded-tl-sm px-3 py-2.5"
+                    style={{ background: '#fff', border: '1px solid #e5e7eb', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                    <p className="text-sm" style={{ color: '#374151' }}>
+                      Ola! Sou a Sofia, a vossa assistente virtual. Como posso ajudar hoje?
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1.5 pl-9">
+                  {[
+                    'Como registro uma venda?',
+                    'Como consulto as minhas comissoes?',
+                    'Como funciona o simulador?',
+                  ].map(sugestao => (
+                    <button key={sugestao} onClick={() => { sendMessage({ text: sugestao }) }}
+                      className="text-left text-xs px-3 py-2 rounded-xl transition-all hover:shadow-sm"
+                      style={{ background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe' }}>
+                      {sugestao}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Mensagem de erro */}
+            {hasError && (
               <div className="flex items-start gap-2">
-                <div className="h-7 w-7 rounded-full overflow-hidden flex-shrink-0 mt-0.5">
+                <div className="h-7 w-7 rounded-full overflow-hidden flex-shrink-0">
                   <Image src="/chatbot-avatar.jpg" alt="Sofia" width={28} height={28} className="object-cover" />
                 </div>
-                <div className="rounded-2xl rounded-tl-sm px-3 py-2 max-w-[80%]"
-                  style={{ background: '#fff', border: '1px solid #e5e7eb', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                  <p className="text-sm" style={{ color: '#374151' }}>
-                    Ola! Sou a Sofia. Como posso ajudar?
-                  </p>
+                <div className="rounded-2xl rounded-tl-sm px-3 py-2 text-sm"
+                  style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>
+                  Ocorreu um erro ao processar a resposta. Por favor tente novamente.
                 </div>
               </div>
             )}
