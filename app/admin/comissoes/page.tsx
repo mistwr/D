@@ -102,7 +102,7 @@ export default function AdminComissoesPage() {
         plano: form.servico === 'telecom' ? form.plano : '',
         modelo,
         valor_comissao: (!isMensalidade && !isPercentagem) ? (parseFloat(form.valor_comissao) || 0) : 0,
-        num_mensalidades: isMensalidade ? (parseInt(form.num_mensalidades) || 0) : 0,
+        num_mensalidades: isMensalidade ? (parseFloat(form.num_mensalidades) || 0) : 0,
         valor_mensal: isMensalidade ? (parseFloat(form.valor_mensal) || 0) : 0,
         percentagem: isPercentagem ? (parseFloat(form.percentagem) || 0) : 0,
       }),
@@ -413,14 +413,34 @@ export default function AdminComissoesPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Mensalidades por contrato</label>
-                      <input type="number" step="1" min="1" max="60" value={form.num_mensalidades}
-                        onChange={e => setForm(f => ({ ...f, num_mensalidades: e.target.value }))}
-                        className="w-full rounded-lg px-3 py-2.5 text-sm" style={inputStyle}
-                        placeholder="Ex: 3" />
+                      <div className="grid grid-cols-6 gap-1.5">
+                        {[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6].map(n => {
+                          const val = String(n)
+                          const selected = form.num_mensalidades === val
+                          return (
+                            <button key={n} type="button"
+                              onClick={() => setForm(f => ({ ...f, num_mensalidades: val }))}
+                              className="rounded-lg py-2 text-xs font-bold border transition"
+                              style={{
+                                background: selected ? '#4338ca' : '#fff',
+                                color: selected ? '#fff' : '#374151',
+                                border: selected ? '1px solid #4338ca' : '1px solid #d1d5db',
+                              }}>
+                              x{n}
+                            </button>
+                          )
+                        })}
+                      </div>
                     </div>
                   </div>
                   <div className="rounded-lg p-3 text-xs" style={{ background: '#fef3c7', color: '#92400e' }}>
-                    Por cada contrato fechado o parceiro recebe <strong>{form.num_mensalidades || 0} mensalidade{parseInt(form.num_mensalidades) !== 1 ? 's' : ''}</strong> de <strong>{'\u20AC'}{parseFloat(form.valor_mensal || '0').toFixed(2)}</strong> = <strong>{'\u20AC'}{((parseFloat(form.valor_mensal) || 0) * (parseInt(form.num_mensalidades) || 0)).toFixed(2)}</strong> por contrato
+                    {(() => {
+                      const mens = parseFloat(form.num_mensalidades) || 0
+                      const mensal = parseFloat(form.valor_mensal) || 0
+                      const total = (mens * mensal).toFixed(2)
+                      const label = mens === 1 ? '1 mensalidade' : `${mens} mensalidades`
+                      return <>Por cada contrato fechado o parceiro recebe <strong>{label}</strong> de <strong>€{mensal.toFixed(2)}</strong> = <strong>€{total}</strong> por contrato</>
+                    })()}
                   </div>
                 </div>
               ) : form.servico === 'telecom' && form.modelo === 'percentagem' ? (
