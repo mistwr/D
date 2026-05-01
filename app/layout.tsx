@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
-import { ChatbotWrapper } from '@/components/chatbot-wrapper'
 import './globals.css'
 
 const _geist = Geist({ subsets: ['latin'] })
@@ -21,7 +20,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-PT">
       <body className="font-sans antialiased bg-background text-foreground">
         {children}
-        <ChatbotWrapper />
       </body>
     </html>
   )
