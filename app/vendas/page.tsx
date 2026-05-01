@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { Plus, Search, Upload, X, FileText, Trash2, TrendingUp } from 'lucide-react'
+import { Plus, Search, Upload, X, FileText, Trash2 } from 'lucide-react'
 import { useRef } from 'react'
 import Link from 'next/link'
 
@@ -58,7 +58,6 @@ const SERVICE_LABELS: Record<string, string> = {
 export default function VendasPage() {
   const { user, loading: authLoading } = useAuth('parceiro')
   const [vendas, setVendas] = useState<Venda[]>([])
-  const [comissoesOp, setComissoesOp] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('todos')
@@ -76,10 +75,6 @@ export default function VendasPage() {
     fetch('/api/vendas', { credentials: 'include' })
       .then(r => r.json())
       .then(d => setVendas(d.vendas || []))
-    fetch('/api/comissoes/operadora', { credentials: 'include' })
-      .then(r => r.json())
-      .then(d => setComissoesOp(d.comissoes || []))
-      .catch(() => {})
       .finally(() => setLoading(false))
   }, [user])
 
@@ -187,7 +182,7 @@ export default function VendasPage() {
                   <table className="w-full">
                     <thead>
                       <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                        {['Cliente', 'Serviço', 'Operadora / Plano', 'Valor Contrato', 'Comissao', 'Estado', 'Data', 'Docs'].map(h => (
+                        {['Cliente', 'Serviço', 'Operadora / Plano', 'Valor', 'Estado', 'Data', 'Docs'].map(h => (
                           <th key={h} className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>{h}</th>
                         ))}
                       </tr>
@@ -198,28 +193,6 @@ export default function VendasPage() {
                         const svcLabel = SERVICE_LABELS[v.service_type] || v.service_type
                         const svcBg = v.service_type === 'telecom' ? '#e0e7ff' : v.service_type === 'energia' ? '#fef3c7' : v.service_type === 'gas' ? '#dbeafe' : '#f3f4f6'
                         const svcColor = v.service_type === 'telecom' ? '#4338ca' : v.service_type === 'energia' ? '#92400e' : v.service_type === 'gas' ? '#1e40af' : '#374151'
-
-                        // Calcular comissao desta venda
-                        const regra = comissoesOp.find((c: any) =>
-                          c.servico === v.service_type &&
-                          c.operadora === v.operator &&
-                          (!c.plano || c.plano === '' || c.plano === v.plano)
-                        )
-                        let comissaoValor: number | null = null
-                        let comissaoDetalhe = ''
-                        if (regra) {
-                          if (regra.modelo === 'mensalidade') {
-                            comissaoValor = (parseFloat(regra.num_mensalidades) || 0) * (parseFloat(regra.valor_mensal) || 0)
-                            comissaoDetalhe = `${regra.num_mensalidades}x €${parseFloat(regra.valor_mensal).toFixed(2)}`
-                          } else if (regra.modelo === 'percentagem') {
-                            comissaoValor = (v.amount || 0) * ((parseFloat(regra.percentagem) || 0) / 100)
-                            comissaoDetalhe = `${regra.percentagem}%`
-                          } else {
-                            comissaoValor = parseFloat(regra.valor_comissao) || 0
-                            comissaoDetalhe = 'Fixo'
-                          }
-                        }
-
                         return (
                           <tr key={v.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
                             <td className="px-5 py-4">
@@ -239,16 +212,6 @@ export default function VendasPage() {
                             </td>
                             <td className="px-5 py-4 font-semibold text-sm" style={{ color: '#111827' }}>
                               {'\u20AC'}{(v.amount || 0).toFixed(2)}
-                            </td>
-                            <td className="px-5 py-4">
-                              {comissaoValor !== null ? (
-                                <div>
-                                  <p className="font-bold text-sm" style={{ color: '#16a34a' }}>€{comissaoValor.toFixed(2)}</p>
-                                  <p className="text-xs" style={{ color: '#6b7280' }}>{comissaoDetalhe}</p>
-                                </div>
-                              ) : (
-                                <span className="text-xs" style={{ color: '#d1d5db' }}>—</span>
-                              )}
                             </td>
                             <td className="px-5 py-4">
                               <span className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{ background: st.bg, color: st.color }}>

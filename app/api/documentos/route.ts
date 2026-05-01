@@ -114,20 +114,32 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: Request) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+  const { data: { user }, error: authErr } = await supabase.auth.getUser()
+  if (!user) {
+    console.log('[v0] POST auth failed:', authErr?.message)
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+  }
+  console.log('[v0] POST user ok:', user.id)
 
-  const formData = await req.formData()
+  let formData: FormData
+  try {
+    formData = await req.formData()
+  } catch (e: any) {
+    console.log('[v0] POST formData error:', e.message)
+    return NextResponse.json({ error: 'Erro ao ler formulário' }, { status: 400 })
+  }
+
   const vendaId = (formData.get('venda_id') as string) || null
   const tipo = formData.get('tipo') as string | null
   const file = formData.get('file') as File | null
 
-  if (!file) return NextResponse.json({ error: 'Ficheiro obrigatório' }, { status: 400 })
+  console.log('[v0] POST vendaId:', vendaId, 'tipo:', tipo, 'file:', file?.name, 'size:', file?.size)
+
+  if (!file || file.size === 0) return NextResponse.json({ error: 'Ficheiro obrigatório' }, { status: 400 })
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
 
-  // Se tem venda_id, verificar permissão
   if (vendaId) {
     const { data: venda } = await supabase.from('vendas').select('user_id').eq('id', vendaId).single()
     if (!venda) return NextResponse.json({ error: 'Venda não encontrada' }, { status: 404 })
@@ -135,15 +147,32 @@ export async function POST(req: Request) {
   }
 
   const svc = service()
+
+  // Garantir que o bucket existe
+  const { data: buckets } = await svc.storage.listBuckets()
+  const bucketExists = buckets?.some(b => b.id === 'documentos')
+  if (!bucketExists) {
+    console.log('[v0] bucket documentos nao existe — a criar...')
+    const { error: bucketErr } = await svc.storage.createBucket('documentos', { public: false, fileSizeLimit: 10485760 })
+    if (bucketErr) console.log('[v0] erro ao criar bucket:', bucketErr.message)
+  }
+
   const folder = vendaId ?? `contratos/${user.id}`
-  const filePath = `${folder}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
+  const safeFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+  const filePath = `${folder}/${Date.now()}-${safeFileName}`
+
+  console.log('[v0] uploading to storage path:', filePath)
 
   const arrayBuffer = await file.arrayBuffer()
-  const { error: uploadError } = await svc.storage.from('documentos').upload(filePath, arrayBuffer, {
+  const { error: uploadError, data: uploadData } = await svc.storage.from('documentos').upload(filePath, arrayBuffer, {
     contentType: file.type || 'application/octet-stream',
     upsert: false,
   })
-  if (uploadError) return NextResponse.json({ error: 'Erro ao fazer upload: ' + uploadError.message }, { status: 500 })
+  if (uploadError) {
+    console.log('[v0] storage upload error:', uploadError.message)
+    return NextResponse.json({ error: 'Erro ao fazer upload: ' + uploadError.message }, { status: 500 })
+  }
+  console.log('[v0] storage upload ok:', uploadData?.path)
 
   const { data: doc, error: dbErr } = await svc.from('documentos').insert({
     venda_id: vendaId ?? null,
@@ -154,9 +183,12 @@ export async function POST(req: Request) {
     uploaded_by: user.id,
   }).select().single()
 
-  if (dbErr) return NextResponse.json({ error: dbErr.message }, { status: 500 })
+  if (dbErr) {
+    console.log('[v0] db insert error:', dbErr.message, dbErr.details)
+    return NextResponse.json({ error: dbErr.message }, { status: 500 })
+  }
+  console.log('[v0] db insert ok, doc id:', doc?.id)
 
-  // Gerar signed URL para o ficheiro recém-enviado
   const { data: signed } = await svc.storage.from('documentos').createSignedUrl(filePath, 3600)
   return NextResponse.json({ documento: { ...doc, signed_url: signed?.signedUrl ?? null } })
 }
