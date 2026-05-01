@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 
 function service() {
@@ -11,25 +10,43 @@ function service() {
 }
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
-
-  const path = req.nextUrl.searchParams.get('path')
+  const rawPath = req.nextUrl.searchParams.get('path') ?? ''
   const name = decodeURIComponent(req.nextUrl.searchParams.get('name') ?? 'documento.pdf')
-  if (!path) return NextResponse.json({ error: 'path obrigatorio' }, { status: 400 })
+  if (!rawPath) return NextResponse.json({ error: 'path obrigatorio' }, { status: 400 })
 
   const svc = service()
 
-  // Descarregar o ficheiro do storage no servidor e retornar como stream
-  const { data: fileData, error } = await svc.storage.from('publicacoes').download(path)
-  if (error || !fileData) return NextResponse.json({ error: 'Ficheiro nao encontrado' }, { status: 404 })
+  // O file_path guardado na DB é "publicacoes/filename" — remover o prefixo do bucket
+  const storagePath = rawPath.startsWith('publicacoes/') ? rawPath.slice('publicacoes/'.length) : rawPath
 
-  const arrayBuffer = await fileData.arrayBuffer()
+  const { data: fileData, error } = await svc.storage.from('publicacoes').download(storagePath)
+  if (error || !fileData) {
+    // Fallback: tentar no bucket 'documentos' com o path completo
+    const docPath = rawPath.startsWith('documentos/') ? rawPath.slice('documentos/'.length) : rawPath
+    const { data: fileData2, error: err2 } = await svc.storage.from('documentos').download(docPath)
+    if (err2 || !fileData2) {
+      return NextResponse.json({ error: 'Ficheiro nao encontrado' }, { status: 404 })
+    }
+    return buildResponse(fileData2, name)
+  }
 
-  // Detectar content-type pelo nome do ficheiro
+  return buildResponse(fileData, name)
+}
+
+function buildResponse(blob: Blob, name: string): NextResponse {
   const ext = name.split('.').pop()?.toLowerCase() ?? ''
-  const contentTypeMap: Record<string, string> = {
+  const contentType = getContentType(ext, blob.type)
+  return new NextResponse(blob, {
+    status: 200,
+    headers: {
+      'Content-Type': contentType,
+      'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(name)}`,
+    },
+  })
+}
+
+function getContentType(ext: string, fallback?: string): string {
+  const map: Record<string, string> = {
     pdf: 'application/pdf',
     doc: 'application/msword',
     docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -38,15 +55,8 @@ export async function GET(req: NextRequest) {
     png: 'image/png',
     jpg: 'image/jpeg',
     jpeg: 'image/jpeg',
+    gif: 'image/gif',
+    webp: 'image/webp',
   }
-  const contentType = contentTypeMap[ext] ?? fileData.type ?? 'application/octet-stream'
-
-  return new NextResponse(arrayBuffer, {
-    status: 200,
-    headers: {
-      'Content-Type': contentType,
-      'Content-Disposition': `attachment; filename="${encodeURIComponent(name)}"`,
-      'Content-Length': String(arrayBuffer.byteLength),
-    },
-  })
+  return map[ext] ?? fallback ?? 'application/octet-stream'
 }

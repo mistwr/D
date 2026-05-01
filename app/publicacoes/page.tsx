@@ -35,26 +35,46 @@ export default function PublicacoesPage() {
 
   async function triggerDownload(pub: Publicacao): Promise<boolean> {
     const filePath = pub.file_path || pub.document_name
-    if (!filePath) return false
     const fileName = pub.file_name || pub.document_name || 'documento.pdf'
+    if (!filePath && !pub.signed_url) return false
+
     try {
-      const res = await fetch(
-        `/api/publicacoes/download?path=${encodeURIComponent(filePath)}&name=${encodeURIComponent(fileName)}`,
-        { credentials: 'include' }
-      )
-      if (!res.ok) return false
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
+      // Usar a API de download no servidor (service role, sem problemas de CORS ou auth)
+      const apiUrl = filePath
+        ? `/api/publicacoes/download?path=${encodeURIComponent(filePath)}&name=${encodeURIComponent(fileName)}`
+        : null
+
+      let blob: Blob | null = null
+
+      if (apiUrl) {
+        const res = await fetch(apiUrl, { credentials: 'include' })
+        if (res.ok) blob = await res.blob()
+      }
+
+      // Fallback: tentar signed_url directamente
+      if (!blob && pub.signed_url) {
+        const res = await fetch(pub.signed_url)
+        if (res.ok) blob = await res.blob()
+      }
+
+      if (!blob) {
+        // Ultimo fallback: abrir numa nova tab
+        if (pub.signed_url) window.open(pub.signed_url, '_blank')
+        return !!pub.signed_url
+      }
+
+      const blobUrl = URL.createObjectURL(blob)
       const a = document.createElement('a')
-      a.href = url
+      a.href = blobUrl
       a.download = fileName
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+      URL.revokeObjectURL(blobUrl)
       return true
     } catch {
-      return false
+      if (pub.signed_url) window.open(pub.signed_url, '_blank')
+      return !!pub.signed_url
     }
   }
 
