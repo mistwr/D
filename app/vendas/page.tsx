@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import { Plus, Search, Upload, X, FileText, Trash2 } from 'lucide-react'
+import { useRef } from 'react'
 import Link from 'next/link'
 
 interface Venda {
@@ -65,6 +66,7 @@ export default function VendasPage() {
   const [docsLoading, setDocsLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!user) return
@@ -327,19 +329,30 @@ export default function VendasPage() {
               </div>
 
               {/* Upload */}
-              <label className="flex items-center justify-center gap-2 w-full rounded-xl border-2 border-dashed cursor-pointer py-6 mb-4 transition hover:border-indigo-400"
-                style={{ borderColor: '#d1d5db' }}>
-                <input type="file" className="hidden" onChange={handleUpload} disabled={uploading}
-                  accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" />
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                onChange={handleUpload}
+                disabled={uploading}
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+              />
+              <button
+                type="button"
+                disabled={uploading}
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center justify-center gap-2 w-full rounded-xl border-2 border-dashed py-6 mb-2 transition"
+                style={{ borderColor: uploading ? '#e5e7eb' : '#c7d2fe', background: uploading ? '#f9fafb' : '#eef2ff' }}
+              >
                 <Upload size={18} style={{ color: uploading ? '#9ca3af' : '#4f46e5' }} />
-                <span className="text-sm font-medium" style={{ color: uploading ? '#9ca3af' : '#4f46e5' }}>
+                <span className="text-sm font-semibold" style={{ color: uploading ? '#9ca3af' : '#4f46e5' }}>
                   {uploading ? 'A enviar...' : 'Clique para anexar documento'}
                 </span>
-              </label>
+              </button>
               {uploadError && (
-                <p className="text-xs mb-3 px-3 py-2 rounded-lg" style={{ background: '#fee2e2', color: '#991b1b' }}>{uploadError}</p>
+                <p className="text-xs mb-2 px-3 py-2 rounded-lg" style={{ background: '#fee2e2', color: '#991b1b' }}>{uploadError}</p>
               )}
-              <p className="text-xs mb-4" style={{ color: '#9ca3af' }}>PDF, Word, Excel, imagens — máx. 10MB</p>
+              <p className="text-xs mb-4" style={{ color: '#9ca3af' }}>PDF, Word, Excel, imagens — max. 10MB</p>
 
               {/* Lista */}
               {docsLoading ? (

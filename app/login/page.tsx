@@ -4,28 +4,13 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 
-// Imagens Unsplash relacionadas com energia, telecomunicações e tecnologia (source gratuito/opensource)
+// Imagens locais — energia, telecom e cidade
 const SLIDES = [
-  {
-    url: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1600&q=80&auto=format&fit=crop',
-    caption: 'Energia para o futuro',
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80&auto=format&fit=crop',
-    caption: 'Telecomunicacoes sem limites',
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=1600&q=80&auto=format&fit=crop',
-    caption: 'Soluções que fazem a diferença',
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1600&q=80&auto=format&fit=crop',
-    caption: 'Tecnologia ao seu serviço',
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=1600&q=80&auto=format&fit=crop',
-    caption: 'Energia limpa e sustentavel',
-  },
+  { url: '/slide-energia.jpg',  caption: 'Energia para o futuro' },
+  { url: '/slide-telecom.jpg',  caption: 'Telecomunicacoes sem limites' },
+  { url: '/slide-cidade.jpg',   caption: 'Solucoes que fazem a diferenca' },
+  { url: '/slide-energia.jpg',  caption: 'Energia limpa e sustentavel' },
+  { url: '/slide-telecom.jpg',  caption: 'Tecnologia ao seu servico' },
 ]
 
 export default function LoginPage() {
