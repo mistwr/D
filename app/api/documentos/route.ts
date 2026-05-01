@@ -33,13 +33,49 @@ export async function GET(req: NextRequest) {
   const isAdmin = profile?.role === 'admin'
 
   const svc = service()
+
+  // Admin sem filtro → todos os documentos com join parceiro + venda
+  if (isAdmin && !vendaId && !tipo) {
+    const { data: docs } = await svc
+      .from('documentos')
+      .select(`
+        *,
+        vendas (
+          id, client_name, client_email, client_phone, client_nif,
+          amount, status, service_type, operator, plano,
+          profiles!vendas_user_id_fkey ( id, full_name, email, company )
+        )
+      `)
+      .order('created_at', { ascending: false })
+
+    const withUrls = await Promise.all((docs ?? []).map(async (doc: any) => {
+      const signed = doc.file_path
+        ? (await svc.storage.from('documentos').createSignedUrl(doc.file_path, 3600)).data
+        : null
+      return {
+        ...doc,
+        signed_url: signed?.signedUrl ?? null,
+        uploader_name: doc.vendas?.profiles?.full_name ?? 'Desconhecido',
+        uploader_email: doc.vendas?.profiles?.email ?? '',
+        uploader_company: doc.vendas?.profiles?.company ?? '',
+        client_name: doc.vendas?.client_name ?? '',
+        client_email: doc.vendas?.client_email ?? '',
+        client_phone: doc.vendas?.client_phone ?? '',
+        client_nif: doc.vendas?.client_nif ?? '',
+        venda_amount: doc.vendas?.amount ?? 0,
+        venda_status: doc.vendas?.status ?? '',
+        venda_service_type: doc.vendas?.service_type ?? '',
+        venda_operator: doc.vendas?.operator ?? '',
+      }
+    }))
+    return NextResponse.json({ documentos: withUrls })
+  }
+
   let query = svc.from('documentos').select('*').order('created_at', { ascending: false })
 
   if (tipo === 'contrato') {
-    // Contratos do parceiro actual (sem venda associada)
     query = query.eq('uploaded_by', user.id).is('venda_id', null)
   } else if (vendaId) {
-    // Documentos de uma venda específica
     const { data: venda } = await supabase.from('vendas').select('user_id').eq('id', vendaId).single()
     if (!venda) return NextResponse.json({ error: 'Venda não encontrada' }, { status: 404 })
     if (!isAdmin && venda.user_id !== user.id) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
@@ -50,7 +86,6 @@ export async function GET(req: NextRequest) {
 
   const { data: docs } = await query
 
-  // Gerar URLs assinadas
   const withUrls = await Promise.all((docs ?? []).map(async (doc: any) => {
     if (!doc.file_path) return { ...doc, signed_url: null }
     const { data: signed } = await svc.storage.from('documentos').createSignedUrl(doc.file_path, 3600)

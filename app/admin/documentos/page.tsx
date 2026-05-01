@@ -4,32 +4,39 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { FileText, Search, User, ChevronDown, ChevronUp, Phone, Mail, Building2, Zap, Wifi, Download } from 'lucide-react'
+import { FileText, Search, User, ChevronDown, ChevronUp, Phone, Mail, Building2, Zap, Wifi, Download, Eye, X } from 'lucide-react'
 
 interface Doc {
-  id: string; venda_id: string; file_name: string; file_type: string; file_size: number
-  uploaded_by: string; created_at: string
-  uploader_name: string; uploader_email: string; uploader_company: string
-  client_name: string; client_email: string; client_phone: string
-  venda_amount: number; venda_status: string; venda_service_type: string; venda_operator: string
-}
-
-const typeLabel: Record<string, string> = {
-  'application/pdf': 'PDF', 'image/jpeg': 'JPG', 'image/png': 'PNG',
-  'application/msword': 'DOC',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
-  'application/vnd.ms-excel': 'XLS',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'XLSX',
+  id: string
+  venda_id: string
+  file_name: string
+  file_type: string
+  file_size: number
+  file_path: string
+  uploaded_by: string
+  created_at: string
+  signed_url: string | null
+  uploader_name: string
+  uploader_email: string
+  uploader_company: string
+  client_name: string
+  client_email: string
+  client_phone: string
+  client_nif: string
+  venda_amount: number
+  venda_status: string
+  venda_service_type: string
+  venda_operator: string
 }
 
 const ST: Record<string, { bg: string; color: string; label: string }> = {
-  pendente: { bg: '#fef3c7', color: '#92400e', label: 'Pendente' },
-  em_revisao: { bg: '#dbeafe', color: '#1e40af', label: 'Em Revisao' },
-  ativa: { bg: '#d1fae5', color: '#065f46', label: 'Ativa' },
-  processado: { bg: '#ede9fe', color: '#6d28d9', label: 'Processado' },
-  pago: { bg: '#d1fae5', color: '#065f46', label: 'Pago' },
-  cancelado: { bg: '#fee2e2', color: '#991b1b', label: 'Cancelado' },
-  rejeitado: { bg: '#fecaca', color: '#7f1d1d', label: 'Rejeitado' },
+  pendente:   { bg: '#fef3c7', color: '#92400e',  label: 'Pendente'    },
+  em_revisao: { bg: '#dbeafe', color: '#1e40af',  label: 'Em Revisao'  },
+  ativa:      { bg: '#d1fae5', color: '#065f46',  label: 'Ativa'       },
+  processado: { bg: '#ede9fe', color: '#6d28d9',  label: 'Processado'  },
+  pago:       { bg: '#d1fae5', color: '#065f46',  label: 'Pago'        },
+  cancelado:  { bg: '#fee2e2', color: '#991b1b',  label: 'Cancelado'   },
+  rejeitado:  { bg: '#fecaca', color: '#7f1d1d',  label: 'Rejeitado'   },
 }
 
 function formatSize(bytes: number) {
@@ -37,6 +44,10 @@ function formatSize(bytes: number) {
   if (bytes < 1024) return bytes + ' B'
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+}
+
+function getExt(name: string) {
+  return (name || '').split('.').pop()?.toLowerCase() ?? ''
 }
 
 export default function AdminDocumentosPage() {
@@ -47,65 +58,47 @@ export default function AdminDocumentosPage() {
   const [search, setSearch] = useState('')
   const [expandedParceiro, setExpandedParceiro] = useState<string | null>(null)
   const [filterType, setFilterType] = useState('todos')
-
-  async function handleDownload(docId: string, fileName: string) {
-    const res = await fetch(`/api/documentos?download=${docId}`, { credentials: 'include' })
-    const data = await res.json()
-    if (!data.documento?.file_data) { alert('Ficheiro nao disponivel para download'); return }
-    const link = document.createElement('a')
-    link.href = data.documento.file_data
-    link.download = fileName
-    link.click()
-  }
+  const [viewer, setViewer] = useState<Doc | null>(null)
 
   useEffect(() => {
     async function load() {
       try {
-        const meRes = await fetch('/api/auth/me', { credentials: 'include' })
-        const meData = await meRes.json()
-        if (!meData.user || meData.user.role !== 'admin') { router.push('/login'); return }
-        setUser(meData.user)
-        const dRes = await fetch('/api/documentos', { credentials: 'include' })
-        const dData = await dRes.json()
-        setDocs(dData.documentos || [])
+        const me = await fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json())
+        if (!me?.user || me.user.role !== 'admin') { router.push('/login'); return }
+        setUser(me.user)
+        const res = await fetch('/api/documentos', { credentials: 'include' })
+        const data = await res.json()
+        setDocs(data.documentos || [])
       } catch { router.push('/login') }
       setLoading(false)
     }
     load()
   }, [router])
 
-  // Agrupar docs por parceiro
-  const parceirosMap = new Map<string, { name: string; email: string; company: string; docs: Doc[] }>()
-  docs.forEach(d => {
-    const key = d.uploaded_by
-    if (!parceirosMap.has(key)) {
-      parceirosMap.set(key, { name: d.uploader_name, email: d.uploader_email, company: d.uploader_company, docs: [] })
-    }
-    parceirosMap.get(key)!.docs.push(d)
-  })
-
   const filtered = docs.filter(d => {
-    const matchSearch = search === '' ||
-      d.file_name.toLowerCase().includes(search.toLowerCase()) ||
-      d.uploader_name.toLowerCase().includes(search.toLowerCase()) ||
-      d.client_name.toLowerCase().includes(search.toLowerCase()) ||
-      d.venda_operator.toLowerCase().includes(search.toLowerCase())
+    const q = search.toLowerCase()
+    const matchSearch = !q ||
+      (d.file_name || '').toLowerCase().includes(q) ||
+      (d.uploader_name || '').toLowerCase().includes(q) ||
+      (d.client_name || '').toLowerCase().includes(q) ||
+      (d.client_nif || '').toLowerCase().includes(q) ||
+      (d.venda_operator || '').toLowerCase().includes(q)
     const matchType = filterType === 'todos' ||
-      (filterType === 'pdf' && d.file_type === 'application/pdf') ||
-      (filterType === 'img' && d.file_type.startsWith('image/')) ||
-      (filterType === 'doc' && (d.file_type.includes('word') || d.file_type.includes('document'))) ||
-      (filterType === 'xls' && (d.file_type.includes('excel') || d.file_type.includes('spreadsheet')))
+      (filterType === 'pdf' && getExt(d.file_name) === 'pdf') ||
+      (filterType === 'img' && ['jpg','jpeg','png','gif','webp'].includes(getExt(d.file_name))) ||
+      (filterType === 'doc' && ['doc','docx'].includes(getExt(d.file_name))) ||
+      (filterType === 'xls' && ['xls','xlsx'].includes(getExt(d.file_name)))
     return matchSearch && matchType
   })
 
-  // Reagrupar filtrados
-  const filteredMap = new Map<string, { name: string; email: string; company: string; docs: Doc[] }>()
+  // Agrupar por parceiro
+  const parceirosMap = new Map<string, { name: string; email: string; company: string; docs: Doc[] }>()
   filtered.forEach(d => {
     const key = d.uploaded_by
-    if (!filteredMap.has(key)) {
-      filteredMap.set(key, { name: d.uploader_name, email: d.uploader_email, company: d.uploader_company, docs: [] })
+    if (!parceirosMap.has(key)) {
+      parceirosMap.set(key, { name: d.uploader_name || 'Desconhecido', email: d.uploader_email, company: d.uploader_company, docs: [] })
     }
-    filteredMap.get(key)!.docs.push(d)
+    parceirosMap.get(key)!.docs.push(d)
   })
 
   if (loading) return (
@@ -119,23 +112,23 @@ export default function AdminDocumentosPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" />
-        <main className="flex-1 md:ml-64 pt-16" style={{ minHeight: '100vh' }}>
+        <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-8">
             <div className="mb-6">
               <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Documentos dos Parceiros</h1>
               <p className="mt-1 text-sm" style={{ color: '#6b7280' }}>
-                Todos os contratos, faturas e documentos carregados pelos utilizadores
+                Todos os ficheiros carregados — visualize e descarregue directamente
               </p>
             </div>
 
-            {/* Estatisticas */}
+            {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
               {[
-                { label: 'Total Docs', value: docs.length, bg: '#e0e7ff', color: '#4338ca' },
-                { label: 'Parceiros', value: parceirosMap.size, bg: '#fce7f3', color: '#9d174d' },
-                { label: 'PDF', value: docs.filter(d => d.file_type === 'application/pdf').length, bg: '#fee2e2', color: '#991b1b' },
-                { label: 'Imagens', value: docs.filter(d => d.file_type.startsWith('image/')).length, bg: '#d1fae5', color: '#065f46' },
-                { label: 'Outros', value: docs.filter(d => !d.file_type.startsWith('image/') && d.file_type !== 'application/pdf').length, bg: '#fef3c7', color: '#92400e' },
+                { label: 'Total Docs',  value: docs.length,                                                    bg: '#e0e7ff', color: '#4338ca' },
+                { label: 'Parceiros',   value: new Set(docs.map(d => d.uploaded_by)).size,                     bg: '#fce7f3', color: '#9d174d' },
+                { label: 'PDF',         value: docs.filter(d => getExt(d.file_name) === 'pdf').length,         bg: '#fee2e2', color: '#991b1b' },
+                { label: 'Imagens',     value: docs.filter(d => ['jpg','jpeg','png','webp'].includes(getExt(d.file_name))).length, bg: '#d1fae5', color: '#065f46' },
+                { label: 'Word/Excel',  value: docs.filter(d => ['doc','docx','xls','xlsx'].includes(getExt(d.file_name))).length, bg: '#fef3c7', color: '#92400e' },
               ].map(s => (
                 <div key={s.label} className="rounded-xl p-4 shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
                   <p className="text-xl font-bold" style={{ color: s.color }}>{s.value}</p>
@@ -144,18 +137,18 @@ export default function AdminDocumentosPage() {
               ))}
             </div>
 
-            {/* Barra de pesquisa + filtros */}
-            <div className="mb-6 rounded-xl p-4 shadow-sm flex flex-col md:flex-row gap-3" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+            {/* Filtros */}
+            <div className="mb-5 rounded-xl p-4 flex flex-col md:flex-row gap-3" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
               <div className="relative flex-1">
                 <Search size={16} className="absolute left-3 top-2.5" style={{ color: '#9ca3af' }} />
                 <input value={search} onChange={e => setSearch(e.target.value)}
-                  placeholder="Procurar por ficheiro, parceiro, cliente ou operadora..."
+                  placeholder="Pesquisar por ficheiro, parceiro, cliente, NIF ou operadora..."
                   className="w-full pl-9 pr-4 py-2 rounded-lg text-sm outline-none"
-                  style={{ background: '#fff', border: '1px solid #d1d5db', color: '#111827' }} />
+                  style={{ border: '1px solid #d1d5db', color: '#111827' }} />
               </div>
               <select value={filterType} onChange={e => setFilterType(e.target.value)}
                 className="rounded-lg px-3 py-2 text-sm outline-none"
-                style={{ background: '#fff', border: '1px solid #d1d5db', color: '#111827' }}>
+                style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}>
                 <option value="todos">Todos os tipos</option>
                 <option value="pdf">PDF</option>
                 <option value="img">Imagens</option>
@@ -164,139 +157,142 @@ export default function AdminDocumentosPage() {
               </select>
             </div>
 
-            {/* Documentos agrupados por parceiro */}
-            {filteredMap.size === 0 ? (
-              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+            {/* Lista agrupada por parceiro */}
+            {parceirosMap.size === 0 ? (
+              <div className="rounded-xl p-12 text-center" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
                 <FileText size={48} className="mx-auto mb-4" style={{ color: '#d1d5db' }} />
-                <p className="text-lg font-medium" style={{ color: '#374151' }}>
-                  {docs.length === 0 ? 'Nenhum documento carregado' : 'Nenhum resultado encontrado'}
-                </p>
-                <p className="mt-1 text-sm" style={{ color: '#6b7280' }}>
-                  {docs.length === 0 ? 'Os parceiros ainda nao carregaram documentos' : 'Tente alterar os filtros'}
+                <p className="text-base font-medium" style={{ color: '#374151' }}>
+                  {docs.length === 0 ? 'Nenhum documento carregado ainda' : 'Nenhum resultado'}
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
-                {Array.from(filteredMap.entries()).map(([parceiroId, parceiro]) => {
+                {Array.from(parceirosMap.entries()).map(([parceiroId, parceiro]) => {
                   const isOpen = expandedParceiro === parceiroId
-                  const totalValor = parceiro.docs.reduce((s, d) => s + (d.venda_amount || 0), 0)
-                  const uniqueVendas = new Set(parceiro.docs.map(d => d.venda_id)).size
-
                   return (
                     <div key={parceiroId} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                      {/* Parceiro header */}
-                      <button onClick={() => setExpandedParceiro(isOpen ? null : parceiroId)}
-                        className="flex items-center justify-between w-full p-5 text-left transition-colors"
-                        style={{ borderBottom: isOpen ? '1px solid #e5e7eb' : 'none' }}>
+                      {/* Header parceiro */}
+                      <button
+                        onClick={() => setExpandedParceiro(isOpen ? null : parceiroId)}
+                        className="flex items-center justify-between w-full p-5 text-left"
+                        style={{ borderBottom: isOpen ? '1px solid #e5e7eb' : 'none' }}
+                      >
                         <div className="flex items-center gap-4">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: '#eef2ff' }}>
-                            <User size={22} style={{ color: '#4f46e5' }} />
+                          <div className="flex h-11 w-11 items-center justify-center rounded-full" style={{ background: '#eef2ff' }}>
+                            <User size={20} style={{ color: '#4f46e5' }} />
                           </div>
                           <div>
-                            <p className="font-bold text-base" style={{ color: '#111827' }}>{parceiro.name}</p>
-                            <div className="flex flex-wrap items-center gap-3 mt-1">
+                            <p className="font-bold" style={{ color: '#111827' }}>{parceiro.name}</p>
+                            <div className="flex flex-wrap gap-3 mt-0.5">
                               {parceiro.company && (
                                 <span className="flex items-center gap-1 text-xs" style={{ color: '#6b7280' }}>
-                                  <Building2 size={12} /> {parceiro.company}
+                                  <Building2 size={11} /> {parceiro.company}
                                 </span>
                               )}
                               <span className="flex items-center gap-1 text-xs" style={{ color: '#6b7280' }}>
-                                <Mail size={12} /> {parceiro.email}
+                                <Mail size={11} /> {parceiro.email}
                               </span>
                             </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-4">
                           <div className="text-right hidden md:block">
-                            <p className="text-sm font-semibold" style={{ color: '#4f46e5' }}>{parceiro.docs.length} doc(s)</p>
-                            <p className="text-xs" style={{ color: '#6b7280' }}>{uniqueVendas} venda(s)</p>
+                            <p className="text-sm font-semibold" style={{ color: '#4f46e5' }}>{parceiro.docs.length} ficheiro(s)</p>
+                            <p className="text-xs" style={{ color: '#9ca3af' }}>{new Set(parceiro.docs.map(d => d.venda_id)).size} venda(s)</p>
                           </div>
-                          {isOpen ? <ChevronUp size={20} style={{ color: '#6b7280' }} /> : <ChevronDown size={20} style={{ color: '#6b7280' }} />}
+                          {isOpen ? <ChevronUp size={18} style={{ color: '#9ca3af' }} /> : <ChevronDown size={18} style={{ color: '#9ca3af' }} />}
                         </div>
                       </button>
 
-                      {/* Lista detalhada de documentos */}
+                      {/* Documentos do parceiro */}
                       {isOpen && (
-                        <div className="p-5">
-                          <div className="overflow-x-auto">
-                            <table className="w-full">
-                              <thead>
-                                <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
-                                  {['Ficheiro', 'Tamanho', 'Cliente', 'Contacto', 'Servico', 'Operadora', 'Valor', 'Estado', 'Data', ''].map(h => (
-                                    <th key={h} className="px-3 py-2.5 text-left text-xs font-semibold" style={{ color: '#6b7280' }}>{h}</th>
-                                  ))}
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {parceiro.docs.map(d => {
-                                  const st = ST[d.venda_status] || { bg: '#f3f4f6', color: '#6b7280', label: d.venda_status }
-                                  return (
-                                    <tr key={d.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                                      <td className="px-3 py-3">
-                                        <div className="flex items-center gap-2">
-                                          <span className="flex h-7 w-9 items-center justify-center rounded text-[10px] font-bold" style={{ background: '#e0e7ff', color: '#4338ca' }}>
-                                            {typeLabel[d.file_type] || 'DOC'}
-                                          </span>
-                                          <span className="text-sm font-medium" style={{ color: '#111827' }}>{d.file_name}</span>
-                                        </div>
-                                      </td>
-                                      <td className="px-3 py-3 text-xs" style={{ color: '#6b7280' }}>{formatSize(d.file_size)}</td>
-                                      <td className="px-3 py-3">
-                                        <p className="text-sm font-medium" style={{ color: '#111827' }}>{d.client_name}</p>
-                                        {d.client_email && <p className="text-xs" style={{ color: '#9ca3af' }}>{d.client_email}</p>}
-                                      </td>
-                                      <td className="px-3 py-3">
-                                        {d.client_phone ? (
-                                          <span className="flex items-center gap-1 text-xs" style={{ color: '#6b7280' }}>
-                                            <Phone size={11} /> {d.client_phone}
-                                          </span>
-                                        ) : <span className="text-xs" style={{ color: '#d1d5db' }}>-</span>}
-                                      </td>
-                                      <td className="px-3 py-3">
-                                        <span className="flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full"
-                                          style={{ background: d.venda_service_type === 'energia' ? '#fef3c7' : '#e0e7ff', color: d.venda_service_type === 'energia' ? '#92400e' : '#4338ca' }}>
-                                          {d.venda_service_type === 'energia' ? <Zap size={11} /> : <Wifi size={11} />}
-                                          {d.venda_service_type === 'energia' ? 'Energia' : 'Telecom'}
-                                        </span>
-                                      </td>
-                                      <td className="px-3 py-3 text-sm font-medium" style={{ color: '#111827' }}>{d.venda_operator || '-'}</td>
-                                      <td className="px-3 py-3 text-sm font-semibold" style={{ color: '#111827' }}>{'\u20AC'}{d.venda_amount?.toFixed(2)}</td>
-                                      <td className="px-3 py-3">
-                                        <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: st.bg, color: st.color }}>
-                                          {st.label}
-                                        </span>
-                                      </td>
-                                      <td className="px-3 py-3 text-xs" style={{ color: '#6b7280' }}>
-                                        {new Date(d.created_at).toLocaleDateString('pt-PT')}
-                                      </td>
-                                      <td className="px-3 py-3">
-                                        <button onClick={() => handleDownload(d.id, d.file_name)}
-                                          className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors"
-                                          style={{ background: '#eef2ff', color: '#4338ca' }} title="Descarregar ficheiro">
-                                          <Download size={13} /> Abrir
-                                        </button>
-                                      </td>
-                                    </tr>
-                                  )
-                                })}
-                              </tbody>
-                            </table>
-                          </div>
+                        <div className="p-4">
+                          <div className="space-y-3">
+                            {parceiro.docs.map(d => {
+                              const ext = getExt(d.file_name)
+                              const isImage = ['jpg','jpeg','png','gif','webp'].includes(ext)
+                              const isPdf = ext === 'pdf'
+                              const canPreview = isImage || isPdf
+                              const st = ST[d.venda_status] || { bg: '#f3f4f6', color: '#6b7280', label: d.venda_status }
 
-                          {/* Resumo */}
-                          <div className="mt-4 pt-4 flex flex-wrap gap-4" style={{ borderTop: '1px solid #f3f4f6' }}>
-                            <div className="rounded-lg px-4 py-2" style={{ background: '#f9fafb' }}>
-                              <p className="text-xs" style={{ color: '#6b7280' }}>Total documentos</p>
-                              <p className="text-sm font-bold" style={{ color: '#4338ca' }}>{parceiro.docs.length}</p>
-                            </div>
-                            <div className="rounded-lg px-4 py-2" style={{ background: '#f9fafb' }}>
-                              <p className="text-xs" style={{ color: '#6b7280' }}>Vendas associadas</p>
-                              <p className="text-sm font-bold" style={{ color: '#059669' }}>{uniqueVendas}</p>
-                            </div>
-                            <div className="rounded-lg px-4 py-2" style={{ background: '#f9fafb' }}>
-                              <p className="text-xs" style={{ color: '#6b7280' }}>Valor total vendas</p>
-                              <p className="text-sm font-bold" style={{ color: '#111827' }}>{'\u20AC'}{totalValor.toFixed(2)}</p>
-                            </div>
+                              return (
+                                <div key={d.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid #e5e7eb' }}>
+                                  {/* Linha do documento */}
+                                  <div className="flex flex-wrap items-center gap-3 px-4 py-3" style={{ background: '#f9fafb' }}>
+                                    {/* Badge tipo */}
+                                    <span className="flex h-7 w-10 items-center justify-center rounded text-[10px] font-bold uppercase flex-shrink-0"
+                                      style={{ background: '#e0e7ff', color: '#4338ca' }}>
+                                      {ext || 'DOC'}
+                                    </span>
+
+                                    {/* Nome + meta */}
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-sm font-semibold truncate" style={{ color: '#111827' }}>{d.file_name}</p>
+                                      <div className="flex flex-wrap gap-3 mt-0.5">
+                                        <span className="text-xs" style={{ color: '#9ca3af' }}>{formatSize(d.file_size)}</span>
+                                        <span className="text-xs" style={{ color: '#9ca3af' }}>{new Date(d.created_at).toLocaleDateString('pt-PT')}</span>
+                                        {d.client_name && (
+                                          <span className="text-xs font-medium" style={{ color: '#374151' }}>Cliente: {d.client_name}{d.client_nif ? ` (NIF: ${d.client_nif})` : ''}</span>
+                                        )}
+                                        {d.venda_service_type && (
+                                          <span className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full font-medium"
+                                            style={{ background: d.venda_service_type === 'energia' ? '#fef3c7' : '#e0e7ff', color: d.venda_service_type === 'energia' ? '#92400e' : '#4338ca' }}>
+                                            {d.venda_service_type === 'energia' ? <Zap size={10} /> : <Wifi size={10} />}
+                                            {d.venda_operator || d.venda_service_type}
+                                          </span>
+                                        )}
+                                        {d.venda_status && (
+                                          <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: st.bg, color: st.color }}>
+                                            {st.label}
+                                          </span>
+                                        )}
+                                        {d.venda_amount > 0 && (
+                                          <span className="text-xs font-semibold" style={{ color: '#059669' }}>€{d.venda_amount.toFixed(2)}</span>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {/* Acções */}
+                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                      {d.signed_url && canPreview && (
+                                        <button
+                                          onClick={() => setViewer(d)}
+                                          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition"
+                                          style={{ background: '#eef2ff', color: '#4338ca' }}
+                                        >
+                                          <Eye size={13} /> Ver
+                                        </button>
+                                      )}
+                                      {d.signed_url && (
+                                        <a
+                                          href={d.signed_url}
+                                          download={d.file_name}
+                                          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition"
+                                          style={{ background: '#d1fae5', color: '#065f46' }}
+                                        >
+                                          <Download size={13} /> Download
+                                        </a>
+                                      )}
+                                      {!d.signed_url && (
+                                        <span className="text-xs px-3 py-1.5 rounded-lg" style={{ background: '#fee2e2', color: '#991b1b' }}>
+                                          URL expirada
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {/* Preview inline para imagens */}
+                                  {d.signed_url && isImage && (
+                                    <div className="p-3" style={{ background: '#fff' }}>
+                                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                                      <img src={d.signed_url} alt={d.file_name}
+                                        className="w-full rounded-lg object-contain max-h-64"
+                                        style={{ background: '#f3f4f6' }} />
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
                           </div>
                         </div>
                       )}
@@ -308,6 +304,55 @@ export default function AdminDocumentosPage() {
           </div>
         </main>
       </div>
+
+      {/* Modal viewer PDF */}
+      {viewer && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.75)' }}
+          onClick={() => setViewer(null)}
+        >
+          <div
+            className="relative w-full max-w-4xl rounded-2xl overflow-hidden shadow-2xl"
+            style={{ background: '#fff', maxHeight: '90vh' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #e5e7eb' }}>
+              <div>
+                <p className="font-semibold text-sm" style={{ color: '#111827' }}>{viewer.file_name}</p>
+                <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>
+                  {viewer.uploader_name} · {formatSize(viewer.file_size)} · {new Date(viewer.created_at).toLocaleDateString('pt-PT')}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                {viewer.signed_url && (
+                  <a href={viewer.signed_url} download={viewer.file_name}
+                    className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
+                    style={{ background: '#d1fae5', color: '#065f46' }}>
+                    <Download size={13} /> Download
+                  </a>
+                )}
+                <button onClick={() => setViewer(null)} className="rounded-lg p-2 transition hover:bg-gray-100">
+                  <X size={18} style={{ color: '#6b7280' }} />
+                </button>
+              </div>
+            </div>
+            {/* Conteudo */}
+            <div style={{ height: '75vh', overflow: 'auto', background: '#f3f4f6' }}>
+              {getExt(viewer.file_name) === 'pdf' ? (
+                <iframe src={viewer.signed_url!} title={viewer.file_name} className="w-full h-full" style={{ border: 'none', minHeight: '70vh' }} />
+              ) : (
+                <div className="flex items-center justify-center h-full p-4">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={viewer.signed_url!} alt={viewer.file_name}
+                    className="max-w-full max-h-full rounded-lg object-contain shadow-lg" />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
