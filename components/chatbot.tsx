@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
-import { X, Send } from 'lucide-react'
+import { X, Send, MessageCircle, ChevronDown } from 'lucide-react'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 
@@ -92,7 +92,7 @@ export default function Chatbot() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-white leading-tight">Sofia</p>
               <p className="text-xs text-blue-200 leading-tight">
-                {streaming ? 'A escrever...' : 'Assistente Virtual'}
+                {isStreaming ? 'A escrever...' : 'Assistente Virtual'}
               </p>
             </div>
             <button onClick={() => setOpen(false)} className="rounded-lg p-1 hover:bg-white/10 transition-colors">
@@ -158,7 +158,7 @@ export default function Chatbot() {
               value={input}
               onChange={e => setInput(e.target.value)}
               placeholder="Escreva a sua mensagem..."
-              disabled={streaming}
+              disabled={isStreaming}
               className="flex-1 rounded-xl px-3 py-2 text-sm outline-none transition-all"
               style={{ background: '#f3f4f6', color: '#111827', border: '1.5px solid transparent' }}
               onFocus={e => { e.target.style.border = '1.5px solid #2d6a9f'; e.target.style.background = '#fff' }}
