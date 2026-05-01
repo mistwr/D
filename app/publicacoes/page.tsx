@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { Newspaper, FileText, Download, Share2, ExternalLink } from 'lucide-react'
+import { Newspaper, FileText, Download, Share2 } from 'lucide-react'
 
 interface Publicacao {
   id: string
@@ -23,8 +23,6 @@ export default function PublicacoesPage() {
   const { user, loading: authLoading } = useAuth('parceiro')
   const [pubs, setPubs] = useState<Publicacao[]>([])
   const [loading, setLoading] = useState(true)
-  const [downloading, setDownloading] = useState<string | null>(null)
-
   useEffect(() => {
     if (!user) return
     fetch('/api/publicacoes', { credentials: 'include' })
@@ -33,72 +31,24 @@ export default function PublicacoesPage() {
       .finally(() => setLoading(false))
   }, [user])
 
-  async function triggerDownload(pub: Publicacao): Promise<boolean> {
-    const filePath = pub.file_path || pub.document_name
-    const fileName = pub.file_name || pub.document_name || 'documento.pdf'
-    if (!filePath && !pub.signed_url) return false
-
-    try {
-      // Usar a API de download no servidor (service role, sem problemas de CORS ou auth)
-      const apiUrl = filePath
-        ? `/api/publicacoes/download?path=${encodeURIComponent(filePath)}&name=${encodeURIComponent(fileName)}`
-        : null
-
-      let blob: Blob | null = null
-
-      if (apiUrl) {
-        const res = await fetch(apiUrl, { credentials: 'include' })
-        if (res.ok) blob = await res.blob()
-      }
-
-      // Fallback: tentar signed_url directamente
-      if (!blob && pub.signed_url) {
-        const res = await fetch(pub.signed_url)
-        if (res.ok) blob = await res.blob()
-      }
-
-      if (!blob) {
-        // Ultimo fallback: abrir numa nova tab
-        if (pub.signed_url) window.open(pub.signed_url, '_blank')
-        return !!pub.signed_url
-      }
-
-      const blobUrl = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = blobUrl
-      a.download = fileName
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(blobUrl)
-      return true
-    } catch {
-      if (pub.signed_url) window.open(pub.signed_url, '_blank')
-      return !!pub.signed_url
-    }
+  function openFile(url: string) {
+    window.open(url, '_blank', 'noreferrer')
   }
 
-  async function handleDownload(pub: Publicacao) {
-    setDownloading(pub.id)
-    await triggerDownload(pub)
-    setDownloading(null)
-  }
-
-  async function handleWhatsApp(pub: Publicacao, withFile: boolean) {
+  function handleWhatsApp(pub: Publicacao, withFile: boolean) {
     const title = pub.title || ''
     const body = pub.content || pub.message || ''
-    const fileName = pub.file_name || pub.document_name || ''
+    const fileName = pub.file_name || ''
     let text = `*${title}*`
     if (body) text += `\n\n${body}`
 
-    if (withFile) {
-      const ok = await triggerDownload(pub)
-      if (ok) {
-        text += `\n\n_Ficheiro "${fileName}" guardado — anexe-o a esta conversa._`
-      }
+    if (withFile && pub.signed_url) {
+      // Abrir o ficheiro numa nova tab para o utilizador guardar e anexar manualmente no WhatsApp
+      openFile(pub.signed_url)
+      text += `\n\n_(Ficheiro "${fileName}" aberto — guarde e annexe a esta conversa.)_`
     }
 
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noreferrer')
   }
 
   if (authLoading || loading) return (
@@ -148,27 +98,27 @@ export default function PublicacoesPage() {
                             <p className="text-sm leading-relaxed mb-3" style={{ color: '#6b7280' }}>{bodyText}</p>
                           )}
 
-                          {hasFile && (
+                          {hasFile && p.signed_url && (
                             <div className="flex flex-wrap gap-2 mt-2">
-                              {/* Botao download / abrir ficheiro */}
-                              <button
-                                onClick={() => handleDownload(p)}
-                                disabled={downloading === p.id}
-                                className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition hover:opacity-80 disabled:opacity-50"
+                              {/* Ver / descarregar ficheiro directamente */}
+                              <a
+                                href={p.signed_url}
+                                download={p.file_name || true}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition hover:opacity-80"
                                 style={{ background: '#eef2ff', color: '#4338ca', border: '1px solid #c7d2fe' }}>
-                                {downloading === p.id
-                                  ? <><div className="animate-spin rounded-full h-3 w-3 border-b-2" style={{ borderColor: '#4338ca' }} /> A abrir...</>
-                                  : <><FileText size={13} />{displayName || 'Ver documento'}<Download size={12} /></>
-                                }
-                              </button>
+                                <FileText size={13} />
+                                {displayName || 'Ver documento'}
+                                <Download size={12} />
+                              </a>
 
-                              {/* Partilhar com ficheiro no WhatsApp */}
+                              {/* WhatsApp com ficheiro: abre ficheiro + mensagem */}
                               <button
                                 onClick={() => handleWhatsApp(p, true)}
                                 className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition hover:opacity-80"
-                                style={{ background: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0' }}
-                                title="Descarrega o PDF e abre o WhatsApp para o partilhar">
-                                <Share2 size={13} /> WhatsApp + PDF
+                                style={{ background: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0' }}>
+                                <Share2 size={13} /> WhatsApp + ficheiro
                               </button>
                             </div>
                           )}
