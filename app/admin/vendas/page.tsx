@@ -10,7 +10,6 @@ const STATUS_LABELS: Record<string, { label: string; color: string; bg: string }
   pendente:   { label: 'Pendente',   color: '#92400e', bg: '#fef3c7' },
   em_revisao: { label: 'Em Revisao', color: '#1e40af', bg: '#dbeafe' },
   ativa:      { label: 'Ativa',      color: '#065f46', bg: '#d1fae5' },
-  processado: { label: 'Processado', color: '#5b21b6', bg: '#ede9fe' },
   pago:       { label: 'Pago',       color: '#065f46', bg: '#bbf7d0' },
   cancelado:  { label: 'Cancelado',  color: '#991b1b', bg: '#fee2e2' },
   rejeitado:  { label: 'Rejeitado',  color: '#7f1d1d', bg: '#fecaca' },
@@ -32,6 +31,7 @@ export default function AdminVendasPage() {
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState('todas')
   const [filterServico, setFilterServico] = useState('todos')
+  const [filterParceiro, setFilterParceiro] = useState('todos')
   const [updating, setUpdating] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -81,12 +81,15 @@ export default function AdminVendasPage() {
     </div>
   )
 
+  const parceirosUnicos = [...new Set(vendas.map(v => v.parceiro_name).filter(Boolean))].sort()
+
   const filtered = vendas.filter(v => {
     const q = search.toLowerCase()
-    const matchSearch = !q || v.client_name.toLowerCase().includes(q) || (v.parceiro_name || '').toLowerCase().includes(q) || (v.client_nif || '').toLowerCase().includes(q) || (v.operator || '').toLowerCase().includes(q)
+    const matchSearch = !q || v.client_name.toLowerCase().includes(q) || (v.client_nif || '').toLowerCase().includes(q) || (v.operator || '').toLowerCase().includes(q)
     const matchStatus = filterStatus === 'todas' || v.status === filterStatus
     const matchServico = filterServico === 'todos' || v.service_type === filterServico
-    return matchSearch && matchStatus && matchServico
+    const matchParceiro = filterParceiro === 'todos' || v.parceiro_name === filterParceiro
+    return matchSearch && matchStatus && matchServico && matchParceiro
   })
 
   const totalFiltrado = filtered.reduce((s, v) => s + (v.amount || 0), 0)
@@ -111,9 +114,14 @@ export default function AdminVendasPage() {
               <div className="relative flex-1 min-w-48">
                 <Search size={16} className="absolute left-3 top-3" style={{ color: '#9ca3af' }} />
                 <input value={search} onChange={e => setSearch(e.target.value)}
-                  placeholder="Pesquisar cliente ou parceiro..." className="w-full pl-9 pr-4 py-2.5 rounded-lg text-sm outline-none"
+                  placeholder="Pesquisar por cliente, NIF ou operadora..." className="w-full pl-9 pr-4 py-2.5 rounded-lg text-sm outline-none"
                   style={{ border: '1px solid #d1d5db', color: '#111827' }} />
               </div>
+              <select value={filterParceiro} onChange={e => setFilterParceiro(e.target.value)}
+                className="rounded-lg px-3 py-2.5 text-sm outline-none" style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}>
+                <option value="todos">Todos os parceiros</option>
+                {parceirosUnicos.map(p => <option key={p} value={p}>{p}</option>)}
+              </select>
               <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
                 className="rounded-lg px-3 py-2.5 text-sm outline-none" style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}>
                 <option value="todas">Todos os estados</option>

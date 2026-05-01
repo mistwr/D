@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import Image from 'next/image'
-import { Percent, Plus, Trash2, X, Check, Zap, Flame, Shield, ArrowLeft, Users } from 'lucide-react'
+import { Percent, Plus, Trash2, X, Check, Zap, Flame, Shield, ArrowLeft, Users, Pencil } from 'lucide-react'
 import Link from 'next/link'
 
 const OPERADORAS: Record<string, string[]> = {
@@ -313,11 +313,24 @@ export default function AdminComissoesPage() {
                                 }
                               </td>
                               <td className="px-5 py-4 text-right">
-                                <button onClick={() => deleteRow(c)}
+                                <button
+                                  onClick={() => {
+                                    setForm({
+                                      servico: c.servico as any,
+                                      operadora: c.operadora,
+                                      plano: c.plano ?? '',
+                                      modelo: (c.modelo as any) || 'fixo',
+                                      valor_comissao: c.valor_comissao > 0 ? String(c.valor_comissao) : '',
+                                      num_mensalidades: c.num_mensalidades > 0 ? String(c.num_mensalidades) : '3',
+                                      valor_mensal: c.valor_mensal > 0 ? String(c.valor_mensal) : '',
+                                      percentagem: c.percentagem > 0 ? String(c.percentagem) : '',
+                                    })
+                                    setShowForm(true)
+                                  }}
                                   className="rounded-lg p-1.5 transition hover:opacity-70"
-                                  style={{ background: '#fef2f2' }}
-                                  title="Apagar comissao">
-                                  <Trash2 size={15} style={{ color: '#dc2626' }} />
+                                  style={{ background: '#eef2ff' }}
+                                  title="Editar comissao">
+                                  <Pencil size={15} style={{ color: '#4338ca' }} />
                                 </button>
                               </td>
                             </tr>
