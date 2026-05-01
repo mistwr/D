@@ -249,25 +249,76 @@ export default function VendasPage() {
 
             <div className="p-6">
               {/* Detalhes da venda */}
-              <div className="mb-4 rounded-lg p-4 space-y-2" style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                  <div><span style={{ color: '#9ca3af' }}>Servico: </span><span className="font-medium" style={{ color: '#374151' }}>{selectedVenda.service_type} · {selectedVenda.operator}{selectedVenda.plano ? ` · ${selectedVenda.plano}` : ''}</span></div>
-                  <div><span style={{ color: '#9ca3af' }}>Valor: </span><span className="font-semibold" style={{ color: '#111827' }}>€{(selectedVenda.amount || 0).toFixed(2)}</span></div>
-                  {selectedVenda.client_nif && <div><span style={{ color: '#9ca3af' }}>NIF: </span><span className="font-mono font-medium" style={{ color: '#374151' }}>{selectedVenda.client_nif}</span></div>}
-                  {selectedVenda.client_cc && <div><span style={{ color: '#9ca3af' }}>CC: </span><span className="font-mono" style={{ color: '#374151' }}>{selectedVenda.client_cc}</span></div>}
-                  {selectedVenda.client_iban && <div className="col-span-2"><span style={{ color: '#9ca3af' }}>IBAN: </span><span className="font-mono" style={{ color: '#374151' }}>{selectedVenda.client_iban}</span></div>}
-                  {selectedVenda.is_dual && <div className="col-span-2"><span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: '#fef3c7', color: '#92400e' }}>Dual ({selectedVenda.energia_tipo}){selectedVenda.cpe ? ` · CPE: ${selectedVenda.cpe}` : ''}{selectedVenda.cui ? ` · CUI: ${selectedVenda.cui}` : ''}</span></div>}
+              <div className="mb-5 rounded-xl overflow-hidden" style={{ border: '1px solid #e5e7eb' }}>
+                {/* Linha serviço + valor */}
+                <div className="flex items-center justify-between px-4 py-3" style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {(() => {
+                      const svcBg = selectedVenda.service_type === 'telecom' ? '#e0e7ff' : selectedVenda.service_type === 'energia' ? '#fef3c7' : '#dbeafe'
+                      const svcColor = selectedVenda.service_type === 'telecom' ? '#4338ca' : selectedVenda.service_type === 'energia' ? '#92400e' : '#1e40af'
+                      const svcLabel = SERVICE_LABELS[selectedVenda.service_type] || selectedVenda.service_type
+                      return <span className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{ background: svcBg, color: svcColor }}>{svcLabel}</span>
+                    })()}
+                    {selectedVenda.operator && <span className="text-sm font-semibold" style={{ color: '#111827' }}>{selectedVenda.operator}</span>}
+                    {selectedVenda.plano && <span className="text-xs px-2 py-0.5 rounded" style={{ background: '#f3f4f6', color: '#6b7280' }}>{selectedVenda.plano}</span>}
+                    {selectedVenda.is_dual && (
+                      <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: '#fef3c7', color: '#92400e' }}>Dual</span>
+                    )}
+                  </div>
+                  <span className="text-base font-bold ml-4" style={{ color: '#059669' }}>€{(selectedVenda.amount || 0).toFixed(2)}</span>
                 </div>
+
+                {/* Grid de campos do cliente */}
+                <div className="px-4 py-3 grid grid-cols-2 gap-x-6 gap-y-2.5 text-xs" style={{ background: '#fff' }}>
+                  {selectedVenda.client_nif && (
+                    <div>
+                      <p className="uppercase tracking-wide font-semibold mb-0.5" style={{ color: '#9ca3af', fontSize: 10 }}>NIF</p>
+                      <p className="font-mono font-medium" style={{ color: '#111827' }}>{selectedVenda.client_nif}</p>
+                    </div>
+                  )}
+                  {selectedVenda.client_cc && (
+                    <div>
+                      <p className="uppercase tracking-wide font-semibold mb-0.5" style={{ color: '#9ca3af', fontSize: 10 }}>Cartão de Cidadão</p>
+                      <p className="font-mono font-medium" style={{ color: '#111827' }}>{selectedVenda.client_cc}</p>
+                    </div>
+                  )}
+                  {selectedVenda.client_iban && (
+                    <div className="col-span-2">
+                      <p className="uppercase tracking-wide font-semibold mb-0.5" style={{ color: '#9ca3af', fontSize: 10 }}>IBAN</p>
+                      <p className="font-mono font-medium" style={{ color: '#111827' }}>{selectedVenda.client_iban}</p>
+                    </div>
+                  )}
+                  {selectedVenda.is_dual && (selectedVenda.cpe || selectedVenda.cui) && (
+                    <>
+                      {selectedVenda.cpe && (
+                        <div>
+                          <p className="uppercase tracking-wide font-semibold mb-0.5" style={{ color: '#9ca3af', fontSize: 10 }}>CPE</p>
+                          <p className="font-mono font-medium" style={{ color: '#111827' }}>{selectedVenda.cpe}</p>
+                        </div>
+                      )}
+                      {selectedVenda.cui && (
+                        <div>
+                          <p className="uppercase tracking-wide font-semibold mb-0.5" style={{ color: '#9ca3af', fontSize: 10 }}>CUI</p>
+                          <p className="font-mono font-medium" style={{ color: '#111827' }}>{selectedVenda.cui}</p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* Descrição */}
                 {selectedVenda.description && (
-                  <div className="pt-2" style={{ borderTop: '1px solid #e5e7eb' }}>
-                    <p className="text-xs font-medium mb-0.5" style={{ color: '#6b7280' }}>Descricao</p>
+                  <div className="px-4 py-3" style={{ borderTop: '1px solid #f3f4f6', background: '#fff' }}>
+                    <p className="uppercase tracking-wide font-semibold mb-1" style={{ color: '#9ca3af', fontSize: 10 }}>Descrição</p>
                     <p className="text-xs leading-relaxed" style={{ color: '#374151' }}>{selectedVenda.description}</p>
                   </div>
                 )}
+
+                {/* Notas internas */}
                 {selectedVenda.notes && (
-                  <div className="pt-2" style={{ borderTop: '1px solid #e5e7eb' }}>
-                    <p className="text-xs font-medium mb-0.5" style={{ color: '#6b7280' }}>Notas internas</p>
-                    <p className="text-xs leading-relaxed" style={{ color: '#374151' }}>{selectedVenda.notes}</p>
+                  <div className="px-4 py-3" style={{ borderTop: '1px solid #f3f4f6', background: '#fffbeb' }}>
+                    <p className="uppercase tracking-wide font-semibold mb-1" style={{ color: '#92400e', fontSize: 10 }}>Notas internas</p>
+                    <p className="text-xs leading-relaxed" style={{ color: '#78350f' }}>{selectedVenda.notes}</p>
                   </div>
                 )}
               </div>
