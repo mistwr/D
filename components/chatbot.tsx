@@ -1,112 +1,43 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useRef, useState, useCallback } from 'react'
-import { MessageCircle, X, Send, ChevronDown } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { X, Send, MessageCircle, ChevronDown } from 'lucide-react'
+import { useChat } from '@ai-sdk/react'
+import { DefaultChatTransport } from 'ai'
 
-interface Message {
-  id: string
-  role: 'user' | 'assistant'
-  text: string
+function getMsgText(parts: any[]): string {
+  if (!Array.isArray(parts)) return ''
+  return parts
+    .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
+    .map(p => p.text)
+    .join('')
 }
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState('')
-  const [streaming, setStreaming] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const abortRef = useRef<AbortController | null>(null)
 
+  const { messages, input, setInput, sendMessage, status } = useChat({
+    transport: new DefaultChatTransport({ api: '/api/chatbot' }),
+  })
+
+  const isStreaming = status === 'streaming' || status === 'submitted'
+
+  // header shows streaming state
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, streaming])
+  }, [messages, isStreaming])
 
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 100)
   }, [open])
 
-  const sendMessage = useCallback(async (text: string) => {
-    if (!text.trim() || streaming) return
-
-    const userMsg: Message = { id: crypto.randomUUID(), role: 'user', text: text.trim() }
-    const assistantId = crypto.randomUUID()
-
-    setMessages(prev => [...prev, userMsg, { id: assistantId, role: 'assistant', text: '' }])
-    setStreaming(true)
-
-    abortRef.current = new AbortController()
-
-    try {
-      const history = [...messages, userMsg].map(m => ({
-        role: m.role,
-        content: m.text,
-      }))
-
-      const res = await fetch('/api/chatbot', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ messages: history }),
-        signal: abortRef.current.signal,
-      })
-
-      if (!res.ok || !res.body) {
-        setMessages(prev => prev.map(m =>
-          m.id === assistantId ? { ...m, text: 'Ocorreu um erro. Tente novamente.' } : m
-        ))
-        return
-      }
-
-      const reader = res.body.getReader()
-      const decoder = new TextDecoder()
-      let full = ''
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        const chunk = decoder.decode(value, { stream: true })
-        // Parse SSE lines: "data: <text>\n\n" or just raw text
-        const lines = chunk.split('\n')
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6).trim()
-            if (data === '[DONE]') break
-            try {
-              const parsed = JSON.parse(data)
-              // AI SDK UIMessageStream format
-              if (parsed.type === 'text-delta' && parsed.delta) {
-                full += parsed.delta
-              } else if (typeof parsed === 'string') {
-                full += parsed
-              }
-            } catch {
-              // raw text delta
-              if (data !== '[DONE]') full += data
-            }
-          } else if (line.trim() && !line.startsWith(':') && !line.startsWith('event:')) {
-            // plain text fallback
-          }
-        }
-        setMessages(prev => prev.map(m =>
-          m.id === assistantId ? { ...m, text: full } : m
-        ))
-      }
-    } catch (err: any) {
-      if (err?.name !== 'AbortError') {
-        setMessages(prev => prev.map(m =>
-          m.id === assistantId ? { ...m, text: 'Erro de ligacao. Tente novamente.' } : m
-        ))
-      }
-    } finally {
-      setStreaming(false)
-    }
-  }, [messages, streaming])
-
   function handleSend(e: React.FormEvent) {
     e.preventDefault()
-    sendMessage(input)
+    if (!input.trim() || isStreaming) return
+    sendMessage({ text: input })
     setInput('')
   }
 
@@ -161,7 +92,7 @@ export default function Chatbot() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-white leading-tight">Sofia</p>
               <p className="text-xs text-blue-200 leading-tight">
-                {streaming ? 'A escrever...' : 'Assistente Virtual'}
+                {isStreaming ? 'A escrever...' : 'Assistente Virtual'}
               </p>
             </div>
             <button onClick={() => setOpen(false)} className="rounded-lg p-1 hover:bg-white/10 transition-colors">
@@ -171,7 +102,7 @@ export default function Chatbot() {
 
           {/* Mensagens */}
           <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3" style={{ background: '#f8fafc' }}>
-            {/* Mensagem inicial */}
+            {/* Mensagem inicial quando nao ha mensagens */}
             {messages.length === 0 && (
               <div className="flex items-start gap-2">
                 <div className="h-7 w-7 rounded-full overflow-hidden flex-shrink-0 mt-0.5">
@@ -188,6 +119,7 @@ export default function Chatbot() {
 
             {messages.map((msg) => {
               const isUser = msg.role === 'user'
+              const text = getMsgText(msg.parts)
               return (
                 <div key={msg.id} className={`flex items-end gap-2 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
                   {!isUser && (
@@ -196,13 +128,14 @@ export default function Chatbot() {
                     </div>
                   )}
                   <div
-                    className="rounded-2xl px-3 py-2 max-w-[80%] text-sm leading-relaxed"
+                    className="rounded-2xl px-3 py-2 max-w-[80%] text-sm leading-relaxed whitespace-pre-wrap"
                     style={isUser
                       ? { background: 'linear-gradient(135deg, #1e3a5f, #2d6a9f)', color: '#fff', borderBottomRightRadius: 4 }
                       : { background: '#fff', color: '#374151', border: '1px solid #e5e7eb', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', borderBottomLeftRadius: 4 }
                     }
                   >
-                    {msg.text || (
+                    {text || (!isUser ? null : '')}
+                    {!text && !isUser && isStreaming && (
                       <div className="flex gap-1 items-center h-4">
                         {[0, 1, 2].map(i => (
                           <span key={i} className="h-1.5 w-1.5 rounded-full animate-bounce"
@@ -225,7 +158,7 @@ export default function Chatbot() {
               value={input}
               onChange={e => setInput(e.target.value)}
               placeholder="Escreva a sua mensagem..."
-              disabled={streaming}
+              disabled={isStreaming}
               className="flex-1 rounded-xl px-3 py-2 text-sm outline-none transition-all"
               style={{ background: '#f3f4f6', color: '#111827', border: '1.5px solid transparent' }}
               onFocus={e => { e.target.style.border = '1.5px solid #2d6a9f'; e.target.style.background = '#fff' }}
@@ -233,15 +166,15 @@ export default function Chatbot() {
             />
             <button
               type="submit"
-              disabled={!input.trim() || streaming}
+              disabled={!input.trim() || isStreaming}
               className="flex-shrink-0 flex items-center justify-center rounded-xl transition-all"
               style={{
                 width: 36, height: 36,
-                background: !input.trim() || streaming ? '#e5e7eb' : 'linear-gradient(135deg, #1e3a5f, #2d6a9f)',
-                cursor: !input.trim() || streaming ? 'not-allowed' : 'pointer',
+                background: !input.trim() || isStreaming ? '#e5e7eb' : 'linear-gradient(135deg, #1e3a5f, #2d6a9f)',
+                cursor: !input.trim() || isStreaming ? 'not-allowed' : 'pointer',
               }}
             >
-              <Send size={15} color={!input.trim() || streaming ? '#9ca3af' : '#fff'} />
+              <Send size={15} color={!input.trim() || isStreaming ? '#9ca3af' : '#fff'} />
             </button>
           </form>
         </div>
