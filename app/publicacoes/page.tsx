@@ -53,20 +53,33 @@ export default function PublicacoesPage() {
     setDownloading(null)
   }
 
-  function handleWhatsApp(pub: Publicacao, withFile: boolean) {
+  async function handleWhatsApp(pub: Publicacao, withFile: boolean) {
     const title = pub.title || ''
     const body = pub.content || pub.message || ''
     const fileName = pub.file_name || pub.document_name || ''
     let text = `*${title}*`
     if (body) text += `\n\n${body}`
-    if (withFile && fileName) {
-      // Incluir link direto para o ficheiro se existir signed URL
-      if (pub.signed_url) {
-        text += `\n\n*Ficheiro:* ${pub.signed_url}`
-      } else {
-        text += `\n\n*Anexo:* ${fileName}`
+
+    if (withFile && pub.signed_url) {
+      // 1. Fazer download do PDF automaticamente para o utilizador poder anexar no WhatsApp
+      try {
+        const res = await fetch(pub.signed_url)
+        const blob = await res.blob()
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = fileName || 'documento.pdf'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      } catch {
+        // falha silenciosa — continua para abrir WhatsApp
       }
+      // 2. Na mensagem instruir o utilizador a anexar o ficheiro descarregado
+      text += `\n\n_O ficheiro "${fileName}" foi guardado no seu dispositivo — anexe-o a esta conversa._`
     }
+
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
   }
 
@@ -135,8 +148,9 @@ export default function PublicacoesPage() {
                               <button
                                 onClick={() => handleWhatsApp(p, true)}
                                 className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition hover:opacity-80"
-                                style={{ background: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0' }}>
-                                <Share2 size={13} /> Partilhar com ficheiro
+                                style={{ background: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0' }}
+                                title="Descarrega o PDF e abre o WhatsApp para o partilhar">
+                                <Share2 size={13} /> WhatsApp + PDF
                               </button>
                             </div>
                           )}
