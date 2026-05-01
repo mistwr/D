@@ -102,7 +102,7 @@ export default function AdminComissoesPage() {
         plano: form.servico === 'telecom' ? form.plano : '',
         modelo,
         valor_comissao: (!isMensalidade && !isPercentagem) ? (parseFloat(form.valor_comissao) || 0) : 0,
-        num_mensalidades: isMensalidade ? (parseInt(form.num_mensalidades) || 0) : 0,
+        num_mensalidades: isMensalidade ? (Math.round(parseInt(form.num_mensalidades)) || 0) : 0,
         valor_mensal: isMensalidade ? (parseFloat(form.valor_mensal) || 0) : 0,
         percentagem: isPercentagem ? (parseFloat(form.percentagem) || 0) : 0,
       }),
@@ -413,10 +413,20 @@ export default function AdminComissoesPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Mensalidades por contrato</label>
-                      <input type="number" step="1" min="1" max="60" value={form.num_mensalidades}
-                        onChange={e => setForm(f => ({ ...f, num_mensalidades: e.target.value }))}
-                        className="w-full rounded-lg px-3 py-2.5 text-sm" style={inputStyle}
-                        placeholder="Ex: 3" />
+                      <div className="grid grid-cols-6 gap-1.5">
+                        {[1, 2, 3, 4, 5, 6].map(n => (
+                          <button key={n} type="button"
+                            onClick={() => setForm(f => ({ ...f, num_mensalidades: String(n) }))}
+                            className="rounded-lg py-2 text-sm font-bold border transition"
+                            style={{
+                              background: form.num_mensalidades === String(n) ? '#4338ca' : '#fff',
+                              color: form.num_mensalidades === String(n) ? '#fff' : '#374151',
+                              border: form.num_mensalidades === String(n) ? '1px solid #4338ca' : '1px solid #d1d5db',
+                            }}>
+                            x{n}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                   <div className="rounded-lg p-3 text-xs" style={{ background: '#fef3c7', color: '#92400e' }}>
