@@ -31,23 +31,14 @@ export default function PublicacoesPage() {
       .finally(() => setLoading(false))
   }, [user])
 
-  function openFile(url: string) {
-    window.open(url, '_blank', 'noreferrer')
-  }
-
   function handleWhatsApp(pub: Publicacao, withFile: boolean) {
     const title = pub.title || ''
     const body = pub.content || pub.message || ''
-    const fileName = pub.file_name || ''
     let text = `*${title}*`
     if (body) text += `\n\n${body}`
-
     if (withFile && pub.signed_url) {
-      // Abrir o ficheiro numa nova tab para o utilizador guardar e anexar manualmente no WhatsApp
-      openFile(pub.signed_url)
-      text += `\n\n_(Ficheiro "${fileName}" aberto — guarde e annexe a esta conversa.)_`
+      text += `\n\n${pub.signed_url}`
     }
-
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noreferrer')
   }
 
@@ -100,25 +91,20 @@ export default function PublicacoesPage() {
 
                           {hasFile && p.signed_url && (
                             <div className="flex flex-wrap gap-2 mt-2">
-                              {/* Ver / descarregar ficheiro directamente */}
                               <a
                                 href={p.signed_url}
-                                download={p.file_name || true}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition hover:opacity-80"
                                 style={{ background: '#eef2ff', color: '#4338ca', border: '1px solid #c7d2fe' }}>
                                 <FileText size={13} />
                                 {displayName || 'Ver documento'}
-                                <Download size={12} />
                               </a>
-
-                              {/* WhatsApp com ficheiro: abre ficheiro + mensagem */}
                               <button
                                 onClick={() => handleWhatsApp(p, true)}
                                 className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition hover:opacity-80"
                                 style={{ background: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0' }}>
-                                <Share2 size={13} /> WhatsApp + ficheiro
+                                <Share2 size={13} /> WhatsApp + link
                               </button>
                             </div>
                           )}
@@ -132,7 +118,6 @@ export default function PublicacoesPage() {
                           <span className="text-xs" style={{ color: '#9ca3af' }}>
                             {new Date(p.created_at).toLocaleDateString('pt-PT')}
                           </span>
-                          {/* Partilha simples (so texto) */}
                           <button
                             onClick={() => handleWhatsApp(p, false)}
                             className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition hover:opacity-80"

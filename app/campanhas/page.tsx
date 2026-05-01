@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { Megaphone, FileText, Download, ChevronDown, ChevronUp, Zap, Flame, Wifi, Shield } from 'lucide-react'
+import { Megaphone, FileText, Download, Share2, ChevronDown, ChevronUp, Zap, Flame, Wifi, Shield } from 'lucide-react'
 
 interface Campanha {
   id: string
@@ -55,6 +55,11 @@ export default function CampanhasParceiroPage() {
       .then(d => setCampanhas((d.campanhas ?? []).filter((c: Campanha) => c.status === 'ativa')))
       .finally(() => setLoading(false))
   }, [user])
+
+  function shareWhatsApp(campanha: Campanha, ficheiro: Ficheiro) {
+    const text = `*${campanha.title}*${campanha.operator ? ` — ${campanha.operator}` : ''}\n\n${campanha.description || ''}\n\n${ficheiro.signed_url}`
+    window.open(`https://wa.me/?text=${encodeURIComponent(text.trim())}`, '_blank', 'noreferrer')
+  }
 
   async function toggleExpand(id: string) {
     if (expanded === id) { setExpanded(null); return }
@@ -176,11 +181,18 @@ export default function CampanhasParceiroPage() {
                                     </div>
                                   </div>
                                   {f.signed_url && (
-                                    <a href={f.signed_url} download={f.file_name} target="_blank" rel="noreferrer"
-                                      className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium flex-shrink-0"
-                                      style={{ background: '#eef2ff', color: '#4338ca' }}>
-                                      <Download size={12} /> Download
-                                    </a>
+                                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                                      <a href={f.signed_url} target="_blank" rel="noreferrer"
+                                        className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
+                                        style={{ background: '#eef2ff', color: '#4338ca' }}>
+                                        <Download size={12} /> Ver
+                                      </a>
+                                      <button onClick={() => shareWhatsApp(c, f)}
+                                        className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
+                                        style={{ background: '#dcfce7', color: '#166534' }}>
+                                        <Share2 size={12} /> WhatsApp
+                                      </button>
+                                    </div>
                                   )}
                                 </div>
                               ))}
