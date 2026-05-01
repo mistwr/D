@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { createClient } from '@/lib/supabase/client'
 
 // Imagens locais — energia, telecom e cidade
 const SLIDES = [
@@ -37,19 +38,20 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        setError(data.error || 'Erro ao entrar')
+      const supabase = createClient()
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+      if (signInError || !data.user) {
+        setError('Email ou password incorretos')
         setLoading(false)
         return
       }
-      router.replace(data.user.role === 'admin' ? '/admin/dashboard' : '/dashboard')
+      // Buscar role do perfil
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single()
+      router.replace(profile?.role === 'admin' ? '/admin/dashboard' : '/dashboard')
     } catch {
       setError('Erro de ligacao')
       setLoading(false)

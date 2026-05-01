@@ -81,18 +81,28 @@ export default function ContratosPage() {
 
   async function loadVendas() {
     setLoadingVendas(true)
-    const r = await fetch('/api/vendas', { credentials: 'include' })
-    const d = await r.json()
-    setVendas(d.vendas || [])
-    setLoadingVendas(false)
+    try {
+      const r = await fetch('/api/vendas', { credentials: 'include' })
+      const d = await r.json()
+      setVendas(d.vendas || [])
+    } catch {
+      // falha silenciosa
+    } finally {
+      setLoadingVendas(false)
+    }
   }
 
   async function loadDocsGerais() {
     setLoadingGerais(true)
-    const r = await fetch('/api/documentos?tipo=contrato', { credentials: 'include' })
-    const d = await r.json()
-    setDocsGerais(d.documentos || [])
-    setLoadingGerais(false)
+    try {
+      const r = await fetch('/api/documentos?tipo=contrato', { credentials: 'include' })
+      const d = await r.json()
+      setDocsGerais(d.documentos || [])
+    } catch {
+      // falha silenciosa
+    } finally {
+      setLoadingGerais(false)
+    }
   }
 
   async function loadDocsVenda(vendaId: string) {
