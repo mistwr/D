@@ -103,7 +103,10 @@ export async function POST(req: Request) {
   }).select().single()
 
   if (dbErr) return NextResponse.json({ error: dbErr.message }, { status: 500 })
-  return NextResponse.json({ documento: doc })
+
+  // Gerar signed URL para o ficheiro recém-enviado
+  const { data: signed } = await svc.storage.from('documentos').createSignedUrl(filePath, 3600)
+  return NextResponse.json({ documento: { ...doc, signed_url: signed?.signedUrl ?? null } })
 }
 
 export async function DELETE(req: Request) {

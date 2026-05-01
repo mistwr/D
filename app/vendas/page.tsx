@@ -96,8 +96,11 @@ export default function VendasPage() {
     const d = await r.json()
     setUploading(false)
     if (!r.ok) { setUploadError(d.error || 'Erro ao fazer upload'); return }
-    setDocs(prev => [d.documento, ...prev])
     e.target.value = ''
+    // Recarregar lista completa para garantir signed_urls válidas
+    const r2 = await fetch(`/api/documentos?venda_id=${selectedVenda.id}`, { credentials: 'include' })
+    const d2 = await r2.json()
+    setDocs(d2.documentos || [])
   }
 
   async function deleteDoc(docId: string) {
