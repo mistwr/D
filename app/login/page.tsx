@@ -6,11 +6,9 @@ import Image from 'next/image'
 
 // Imagens locais — energia, telecom e cidade
 const SLIDES = [
-  { url: '/slide-energia.jpg',  caption: 'Energia para o futuro' },
-  { url: '/slide-telecom.jpg',  caption: 'Telecomunicacoes sem limites' },
-  { url: '/slide-cidade.jpg',   caption: 'Solucoes que fazem a diferenca' },
-  { url: '/slide-energia.jpg',  caption: 'Energia limpa e sustentavel' },
-  { url: '/slide-telecom.jpg',  caption: 'Tecnologia ao seu servico' },
+  { url: '/slide-energia.jpg',  caption: 'Energia para o futuro',           id: 'slide-0' },
+  { url: '/slide-telecom.jpg',  caption: 'Telecomunicacoes sem limites',     id: 'slide-1' },
+  { url: '/slide-cidade.jpg',   caption: 'Solucoes que fazem a diferenca',   id: 'slide-2' },
 ]
 
 export default function LoginPage() {
@@ -62,22 +60,27 @@ export default function LoginPage() {
     <div className="flex min-h-screen" style={{ background: '#0f172a' }}>
 
       {/* ---- LADO ESQUERDO: Slideshow ---- */}
-      <div className="relative hidden lg:flex lg:w-[58%] xl:w-[62%] flex-col overflow-hidden">
-        {/* Imagens pré-carregadas, só a atual fica visível */}
+      <div className="hidden lg:block lg:w-[58%] xl:w-[62%]" style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
+        {/* Imagens absolutas — cada uma ocupa 100% do contentor */}
         {SLIDES.map((slide, i) => (
           <img
-            key={slide.url}
+            key={slide.id}
             src={slide.url}
             alt={slide.caption}
-            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
-            style={{ opacity: i === current && fade ? 1 : 0 }}
+            style={{
+              position: 'absolute', inset: 0,
+              width: '100%', height: '100%',
+              objectFit: 'cover',
+              opacity: i === current && fade ? 1 : 0,
+              transition: 'opacity 700ms ease-in-out',
+            }}
           />
         ))}
         {/* Overlay escuro gradiente */}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(15,23,42,0.25) 0%, rgba(15,23,42,0.75) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(15,23,42,0.25) 0%, rgba(15,23,42,0.75) 100%)' }} />
 
         {/* Conteudo sobre o slideshow */}
-        <div className="relative z-10 flex flex-col h-full p-10">
+        <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', height: '100%', minHeight: '100vh', padding: '40px' }}>
           {/* Logo topo esquerdo */}
           <div className="flex items-center gap-3">
             <div className="h-12 w-12 rounded-xl overflow-hidden flex-shrink-0 shadow-lg" style={{ border: '2px solid rgba(255,255,255,0.2)' }}>

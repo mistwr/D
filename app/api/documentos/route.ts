@@ -34,38 +34,55 @@ export async function GET(req: NextRequest) {
 
   const svc = service()
 
-  // Admin sem filtro → todos os documentos com join parceiro + venda
+  // Admin sem filtro → todos os documentos + enriquecer com dados de vendas e parceiros
   if (isAdmin && !vendaId && !tipo) {
     const { data: docs } = await svc
       .from('documentos')
-      .select(`
-        *,
-        vendas (
-          id, client_name, client_email, client_phone, client_nif,
-          amount, status, service_type, operator, plano,
-          profiles!vendas_user_id_fkey ( id, full_name, email, company )
-        )
-      `)
+      .select('*')
       .order('created_at', { ascending: false })
 
-    const withUrls = await Promise.all((docs ?? []).map(async (doc: any) => {
+    if (!docs || docs.length === 0) return NextResponse.json({ documentos: [] })
+
+    // Buscar vendas únicas referenciadas
+    const vendaIds = [...new Set(docs.filter(d => d.venda_id).map((d: any) => d.venda_id))]
+    const uploaderIds = [...new Set(docs.map((d: any) => d.uploaded_by).filter(Boolean))]
+
+    const [vendasRes, profilesRes] = await Promise.all([
+      vendaIds.length > 0
+        ? svc.from('vendas').select('id, client_name, client_email, client_phone, client_nif, amount, status, service_type, operator, plano, user_id').in('id', vendaIds)
+        : { data: [] },
+      uploaderIds.length > 0
+        ? svc.from('profiles').select('id, full_name, email, company').in('id', uploaderIds)
+        : { data: [] },
+    ])
+
+    const vendasMap = new Map((vendasRes.data ?? []).map((v: any) => [v.id, v]))
+    const profilesMap = new Map((profilesRes.data ?? []).map((p: any) => [p.id, p]))
+
+    const withUrls = await Promise.all(docs.map(async (doc: any) => {
       const signed = doc.file_path
         ? (await svc.storage.from('documentos').createSignedUrl(doc.file_path, 3600)).data
         : null
+      const venda = vendasMap.get(doc.venda_id) ?? null
+      const uploaderProfile = profilesMap.get(doc.uploaded_by) ?? null
+      // Tentar obter parceiro via venda se não houver perfil directo
+      const vendaUploaderProfile = venda ? (profilesMap.get(venda.user_id) ?? null) : null
+      const profile = uploaderProfile ?? vendaUploaderProfile
+
       return {
         ...doc,
         signed_url: signed?.signedUrl ?? null,
-        uploader_name: doc.vendas?.profiles?.full_name ?? 'Desconhecido',
-        uploader_email: doc.vendas?.profiles?.email ?? '',
-        uploader_company: doc.vendas?.profiles?.company ?? '',
-        client_name: doc.vendas?.client_name ?? '',
-        client_email: doc.vendas?.client_email ?? '',
-        client_phone: doc.vendas?.client_phone ?? '',
-        client_nif: doc.vendas?.client_nif ?? '',
-        venda_amount: doc.vendas?.amount ?? 0,
-        venda_status: doc.vendas?.status ?? '',
-        venda_service_type: doc.vendas?.service_type ?? '',
-        venda_operator: doc.vendas?.operator ?? '',
+        uploader_name: profile?.full_name ?? 'Desconhecido',
+        uploader_email: profile?.email ?? '',
+        uploader_company: profile?.company ?? '',
+        client_name: venda?.client_name ?? '',
+        client_email: venda?.client_email ?? '',
+        client_phone: venda?.client_phone ?? '',
+        client_nif: venda?.client_nif ?? '',
+        venda_amount: venda?.amount ?? 0,
+        venda_status: venda?.status ?? '',
+        venda_service_type: venda?.service_type ?? '',
+        venda_operator: venda?.operator ?? '',
       }
     }))
     return NextResponse.json({ documentos: withUrls })
