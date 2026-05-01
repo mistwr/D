@@ -3,7 +3,6 @@
 import { Bell, LogOut, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import Link from 'next/link'
-import { MiniChatbot } from '@/components/mini-chatbot'
 
 interface NavbarProps {
   user: { full_name: string; role: string; email: string } | null
@@ -20,13 +19,6 @@ export function Navbar({ user, onLogout }: NavbarProps) {
   }
 
   return (
-    <>
-    {user && (
-      <MiniChatbot
-        role={user.role as 'admin' | 'parceiro'}
-        userName={user.full_name}
-      />
-    )}
     <nav className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between px-4 shadow-sm" style={{ background: '#ffffff', borderBottom: '1px solid #e5e7eb' }}>
       <div className="flex items-center gap-3">
         <button className="md:hidden" onClick={() => setOpen(!open)}>
@@ -56,6 +48,5 @@ export function Navbar({ user, onLogout }: NavbarProps) {
         )}
       </div>
       </nav>
-    </>
   )
 }
