@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createService } from '@supabase/supabase-js'
+
+function svc() {
+  return createService(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
 
 export async function GET(req: NextRequest) {
   const supabase = await createClient()
@@ -9,11 +18,45 @@ export async function GET(req: NextRequest) {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
 
-  let query = supabase.from('contratos').select('*').order('created_at', { ascending: false })
-  if (!isAdmin) query = query.eq('user_id', user.id)
+  const service = svc()
 
-  const { data: contratos } = await query
-  return NextResponse.json({ contratos: contratos ?? [] })
+  // Buscar contratos
+  let contratosQuery = service.from('contratos').select('*').order('created_at', { ascending: false })
+  if (!isAdmin) contratosQuery = contratosQuery.eq('user_id', user.id)
+  const { data: contratos } = await contratosQuery
+
+  if (!contratos || contratos.length === 0) return NextResponse.json({ contratos: [] })
+
+  // Enriquecer com dados do parceiro
+  const userIds = [...new Set(contratos.map((c: any) => c.user_id).filter(Boolean))]
+  const { data: profiles } = await service.from('profiles').select('id, full_name, email, company, phone').in('id', userIds)
+  const profilesMap = new Map((profiles ?? []).map((p: any) => [p.id, p]))
+
+  // Buscar documentos associados a cada contrato
+  const contratoIds = contratos.map((c: any) => c.id)
+  const { data: docs } = await service.from('documentos').select('*').in('venda_id', contratoIds)
+
+  // Gerar signed URLs para documentos
+  const docsWithUrls = await Promise.all((docs ?? []).map(async (doc: any) => {
+    if (!doc.file_path) return { ...doc, signed_url: null }
+    const { data: signed } = await service.storage.from('documentos').createSignedUrl(doc.file_path, 3600)
+    return { ...doc, signed_url: signed?.signedUrl ?? null }
+  }))
+
+  const docsMap = new Map<string, any[]>()
+  docsWithUrls.forEach((d: any) => {
+    const key = d.venda_id
+    if (!docsMap.has(key)) docsMap.set(key, [])
+    docsMap.get(key)!.push(d)
+  })
+
+  const enriched = contratos.map((c: any) => ({
+    ...c,
+    parceiro: profilesMap.get(c.user_id) ?? null,
+    documentos: docsMap.get(c.id) ?? [],
+  }))
+
+  return NextResponse.json({ contratos: enriched })
 }
 
 export async function POST(req: Request) {

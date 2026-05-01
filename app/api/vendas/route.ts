@@ -107,6 +107,8 @@ export async function POST(req: Request) {
     energia_tipo: body.energia_tipo || null,
     cpe: body.cpe || null,
     cui: body.cui || null,
+    potencia: body.potencia || null,
+    escalao: body.escalao || null,
   }).select().single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

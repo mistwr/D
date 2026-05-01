@@ -123,3 +123,19 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Slideshow login */
+.login-slideshow {
+  display: none;
+  position: relative;
+  flex-shrink: 0;
+  width: 60%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .login-slideshow {
+    display: block;
+  }
+}
