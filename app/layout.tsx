@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import dynamic from 'next/dynamic'
 import './globals.css'
+
+const Chatbot = dynamic(() => import('@/components/chatbot'), { ssr: false })
 
 const _geist = Geist({ subsets: ['latin'] })
 const _geistMono = Geist_Mono({ subsets: ['latin'] })
