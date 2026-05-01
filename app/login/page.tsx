@@ -57,18 +57,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0f172a' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#0f172a', alignItems: 'stretch' }}>
 
       {/* ---- LADO ESQUERDO: Slideshow ---- */}
-      <div style={{
-        display: 'none',
-        position: 'relative',
-        width: '60%',
-        minHeight: '100vh',
-        overflow: 'hidden',
-        flexShrink: 0,
-      }} className="lg-slideshow-panel">
-        <style>{`@media (min-width: 1024px) { .lg-slideshow-panel { display: block !important; } }`}</style>
+      <div className="login-slideshow">
         {SLIDES.map((slide, i) => (
           <img
             key={slide.id}
@@ -76,7 +68,7 @@ export default function LoginPage() {
             alt={slide.caption}
             style={{
               position: 'absolute',
-              top: 0, left: 0, right: 0, bottom: 0,
+              top: 0, left: 0,
               width: '100%', height: '100%',
               objectFit: 'cover',
               opacity: i === current && fade ? 1 : 0,
@@ -88,7 +80,7 @@ export default function LoginPage() {
         {/* Overlay escuro */}
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'linear-gradient(to bottom, rgba(15,23,42,0.2) 0%, rgba(15,23,42,0.8) 100%)',
+          background: 'linear-gradient(to bottom, rgba(15,23,42,0.2) 0%, rgba(15,23,42,0.85) 100%)',
           zIndex: 2,
         }} />
 
