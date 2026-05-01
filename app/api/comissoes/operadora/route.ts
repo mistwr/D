@@ -61,7 +61,7 @@ export async function POST(request: Request) {
       plano: plano || '',
       modelo: modelo || 'fixo',
       valor_comissao: parseFloat(valor_comissao) || 0,
-      num_mensalidades: parseInt(num_mensalidades) || 0,
+      num_mensalidades: parseFloat(num_mensalidades) || 0,
       valor_mensal: parseFloat(valor_mensal) || 0,
       percentagem: parseFloat(percentagem) || 0,
       updated_at: new Date().toISOString(),

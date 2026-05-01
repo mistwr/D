@@ -11,7 +11,11 @@ interface ComissaoOp {
   servico: string
   operadora: string
   plano: string
+  modelo: string
   valor_comissao: number
+  num_mensalidades: number
+  valor_mensal: number
+  percentagem: number
 }
 
 const SERVICO_LABEL: Record<string, string> = {
@@ -65,7 +69,10 @@ export default function ComissoesPage() {
     grouped[c.servico].push(c)
   }
 
-  const totalPorServico = (items: ComissaoOp[]) => items.reduce((s, c) => s + c.valor_comissao, 0)
+  const totalPorServico = (items: ComissaoOp[]) => items.reduce((s, c) => {
+    if (c.modelo === 'mensalidade') return s + (c.num_mensalidades || 0) * (c.valor_mensal || 0)
+    return s + (c.valor_comissao || 0)
+  }, 0)
 
   return (
     <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
@@ -122,30 +129,47 @@ export default function ComissoesPage() {
                           <thead>
                             <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
                               <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>Operadora</th>
-                              {servico === 'telecom' && (
-                                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>Plano</th>
-                              )}
+                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>Plano</th>
+                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>Modelo</th>
                               <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>Comissao por Venda</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {items.map((c, i) => (
-                              <tr key={i} style={{ borderBottom: i < items.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
-                                <td className="px-5 py-3.5 text-sm font-semibold" style={{ color: '#111827' }}>{c.operadora}</td>
-                                {servico === 'telecom' && (
+                            {items.map((c, i) => {
+                              const comissaoLabel = (() => {
+                                if (c.modelo === 'mensalidade') {
+                                  const total = (c.num_mensalidades || 0) * (c.valor_mensal || 0)
+                                  return (
+                                    <div>
+                                      <span className="text-base font-bold" style={{ color: '#059669' }}>€{total.toFixed(2)}</span>
+                                      <span className="ml-2 text-xs" style={{ color: '#6b7280' }}>
+                                        ({c.num_mensalidades}x €{(c.valor_mensal || 0).toFixed(2)}/mes)
+                                      </span>
+                                    </div>
+                                  )
+                                }
+                                if (c.modelo === 'percentagem') {
+                                  return <span className="text-base font-bold" style={{ color: '#059669' }}>{c.percentagem}%</span>
+                                }
+                                return <span className="text-base font-bold" style={{ color: '#059669' }}>€{Number(c.valor_comissao).toFixed(2)}</span>
+                              })()
+                              return (
+                                <tr key={i} style={{ borderBottom: i < items.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
+                                  <td className="px-5 py-3.5 text-sm font-semibold" style={{ color: '#111827' }}>{c.operadora}</td>
                                   <td className="px-5 py-3.5">
-                                    <span className="px-2.5 py-1 rounded-full text-xs font-bold" style={{ background: '#e0e7ff', color: '#4338ca' }}>
+                                    <span className="px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: st.bg, color: st.color }}>
                                       {c.plano || '—'}
                                     </span>
                                   </td>
-                                )}
-                                <td className="px-5 py-3.5">
-                                  <span className="text-base font-bold" style={{ color: '#059669' }}>
-                                    €{Number(c.valor_comissao).toFixed(2)}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
+                                  <td className="px-5 py-3.5">
+                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: '#f3f4f6', color: '#374151' }}>
+                                      {c.modelo === 'mensalidade' ? 'Mensalidade' : c.modelo === 'percentagem' ? 'Percentagem' : 'Fixo'}
+                                    </span>
+                                  </td>
+                                  <td className="px-5 py-3.5">{comissaoLabel}</td>
+                                </tr>
+                              )
+                            })}
                           </tbody>
                         </table>
                       </div>

@@ -2,6 +2,14 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 
+function service() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
+
 export async function GET() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -10,16 +18,50 @@ export async function GET() {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
 
+  let rows: any[] = []
   if (isAdmin) {
-    const { data } = await supabase.from('publicacoes').select('*, profiles!created_by(full_name)').order('created_at', { ascending: false })
-    return NextResponse.json({ publicacoes: data ?? [] })
+    const { data } = await supabase.from('publicacoes').select('*').order('created_at', { ascending: false })
+    rows = data ?? []
+  } else {
+    const { data } = await supabase.from('publicacoes')
+      .select('*')
+      .or(`parceiro_id.eq.${user.id},parceiro_id.is.null`)
+      .order('created_at', { ascending: false })
+    rows = data ?? []
   }
 
-  const { data } = await supabase.from('publicacoes')
-    .select('*')
-    .or(`parceiro_id.eq.${user.id},parceiro_id.is.null`)
-    .order('created_at', { ascending: false })
-  return NextResponse.json({ publicacoes: data ?? [] })
+  // Gerar signed URLs para ficheiros
+  const svc = service()
+  const withUrls = await Promise.all(rows.map(async (p) => {
+    const filePath = p.file_path || p.document_name || ''
+    if (!filePath) return { ...p, signed_url: null }
+    try {
+      const bucket = p.bucket || 'publicacoes'
+      const { data } = await svc.storage.from(bucket).createSignedUrl(filePath, 3600)
+      return { ...p, signed_url: data?.signedUrl ?? null }
+    } catch {
+      return { ...p, signed_url: null }
+    }
+  }))
+
+  return NextResponse.json({ publicacoes: withUrls })
+}
+
+export async function DELETE(req: Request) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
+
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
+
+  const { id } = await req.json()
+  if (!id) return NextResponse.json({ error: 'id obrigatorio' }, { status: 400 })
+
+  const svc = service()
+  const { error } = await svc.from('publicacoes').delete().eq('id', id)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ ok: true })
 }
 
 export async function POST(req: Request) {
