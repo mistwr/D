@@ -47,6 +47,6 @@ export function Navbar({ user, onLogout }: NavbarProps) {
           </>
         )}
       </div>
-      </nav>
+    </nav>
   )
 }
