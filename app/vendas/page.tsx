@@ -347,33 +347,56 @@ export default function VendasPage() {
               ) : docs.length === 0 ? (
                 <p className="text-sm text-center py-6" style={{ color: '#9ca3af' }}>Nenhum documento anexado</p>
               ) : (
-                <ul className="space-y-2">
-                  {docs.map(doc => (
-                    <li key={doc.id} className="flex items-center justify-between rounded-lg px-4 py-3"
-                      style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                      <div className="flex items-center gap-3 min-w-0">
-                        <FileText size={16} style={{ color: '#6b7280', flexShrink: 0 }} />
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium truncate" style={{ color: '#111827' }}>{doc.file_name}</p>
-                          <p className="text-xs" style={{ color: '#9ca3af' }}>
-                            {doc.file_size ? (doc.file_size / 1024).toFixed(0) + ' KB · ' : ''}
-                            {new Date(doc.created_at).toLocaleDateString('pt-PT')}
-                          </p>
+                <ul className="space-y-3">
+                  {docs.map(doc => {
+                    const ext = (doc.file_name || '').split('.').pop()?.toLowerCase() ?? ''
+                    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)
+                    const isPdf = ext === 'pdf'
+                    return (
+                      <li key={doc.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid #e5e7eb' }}>
+                        {/* Cabeçalho do doc */}
+                        <div className="flex items-center justify-between px-4 py-3" style={{ background: '#f9fafb' }}>
+                          <div className="flex items-center gap-3 min-w-0">
+                            <FileText size={16} style={{ color: '#6b7280', flexShrink: 0 }} />
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium truncate" style={{ color: '#111827' }}>{doc.file_name}</p>
+                              <p className="text-xs" style={{ color: '#9ca3af' }}>
+                                {doc.file_size ? (doc.file_size / 1024).toFixed(0) + ' KB · ' : ''}
+                                {new Date(doc.created_at).toLocaleDateString('pt-PT')}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+                            {doc.signed_url && (
+                              <a href={doc.signed_url} download={doc.file_name}
+                                className="text-xs font-medium px-2.5 py-1 rounded-md transition"
+                                style={{ background: '#eef2ff', color: '#4f46e5' }}>
+                                Download
+                              </a>
+                            )}
+                            <button onClick={() => deleteDoc(doc.id)} className="rounded p-1 transition hover:bg-red-50">
+                              <Trash2 size={14} style={{ color: '#dc2626' }} />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2 ml-3 flex-shrink-0">
-                        {doc.signed_url && (
-                          <a href={doc.signed_url} target="_blank" rel="noreferrer"
-                            className="text-xs font-medium px-2 py-1 rounded" style={{ background: '#eef2ff', color: '#4f46e5' }}>
-                            Abrir
-                          </a>
+                        {/* Viewer inline */}
+                        {doc.signed_url && isImage && (
+                          <div className="p-3" style={{ background: '#fff' }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={doc.signed_url} alt={doc.file_name}
+                              className="w-full rounded-lg object-contain max-h-72"
+                              style={{ background: '#f3f4f6' }} />
+                          </div>
                         )}
-                        <button onClick={() => deleteDoc(doc.id)} className="rounded p-1 transition hover:bg-red-50">
-                          <Trash2 size={14} style={{ color: '#dc2626' }} />
-                        </button>
-                      </div>
-                    </li>
-                  ))}
+                        {doc.signed_url && isPdf && (
+                          <div style={{ background: '#fff' }}>
+                            <iframe src={doc.signed_url} title={doc.file_name}
+                              className="w-full" style={{ height: 320, border: 'none' }} />
+                          </div>
+                        )}
+                      </li>
+                    )
+                  })}
                 </ul>
               )}
             </div>
