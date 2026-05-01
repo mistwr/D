@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { ArrowLeft, Upload, X, FileText, CheckCircle } from 'lucide-react'
+import { ArrowLeft, Upload, X, FileText, CheckCircle, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 
 function toBase64(file: File): Promise<string> {
@@ -40,6 +40,7 @@ export default function NovaVendaPage() {
   const [success, setSuccess] = useState(false)
   const [files, setFiles] = useState<FileItem[]>([])
   const [uploadProgress, setUploadProgress] = useState('')
+  const [comissoesOp, setComissoesOp] = useState<any[]>([])
 
   const [form, setForm] = useState({
     service_type: 'telecom',
@@ -67,9 +68,54 @@ export default function NovaVendaPage() {
   useEffect(() => {
     fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).then(d => {
       if (!d.user) router.push('/login')
-      else setUser(d.user)
+      else {
+        setUser(d.user)
+        // Buscar comissoes definidas pelo admin para este parceiro
+        fetch('/api/comissoes/operadora', { credentials: 'include' })
+          .then(r => r.json())
+          .then(d => setComissoesOp(d.comissoes || []))
+          .catch(() => {})
+      }
     }).catch(() => router.push('/login'))
   }, [router])
+
+  // Calcular comissao prevista com base nos dados actuais do formulario
+  const comissaoCalculada = useMemo(() => {
+    const amount = parseFloat(form.amount) || 0
+    if (amount <= 0 || !form.operator || !form.service_type) return null
+
+    const regra = comissoesOp.find(c =>
+      c.servico === form.service_type &&
+      c.operadora === form.operator &&
+      (!c.plano || c.plano === '' || c.plano === form.plano)
+    )
+    if (!regra) return null
+
+    if (regra.modelo === 'mensalidade') {
+      const mensalidades = parseFloat(regra.num_mensalidades) || 0
+      const valorMensal = parseFloat(regra.valor_mensal) || 0
+      return {
+        total: mensalidades * valorMensal,
+        detalhe: `${mensalidades} x €${valorMensal.toFixed(2)}/mes`,
+        modelo: 'Mensalidade',
+      }
+    }
+    if (regra.modelo === 'percentagem') {
+      const pct = parseFloat(regra.percentagem) || 0
+      return {
+        total: amount * (pct / 100),
+        detalhe: `${pct}% de €${amount.toFixed(2)}`,
+        modelo: 'Percentagem',
+      }
+    }
+    // fixo
+    const fixo = parseFloat(regra.valor_comissao) || 0
+    return {
+      total: fixo,
+      detalhe: `Valor fixo por contrato`,
+      modelo: 'Fixo',
+    }
+  }, [form.amount, form.operator, form.service_type, form.plano, comissoesOp])
 
   function update(field: string, value: string | boolean) {
     setForm(f => ({ ...f, [field]: value }))
@@ -355,6 +401,35 @@ export default function NovaVendaPage() {
                     <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Valor do Contrato (€)</label>
                     <input type="number" step="0.01" min="0" value={form.amount} onChange={e => update('amount', e.target.value)}
                       className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp} placeholder="0.00" />
+                  </div>
+                  {/* Preview de comissao calculada */}
+                  <div className="md:col-span-2">
+                    {comissaoCalculada ? (
+                      <div className="flex items-center gap-4 rounded-xl px-5 py-4"
+                        style={{ background: '#f0fdf4', border: '1px solid #86efac' }}>
+                        <div className="flex-shrink-0 rounded-full p-2" style={{ background: '#dcfce7' }}>
+                          <TrendingUp size={20} style={{ color: '#16a34a' }} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold uppercase tracking-wide mb-0.5" style={{ color: '#15803d' }}>
+                            Comissao Prevista — Modelo {comissaoCalculada.modelo}
+                          </p>
+                          <p className="text-2xl font-bold" style={{ color: '#15803d' }}>
+                            €{comissaoCalculada.total.toFixed(2)}
+                          </p>
+                          <p className="text-xs mt-0.5" style={{ color: '#16a34a' }}>{comissaoCalculada.detalhe}</p>
+                        </div>
+                      </div>
+                    ) : (parseFloat(form.amount) > 0 && form.operator) ? (
+                      <div className="flex items-center gap-3 rounded-xl px-5 py-4"
+                        style={{ background: '#fafafa', border: '1px dashed #d1d5db' }}>
+                        <TrendingUp size={18} style={{ color: '#9ca3af' }} />
+                        <p className="text-sm" style={{ color: '#9ca3af' }}>
+                          Sem comissao definida pelo admin para <strong>{form.operator}</strong> / <strong>{form.service_type}</strong>.
+                          Contacte o administrador.
+                        </p>
+                      </div>
+                    ) : null}
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Descricao</label>
