@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 
 export interface AuthUser {
   id: string
@@ -18,51 +19,55 @@ export function useAuth(requiredRole?: 'admin' | 'parceiro') {
 
   useEffect(() => {
     let isMounted = true
+    const supabase = createClient()
 
     const checkAuth = async () => {
       try {
-        const res = await fetch('/api/auth/me', { 
-          credentials: 'include'
-        })
-        
+        const { data: { session } } = await supabase.auth.getSession()
+
+        if (!session) {
+          if (isMounted) router.replace('/login')
+          return
+        }
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role, full_name, company_name, phone')
+          .eq('id', session.user.id)
+          .single()
+
         if (!isMounted) return
 
-        if (res.status === 401) {
-          router.replace('/login')
+        const authUser: AuthUser = {
+          id: session.user.id,
+          email: session.user.email ?? '',
+          role: (profile?.role ?? 'parceiro') as 'admin' | 'parceiro',
+          full_name: profile?.full_name ?? '',
+          company_name: profile?.company_name ?? null,
+        }
+
+        if (requiredRole && authUser.role !== requiredRole) {
+          router.replace(authUser.role === 'admin' ? '/admin/dashboard' : '/dashboard')
           return
         }
 
-        const data = await res.json()
-        
-        if (!isMounted) return
-
-        if (!data.user) {
-          router.replace('/login')
-          return
-        }
-
-        if (requiredRole && data.user.role !== requiredRole) {
-          const redirectTo = data.user.role === 'admin' ? '/admin/dashboard' : '/dashboard'
-          router.replace(redirectTo)
-          return
-        }
-
-        setUser(data.user)
-      } catch (e) {
-        if (isMounted) {
-          router.replace('/login')
-        }
+        setUser(authUser)
+      } catch {
+        if (isMounted) router.replace('/login')
       } finally {
-        if (isMounted) {
-          setLoading(false)
-        }
+        if (isMounted) setLoading(false)
       }
     }
-    
+
     checkAuth()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') router.replace('/login')
+    })
 
     return () => {
       isMounted = false
+      subscription.unsubscribe()
     }
   }, [router, requiredRole])
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/get-auth-user'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 
 function service() {
@@ -21,18 +21,16 @@ function getFileType(name: string): string {
 }
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
   const sp = req.nextUrl.searchParams
   const vendaId = sp.get('venda_id')
   const tipo = sp.get('tipo') // 'contrato' = documentos sem venda_id do próprio parceiro
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  const isAdmin = profile?.role === 'admin'
-
   const svc = service()
+  const { data: profile } = await svc.from('profiles').select('role').eq('id', user.id).single()
+  const isAdmin = profile?.role === 'admin'
 
   // Admin sem filtro → todos os documentos + enriquecer com dados de vendas e parceiros
   if (isAdmin && !vendaId && !tipo) {
@@ -112,9 +110,8 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ documentos: withUrls })
 }
 
-export async function POST(req: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function POST(req: NextRequest) {
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
   let formData: FormData
@@ -129,11 +126,12 @@ export async function POST(req: Request) {
 
   if (!file || file.size === 0) return NextResponse.json({ error: 'Ficheiro obrigatório' }, { status: 400 })
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const svc2 = service()
+  const { data: profile } = await svc2.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
 
   if (vendaId) {
-    const { data: venda } = await supabase.from('vendas').select('user_id').eq('id', vendaId).single()
+    const { data: venda } = await svc2.from('vendas').select('user_id').eq('id', vendaId).single()
     if (!venda) return NextResponse.json({ error: 'Venda não encontrada' }, { status: 404 })
     if (!isAdmin && venda.user_id !== user.id) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
   }
@@ -165,9 +163,8 @@ export async function POST(req: Request) {
   return NextResponse.json({ documento: { ...doc, signed_url: signed?.signedUrl ?? null } })
 }
 
-export async function DELETE(req: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function DELETE(req: NextRequest) {
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
   const { id } = await req.json()
