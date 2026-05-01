@@ -16,13 +16,37 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
   const path = req.nextUrl.searchParams.get('path')
-  const name = req.nextUrl.searchParams.get('name') ?? 'download'
+  const name = decodeURIComponent(req.nextUrl.searchParams.get('name') ?? 'documento.pdf')
   if (!path) return NextResponse.json({ error: 'path obrigatorio' }, { status: 400 })
 
   const svc = service()
-  const { data, error } = await svc.storage.from('publicacoes').createSignedUrl(path, 3600)
-  if (error || !data?.signedUrl) return NextResponse.json({ error: 'Ficheiro nao encontrado' }, { status: 404 })
 
-  // Redirect para URL assinada
-  return NextResponse.redirect(data.signedUrl)
+  // Descarregar o ficheiro do storage no servidor e retornar como stream
+  const { data: fileData, error } = await svc.storage.from('publicacoes').download(path)
+  if (error || !fileData) return NextResponse.json({ error: 'Ficheiro nao encontrado' }, { status: 404 })
+
+  const arrayBuffer = await fileData.arrayBuffer()
+
+  // Detectar content-type pelo nome do ficheiro
+  const ext = name.split('.').pop()?.toLowerCase() ?? ''
+  const contentTypeMap: Record<string, string> = {
+    pdf: 'application/pdf',
+    doc: 'application/msword',
+    docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    xls: 'application/vnd.ms-excel',
+    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    png: 'image/png',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+  }
+  const contentType = contentTypeMap[ext] ?? fileData.type ?? 'application/octet-stream'
+
+  return new NextResponse(arrayBuffer, {
+    status: 200,
+    headers: {
+      'Content-Type': contentType,
+      'Content-Disposition': `attachment; filename="${encodeURIComponent(name)}"`,
+      'Content-Length': String(arrayBuffer.byteLength),
+    },
+  })
 }

@@ -33,23 +33,34 @@ export default function PublicacoesPage() {
       .finally(() => setLoading(false))
   }, [user])
 
-  async function handleDownload(pub: Publicacao) {
-    const signedUrl = pub.signed_url
-    if (signedUrl) {
-      window.open(signedUrl, '_blank')
-      return
-    }
-    // Fallback: gerar via API
+  async function triggerDownload(pub: Publicacao): Promise<boolean> {
     const filePath = pub.file_path || pub.document_name
-    if (!filePath) return
-    setDownloading(pub.id)
-    const res = await fetch(`/api/publicacoes/download?path=${encodeURIComponent(filePath)}&name=${encodeURIComponent(pub.file_name || pub.document_name || 'documento')}`)
-    if (res.redirected) {
-      window.open(res.url, '_blank')
-    } else {
-      const d = await res.json().catch(() => null)
-      if (d?.url) window.open(d.url, '_blank')
+    if (!filePath) return false
+    const fileName = pub.file_name || pub.document_name || 'documento.pdf'
+    try {
+      const res = await fetch(
+        `/api/publicacoes/download?path=${encodeURIComponent(filePath)}&name=${encodeURIComponent(fileName)}`,
+        { credentials: 'include' }
+      )
+      if (!res.ok) return false
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = fileName
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      return true
+    } catch {
+      return false
     }
+  }
+
+  async function handleDownload(pub: Publicacao) {
+    setDownloading(pub.id)
+    await triggerDownload(pub)
     setDownloading(null)
   }
 
@@ -60,24 +71,11 @@ export default function PublicacoesPage() {
     let text = `*${title}*`
     if (body) text += `\n\n${body}`
 
-    if (withFile && pub.signed_url) {
-      // 1. Fazer download do PDF automaticamente para o utilizador poder anexar no WhatsApp
-      try {
-        const res = await fetch(pub.signed_url)
-        const blob = await res.blob()
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = fileName || 'documento.pdf'
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-      } catch {
-        // falha silenciosa — continua para abrir WhatsApp
+    if (withFile) {
+      const ok = await triggerDownload(pub)
+      if (ok) {
+        text += `\n\n_Ficheiro "${fileName}" guardado — anexe-o a esta conversa._`
       }
-      // 2. Na mensagem instruir o utilizador a anexar o ficheiro descarregado
-      text += `\n\n_O ficheiro "${fileName}" foi guardado no seu dispositivo — anexe-o a esta conversa._`
     }
 
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
