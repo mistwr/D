@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 
 function service() {
@@ -11,43 +10,37 @@ function service() {
 }
 
 export async function GET(req: NextRequest) {
-  // Verificar sessão via cookie OU via signed_url param (fallback sem auth)
-  const path = req.nextUrl.searchParams.get('path')
+  const rawPath = req.nextUrl.searchParams.get('path') ?? ''
   const name = decodeURIComponent(req.nextUrl.searchParams.get('name') ?? 'documento.pdf')
-  if (!path) return NextResponse.json({ error: 'path obrigatorio' }, { status: 400 })
+  if (!rawPath) return NextResponse.json({ error: 'path obrigatorio' }, { status: 400 })
 
   const svc = service()
 
-  // Descarregar o ficheiro do storage via service role (bypass RLS)
-  const { data: fileData, error } = await svc.storage.from('publicacoes').download(path)
-  if (error || !fileData) {
-    // Tentar no bucket 'documentos' como fallback
-    const { data: fileData2, error: err2 } = await svc.storage.from('documentos').download(path)
-    if (err2 || !fileData2) return NextResponse.json({ error: 'Ficheiro nao encontrado' }, { status: 404 })
+  // O file_path guardado na DB é "publicacoes/filename" — remover o prefixo do bucket
+  const storagePath = rawPath.startsWith('publicacoes/') ? rawPath.slice('publicacoes/'.length) : rawPath
 
-    const buf2 = await fileData2.arrayBuffer()
-    const ext2 = name.split('.').pop()?.toLowerCase() ?? ''
-    const ct2 = getContentType(ext2, fileData2.type)
-    return new NextResponse(buf2, {
-      status: 200,
-      headers: {
-        'Content-Type': ct2,
-        'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(name)}`,
-        'Content-Length': String(buf2.byteLength),
-      },
-    })
+  const { data: fileData, error } = await svc.storage.from('publicacoes').download(storagePath)
+  if (error || !fileData) {
+    // Fallback: tentar no bucket 'documentos' com o path completo
+    const docPath = rawPath.startsWith('documentos/') ? rawPath.slice('documentos/'.length) : rawPath
+    const { data: fileData2, error: err2 } = await svc.storage.from('documentos').download(docPath)
+    if (err2 || !fileData2) {
+      return NextResponse.json({ error: 'Ficheiro nao encontrado' }, { status: 404 })
+    }
+    return buildResponse(fileData2, name)
   }
 
-  const arrayBuffer = await fileData.arrayBuffer()
-  const ext = name.split('.').pop()?.toLowerCase() ?? ''
-  const contentType = getContentType(ext, fileData.type)
+  return buildResponse(fileData, name)
+}
 
-  return new NextResponse(arrayBuffer, {
+function buildResponse(blob: Blob, name: string): NextResponse {
+  const ext = name.split('.').pop()?.toLowerCase() ?? ''
+  const contentType = getContentType(ext, blob.type)
+  return new NextResponse(blob, {
     status: 200,
     headers: {
       'Content-Type': contentType,
       'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(name)}`,
-      'Content-Length': String(arrayBuffer.byteLength),
     },
   })
 }
