@@ -86,36 +86,86 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ documentos: withUrls })
   }
 
-  let query = svc.from('documentos').select('*').order('created_at', { ascending: false })
-
   if (tipo === 'contrato') {
-    query = query.eq('uploaded_by', user.id).is('venda_id', null)
-  } else if (vendaId) {
-    const { data: venda } = await svc.from('vendas').select('user_id').eq('id', vendaId).single()
-    if (!venda) return NextResponse.json({ error: 'Venda não encontrada' }, { status: 404 })
-    if (!isAdmin && venda.user_id !== user.id) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
-    query = query.eq('venda_id', vendaId)
-  } else {
-    return NextResponse.json({ documentos: [] })
+    const { data: docs } = await svc
+      .from('documentos').select('*')
+      .eq('uploaded_by', user.id).is('venda_id', null)
+      .order('created_at', { ascending: false })
+
+    const withUrls = await Promise.all((docs ?? []).map(async (doc: any) => {
+      const { data: signed } = doc.file_path
+        ? await svc.storage.from('documentos').createSignedUrl(doc.file_path, 3600)
+        : { data: null }
+      return { ...doc, signed_url: signed?.signedUrl ?? null }
+    }))
+    return NextResponse.json({ documentos: withUrls })
   }
 
-  const { data: docs } = await query
+  if (!vendaId) return NextResponse.json({ documentos: [] })
 
-  // Enriquecer com uploader_name
-  const uploaderIds = [...new Set((docs ?? []).map((d: any) => d.uploaded_by).filter(Boolean))]
-  let profilesMap: Record<string, string> = {}
+  // Verificar permissão
+  const { data: venda } = await svc.from('vendas').select('user_id').eq('id', vendaId).single()
+  if (!venda) return NextResponse.json({ error: 'Venda não encontrada' }, { status: 404 })
+  if (!isAdmin && venda.user_id !== user.id) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
+
+  // Buscar docs na tabela
+  const { data: dbDocs } = await svc
+    .from('documentos').select('*')
+    .eq('venda_id', vendaId)
+    .order('created_at', { ascending: false })
+
+  // Buscar uploader names
+  const uploaderIds = [...new Set((dbDocs ?? []).map((d: any) => d.uploaded_by).filter(Boolean))]
+  const profilesMap: Record<string, string> = {}
   if (uploaderIds.length > 0) {
     const { data: profiles } = await svc.from('profiles').select('id, full_name').in('id', uploaderIds)
     profiles?.forEach((p: any) => { profilesMap[p.id] = p.full_name })
   }
+  // Também buscar nome do dono da venda
+  const { data: vendaOwner } = await svc.from('profiles').select('id, full_name').eq('id', venda.user_id).single()
+  const ownerName = vendaOwner?.full_name ?? 'Parceiro'
 
-  const withUrls = await Promise.all((docs ?? []).map(async (doc: any) => {
-    if (!doc.file_path) return { ...doc, signed_url: null, uploader_name: profilesMap[doc.uploaded_by] ?? 'Desconhecido' }
-    const { data: signed } = await svc.storage.from('documentos').createSignedUrl(doc.file_path, 3600)
-    return { ...doc, signed_url: signed?.signedUrl ?? null, uploader_name: profilesMap[doc.uploaded_by] ?? 'Desconhecido' }
+  const dbDocsWithUrls = await Promise.all((dbDocs ?? []).map(async (doc: any) => {
+    const { data: signed } = doc.file_path
+      ? await svc.storage.from('documentos').createSignedUrl(doc.file_path, 3600)
+      : { data: null }
+    return {
+      ...doc,
+      signed_url: signed?.signedUrl ?? null,
+      uploader_name: profilesMap[doc.uploaded_by] ?? ownerName,
+    }
   }))
 
-  return NextResponse.json({ documentos: withUrls })
+  // Fallback: listar ficheiros directamente do storage na pasta da venda
+  // (cobre ficheiros carregados antes da tabela documentos estar funcional)
+  const { data: storageFiles } = await svc.storage.from('documentos').list(vendaId, { limit: 100, sortBy: { column: 'created_at', order: 'asc' } })
+
+  const dbFilePaths = new Set((dbDocs ?? []).map((d: any) => d.file_path).filter(Boolean))
+
+  const orphanDocs = await Promise.all(
+    (storageFiles ?? [])
+      .filter(f => f.name && !f.id?.startsWith('.') && !dbFilePaths.has(`${vendaId}/${f.name}`))
+      .map(async (f) => {
+        const filePath = `${vendaId}/${f.name}`
+        const { data: signed } = await svc.storage.from('documentos').createSignedUrl(filePath, 3600)
+        const ext = f.name.split('.').pop()?.toLowerCase() ?? ''
+        return {
+          id: `storage-${f.name}`,
+          file_name: f.name,
+          file_path: filePath,
+          file_type: getFileType(f.name),
+          file_size: f.metadata?.size ?? 0,
+          created_at: f.created_at ?? new Date().toISOString(),
+          venda_id: vendaId,
+          uploaded_by: venda.user_id,
+          uploader_name: ownerName,
+          signed_url: signed?.signedUrl ?? null,
+          _orphan: true, // ficheiro em storage sem registo na tabela
+        }
+      })
+  )
+
+  return NextResponse.json({ documentos: [...dbDocsWithUrls, ...orphanDocs] })
 }
 
 export async function POST(req: NextRequest) {

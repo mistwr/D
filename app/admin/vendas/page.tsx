@@ -35,6 +35,7 @@ interface Doc {
   id: string; file_name: string; file_type: string
   file_size: number; created_at: string; signed_url: string | null
   uploader_name: string; venda_id: string | null
+  _orphan?: boolean
 }
 
 function Field({ label, value }: { label: string; value?: string | number | null }) {
@@ -443,7 +444,7 @@ export default function AdminVendasPage() {
                           <div className="flex flex-col gap-2">
                             {docs.map(doc => (
                               <div key={doc.id} className="flex items-center gap-3 rounded-xl px-3 py-2.5"
-                                style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                                style={{ background: doc._orphan ? '#fffbeb' : '#f9fafb', border: `1px solid ${doc._orphan ? '#fde68a' : '#e5e7eb'}` }}>
                                 <DocIcon type={doc.file_type} />
                                 <div className="flex-1 min-w-0">
                                   <p className="text-xs font-medium truncate" style={{ color: '#111827' }}>{doc.file_name}</p>
@@ -453,7 +454,7 @@ export default function AdminVendasPage() {
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-1 flex-shrink-0">
-                                  {doc.signed_url && (
+                                  {doc.signed_url ? (
                                     <>
                                       <a href={doc.signed_url} target="_blank" rel="noreferrer"
                                         className="rounded-lg p-1.5 transition hover:opacity-80"
@@ -466,12 +467,16 @@ export default function AdminVendasPage() {
                                         <Download size={12} style={{ color: '#16a34a' }} />
                                       </a>
                                     </>
+                                  ) : (
+                                    <span className="text-xs px-2" style={{ color: '#9ca3af' }}>Sem link</span>
                                   )}
-                                  <button onClick={() => deleteDoc(doc.id)}
-                                    className="rounded-lg p-1.5 transition hover:opacity-80"
-                                    style={{ background: '#fef2f2' }} title="Apagar">
-                                    <Trash2 size={12} style={{ color: '#dc2626' }} />
-                                  </button>
+                                  {!doc._orphan && (
+                                    <button onClick={() => deleteDoc(doc.id)}
+                                      className="rounded-lg p-1.5 transition hover:opacity-80"
+                                      style={{ background: '#fef2f2' }} title="Apagar">
+                                      <Trash2 size={12} style={{ color: '#dc2626' }} />
+                                    </button>
+                                  )}
                                 </div>
                               </div>
                             ))}
