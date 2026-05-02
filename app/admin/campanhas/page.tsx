@@ -7,7 +7,7 @@ import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import {
   Megaphone, Plus, Wifi, WifiOff, FileUp, FileText, Zap, Flame,
-  ChevronDown, ChevronUp, Share2, Trash2, Download, ImagePlus, Shield, X
+  ChevronDown, ChevronUp, Trash2, Download, ImagePlus, Shield, X
 } from 'lucide-react'
 
 interface CampanhaPDF { id: string; file_name: string; file_type: string; file_size: number; signed_url: string | null; created_at: string }
@@ -288,15 +288,6 @@ export default function CampanhasPage() {
                             {c.status === 'ativa' ? 'Activa' : 'Inactiva'}
                           </button>
 
-                          {/* WhatsApp */}
-                          <button onClick={() => {
-                            const text = `*${c.title}*%0AOperadora: ${c.operator}%0A%0A${c.description || ''}`
-                            window.open(`https://wa.me/?text=${text}`, '_blank')
-                          }} className="flex items-center gap-1 rounded-lg p-1.5 text-xs"
-                            style={{ background: '#dcfce7', color: '#166534' }} title="Enviar por WhatsApp">
-                            <Share2 size={13} />
-                          </button>
-
                           {/* Expandir */}
                           <button onClick={() => toggleExpand(c.id)}
                             className="rounded-lg p-1.5" style={{ background: '#f3f4f6', color: '#374151' }}>
@@ -356,13 +347,14 @@ export default function CampanhasPage() {
                                         <Download size={12} /> Download
                                       </a>
                                     )}
-                                    <button onClick={() => {
-                                      const text = `*${c.title}* — ${c.operator}%0ADocumento: ${pdf.file_name}`
-                                      window.open(`https://wa.me/?text=${text}`, '_blank')
-                                    }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
-                                      style={{ background: '#dcfce7', color: '#166534' }}>
-                                      <Share2 size={12} />
-                                    </button>
+                                    {pdf.signed_url && (
+                                      <a href={pdf.signed_url} target="_blank" rel="noreferrer"
+                                        className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
+                                        style={{ background: '#eef2ff', color: '#4338ca' }}
+                                        title="Abrir em nova aba">
+                                        <Download size={12} /> Abrir
+                                      </a>
+                                    )}
                                     <button onClick={() => deleteFicheiro(c.id, pdf.id)}
                                       className="rounded-lg p-1.5" style={{ background: '#fef2f2' }}
                                       title="Apagar ficheiro">

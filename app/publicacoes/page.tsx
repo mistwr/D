@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { Newspaper, FileText, Download, Share2 } from 'lucide-react'
+import { Newspaper, Download, ExternalLink } from 'lucide-react'
 
 interface Publicacao {
   id: string
@@ -30,17 +30,6 @@ export default function PublicacoesPage() {
       .then(d => setPubs(d.publicacoes || []))
       .finally(() => setLoading(false))
   }, [user])
-
-  function handleWhatsApp(pub: Publicacao, withFile: boolean) {
-    const title = pub.title || ''
-    const body = pub.content || pub.message || ''
-    let text = `*${title}*`
-    if (body) text += `\n\n${body}`
-    if (withFile && pub.signed_url) {
-      text += `\n\n${pub.signed_url}`
-    }
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noreferrer')
-  }
 
   if (authLoading || loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
@@ -97,15 +86,18 @@ export default function PublicacoesPage() {
                                 rel="noreferrer"
                                 className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition hover:opacity-80"
                                 style={{ background: '#eef2ff', color: '#4338ca', border: '1px solid #c7d2fe' }}>
-                                <FileText size={13} />
-                                {displayName || 'Ver documento'}
+                                <ExternalLink size={13} />
+                                {displayName || 'Abrir documento'}
                               </a>
-                              <button
-                                onClick={() => handleWhatsApp(p, true)}
+                              <a
+                                href={p.signed_url}
+                                download={displayName || true}
+                                target="_blank"
+                                rel="noreferrer"
                                 className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition hover:opacity-80"
-                                style={{ background: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0' }}>
-                                <Share2 size={13} /> WhatsApp + link
-                              </button>
+                                style={{ background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0' }}>
+                                <Download size={13} /> Download
+                              </a>
                             </div>
                           )}
 
@@ -114,17 +106,9 @@ export default function PublicacoesPage() {
                           )}
                         </div>
 
-                        <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                          <span className="text-xs" style={{ color: '#9ca3af' }}>
-                            {new Date(p.created_at).toLocaleDateString('pt-PT')}
-                          </span>
-                          <button
-                            onClick={() => handleWhatsApp(p, false)}
-                            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition hover:opacity-80"
-                            style={{ background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0' }}>
-                            <Share2 size={13} /> WhatsApp
-                          </button>
-                        </div>
+                        <span className="text-xs flex-shrink-0" style={{ color: '#9ca3af' }}>
+                          {new Date(p.created_at).toLocaleDateString('pt-PT')}
+                        </span>
                       </div>
                     </div>
                   )
