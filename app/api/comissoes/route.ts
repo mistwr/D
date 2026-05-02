@@ -13,23 +13,24 @@ function service() {
 export async function GET(req: NextRequest) {
   const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
+  const svc = service()
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const { data: profile } = await svc.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
   const sp = req.nextUrl.searchParams
   const parceiroId = isAdmin && sp.get('parceiro_id') ? sp.get('parceiro_id')! : user.id
 
-  const { data: comissao } = await supabase.from('comissoes').select('*').eq('parceiro_id', parceiroId).single()
+  const { data: comissao } = await svc.from('comissoes').select('*').eq('parceiro_id', parceiroId).single()
 
   // Tabela global de comissoes por operadora
-  const { data: comissoesOp } = await supabase
+  const { data: comissoesOp } = await svc
     .from('comissoes_operadora')
     .select('*')
     .eq('parceiro_id', parceiroId)
     .order('servico').order('operadora').order('plano')
 
   // Calcular comissoes das vendas do parceiro
-  const { data: vendas } = await supabase
+  const { data: vendas } = await svc
     .from('vendas')
     .select('id, client_name, service_type, operator, plano, amount, status')
     .eq('user_id', parceiroId)
@@ -78,8 +79,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
+  const svc = service()
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const { data: profile } = await svc.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const body = await req.json()
@@ -122,12 +124,12 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
+  const svc = service()
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const { data: profile } = await svc.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const { id } = await req.json()
-  const svc = service()
   await svc.from('comissoes_operadora').delete().eq('id', id)
   return NextResponse.json({ success: true })
 }

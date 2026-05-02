@@ -14,7 +14,8 @@ export async function POST(req: NextRequest) {
   const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const svc = service()
+  const { data: profile } = await svc.from('profiles').select('role').eq('id', user.id).single()
   const body = await req.json()
 
   // Admin a alterar password de outro utilizador (aceita target_user_id ou parceiro_id)
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
 
   // Utilizador a alterar a propria password
   if (!body.new_password || body.new_password.length < 6) return NextResponse.json({ error: 'Password deve ter pelo menos 6 caracteres' }, { status: 400 })
-  const { error } = await supabase.auth.updateUser({ password: body.new_password })
+  const { error } = await svc.auth.admin.updateUserById(user.id, { password: body.new_password })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ success: true })
 }

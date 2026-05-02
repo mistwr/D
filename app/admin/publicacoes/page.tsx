@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import { Newspaper, Plus, Trash2, X, FileText, Users, Globe, Send } from 'lucide-react'

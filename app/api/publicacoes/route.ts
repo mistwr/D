@@ -14,15 +14,16 @@ export async function GET(req: NextRequest) {
   const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const svc = service()
+  const { data: profile } = await svc.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
 
   let rows: any[] = []
   if (isAdmin) {
-    const { data } = await supabase.from('publicacoes').select('*').order('created_at', { ascending: false })
+    const { data } = await svc.from('publicacoes').select('*').order('created_at', { ascending: false })
     rows = data ?? []
   } else {
-    const { data } = await supabase.from('publicacoes')
+    const { data } = await svc.from('publicacoes')
       .select('*')
       .or(`parceiro_id.eq.${user.id},parceiro_id.is.null`)
       .order('created_at', { ascending: false })
@@ -30,7 +31,6 @@ export async function GET(req: NextRequest) {
   }
 
   // Gerar signed URLs para ficheiros
-  const svc = service()
   const withUrls = await Promise.all(rows.map(async (p) => {
     const filePath = p.file_path || p.document_name || ''
     if (!filePath) return { ...p, signed_url: null }
@@ -50,13 +50,13 @@ export async function DELETE(req: NextRequest) {
   const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const svc = service()
+  const { data: profile } = await svc.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const { id } = await req.json()
   if (!id) return NextResponse.json({ error: 'id obrigatorio' }, { status: 400 })
 
-  const svc = service()
   const { error } = await svc.from('publicacoes').delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
@@ -66,7 +66,8 @@ export async function POST(req: NextRequest) {
   const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const svc = service()
+  const { data: profile } = await svc.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const body = await req.json()
@@ -75,25 +76,17 @@ export async function POST(req: NextRequest) {
   // Se não especificou parceiros, vai para todos
   let targets = parceiroIds
   if (targets.length === 0) {
-    const { data: parceiros } = await supabase.from('profiles').select('id').eq('role', 'parceiro')
-    targets = (parceiros ?? []).map(p => p.id)
-    // Também criar uma publicação global (sem parceiro_id)
+    const { data: parceiros } = await svc.from('profiles').select('id').eq('role', 'parceiro')
+    targets = (parceiros ?? []).map((p: any) => p.id)
     if (targets.length === 0) {
-      const { data: pub } = await supabase.from('publicacoes').insert({
+      const { data: pub } = await svc.from('publicacoes').insert({
         title: body.title, message: body.message ?? '', document_name: body.document_name ?? '', created_by: user.id
       }).select().single()
       return NextResponse.json({ publicacoes: [pub] })
     }
   }
 
-  // Usar service role para inserir notificações sem restrições de RLS
-  const service = createServiceClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  )
-
-  const inserts = targets.map(pid => ({
+  const inserts = targets.map((pid: string) => ({
     parceiro_id: pid,
     title: body.title,
     message: body.message ?? '',
@@ -101,15 +94,15 @@ export async function POST(req: NextRequest) {
     created_by: user.id,
   }))
 
-  const { data: publicacoes } = await service.from('publicacoes').insert(inserts).select()
+  const { data: publicacoes } = await svc.from('publicacoes').insert(inserts).select()
 
   // Criar notificações
-  const notifs = targets.map(pid => ({
+  const notifs = targets.map((pid: string) => ({
     user_id: pid,
     title: body.title,
     message: body.message ?? 'Nova publicação disponível',
   }))
-  await service.from('notificacoes').insert(notifs)
+  await svc.from('notificacoes').insert(notifs)
 
   return NextResponse.json({ publicacoes: publicacoes ?? [] })
 }
