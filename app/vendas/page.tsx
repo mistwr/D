@@ -56,7 +56,7 @@ const SERVICE_LABELS: Record<string, string> = {
 }
 
 export default function VendasPage() {
-  const { user, loading: authLoading } = useAuth('parceiro')
+  const { user, loading: authLoading, authFetch } = useAuth('parceiro')
   const [vendas, setVendas] = useState<Venda[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -72,17 +72,17 @@ export default function VendasPage() {
 
   useEffect(() => {
     if (!user) return
-    fetch('/api/vendas', { credentials: 'include' })
+    authFetch('/api/vendas')
       .then(r => r.json())
       .then(d => setVendas(d.vendas || []))
       .finally(() => setLoading(false))
-  }, [user])
+  }, [user, authFetch])
 
   async function openDocs(venda: Venda) {
     setSelectedVenda(venda)
     setDocsLoading(true)
     setUploadError('')
-    const r = await fetch(`/api/documentos?venda_id=${venda.id}`, { credentials: 'include' })
+    const r = await authFetch(`/api/documentos?venda_id=${venda.id}`)
     const d = await r.json()
     setDocs(d.documentos || [])
     setDocsLoading(false)
@@ -96,21 +96,19 @@ export default function VendasPage() {
     const fd = new FormData()
     fd.append('venda_id', selectedVenda.id)
     fd.append('file', file)
-    const r = await fetch('/api/documentos', { method: 'POST', credentials: 'include', body: fd })
+    const r = await authFetch('/api/documentos', { method: 'POST', body: fd })
     const d = await r.json()
     setUploading(false)
     if (!r.ok) { setUploadError(d.error || 'Erro ao fazer upload'); return }
     e.target.value = ''
-    // Recarregar lista completa para garantir signed_urls válidas
-    const r2 = await fetch(`/api/documentos?venda_id=${selectedVenda.id}`, { credentials: 'include' })
+    const r2 = await authFetch(`/api/documentos?venda_id=${selectedVenda.id}`)
     const d2 = await r2.json()
     setDocs(d2.documentos || [])
   }
 
   async function deleteDoc(docId: string) {
-    await fetch('/api/documentos', {
+    await authFetch('/api/documentos', {
       method: 'DELETE',
-      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: docId }),
     })
