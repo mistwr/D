@@ -91,7 +91,7 @@ export async function GET(req: NextRequest) {
   if (tipo === 'contrato') {
     query = query.eq('uploaded_by', user.id).is('venda_id', null)
   } else if (vendaId) {
-    const { data: venda } = await supabase.from('vendas').select('user_id').eq('id', vendaId).single()
+    const { data: venda } = await svc.from('vendas').select('user_id').eq('id', vendaId).single()
     if (!venda) return NextResponse.json({ error: 'Venda não encontrada' }, { status: 404 })
     if (!isAdmin && venda.user_id !== user.id) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
     query = query.eq('venda_id', vendaId)
@@ -101,10 +101,18 @@ export async function GET(req: NextRequest) {
 
   const { data: docs } = await query
 
+  // Enriquecer com uploader_name
+  const uploaderIds = [...new Set((docs ?? []).map((d: any) => d.uploaded_by).filter(Boolean))]
+  let profilesMap: Record<string, string> = {}
+  if (uploaderIds.length > 0) {
+    const { data: profiles } = await svc.from('profiles').select('id, full_name').in('id', uploaderIds)
+    profiles?.forEach((p: any) => { profilesMap[p.id] = p.full_name })
+  }
+
   const withUrls = await Promise.all((docs ?? []).map(async (doc: any) => {
-    if (!doc.file_path) return { ...doc, signed_url: null }
+    if (!doc.file_path) return { ...doc, signed_url: null, uploader_name: profilesMap[doc.uploaded_by] ?? 'Desconhecido' }
     const { data: signed } = await svc.storage.from('documentos').createSignedUrl(doc.file_path, 3600)
-    return { ...doc, signed_url: signed?.signedUrl ?? null }
+    return { ...doc, signed_url: signed?.signedUrl ?? null, uploader_name: profilesMap[doc.uploaded_by] ?? 'Desconhecido' }
   }))
 
   return NextResponse.json({ documentos: withUrls })
@@ -114,46 +122,69 @@ export async function POST(req: NextRequest) {
   const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
-  let formData: FormData
-  try {
-    formData = await req.formData()
-  } catch {
-    return NextResponse.json({ error: 'Erro ao ler formulário' }, { status: 400 })
-  }
-
-  const vendaId = (formData.get('venda_id') as string) || null
-  const file = formData.get('file') as File | null
-
-  if (!file || file.size === 0) return NextResponse.json({ error: 'Ficheiro obrigatório' }, { status: 400 })
-
-  const svc2 = service()
-  const { data: profile } = await svc2.from('profiles').select('role').eq('id', user.id).single()
+  const contentType = req.headers.get('content-type') ?? ''
+  const svc = service()
+  const { data: profile } = await svc.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
 
+  let vendaId: string | null = null
+  let fileName: string = ''
+  let fileType: string = 'other'
+  let fileSize: number = 0
+  let fileBuffer: ArrayBuffer
+
+  if (contentType.includes('application/json')) {
+    // JSON com base64 (enviado por nova venda)
+    const body = await req.json()
+    vendaId = body.venda_id ?? null
+    fileName = body.file_name ?? 'ficheiro'
+    fileType = getFileType(fileName)
+    fileSize = body.file_size ?? 0
+
+    if (!body.file_data) return NextResponse.json({ error: 'Dados do ficheiro em falta' }, { status: 400 })
+
+    // base64 pode vir com prefixo data:...;base64,
+    const base64 = (body.file_data as string).replace(/^data:[^;]+;base64,/, '')
+    const binary = Buffer.from(base64, 'base64')
+    fileBuffer = binary.buffer.slice(binary.byteOffset, binary.byteOffset + binary.byteLength)
+  } else {
+    // FormData (enviado pelo admin e contratos)
+    let formData: FormData
+    try { formData = await req.formData() }
+    catch { return NextResponse.json({ error: 'Erro ao ler formulário' }, { status: 400 }) }
+
+    vendaId = (formData.get('venda_id') as string) || null
+    const file = formData.get('file') as File | null
+    if (!file || file.size === 0) return NextResponse.json({ error: 'Ficheiro obrigatório' }, { status: 400 })
+
+    fileName = file.name
+    fileType = getFileType(file.name)
+    fileSize = file.size
+    fileBuffer = await file.arrayBuffer()
+  }
+
   if (vendaId) {
-    const { data: venda } = await svc2.from('vendas').select('user_id').eq('id', vendaId).single()
+    const { data: venda } = await svc.from('vendas').select('user_id').eq('id', vendaId).single()
     if (!venda) return NextResponse.json({ error: 'Venda não encontrada' }, { status: 404 })
     if (!isAdmin && venda.user_id !== user.id) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
   }
 
-  const svc = service()
   const folder = vendaId ?? `contratos/${user.id}`
-  const safeFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+  const safeFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_')
   const filePath = `${folder}/${Date.now()}-${safeFileName}`
 
-  const arrayBuffer = await file.arrayBuffer()
-  const { error: uploadError } = await svc.storage.from('documentos').upload(filePath, arrayBuffer, {
-    contentType: file.type || 'application/octet-stream',
+  const { error: uploadError } = await svc.storage.from('documentos').upload(filePath, fileBuffer, {
+    contentType: 'application/octet-stream',
     upsert: false,
   })
   if (uploadError) return NextResponse.json({ error: 'Erro ao fazer upload: ' + uploadError.message }, { status: 500 })
 
   const { data: doc, error: dbErr } = await svc.from('documentos').insert({
     venda_id: vendaId ?? null,
-    file_name: file.name,
-    file_type: getFileType(file.name),
+    file_name: fileName,
+    file_type: fileType,
     file_path: filePath,
-    file_size: file.size,
+    file_size: fileSize,
     uploaded_by: user.id,
   }).select().single()
 
