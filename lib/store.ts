@@ -145,6 +145,7 @@ const contratos: Contrato[] = []
 const contrato_assinaturas: ContratoAssinatura[] = []
 const publicacoes: Publicacao[] = []
 const notificacoes: Notificacao[] = []
+const comissoes: Comissao[] = []
 
 // ---- USERS ----
 export function getUsers() { return users }

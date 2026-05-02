@@ -44,7 +44,6 @@ export async function POST(req: NextRequest) {
     const file = formData.get('file') as File | null
     if (!campanhaId || !file) return NextResponse.json({ error: 'campanha_id e ficheiro obrigatorios' }, { status: 400 })
 
-    const svc = service()
     const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
     const logoPath = `logos/${campanhaId}.${ext}`
 
@@ -85,7 +84,6 @@ export async function PATCH(req: NextRequest) {
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const { id, ...updates } = await req.json()
-  const svc = service()
   const { data, error } = await svc.from('campanhas').update(updates).eq('id', id).select().single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ campanha: data })

@@ -56,7 +56,6 @@ export async function POST(req: NextRequest) {
 
   if (!campanhaId || !file) return NextResponse.json({ error: 'campanha_id e ficheiro sao obrigatorios' }, { status: 400 })
 
-  const svc = service()
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
   const filePath = `${campanhaId}/${Date.now()}-${safeName}`
 

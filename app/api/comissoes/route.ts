@@ -85,7 +85,6 @@ export async function POST(req: NextRequest) {
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const body = await req.json()
-  const svc = service()
 
   // Importar/guardar tabela de operadoras via upload Excel
   if (body.action === 'upsert_operadora') {
