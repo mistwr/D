@@ -35,6 +35,22 @@ export async function POST(req: Request) {
     { auth: { autoRefreshToken: false, persistSession: false } }
   )
 
+  // Verificar se existe utilizador com este email (incluindo soft-deleted)
+  // Se existir em estado deleted, apagar definitivamente para libertar o email
+  const { data: existingUsers } = await serviceClient.auth.admin.listUsers()
+  const existingUser = existingUsers?.users?.find(
+    u => u.email?.toLowerCase() === email.toLowerCase().trim()
+  )
+  if (existingUser) {
+    // Se o utilizador foi eliminado (soft-delete), fazer hard-delete para libertar o email
+    if (existingUser.deleted_at || !existingUser.email) {
+      await serviceClient.auth.admin.deleteUser(existingUser.id)
+    } else {
+      // Utilizador activo com este email — devolver erro
+      return NextResponse.json({ error: 'Email já registado por um utilizador activo' }, { status: 409 })
+    }
+  }
+
   const { data, error } = await serviceClient.auth.admin.createUser({
     email,
     password,
@@ -49,7 +65,7 @@ export async function POST(req: Request) {
 
   if (error) {
     if (error.message.includes('already registered')) {
-      return NextResponse.json({ error: 'Email já registado' }, { status: 409 })
+      return NextResponse.json({ error: 'Email já registado. Se este parceiro foi apagado recentemente, aguarde alguns segundos e tente novamente.' }, { status: 409 })
     }
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
