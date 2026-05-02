@@ -227,6 +227,13 @@ export default function LoginPage() {
           <p className="mt-4 text-center text-xs" style={{ color: '#9ca3af' }}>
             Acesso restrito. Contacte o administrador para obter credenciais.
           </p>
+
+          <p className="mt-3 text-center text-xs" style={{ color: '#9ca3af' }}>
+            Ao aceder esta plataforma esta a aceitar a nossa{' '}
+            <a href="/rgpd" className="underline hover:opacity-80 transition" style={{ color: '#4338ca' }}>
+              Politica de Privacidade e Cookies
+            </a>
+          </p>
         </div>
       </div>
     </div>

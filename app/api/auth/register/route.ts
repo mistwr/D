@@ -35,6 +35,20 @@ export async function POST(req: Request) {
     { auth: { autoRefreshToken: false, persistSession: false } }
   )
 
+  // Verificar se o email foi previamente removido (bloqueio RGPD / remoção de conta)
+  const { data: blockedEmail } = await serviceClient
+    .from('deleted_emails')
+    .select('id, reason')
+    .eq('email', email.toLowerCase().trim())
+    .maybeSingle()
+
+  if (blockedEmail) {
+    return NextResponse.json(
+      { error: 'Este email não pode ser utilizado para criar uma nova conta. Por favor contacte o administrador.' },
+      { status: 403 }
+    )
+  }
+
   const { data, error } = await serviceClient.auth.admin.createUser({
     email,
     password,
