@@ -14,7 +14,8 @@ export async function POST(req: NextRequest) {
   const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('role, full_name').eq('id', user.id).single()
+  const svc = service()
+  const { data: profile } = await svc.from('profiles').select('role, full_name').eq('id', user.id).single()
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const formData = await req.formData()
@@ -26,7 +27,6 @@ export async function POST(req: NextRequest) {
 
   if (!title) return NextResponse.json({ error: 'Titulo obrigatorio' }, { status: 400 })
 
-  const svc = service()
   let filePath = ''
   let fileName = ''
 

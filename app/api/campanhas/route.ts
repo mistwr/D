@@ -13,15 +13,16 @@ function service() {
 export async function GET(req: NextRequest) {
   const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
+  const svc = service()
 
   const id = req.nextUrl.searchParams.get('id')
   if (id) {
-    const { data: campanha } = await supabase.from('campanhas').select('*').eq('id', id).single()
+    const { data: campanha } = await svc.from('campanhas').select('*').eq('id', id).single()
     if (!campanha) return NextResponse.json({ error: 'Nao encontrada' }, { status: 404 })
     return NextResponse.json({ campanha })
   }
 
-  const { data: campanhas } = await supabase.from('campanhas').select('*').order('created_at', { ascending: false })
+  const { data: campanhas } = await svc.from('campanhas').select('*').order('created_at', { ascending: false })
   return NextResponse.json({ campanhas: campanhas ?? [] })
 }
 
@@ -29,8 +30,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
+  const svc = service()
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const { data: profile } = await svc.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const ct = req.headers.get('content-type') ?? ''
@@ -42,7 +44,6 @@ export async function POST(req: NextRequest) {
     const file = formData.get('file') as File | null
     if (!campanhaId || !file) return NextResponse.json({ error: 'campanha_id e ficheiro obrigatorios' }, { status: 400 })
 
-    const svc = service()
     const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
     const logoPath = `logos/${campanhaId}.${ext}`
 
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest) {
 
   // Criar campanha
   const body = await req.json()
-  const { data: campanha, error } = await supabase.from('campanhas').insert({
+  const { data: campanha, error } = await svc.from('campanhas').insert({
     title: body.title,
     operator: body.operator ?? '',
     service_type: body.service_type ?? 'telecom',
@@ -77,12 +78,12 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
+  const svc = service()
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const { data: profile } = await svc.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const { id, ...updates } = await req.json()
-  const svc = service()
   const { data, error } = await svc.from('campanhas').update(updates).eq('id', id).select().single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ campanha: data })
@@ -91,12 +92,12 @@ export async function PATCH(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
+  const svc = service()
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const { data: profile } = await svc.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const { id } = await req.json()
-  const svc = service()
 
   // Apagar todos os ficheiros do storage desta campanha
   const { data: ficheiros } = await svc.from('campanha_ficheiros').select('file_path').eq('campanha_id', id)

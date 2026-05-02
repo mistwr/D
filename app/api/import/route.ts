@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthUser } from '@/lib/supabase/get-auth-user'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
+
+function service() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
 
 const VALID_STATUSES = ['pendente', 'em_revisao', 'ativa', 'processado', 'pago', 'cancelado', 'rejeitado']
 
@@ -7,7 +16,8 @@ export async function POST(req: NextRequest) {
   const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const svc = service()
+  const { data: profile } = await svc.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const body = await req.json()
@@ -24,7 +34,7 @@ export async function POST(req: NextRequest) {
 
   let updated = 0
   for (const row of validRows) {
-    const { error } = await supabase
+    const { error } = await svc
       .from('vendas')
       .update({ status: row.status, notes: row.notes ?? '', updated_at: new Date().toISOString() })
       .eq('client_email', row.client_email)

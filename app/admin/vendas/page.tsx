@@ -142,10 +142,17 @@ export default function AdminVendasPage() {
     const fd = new FormData()
     fd.append('file', file)
     fd.append('venda_id', selected.id)
-    const res = await authFetch('/api/documentos', { method: 'POST', body: fd })
-    const data = await res.json()
-    if (!res.ok) { setUploadErr(data.error || 'Erro ao carregar'); }
-    else { await loadDocs(selected.id) }
+    try {
+      const res = await authFetch('/api/documentos', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok) {
+        setUploadErr(data.error || `Erro ${res.status} ao carregar`)
+      } else {
+        await loadDocs(selected.id)
+      }
+    } catch (err: any) {
+      setUploadErr('Erro de ligacao: ' + (err?.message || 'desconhecido'))
+    }
     setUploadingDoc(false)
     e.target.value = ''
   }

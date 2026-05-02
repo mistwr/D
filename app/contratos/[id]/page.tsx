@@ -10,6 +10,7 @@ import { PDFSigner } from '@/components/pdf-signer'
 
 interface Contrato {
   id: string
+  user_id: string
   client_name: string
   client_phone: string
   client_cc: string

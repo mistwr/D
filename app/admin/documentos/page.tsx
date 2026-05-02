@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
-import { createClient } from '@/lib/supabase/client'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import { FileText, Search, User, ChevronDown, ChevronUp, Phone, Mail, Building2, Zap, Wifi, Download, Eye, X, Trash2 } from 'lucide-react'
@@ -54,7 +53,7 @@ function getExt(name: string) {
 
 export default function AdminDocumentosPage() {
   const router = useRouter()
-  const { user, loading: authLoading } = useAuth('admin')
+  const { user, loading: authLoading, authFetch } = useAuth('admin')
   const [docs, setDocs] = useState<Doc[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -66,10 +65,9 @@ export default function AdminDocumentosPage() {
 
   async function deleteDoc(id: string) {
     setDeleting(id)
-    const res = await fetch('/api/documentos', {
+    const res = await authFetch('/api/documentos', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({ id }),
     })
     if (res.ok) setDocs(prev => prev.filter(d => d.id !== id))
@@ -81,19 +79,14 @@ export default function AdminDocumentosPage() {
     if (!user) return
     async function load() {
       try {
-        const supabase = createClient()
-        const { data: { session } } = await supabase.auth.getSession()
-        const token = session?.access_token
-        const headers: Record<string, string> = { credentials: 'include' }
-        if (token) headers['Authorization'] = `Bearer ${token}`
-        const res = await fetch('/api/documentos', { credentials: 'include', headers })
+        const res = await authFetch('/api/documentos')
         const data = await res.json()
         setDocs(data.documentos || [])
       } catch { /* silencioso */ }
       setLoading(false)
     }
     load()
-  }, [user])
+  }, [user, authFetch])
 
   const filtered = docs.filter(d => {
     const q = search.toLowerCase()

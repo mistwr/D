@@ -1,20 +1,13 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import { ArrowLeft, Upload, X, FileText, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 
-function toBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
-}
 
 const OPERADORAS: Record<string, string[]> = {
   telecom: ['MEO', 'NOS', 'Vodafone', 'NOWO', 'DIGI', 'Outro'],
@@ -142,21 +135,28 @@ export default function NovaVendaPage() {
       if (!res.ok) { setError(data.error || 'Erro ao registar venda'); setLoading(false); return }
 
       if (files.length > 0) {
+        const uploadErros: string[] = []
         for (let i = 0; i < files.length; i++) {
           setUploadProgress(`A carregar ${i + 1}/${files.length}: ${files[i].name}`)
-          const base64 = await toBase64(files[i].file)
-          await authFetch('/api/documentos', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              venda_id: data.venda.id,
-              file_name: files[i].name,
-              file_type: files[i].type,
-              file_size: files[i].size,
-              file_data: base64,
-            }),
-          })
+          try {
+            const fd = new FormData()
+            fd.append('venda_id', data.venda.id)
+            fd.append('file', files[i].file)
+            const upRes = await authFetch('/api/documentos', { method: 'POST', body: fd })
+            if (!upRes.ok) {
+              const upData = await upRes.json().catch(() => ({}))
+              uploadErros.push(`${files[i].name}: ${upData.error || `erro ${upRes.status}`}`)
+            }
+          } catch {
+            uploadErros.push(`${files[i].name}: erro de ligacao`)
+          }
         }
         setUploadProgress('')
+        if (uploadErros.length > 0) {
+          setError(`Venda criada mas erro ao carregar ficheiros: ${uploadErros.join('; ')}`)
+          setLoading(false)
+          return
+        }
       }
       setSuccess(true)
       setTimeout(() => router.push('/vendas'), 2000)

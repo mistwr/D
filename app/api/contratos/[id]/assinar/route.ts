@@ -1,12 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthUser } from '@/lib/supabase/get-auth-user'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
+
+function service() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: contratoId } = await params
   const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
-  const { data: contrato } = await supabase
+  const svc = service()
+  const { data: contrato } = await svc
     .from('contratos')
     .select('*')
     .eq('id', contratoId)
@@ -15,7 +25,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (!contrato) return NextResponse.json({ error: 'Contrato não encontrado' }, { status: 404 })
 
   const body = await req.json()
-  const { tipo, signature_image_base64 } = body
+  const { tipo } = body
 
   let novoStatus = contrato.status
   let assinado_cliente = contrato.assinado_cliente
@@ -29,7 +39,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     novoStatus = assinado_cliente ? 'finalizado' : 'pendente_cliente'
   }
 
-  const { data: updated, error } = await supabase
+  const { data: updated, error } = await svc
     .from('contratos')
     .update({ status: novoStatus, assinado_cliente, assinado_vendedor, updated_at: new Date().toISOString() })
     .eq('id', contratoId)
