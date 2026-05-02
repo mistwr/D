@@ -8,9 +8,9 @@ import { createClient } from '@/lib/supabase/client'
 
 // Imagens locais — energia, telecom e cidade
 const SLIDES = [
-  { url: '/slide-energia.jpg',  caption: 'Energia para o futuro',           id: 'slide-0' },
-  { url: '/slide-telecom.jpg',  caption: 'Telecomunicacoes sem limites',     id: 'slide-1' },
-  { url: '/slide-cidade.jpg',   caption: 'Solucoes que fazem a diferenca',   id: 'slide-2' },
+  { url: '/slide-energia.jpg',  caption: 'Energia para o futuro',          id: 'slide-0' },
+  { url: '/slide-telecom.jpg',  caption: 'Telecomunicações sem limites',   id: 'slide-1' },
+  { url: '/slide-cidade.jpg',   caption: 'Soluções que fazem a diferença', id: 'slide-2' },
 ]
 
 export default function LoginPage() {
@@ -97,7 +97,7 @@ export default function LoginPage() {
             </div>
             <div>
               <p className="text-white font-bold text-base leading-tight">Solucoes Diferentes</p>
-              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.65)' }}>Telecomunicacoes & Energia</p>
+              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.65)' }}>Telecomunicações & Energia</p>
             </div>
           </div>
 
@@ -111,7 +111,7 @@ export default function LoginPage() {
                 {SLIDES[current].caption}
               </h2>
               <p className="text-base leading-relaxed" style={{ color: 'rgba(255,255,255,0.72)' }}>
-                A plataforma CRM da Solucoes Diferentes que une parceiros, energia e telecomunicacoes numa so experiencia.
+                A plataforma CRM da Soluções Diferentes que une parceiros, energia e telecomunicações numa só experiência.
               </p>
             </div>
           </div>
@@ -152,7 +152,7 @@ export default function LoginPage() {
                 <h1 className="text-xl font-bold" style={{ color: '#0f172a' }}>
                   Solucoes Diferentes
                 </h1>
-                <p className="text-xs" style={{ color: '#6b7280' }}>Telecomunicacoes & Energia</p>
+                <p className="text-xs" style={{ color: '#6b7280' }}>Telecomunicações & Energia</p>
               </div>
             </div>
           </div>
@@ -229,9 +229,9 @@ export default function LoginPage() {
           </p>
 
           <p className="mt-3 text-center text-xs" style={{ color: '#9ca3af' }}>
-            Ao aceder esta plataforma esta a aceitar a nossa{' '}
+            Ao aceder esta plataforma está a aceitar a nossa{' '}
             <a href="/rgpd" className="underline hover:opacity-80 transition" style={{ color: '#4338ca' }}>
-              Politica de Privacidade e Cookies
+              Política de Privacidade e Cookies
             </a>
           </p>
         </div>
