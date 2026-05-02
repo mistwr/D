@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/use-auth'
 import Image from 'next/image'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import {
   Megaphone, Plus, Wifi, WifiOff, FileUp, FileText, Zap, Flame,
-  ChevronDown, ChevronUp, Share2, Trash2, Download, ImagePlus, Shield, X
+  ChevronDown, ChevronUp, Trash2, Download, ImagePlus, Shield, X
 } from 'lucide-react'
 
 interface CampanhaPDF { id: string; file_name: string; file_type: string; file_size: number; signed_url: string | null; created_at: string }
@@ -35,8 +35,7 @@ function formatSize(bytes: number) {
 }
 
 export default function CampanhasPage() {
-  const router = useRouter()
-  const [user, setUser] = useState<any>(null)
+  const { user, loading: authLoading, authFetch } = useAuth('admin')
   const [campanhas, setCampanhas] = useState<Campanha[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -55,22 +54,17 @@ export default function CampanhasPage() {
   }
 
   useEffect(() => {
-    async function load() {
-      const me = await fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).catch(() => null)
-      if (!me?.user || me.user.role !== 'admin') { router.push('/login'); return }
-      setUser(me.user)
-      const c = await fetch('/api/campanhas', { credentials: 'include' }).then(r => r.json()).catch(() => ({ campanhas: [] }))
-      setCampanhas(c.campanhas || [])
-      setLoading(false)
-    }
-    load()
-  }, [router])
+    if (!user) return
+    authFetch('/api/campanhas').then(r => r.json())
+      .then(c => { setCampanhas(c.campanhas || []); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [user, authFetch])
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault()
     if (!form.title.trim()) return
     setSaving(true)
-    const res = await fetch('/api/campanhas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(form) })
+    const res = await authFetch('/api/campanhas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
     const data = await res.json()
     if (data.campanha) {
       setCampanhas(prev => [{ ...data.campanha, pdf_count: 0, logo_url: '' }, ...prev])
@@ -85,14 +79,14 @@ export default function CampanhasPage() {
 
   async function toggleStatus(c: Campanha) {
     const newStatus = c.status === 'ativa' ? 'inativa' : 'ativa'
-    const res = await fetch('/api/campanhas', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ id: c.id, status: newStatus }) })
+    const res = await authFetch('/api/campanhas', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: c.id, status: newStatus }) })
     if (res.ok) setCampanhas(prev => prev.map(x => x.id === c.id ? { ...x, status: newStatus } : x))
   }
 
   async function deleteCampanha(id: string) {
     if (!confirm('Apagar campanha e todos os seus ficheiros?')) return
     setDeletingCamp(id)
-    await fetch('/api/campanhas', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ id }) })
+    await authFetch('/api/campanhas', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) })
     setCampanhas(prev => prev.filter(c => c.id !== id))
     if (expandedId === id) setExpandedId(null)
     setDeletingCamp(null)
@@ -104,7 +98,7 @@ export default function CampanhasPage() {
     const fd = new FormData()
     fd.append('campanha_id', campanhaId)
     fd.append('file', file)
-    const res = await fetch('/api/campanhas', { method: 'POST', credentials: 'include', body: fd })
+    const res = await authFetch('/api/campanhas', { method: 'POST', body: fd })
     const data = await res.json()
     if (data.logo_url) {
       setCampanhas(prev => prev.map(c => c.id === campanhaId ? { ...c, logo_url: data.logo_url } : c))
@@ -119,7 +113,7 @@ export default function CampanhasPage() {
     if (expandedId === id) { setExpandedId(null); return }
     setExpandedId(id)
     if (!pdfs[id]) {
-      const res = await fetch(`/api/campanhas/ficheiros?campanha_id=${id}`, { credentials: 'include' }).then(r => r.json())
+      const res = await authFetch(`/api/campanhas/ficheiros?campanha_id=${id}`).then(r => r.json())
       setPdfs(prev => ({ ...prev, [id]: res.ficheiros || [] }))
     }
   }
@@ -132,7 +126,7 @@ export default function CampanhasPage() {
       const fd = new FormData()
       fd.append('campanha_id', campanhaId)
       fd.append('file', files[i])
-      const res = await fetch('/api/campanhas/ficheiros', { method: 'POST', credentials: 'include', body: fd })
+      const res = await authFetch('/api/campanhas/ficheiros', { method: 'POST', body: fd })
       const data = await res.json()
       if (data.ficheiro) {
         setPdfs(prev => ({ ...prev, [campanhaId]: [data.ficheiro, ...(prev[campanhaId] ?? [])] }))
@@ -144,7 +138,7 @@ export default function CampanhasPage() {
   }
 
   async function deleteFicheiro(campanhaId: string, ficheiroId: string) {
-    await fetch('/api/campanhas/ficheiros', { method: 'DELETE', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: ficheiroId }) })
+    await authFetch('/api/campanhas/ficheiros', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: ficheiroId }) })
     setPdfs(prev => ({ ...prev, [campanhaId]: (prev[campanhaId] ?? []).filter(f => f.id !== ficheiroId) }))
     setCampanhas(prev => prev.map(c => c.id === campanhaId ? { ...c, pdf_count: Math.max(0, (c.pdf_count ?? 1) - 1) } : c))
   }
@@ -152,7 +146,7 @@ export default function CampanhasPage() {
   const inputStyle = { background: '#fff', border: '1px solid #d1d5db', color: '#111827' }
   const currentOps = ALL_OPERADORAS[form.service_type] ?? []
 
-  if (loading) return (
+  if (authLoading || loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8f9fb' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4338ca' }} />
     </div>
@@ -294,15 +288,6 @@ export default function CampanhasPage() {
                             {c.status === 'ativa' ? 'Activa' : 'Inactiva'}
                           </button>
 
-                          {/* WhatsApp */}
-                          <button onClick={() => {
-                            const text = `*${c.title}*%0AOperadora: ${c.operator}%0A%0A${c.description || ''}`
-                            window.open(`https://wa.me/?text=${text}`, '_blank')
-                          }} className="flex items-center gap-1 rounded-lg p-1.5 text-xs"
-                            style={{ background: '#dcfce7', color: '#166534' }} title="Enviar por WhatsApp">
-                            <Share2 size={13} />
-                          </button>
-
                           {/* Expandir */}
                           <button onClick={() => toggleExpand(c.id)}
                             className="rounded-lg p-1.5" style={{ background: '#f3f4f6', color: '#374151' }}>
@@ -362,13 +347,14 @@ export default function CampanhasPage() {
                                         <Download size={12} /> Download
                                       </a>
                                     )}
-                                    <button onClick={() => {
-                                      const text = `*${c.title}* — ${c.operator}%0ADocumento: ${pdf.file_name}`
-                                      window.open(`https://wa.me/?text=${text}`, '_blank')
-                                    }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
-                                      style={{ background: '#dcfce7', color: '#166534' }}>
-                                      <Share2 size={12} />
-                                    </button>
+                                    {pdf.signed_url && (
+                                      <a href={pdf.signed_url} target="_blank" rel="noreferrer"
+                                        className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
+                                        style={{ background: '#eef2ff', color: '#4338ca' }}
+                                        title="Abrir em nova aba">
+                                        <Download size={12} /> Abrir
+                                      </a>
+                                    )}
                                     <button onClick={() => deleteFicheiro(c.id, pdf.id)}
                                       className="rounded-lg p-1.5" style={{ background: '#fef2f2' }}
                                       title="Apagar ficheiro">

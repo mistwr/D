@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import Image from 'next/image'
@@ -31,8 +31,7 @@ interface ComissaoOp { id: string; servico: string; operadora: string; plano: st
 interface FormRow { servico: Servico; operadora: string; plano: string; modelo: Modelo; valor_comissao: string; num_mensalidades: string; valor_mensal: string; percentagem: string }
 
 export default function AdminComissoesPage() {
-  const router = useRouter()
-  const [user, setUser] = useState<any>(null)
+  const { user, loading: authLoading, authFetch } = useAuth('admin')
   const [loading, setLoading] = useState(true)
   const [parceiros, setParceiros] = useState<Parceiro[]>([])
   const [selectedParceiro, setSelectedParceiro] = useState<string>('')
@@ -48,21 +47,17 @@ export default function AdminComissoesPage() {
   const [msgType, setMsgType] = useState<'ok' | 'err'>('ok')
 
   useEffect(() => {
-    async function load() {
-      const me = await fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).catch(() => null)
-      if (!me?.user || me.user.role !== 'admin') { router.push('/login'); return }
-      setUser(me.user)
-      const res = await fetch('/api/vendas?parceiros=1', { credentials: 'include' }).then(r => r.json())
+    if (!user) return
+    authFetch('/api/vendas?parceiros=1').then(r => r.json()).then(res => {
       setParceiros(res.parceiros ?? [])
       setLoading(false)
-    }
-    load()
-  }, [router])
+    })
+  }, [user, authFetch])
 
   async function loadComissoes(pid: string) {
     if (!pid) { setComissoes([]); return }
     setLoadingCom(true)
-    const res = await fetch(`/api/comissoes/operadora?parceiro_id=${pid}`, { credentials: 'include' }).then(r => r.json())
+    const res = await authFetch(`/api/comissoes/operadora?parceiro_id=${pid}`).then(r => r.json())
     setComissoes(res.comissoes ?? [])
     setLoadingCom(false)
   }
@@ -91,10 +86,9 @@ export default function AdminComissoesPage() {
     if (isPercentagem && !form.percentagem) { flash('Preencha a percentagem', 'err'); return }
     if (!isMensalidade && !isPercentagem && !form.valor_comissao) { flash('Valor de comissao obrigatorio', 'err'); return }
     setSaving(true)
-    const res = await fetch('/api/comissoes/operadora', {
+    const res = await authFetch('/api/comissoes/operadora', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({
         parceiro_id: selectedParceiro,
         servico: form.servico,
@@ -117,10 +111,9 @@ export default function AdminComissoesPage() {
 
   async function deleteRow(item: ComissaoOp) {
     if (!selectedParceiro) return
-    const res = await fetch('/api/comissoes/operadora', {
+    const res = await authFetch('/api/comissoes/operadora', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({ parceiro_id: selectedParceiro, servico: item.servico, operadora: item.operadora, plano: item.plano ?? '' }),
     })
     if (res.ok) {
@@ -143,7 +136,7 @@ export default function AdminComissoesPage() {
   const tabData = comissoes.filter(c => c.servico === tab)
   const parceiroSelecionado = parceiros.find(p => p.id === selectedParceiro)
 
-  if (loading) return (
+  if (authLoading || loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4338ca' }} />
     </div>

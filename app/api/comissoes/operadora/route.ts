@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { getAuthUser } from '@/lib/supabase/get-auth-user'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 
-function service() {
+function svc() {
   return createServiceClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -10,22 +10,19 @@ function service() {
   )
 }
 
-export async function GET(request: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function GET(req: NextRequest) {
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autenticado' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const service = svc()
+  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
 
-  const { searchParams } = new URL(request.url)
-  // Admin pode pedir comissoes de qualquer parceiro via ?parceiro_id=
-  // Parceiro vê sempre as suas próprias (sem parâmetro ou com o seu próprio id)
   const parceiro_id = isAdmin
-    ? (searchParams.get('parceiro_id') ?? user.id)
+    ? (req.nextUrl.searchParams.get('parceiro_id') ?? user.id)
     : user.id
 
-  const { data, error } = await supabase
+  const { data, error } = await service
     .from('comissoes_operadora')
     .select('*')
     .eq('parceiro_id', parceiro_id)
@@ -36,23 +33,22 @@ export async function GET(request: Request) {
   return NextResponse.json({ comissoes: data })
 }
 
-export async function POST(request: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function POST(req: NextRequest) {
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autenticado' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const service = svc()
+  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Sem permissao' }, { status: 403 })
 
-  const body = await request.json()
+  const body = await req.json()
   const { parceiro_id, servico, operadora, plano, valor_comissao, modelo, num_mensalidades, valor_mensal, percentagem } = body
 
   if (!parceiro_id || !servico || !operadora) {
     return NextResponse.json({ error: 'Preencha todos os campos obrigatorios: parceiro, servico e operadora' }, { status: 400 })
   }
 
-  const svc = service()
-  const { data, error } = await svc
+  const { data, error } = await service
     .from('comissoes_operadora')
     .upsert({
       parceiro_id,
@@ -72,19 +68,18 @@ export async function POST(request: Request) {
   return NextResponse.json({ comissao: data?.[0] ?? null })
 }
 
-export async function DELETE(request: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function DELETE(req: NextRequest) {
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autenticado' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const service = svc()
+  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Sem permissao' }, { status: 403 })
 
-  const body = await request.json()
+  const body = await req.json()
   const { parceiro_id, servico, operadora, plano } = body
 
-  const svc = service()
-  const { error } = await svc
+  const { error } = await service
     .from('comissoes_operadora')
     .delete()
     .eq('parceiro_id', parceiro_id)

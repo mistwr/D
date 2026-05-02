@@ -5,8 +5,7 @@ import Image from 'next/image'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { Megaphone, FileText, Download, Share2, ChevronDown, ChevronUp, Zap, Flame, Wifi, Shield } from 'lucide-react'
-
+import { Megaphone, FileText, Download, ExternalLink, ChevronDown, ChevronUp, Zap, Flame, Wifi, Shield } from 'lucide-react'
 interface Campanha {
   id: string
   title: string
@@ -55,41 +54,6 @@ export default function CampanhasParceiroPage() {
       .then(d => setCampanhas((d.campanhas ?? []).filter((c: Campanha) => c.status === 'ativa')))
       .finally(() => setLoading(false))
   }, [user])
-
-  const [sharingId, setSharingId] = useState<string | null>(null)
-
-  async function shareWhatsApp(campanha: Campanha, ficheiro: Ficheiro) {
-    if (!ficheiro.signed_url) return
-    setSharingId(ficheiro.id)
-    try {
-      // Tentar Web Share API com ficheiro real (funciona no mobile com WhatsApp)
-      if (typeof navigator !== 'undefined' && navigator.share) {
-        try {
-          const response = await fetch(ficheiro.signed_url)
-          const blob = await response.blob()
-          const file = new File([blob], ficheiro.file_name, { type: blob.type || 'application/octet-stream' })
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              title: campanha.title,
-              text: `${campanha.title}${campanha.operator ? ` — ${campanha.operator}` : ''}${campanha.description ? `\n\n${campanha.description}` : ''}`,
-              files: [file],
-            })
-            setSharingId(null)
-            return
-          }
-        } catch {
-          // fallback para wa.me
-        }
-      }
-      // Fallback: abrir WhatsApp com link para download
-      const title = `*${campanha.title}*${campanha.operator ? ` — ${campanha.operator}` : ''}`
-      const desc = campanha.description ? `\n\n${campanha.description}` : ''
-      const link = `\n\n${ficheiro.file_name}:\n${ficheiro.signed_url}`
-      window.open(`https://wa.me/?text=${encodeURIComponent((title + desc + link).trim())}`, '_blank', 'noreferrer')
-    } finally {
-      setSharingId(null)
-    }
-  }
 
   async function toggleExpand(id: string) {
     if (expanded === id) { setExpanded(null); return }
@@ -215,16 +179,13 @@ export default function CampanhasParceiroPage() {
                                       <a href={f.signed_url} target="_blank" rel="noreferrer"
                                         className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
                                         style={{ background: '#eef2ff', color: '#4338ca' }}>
-                                        <Download size={12} /> Ver
+                                        <ExternalLink size={12} /> Abrir
                                       </a>
-                                      <button
-                                        onClick={() => shareWhatsApp(c, f)}
-                                        disabled={sharingId === f.id}
-                                        className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium disabled:opacity-60"
-                                        style={{ background: '#dcfce7', color: '#166534' }}>
-                                        <Share2 size={12} />
-                                        {sharingId === f.id ? 'A partilhar...' : 'WhatsApp'}
-                                      </button>
+                                      <a href={f.signed_url} download={f.file_name} target="_blank" rel="noreferrer"
+                                        className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
+                                        style={{ background: '#f0fdf4', color: '#166534' }}>
+                                        <Download size={12} /> Download
+                                      </a>
                                     </div>
                                   )}
                                 </div>

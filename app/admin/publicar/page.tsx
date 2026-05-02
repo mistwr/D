@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useAuth } from '@/hooks/use-auth'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
@@ -10,8 +11,7 @@ interface Parceiro { id: string; full_name: string; email: string; company_name:
 interface Publicacao { id: string; title: string; content: string; file_name: string; author_name: string; created_at: string }
 
 export default function PublicarPage() {
-  const router = useRouter()
-  const [user, setUser] = useState<any>(null)
+  const { user, loading: authLoading, authFetch } = useAuth('admin')
   const [parceiros, setParceiros] = useState<Parceiro[]>([])
   const [publicacoes, setPublicacoes] = useState<Publicacao[]>([])
   const [loading, setLoading] = useState(true)
@@ -22,20 +22,16 @@ export default function PublicarPage() {
   const [success, setSuccess] = useState(false)
 
   useEffect(() => {
-    async function load() {
-      const me = await fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).catch(() => null)
-      if (!me?.user || me.user.role !== 'admin') { router.push('/login'); return }
-      setUser(me.user)
-      const [p, pub] = await Promise.all([
-        fetch('/api/vendas?parceiros=1', { credentials: 'include' }).then(r => r.json()),
-        fetch('/api/publicacoes', { credentials: 'include' }).then(r => r.json()),
-      ])
+    if (!user) return
+    Promise.all([
+      authFetch('/api/vendas?parceiros=1').then(r => r.json()),
+      authFetch('/api/publicacoes').then(r => r.json()),
+    ]).then(([p, pub]) => {
       setParceiros(p.parceiros || [])
       setPublicacoes(pub.publicacoes || [])
       setLoading(false)
-    }
-    load()
-  }, [router])
+    })
+  }, [user, authFetch])
 
   function toggleParceiro(id: string) {
     setSelectedParceiros(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
@@ -53,18 +49,18 @@ export default function PublicarPage() {
     fd.append('content', form.message)
     if (selectedParceiros.length > 0) fd.append('parceiro_ids', selectedParceiros.join(','))
     if (ficheiro) fd.append('file', ficheiro)
-    await fetch('/api/publicacoes/upload', { method: 'POST', credentials: 'include', body: fd })
+    await authFetch('/api/publicacoes/upload', { method: 'POST', body: fd })
     setSuccess(true)
     setForm({ title: '', message: '' })
     setFicheiro(null)
     setSelectedParceiros([])
-    const pub = await fetch('/api/publicacoes', { credentials: 'include' }).then(r => r.json())
+    const pub = await authFetch('/api/publicacoes').then(r => r.json())
     setPublicacoes(pub.publicacoes || [])
     setSending(false)
     setTimeout(() => setSuccess(false), 3000)
   }
 
-  if (loading) return (
+  if (authLoading || loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
     </div>

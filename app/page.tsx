@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 
 export default function Home() {
   const router = useRouter()
@@ -11,14 +12,14 @@ export default function Home() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch('/api/auth/me', { credentials: 'include' })
-        const data = await res.json()
-        if (data.user) {
-          router.replace(data.user.role === 'admin' ? '/admin/dashboard' : '/dashboard')
-        } else {
-          setLoading(false)
-        }
-      } catch (e) {
+        const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) { setLoading(false); return }
+        const { data: profile } = await supabase
+          .from('profiles').select('role').eq('id', session.user.id).single()
+        const role = profile?.role ?? 'parceiro'
+        router.replace(role === 'admin' ? '/admin/dashboard' : '/dashboard')
+      } catch {
         setLoading(false)
       }
     }

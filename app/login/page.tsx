@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 // Imagens locais — energia, telecom e cidade
@@ -18,6 +19,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const [current, setCurrent] = useState(0)
   const [fade, setFade] = useState(true)
 
@@ -183,16 +185,27 @@ export default function LoginPage() {
 
             <div>
               <label className="mb-1.5 block text-sm font-medium" style={{ color: '#374151' }}>Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-                placeholder="••••••••"
-                className="w-full rounded-xl px-4 py-3 text-sm outline-none transition focus:ring-2"
-                style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', color: '#111827' }}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                  className="w-full rounded-xl px-4 py-3 pr-11 text-sm outline-none transition focus:ring-2"
+                  style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', color: '#111827' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 transition hover:opacity-70"
+                  style={{ color: '#9ca3af' }}
+                  aria-label={showPassword ? 'Esconder password' : 'Mostrar password'}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
 
             <button

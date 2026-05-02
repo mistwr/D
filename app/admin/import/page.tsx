@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import { Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, Download, X } from 'lucide-react'
@@ -33,24 +33,15 @@ function parseCSV(text: string) {
 }
 
 export default function ImportPage() {
-  const router = useRouter()
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const { user, loading: authLoading, authFetch } = useAuth('admin')
+  const [loading, setLoading] = useState(false)
   const [rows, setRows] = useState<{ client_email: string; status: string; notes?: string }[]>([])
   const [fileName, setFileName] = useState('')
   const [importing, setImporting] = useState(false)
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null)
   const [dragOver, setDragOver] = useState(false)
 
-  useEffect(() => {
-    async function load() {
-      const me = await fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).catch(() => null)
-      if (!me?.user || me.user.role !== 'admin') { router.push('/login'); return }
-      setUser(me.user)
-      setLoading(false)
-    }
-    load()
-  }, [router])
+
 
   const processFile = useCallback((file: File) => {
     setResult(null)
@@ -81,10 +72,9 @@ export default function ImportPage() {
     setImporting(true)
     setResult(null)
     try {
-      const res = await fetch('/api/import', {
+      const res = await authFetch('/api/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ rows }),
       })
       const data = await res.json()
@@ -114,7 +104,7 @@ export default function ImportPage() {
     URL.revokeObjectURL(url)
   }
 
-  if (loading) return (
+  if (authLoading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8f9fb' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
     </div>

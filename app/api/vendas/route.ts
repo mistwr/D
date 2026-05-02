@@ -1,30 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/get-auth-user'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
+
+function svc() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const service = svc()
+  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
-
   const sp = req.nextUrl.searchParams
 
   // Listar parceiros
   if (sp.get('parceiros') === '1' && isAdmin) {
-    const { data } = await supabase
-      .from('profiles')
-      .select('id, full_name, company_name')
-      .eq('role', 'parceiro')
-      .order('full_name')
-    // Buscar emails do auth — join via auth.users não é possível em JS, usamos service role
-    const { createClient: createServiceClient } = await import('@supabase/supabase-js')
-    const service = createServiceClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
-    )
+    const { data } = await service.from('profiles').select('id, full_name, company_name').eq('role', 'parceiro').order('full_name')
     const { data: authUsers } = await service.auth.admin.listUsers()
     const emailMap: Record<string, string> = {}
     authUsers?.users?.forEach(u => { emailMap[u.id] = u.email ?? '' })
@@ -34,7 +31,7 @@ export async function GET(req: NextRequest) {
 
   // Métricas
   if (sp.get('metrics') === '1') {
-    let query = supabase.from('vendas').select('amount, status, service_type')
+    let query = service.from('vendas').select('amount, status, service_type')
     if (!isAdmin) query = query.eq('user_id', user.id)
     const { data: vendas } = await query
     const total = vendas?.reduce((s, v) => s + (v.amount || 0), 0) ?? 0
@@ -47,27 +44,23 @@ export async function GET(req: NextRequest) {
   // Venda por id
   const vendaId = sp.get('id')
   if (vendaId) {
-    const { data: venda } = await supabase.from('vendas').select('*').eq('id', vendaId).single()
+    const { data: venda } = await service.from('vendas').select('*').eq('id', vendaId).single()
     if (!venda) return NextResponse.json({ error: 'Nao encontrada' }, { status: 404 })
     if (!isAdmin && venda.user_id !== user.id) return NextResponse.json({ error: 'Sem permissao' }, { status: 403 })
-    const { data: parceiro } = await supabase.from('profiles').select('full_name').eq('id', venda.user_id).single()
+    const { data: parceiro } = await service.from('profiles').select('full_name').eq('id', venda.user_id).single()
     return NextResponse.json({ venda, parceiro })
   }
 
   // Todas as vendas
-  let query = supabase.from('vendas').select('*').order('created_at', { ascending: false })
+  let query = service.from('vendas').select('*').order('created_at', { ascending: false })
   if (!isAdmin) query = query.eq('user_id', user.id)
   const { data: vendas, error: vendasError } = await query
   if (vendasError) return NextResponse.json({ error: vendasError.message }, { status: 500 })
 
-  // Enriquecer com nome do parceiro (batch lookup)
   let profileMap: Record<string, string> = {}
   if (isAdmin && vendas && vendas.length > 0) {
     const userIds = [...new Set(vendas.map((v: any) => v.user_id))]
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, full_name')
-      .in('id', userIds)
+    const { data: profiles } = await service.from('profiles').select('id, full_name').in('id', userIds)
     profiles?.forEach((p: any) => { profileMap[p.id] = p.full_name })
   }
   const enriched = (vendas ?? []).map((v: any) => ({
@@ -77,16 +70,16 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ vendas: enriched })
 }
 
-export async function POST(req: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function POST(req: NextRequest) {
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
+  const service = svc()
   const body = await req.json()
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
 
-  const { data: venda, error } = await supabase.from('vendas').insert({
+  const { data: venda, error } = await service.from('vendas').insert({
     user_id: isAdmin && body.user_id ? body.user_id : user.id,
     client_name: body.client_name || '',
     client_email: body.client_email || null,
@@ -115,48 +108,40 @@ export async function POST(req: Request) {
   return NextResponse.json({ venda })
 }
 
-export async function DELETE(req: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function DELETE(req: NextRequest) {
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const service = svc()
+  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Sem permissao' }, { status: 403 })
 
   const { id } = await req.json()
   if (!id) return NextResponse.json({ error: 'id obrigatorio' }, { status: 400 })
 
-  const { createClient: svcCreate } = await import('@supabase/supabase-js')
-  const svc = svcCreate(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  )
-
-  // Apagar documentos do storage e da tabela antes de apagar a venda
-  const { data: docs } = await svc.from('documentos').select('id, file_path').eq('venda_id', id)
+  const { data: docs } = await service.from('documentos').select('id, file_path').eq('venda_id', id)
   if (docs && docs.length > 0) {
     const paths = docs.map((d: any) => d.file_path).filter(Boolean)
-    if (paths.length > 0) await svc.storage.from('documentos').remove(paths)
-    await svc.from('documentos').delete().eq('venda_id', id)
+    if (paths.length > 0) await service.storage.from('documentos').remove(paths)
+    await service.from('documentos').delete().eq('venda_id', id)
   }
 
-  const { error } = await svc.from('vendas').delete().eq('id', id)
+  const { error } = await service.from('vendas').delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   return NextResponse.json({ ok: true })
 }
 
-export async function PATCH(req: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function PATCH(req: NextRequest) {
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
+  const service = svc()
   const { id, status, ...rest } = await req.json()
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
 
-  const { data: venda } = await supabase.from('vendas').select('user_id').eq('id', id).single()
+  const { data: venda } = await service.from('vendas').select('user_id').eq('id', id).single()
   if (!venda) return NextResponse.json({ error: 'Nao encontrada' }, { status: 404 })
   if (!isAdmin && venda.user_id !== user.id) return NextResponse.json({ error: 'Sem permissao' }, { status: 403 })
 
@@ -164,6 +149,6 @@ export async function PATCH(req: Request) {
   if (status) updates.status = status
   Object.assign(updates, rest)
 
-  await supabase.from('vendas').update(updates).eq('id', id)
+  await service.from('vendas').update(updates).eq('id', id)
   return NextResponse.json({ ok: true })
 }

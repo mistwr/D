@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useAuth } from '@/hooks/use-auth'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import { Newspaper, Plus, Trash2, X, FileText, Users, Globe, Send } from 'lucide-react'
@@ -14,9 +16,8 @@ interface Publicacao {
 }
 
 export default function AdminPublicacoesPage() {
-  const router = useRouter()
+  const { user, loading: authLoading, authFetch } = useAuth('admin')
   const fileRef = useRef<HTMLInputElement>(null)
-  const [user, setUser] = useState<any>(null)
   const [pubs, setPubs] = useState<Publicacao[]>([])
   const [parceiros, setParceiros] = useState<Parceiro[]>([])
   const [loading, setLoading] = useState(true)
@@ -34,20 +35,16 @@ export default function AdminPublicacoesPage() {
   const [file, setFile] = useState<File | null>(null)
 
   useEffect(() => {
-    async function load() {
-      const me = await fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).catch(() => null)
-      if (!me?.user || me.user.role !== 'admin') { router.push('/login'); return }
-      setUser(me.user)
-      const [pubsRes, parcRes] = await Promise.all([
-        fetch('/api/publicacoes', { credentials: 'include' }).then(r => r.json()),
-        fetch('/api/vendas?parceiros=1', { credentials: 'include' }).then(r => r.json()),
-      ])
+    if (!user) return
+    Promise.all([
+      authFetch('/api/publicacoes').then(r => r.json()),
+      authFetch('/api/vendas?parceiros=1').then(r => r.json()),
+    ]).then(([pubsRes, parcRes]) => {
       setPubs(pubsRes.publicacoes || [])
       setParceiros(parcRes.parceiros || [])
       setLoading(false)
-    }
-    load()
-  }, [router])
+    })
+  }, [user, authFetch])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -62,7 +59,7 @@ export default function AdminPublicacoesPage() {
       fd.append('parceiro_ids', form.parceiroIds.join(','))
     }
     if (file) fd.append('file', file)
-    const res = await fetch('/api/publicacoes/upload', { method: 'POST', credentials: 'include', body: fd })
+    const res = await authFetch('/api/publicacoes/upload', { method: 'POST', body: fd })
     const data = await res.json()
     setSending(false)
     if (!res.ok) { setError(data.error || 'Erro ao publicar'); return }
@@ -71,14 +68,14 @@ export default function AdminPublicacoesPage() {
     setFile(null)
     setShowForm(false)
     // Recarregar lista
-    const pubsRes = await fetch('/api/publicacoes', { credentials: 'include' }).then(r => r.json())
+    const pubsRes = await authFetch('/api/publicacoes').then(r => r.json())
     setPubs(pubsRes.publicacoes || [])
   }
 
   async function deletePub(id: string) {
     if (!confirm('Tem a certeza que quer eliminar esta publicacao?')) return
-    await fetch('/api/publicacoes', {
-      method: 'DELETE', credentials: 'include',
+    await authFetch('/api/publicacoes', {
+      method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     })
@@ -94,7 +91,7 @@ export default function AdminPublicacoesPage() {
     }))
   }
 
-  if (loading) return (
+  if (authLoading || loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
     </div>

@@ -21,7 +21,7 @@ const ST: Record<string, { bg: string; color: string; label: string }> = {
 }
 
 export default function AdminDashboardPage() {
-  const { user, loading: authLoading } = useAuth('admin')
+  const { user, loading: authLoading, authFetch } = useAuth('admin')
   const [vendas, setVendas] = useState<Venda[]>([])
   const [dataLoading, setDataLoading] = useState(true)
 
@@ -34,10 +34,10 @@ export default function AdminDashboardPage() {
     if (!user) return
     async function loadData() {
       try {
-        const v = await fetch('/api/vendas', { credentials: 'include' }).then(r => r.json()).catch(() => ({ vendas: [] }))
+        const v = await authFetch('/api/vendas').then(r => r.json())
         setVendas(v.vendas || [])
-      } catch (e) {
-        console.log('[v0] Admin: Erro a carregar:', e)
+      } catch {
+        // silencioso
       }
       setDataLoading(false)
     }

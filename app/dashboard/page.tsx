@@ -11,7 +11,7 @@ interface Venda { id: string; client_name: string; client_email: string; amount:
 interface ComCalculo { energia: number; telecom: number; total: number }
 
 export default function DashboardPage() {
-  const { user, loading: authLoading } = useAuth('parceiro')
+  const { user, loading: authLoading, authFetch } = useAuth('parceiro')
   const [vendas, setVendas] = useState<Venda[]>([])
   const [comCalc, setComCalc] = useState<ComCalculo | null>(null)
   const [dataLoading, setDataLoading] = useState(true)
@@ -21,18 +21,16 @@ export default function DashboardPage() {
 
     async function loadData() {
       try {
-        console.log('[v0] Dashboard: Carregando dados do parceiro')
         const [vRes, cRes] = await Promise.all([
-          fetch('/api/vendas', { credentials: 'include' }),
-          fetch('/api/comissoes', { credentials: 'include' })
+          authFetch('/api/vendas'),
+          authFetch('/api/comissoes')
         ])
         const vData = await vRes.json()
         const cData = await cRes.json()
-        console.log('[v0] Dashboard: Dados carregados')
         setVendas(vData.vendas || [])
         if (cData.calculo) setComCalc(cData.calculo)
-      } catch (e) {
-        console.log('[v0] Dashboard: Erro ao carregar dados:', e)
+      } catch {
+        // silencioso
       }
       setDataLoading(false)
     }

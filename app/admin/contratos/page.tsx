@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useAuth } from '@/hooks/use-auth'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import {
@@ -60,8 +62,7 @@ function getExt(name: string) {
 }
 
 export default function AdminContratosPage() {
-  const router = useRouter()
-  const [user, setUser] = useState<any>(null)
+  const { user, loading: authLoading, authFetch } = useAuth('admin')
   const [contratos, setContratos] = useState<Contrato[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -76,10 +77,9 @@ export default function AdminContratosPage() {
 
   async function deleteContrato(id: string) {
     setDeletingContrato(id)
-    const res = await fetch('/api/contratos', {
+    const res = await authFetch('/api/contratos', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({ id }),
     })
     if (res.ok) setContratos(prev => prev.filter(c => c.id !== id))
@@ -89,10 +89,9 @@ export default function AdminContratosPage() {
 
   async function deleteDoc(id: string, contratoId: string) {
     setDeletingDoc(id)
-    const res = await fetch('/api/documentos', {
+    const res = await authFetch('/api/documentos', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({ id }),
     })
     if (res.ok) {
@@ -103,30 +102,21 @@ export default function AdminContratosPage() {
   }
 
   useEffect(() => {
-    async function load() {
-      try {
-        const me = await fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json())
-        if (!me?.user || me.user.role !== 'admin') { router.push('/login'); return }
-        setUser(me.user)
-
-        // Contratos já chegam com parceiro e documentos enriquecidos via API
-        const contratosRes = await fetch('/api/contratos', { credentials: 'include' }).then(r => r.json())
-        const enriched = (contratosRes.contratos ?? []).map((c: any) => ({
-          ...c,
-          parceiro_name: c.parceiro?.full_name ?? 'Desconhecido',
-          parceiro_email: c.parceiro?.email ?? '',
-          parceiro_company: c.parceiro?.company ?? '',
-        }))
-        setContratos(enriched)
-        // Popular docsMap com docs já incluídos
-        const dm: Record<string, Doc[]> = {}
-        enriched.forEach((c: any) => { dm[c.id] = c.documentos ?? [] })
-        setDocsMap(dm)
-      } catch { router.push('/login') }
+    if (!user) return
+    authFetch('/api/contratos').then(r => r.json()).then(contratosRes => {
+      const enriched = (contratosRes.contratos ?? []).map((c: any) => ({
+        ...c,
+        parceiro_name: c.parceiro?.full_name ?? 'Desconhecido',
+        parceiro_email: c.parceiro?.email ?? '',
+        parceiro_company: c.parceiro?.company ?? '',
+      }))
+      setContratos(enriched)
+      const dm: Record<string, Doc[]> = {}
+      enriched.forEach((c: any) => { dm[c.id] = c.documentos ?? [] })
+      setDocsMap(dm)
       setLoading(false)
-    }
-    load()
-  }, [router])
+    }).catch(() => setLoading(false))
+  }, [user, authFetch])
 
   function toggleContrato(c: Contrato) {
     setExpanded(prev => prev === c.id ? null : c.id)

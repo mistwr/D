@@ -49,7 +49,7 @@ const SVC_LABELS: Record<string, string> = {
 }
 
 export default function ContratosPage() {
-  const { user, loading: authLoading } = useAuth('parceiro')
+  const { user, loading: authLoading, authFetch } = useAuth('parceiro')
 
   // Vendas
   const [vendas, setVendas] = useState<Venda[]>([])
@@ -82,7 +82,7 @@ export default function ContratosPage() {
   async function loadVendas() {
     setLoadingVendas(true)
     try {
-      const r = await fetch('/api/vendas', { credentials: 'include' })
+      const r = await authFetch('/api/vendas')
       const d = await r.json()
       setVendas(d.vendas || [])
     } catch {
@@ -95,7 +95,7 @@ export default function ContratosPage() {
   async function loadDocsGerais() {
     setLoadingGerais(true)
     try {
-      const r = await fetch('/api/documentos?tipo=contrato', { credentials: 'include' })
+      const r = await authFetch('/api/documentos?tipo=contrato')
       const d = await r.json()
       setDocsGerais(d.documentos || [])
     } catch {
@@ -108,7 +108,7 @@ export default function ContratosPage() {
   async function loadDocsVenda(vendaId: string) {
     if (docsMap[vendaId] !== undefined) return
     setLoadingDocs(vendaId)
-    const r = await fetch(`/api/documentos?venda_id=${vendaId}`, { credentials: 'include' })
+    const r = await authFetch(`/api/documentos?venda_id=${vendaId}`)
     const d = await r.json()
     setDocsMap(prev => ({ ...prev, [vendaId]: d.documentos || [] }))
     setLoadingDocs(null)
@@ -130,12 +130,11 @@ export default function ContratosPage() {
       const fd = new FormData()
       fd.append('file', file)
       fd.append('venda_id', vendaId)
-      const r = await fetch('/api/documentos', { method: 'POST', credentials: 'include', body: fd })
+      const r = await authFetch('/api/documentos', { method: 'POST', body: fd })
       const d = await r.json()
       if (!r.ok) {
         setUploadError(d.error || 'Erro ao enviar')
       } else {
-        // Recarregar docs desta venda
         setDocsMap(prev => ({ ...prev, [vendaId]: undefined as any }))
         await loadDocsVenda(vendaId)
       }
@@ -157,7 +156,7 @@ export default function ContratosPage() {
       const fd = new FormData()
       fd.append('file', file)
       fd.append('tipo', 'contrato')
-      const r = await fetch('/api/documentos', { method: 'POST', credentials: 'include', body: fd })
+      const r = await authFetch('/api/documentos', { method: 'POST', body: fd })
       const d = await r.json()
       if (!r.ok) {
         setUploadError(d.error || 'Erro ao enviar ficheiro')
@@ -174,8 +173,8 @@ export default function ContratosPage() {
 
   async function handleDelete(id: string) {
     setDeleting(id)
-    await fetch('/api/documentos', {
-      method: 'DELETE', credentials: 'include',
+    await authFetch('/api/documentos', {
+      method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     })

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
@@ -71,5 +71,15 @@ export function useAuth(requiredRole?: 'admin' | 'parceiro') {
     }
   }, [router, requiredRole])
 
-  return { user, loading }
+  /** Fetch wrapper que envia sempre Authorization: Bearer <token> */
+  const authFetch = useCallback(async (url: string, options: RequestInit = {}) => {
+    const supabase = createClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token
+    const headers: Record<string, string> = { ...(options.headers as Record<string, string> ?? {}) }
+    if (token) headers['Authorization'] = `Bearer ${token}`
+    return fetch(url, { ...options, credentials: 'include', headers })
+  }, [])
+
+  return { user, loading, authFetch }
 }

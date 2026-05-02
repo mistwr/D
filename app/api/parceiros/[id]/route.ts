@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/get-auth-user'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

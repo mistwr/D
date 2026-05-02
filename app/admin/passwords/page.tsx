@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useAuth } from '@/hooks/use-auth'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
@@ -9,8 +10,7 @@ import { KeyRound, Eye, EyeOff, CheckCircle, User } from 'lucide-react'
 interface Parceiro { id: string; full_name: string; email: string; company_name: string }
 
 export default function AdminPasswordsPage() {
-  const router = useRouter()
-  const [user, setUser] = useState<any>(null)
+  const { user, loading: authLoading, authFetch } = useAuth('admin')
   const [parceiros, setParceiros] = useState<Parceiro[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -30,24 +30,20 @@ export default function AdminPasswordsPage() {
   const [errorM, setErrorM] = useState('')
 
   useEffect(() => {
-    async function load() {
-      const me = await fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).catch(() => null)
-      if (!me?.user || me.user.role !== 'admin') { router.push('/login'); return }
-      setUser(me.user)
-      const res = await fetch('/api/vendas?parceiros=1', { credentials: 'include' }).then(r => r.json())
+    if (!user) return
+    authFetch('/api/vendas?parceiros=1').then(r => r.json()).then(res => {
       setParceiros(res.parceiros || [])
       setLoading(false)
-    }
-    load()
-  }, [router])
+    })
+  }, [user, authFetch])
 
   async function changeParceiroPass() {
     setErrorP(''); setSuccessP('')
     if (!selectedId) { setErrorP('Selecione um parceiro'); return }
     if (!newPass || newPass.length < 6) { setErrorP('Password deve ter pelo menos 6 caracteres'); return }
     setSavingP(true)
-    const res = await fetch('/api/auth/change-password', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+    const res = await authFetch('/api/auth/change-password', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ target_user_id: selectedId, new_password: newPass }),
     })
     const data = await res.json()
@@ -62,8 +58,8 @@ export default function AdminPasswordsPage() {
     setErrorM(''); setSuccessM('')
     if (!myPass || myPass.length < 6) { setErrorM('Password deve ter pelo menos 6 caracteres'); return }
     setSavingM(true)
-    const res = await fetch('/api/auth/change-password', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+    const res = await authFetch('/api/auth/change-password', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ new_password: myPass }),
     })
     const data = await res.json()
@@ -74,7 +70,7 @@ export default function AdminPasswordsPage() {
     setTimeout(() => setSuccessM(''), 3000)
   }
 
-  if (loading) return (
+  if (authLoading || loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
     </div>
