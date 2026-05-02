@@ -40,9 +40,21 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'Não é possível apagar um admin' }, { status: 403 })
   }
 
+  // Obter email antes de apagar
+  const { data: authUser } = await svc.auth.admin.getUserById(parceiro_id)
+  const emailToBlock = authUser?.user?.email
+
   // Apagar utilizador do Supabase Auth (cascade apaga profiles, vendas, etc.)
   const { error } = await svc.auth.admin.deleteUser(parceiro_id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // Registar email na lista de bloqueio para impedir re-registo
+  if (emailToBlock) {
+    await svc.from('deleted_emails').upsert(
+      { email: emailToBlock.toLowerCase(), deleted_by: 'admin', reason: 'Parceiro removido pelo admin' },
+      { onConflict: 'email' }
+    )
+  }
 
   return NextResponse.json({ success: true })
 }
