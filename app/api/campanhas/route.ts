@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/get-auth-user'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 
 function service() {
@@ -11,8 +11,7 @@ function service() {
 }
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
   const id = req.nextUrl.searchParams.get('id')
@@ -27,9 +26,8 @@ export async function GET(req: NextRequest) {
 }
 
 // POST: criar campanha (JSON) ou fazer upload de logo (FormData com action=upload_logo)
-export async function POST(req: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function POST(req: NextRequest) {
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
@@ -76,9 +74,8 @@ export async function POST(req: Request) {
   return NextResponse.json({ campanha })
 }
 
-export async function PATCH(req: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function PATCH(req: NextRequest) {
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
@@ -91,9 +88,8 @@ export async function PATCH(req: Request) {
   return NextResponse.json({ campanha: data })
 }
 
-export async function DELETE(req: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function DELETE(req: NextRequest) {
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()

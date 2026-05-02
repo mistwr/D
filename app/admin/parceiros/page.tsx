@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import {
@@ -27,8 +27,7 @@ interface ComissaoOp { servico: string; operadora: string; plano: string; valor_
 interface NovoForm { email: string; password: string; full_name: string; company_name: string; phone: string }
 
 export default function ParceirosPage() {
-  const router = useRouter()
-  const [user, setUser] = useState<any>(null)
+  const { user, loading: authLoading, authFetch } = useAuth('admin')
   const [parceiros, setParceiros] = useState<Parceiro[]>([])
   const [vendas, setVendas] = useState<Venda[]>([])
   const [loading, setLoading] = useState(true)
@@ -66,23 +65,21 @@ export default function ParceirosPage() {
   const [passError, setPassError] = useState('')
 
   useEffect(() => {
+    if (!user) return
     async function load() {
-      const me = await fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).catch(() => null)
-      if (!me?.user || me.user.role !== 'admin') { router.push('/login'); return }
-      setUser(me.user)
       const [p, v] = await Promise.all([
-        fetch('/api/vendas?parceiros=1', { credentials: 'include' }).then(r => r.json()),
-        fetch('/api/vendas', { credentials: 'include' }).then(r => r.json()),
+        authFetch('/api/vendas?parceiros=1').then(r => r.json()),
+        authFetch('/api/vendas').then(r => r.json()),
       ])
       setParceiros(p.parceiros || [])
       setVendas(v.vendas || [])
       setLoading(false)
     }
     load()
-  }, [router])
+  }, [user, authFetch])
 
   async function loadComissoes(pid: string) {
-    const res = await fetch(`/api/comissoes/operadora?parceiro_id=${pid}`, { credentials: 'include' }).then(r => r.json())
+    const res = await authFetch(`/api/comissoes/operadora?parceiro_id=${pid}`).then(r => r.json())
     setComOps(res.comissoes || [])
   }
 
@@ -105,10 +102,9 @@ export default function ParceirosPage() {
       plano: isT ? comPlano : '',
       valor_comissao: parseFloat(comValor) || 0,
     }
-    const res = await fetch('/api/comissoes/operadora', {
+    const res = await authFetch('/api/comissoes/operadora', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify(body),
     })
     const data = await res.json()
@@ -121,10 +117,9 @@ export default function ParceirosPage() {
 
   async function deleteComissaoOp(item: ComissaoOp) {
     if (!selected) return
-    await fetch('/api/comissoes/operadora', {
+    await authFetch('/api/comissoes/operadora', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({ parceiro_id: selected, servico: item.servico, operadora: item.operadora, plano: item.plano }),
     })
     await loadComissoes(selected)
@@ -132,13 +127,13 @@ export default function ParceirosPage() {
 
   async function apagarParceiro(parceiro: Parceiro) {
     setDeleting(true); setDeleteError('')
-    const res = await fetch(`/api/parceiros/${parceiro.id}`, { method: 'DELETE', credentials: 'include' })
+    const res = await authFetch(`/api/parceiros/${parceiro.id}`, { method: 'DELETE' })
     const data = await res.json()
     setDeleting(false)
     if (!res.ok) { setDeleteError(data.error || 'Erro ao apagar'); return }
     setConfirmDelete(null)
     if (selected === parceiro.id) setSelected(null)
-    const p = await fetch('/api/vendas?parceiros=1', { credentials: 'include' }).then(r => r.json())
+    const p = await authFetch('/api/vendas?parceiros=1').then(r => r.json())
     setParceiros(p.parceiros || [])
   }
 
@@ -148,7 +143,7 @@ export default function ParceirosPage() {
       setNovoError('Email, password e nome sao obrigatorios'); return
     }
     setNovoLoading(true)
-    const res = await fetch('/api/auth/register', {
+    const res = await authFetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(novoForm),
@@ -158,7 +153,7 @@ export default function ParceirosPage() {
     if (!res.ok) { setNovoError(data.error || 'Erro ao criar parceiro'); return }
     setNovoSuccess(`Parceiro ${data.user.full_name} criado!`)
     setNovoForm({ email: '', password: '', full_name: '', company_name: '', phone: '' })
-    const p = await fetch('/api/vendas?parceiros=1', { credentials: 'include' }).then(r => r.json())
+    const p = await authFetch('/api/vendas?parceiros=1').then(r => r.json())
     setParceiros(p.parceiros || [])
     setTimeout(() => { setShowNovo(false); setNovoSuccess('') }, 2000)
   }
@@ -168,10 +163,9 @@ export default function ParceirosPage() {
       setPassError('Password deve ter pelo menos 6 caracteres'); return
     }
     setPassLoading(true); setPassMsg(''); setPassError('')
-    const res = await fetch('/api/auth/change-password', {
+    const res = await authFetch('/api/auth/change-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({ parceiro_id: selected, new_password: newPass }),
     })
     const data = await res.json()
@@ -181,7 +175,7 @@ export default function ParceirosPage() {
     setTimeout(() => setPassMsg(''), 4000)
   }
 
-  if (loading) return (
+  if (authLoading || loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
     </div>

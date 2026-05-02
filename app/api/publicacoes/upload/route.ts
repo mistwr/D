@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthUser } from '@/lib/supabase/get-auth-user'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 
 function service() {
@@ -11,8 +11,7 @@ function service() {
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
   const { data: profile } = await supabase.from('profiles').select('role, full_name').eq('id', user.id).single()

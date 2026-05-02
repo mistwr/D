@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import { ArrowLeft, Upload, X, FileText, CheckCircle } from 'lucide-react'
@@ -34,7 +34,7 @@ function formatSize(bytes: number) {
 export default function NovaVendaPage() {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
-  const [user, setUser] = useState<any>(null)
+  const { user, authFetch } = useAuth('parceiro')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -68,18 +68,12 @@ export default function NovaVendaPage() {
   })
 
   useEffect(() => {
-    fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).then(d => {
-      if (!d.user) router.push('/login')
-      else {
-        setUser(d.user)
-        // Carregar comissoes do parceiro
-        fetch('/api/comissoes/operadora', { credentials: 'include' })
-          .then(r => r.json())
-          .then(d => setComissoes(d.comissoes || []))
-          .catch(() => {})
-      }
-    }).catch(() => router.push('/login'))
-  }, [router])
+    if (!user) return
+    authFetch('/api/comissoes/operadora')
+      .then(r => r.json())
+      .then(d => setComissoes(d.comissoes || []))
+      .catch(() => {})
+  }, [user, authFetch])
 
   // Calcular comissao estimada ao mudar operadora/plano (apenas telecom)
   useEffect(() => {
@@ -140,8 +134,8 @@ export default function NovaVendaPage() {
         potencia: form.service_type === 'energia' ? form.potencia : null,
         escalao: form.service_type === 'energia' ? form.escalao : null,
       }
-      const res = await fetch('/api/vendas', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+      const res = await authFetch('/api/vendas', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
       const data = await res.json()
@@ -151,8 +145,8 @@ export default function NovaVendaPage() {
         for (let i = 0; i < files.length; i++) {
           setUploadProgress(`A carregar ${i + 1}/${files.length}: ${files[i].name}`)
           const base64 = await toBase64(files[i].file)
-          await fetch('/api/documentos', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+          await authFetch('/api/documentos', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               venda_id: data.venda.id,
               file_name: files[i].name,

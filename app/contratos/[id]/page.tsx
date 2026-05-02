@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useAuth } from '@/hooks/use-auth'
 import { useRouter } from 'next/navigation'
 import { useParams } from 'next/navigation'
 import { ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react'
@@ -35,48 +36,37 @@ const PDF_TEMPLATES: Record<string, string> = {
 }
 
 export default function ContratoPage() {
-  const router = useRouter()
   const params = useParams()
   const contratoId = params.id as string
+  const { user, loading: authLoading, authFetch } = useAuth()
 
   const [contrato, setContrato] = useState<Contrato | null>(null)
-  const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!user) return
     const loadData = async () => {
       try {
-        const [meRes, contratoRes] = await Promise.all([
-          fetch('/api/auth/me', { credentials: 'include' }),
-          fetch(`/api/contratos/${contratoId}`, { credentials: 'include' }),
-        ])
-        
-        const meData = await meRes.json()
-        if (!meData.user) {
-          router.push('/login')
-          return
-        }
-        setUser(meData.user)
+        const contratoRes = await authFetch(`/api/contratos/${contratoId}`)
 
         const contratoData = await contratoRes.json()
         if (contratoData.contrato) {
           setContrato(contratoData.contrato)
         }
-      } catch (e) {
-        console.log('[v0] Error:', e)
+      } catch {
+        // silencioso
       } finally {
         setLoading(false)
       }
     }
     loadData()
-  }, [contratoId, router])
+  }, [user, authFetch, contratoId])
 
   const handleSignatureSubmit = async (signatureImage: string) => {
     try {
-      const res = await fetch(`/api/contratos/${contratoId}/assinar`, {
+      const res = await authFetch(`/api/contratos/${contratoId}/assinar`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({
           signature_image_base64: signatureImage,
           tipo: user?.id === contrato?.user_id ? 'vendedor' : 'cliente',
@@ -95,7 +85,7 @@ export default function ContratoPage() {
     }
   }
 
-  if (loading) return <div style={{ padding: '20px' }}>A carregar...</div>
+  if (authLoading || loading) return <div style={{ padding: '20px' }}>A carregar...</div>
   if (!contrato) return <div style={{ padding: '20px' }}>Contrato não encontrado</div>
 
   const pdfUrl = PDF_TEMPLATES[contrato.operadora] || PDF_TEMPLATES['Vodafone']

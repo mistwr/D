@@ -1,10 +1,9 @@
-import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { getAuthUser } from '@/lib/supabase/get-auth-user'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 
-export async function DELETE(req: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function DELETE(req: NextRequest) {
+  const { user } = await getAuthUser(req)
 
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 

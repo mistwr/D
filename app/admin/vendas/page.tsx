@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import { ShoppingCart, Search, ChevronDown, Trash2 } from 'lucide-react'
@@ -24,8 +24,7 @@ interface Venda {
 }
 
 export default function AdminVendasPage() {
-  const router = useRouter()
-  const [user, setUser] = useState<any>(null)
+  const { user, loading: authLoading, authFetch } = useAuth('admin')
   const [vendas, setVendas] = useState<Venda[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -37,23 +36,18 @@ export default function AdminVendasPage() {
   const [deleting, setDeleting] = useState<string | null>(null)
 
   useEffect(() => {
-    async function load() {
-      const me = await fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).catch(() => null)
-      if (!me?.user || me.user.role !== 'admin') { router.push('/login'); return }
-      setUser(me.user)
-      const res = await fetch('/api/vendas', { credentials: 'include' }).then(r => r.json())
-      setVendas(res.vendas || [])
+    if (!user) return
+    authFetch('/api/vendas').then(r => r.json()).then(d => {
+      setVendas(d.vendas || [])
       setLoading(false)
-    }
-    load()
-  }, [router])
+    })
+  }, [user, authFetch])
 
   async function changeStatus(id: string, status: string) {
     setUpdating(id)
-    await fetch('/api/vendas', {
+    await authFetch('/api/vendas', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({ id, status }),
     })
     setVendas(prev => prev.map(v => v.id === id ? { ...v, status } : v))
@@ -62,10 +56,9 @@ export default function AdminVendasPage() {
 
   async function deleteVenda(id: string) {
     setDeleting(id)
-    const res = await fetch('/api/vendas', {
+    const res = await authFetch('/api/vendas', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({ id }),
     })
     if (res.ok) {
@@ -75,7 +68,7 @@ export default function AdminVendasPage() {
     setConfirmDelete(null)
   }
 
-  if (loading) return (
+  if (authLoading || loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
     </div>
