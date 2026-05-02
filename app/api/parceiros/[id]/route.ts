@@ -31,7 +31,8 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   await svc.from('contratos').delete().eq('user_id', id)
   await svc.from('profiles').delete().eq('id', id)
 
-  const { error } = await svc.auth.admin.deleteUser(id)
+  // shouldSoftDelete: false garante hard-delete e liberta o email para re-registo imediato
+  const { error } = await svc.auth.admin.deleteUser(id, false)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   return NextResponse.json({ success: true, message: `Parceiro apagado com sucesso` })
