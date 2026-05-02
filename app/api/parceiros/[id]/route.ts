@@ -25,10 +25,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   if (!target) return NextResponse.json({ error: 'Parceiro nao encontrado' }, { status: 404 })
   if (target.role === 'admin') return NextResponse.json({ error: 'Nao pode apagar um administrador' }, { status: 403 })
 
-  // Obter email antes de apagar para registar no bloqueio
-  const { data: authUser } = await svc.auth.admin.getUserById(id)
-  const emailToBlock = authUser?.user?.email
-
   await svc.from('comissoes').delete().eq('parceiro_id', id)
   await svc.from('vendas').delete().eq('user_id', id)
   await svc.from('notificacoes').delete().eq('user_id', id)
@@ -37,14 +33,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   const { error } = await svc.auth.admin.deleteUser(id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-  // Registar email na lista de bloqueio para impedir re-registo
-  if (emailToBlock) {
-    await svc.from('deleted_emails').upsert(
-      { email: emailToBlock.toLowerCase().trim(), deleted_by: 'admin', reason: 'Parceiro removido pelo admin' },
-      { onConflict: 'email' }
-    )
-  }
 
   return NextResponse.json({ success: true, message: `Parceiro apagado com sucesso` })
 }
