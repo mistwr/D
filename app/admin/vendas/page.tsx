@@ -393,9 +393,14 @@ export default function AdminVendasPage() {
                           <div className="col-span-2">
                             <Field label="Descricao" value={selected.description} />
                           </div>
-                          <div className="col-span-2">
-                            <Field label="Notas" value={selected.notes} />
-                          </div>
+                          {selected.notes && (
+                            <div className="col-span-2">
+                              <p className="text-xs font-medium mb-1" style={{ color: '#9ca3af' }}>Notas do Parceiro</p>
+                              <div className="rounded-lg px-3 py-2 text-sm whitespace-pre-wrap" style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e' }}>
+                                {selected.notes}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </section>
 
@@ -444,6 +449,7 @@ export default function AdminVendasPage() {
                                   <p className="text-xs font-medium truncate" style={{ color: '#111827' }}>{doc.file_name}</p>
                                   <p className="text-xs mt-0.5" style={{ color: '#9ca3af' }}>
                                     {fmtSize(doc.file_size)} · {new Date(doc.created_at).toLocaleDateString('pt-PT')}
+                                    {doc.uploader_name ? ` · ${doc.uploader_name}` : ''}
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-1 flex-shrink-0">
