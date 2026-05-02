@@ -62,10 +62,9 @@ export default function ComissoesPage() {
     grouped[c.servico].push(c)
   }
 
+  // Para mensalidades telecom o valor e dinamico (depende da mensalidade do cliente), nao somamos aqui
   const totalPorServico = (items: ComissaoOp[]) => items.reduce((s, c) => {
-    if (c.modelo === 'mensalidade' && (c.valor_mensal || 0) > 0)
-      return s + (c.num_mensalidades || 0) * (c.valor_mensal || 0)
-    if (c.modelo === 'mensalidade') return s // dinamico - nao somavel diretamente
+    if (c.modelo === 'mensalidade') return s
     return s + (c.valor_comissao || 0)
   }, 0)
 
@@ -134,7 +133,7 @@ export default function ComissoesPage() {
                               <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>Operadora</th>
                               <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>Plano</th>
                               <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>Modelo</th>
-                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>Comissao por Venda</th>
+                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>Comissao</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -143,21 +142,15 @@ export default function ComissoesPage() {
                                 if (c.modelo === 'mensalidade') {
                                   const n = c.num_mensalidades || 0
                                   const label = labelMensalidades(n)
-                                  if ((c.valor_mensal || 0) > 0) {
-                                    const total = n * (c.valor_mensal || 0)
-                                    return (
-                                      <div>
-                                        <span className="text-base font-bold" style={{ color: '#059669' }}>€{total.toFixed(2)}</span>
-                                        <span className="ml-2 text-xs" style={{ color: '#6b7280' }}>
-                                          ({label} × €{(c.valor_mensal || 0).toFixed(2)}/mes)
-                                        </span>
-                                      </div>
-                                    )
-                                  }
+                                  // telecom: valor calculado dinamicamente (mensalidade do cliente × nº mensalidades)
                                   return (
-                                    <span className="text-sm font-semibold" style={{ color: '#059669' }}>
-                                      {label} do pacote
-                                    </span>
+                                    <div>
+                                      <span className="text-base font-bold" style={{ color: '#4338ca' }}>x{n}</span>
+                                      <span className="ml-2 text-sm font-medium" style={{ color: '#374151' }}>{label}</span>
+                                      <p className="text-xs mt-0.5" style={{ color: '#9ca3af' }}>
+                                        valor calculado com base na mensalidade do cliente
+                                      </p>
+                                    </div>
                                   )
                                 }
                                 if (c.modelo === 'percentagem') {

@@ -19,7 +19,7 @@ interface ComissaoOp {
   percentagem: number
 }
 interface Comissao { energia_percent: number; telecom_percent: number; energia_fixo: number; telecom_fixo: number }
-interface Detalhe { venda_id: string; client_name: string; service_type: string; operator: string; amount: number; comissao: number; status: string }
+interface Detalhe { venda_id: string; client_name: string; service_type: string; operator: string; plano?: string; amount: number; comissao: number; status: string; num_mensalidades?: number }
 interface Calculo { energia: number; telecom: number; total: number; detalhes: Detalhe[] }
 
 const SERVICO_STYLE: Record<string, { bg: string; color: string; border: string }> = {
@@ -36,6 +36,9 @@ function ServicoIcon({ s }: { s: string }) {
   return <Shield size={14} style={{ color: '#059669' }} />
 }
 
+// Arredondamento seguro a 2 casas decimais
+function round2(n: number) { return Math.round(n * 100) / 100 }
+
 export default function SimuladorPage() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
@@ -44,11 +47,16 @@ export default function SimuladorPage() {
   const [calculo, setCalculo] = useState<Calculo | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // Simulador
-  const [simValor, setSimValor] = useState('')
-  const [simMensalidade, setSimMensalidade] = useState('')
+  // Simulador — campos gerais
   const [simTipo, setSimTipo] = useState<'energia' | 'telecom'>('telecom')
   const [simOperadora, setSimOperadora] = useState('')
+  const [simPlano, setSimPlano] = useState('')
+  const [simValor, setSimValor] = useState('')
+
+  // Simulador — campos telecom mensalidade
+  const [simMensalidade, setSimMensalidade] = useState('') // mensalidade do cliente em €
+  const [simNumMens, setSimNumMens] = useState('')         // nº mensalidades (override)
+  const [simContratos, setSimContratos] = useState('1')    // nº contratos
 
   useEffect(() => {
     async function load() {
@@ -70,33 +78,52 @@ export default function SimuladorPage() {
     </div>
   )
 
-  // Encontrar comissao especifica para operadora/tipo selecionado
-  const opRow = simOperadora
-    ? comissoesOp.find(o => o.operadora === simOperadora && o.servico === simTipo)
-    : null
+  // Encontrar a linha de comissao para operadora/plano/tipo selecionado
+  const opRow = comissoesOp.find(o =>
+    o.servico === simTipo &&
+    (!simOperadora || o.operadora === simOperadora) &&
+    (!simPlano || !o.plano || o.plano === simPlano)
+  ) ?? null
 
+  // Nº mensalidades: usa o campo editavel ou o valor da tabela
+  const numMensalidadesEfectivo = parseFloat(simNumMens) || (opRow?.num_mensalidades ?? 0)
+
+  // Calculo telecom com modelo mensalidade
+  const telecomMensalidadeResult = (() => {
+    if (simTipo !== 'telecom') return null
+    if (!opRow || opRow.modelo !== 'mensalidade') return null
+    const mensalidade = parseFloat(simMensalidade) || 0
+    const nMens = numMensalidadesEfectivo
+    const nContratos = Math.max(1, parseInt(simContratos) || 1)
+    if (mensalidade <= 0 || nMens <= 0) return null
+    const porContrato = round2(mensalidade * nMens)
+    const total = round2(porContrato * nContratos)
+    return { mensalidade, nMens, nContratos, porContrato, total }
+  })()
+
+  // Calculo geral (energia / telecom nao-mensalidade)
   const simResult = (() => {
+    if (telecomMensalidadeResult) return null // usa o calculo especifico acima
     const val = parseFloat(simValor) || 0
-    const mens = parseFloat(simMensalidade) || 0
     if (opRow) {
-      if (opRow.modelo === 'mensalidade') {
-        // mensalidades × valor_mensal
-        const m = mens > 0 ? mens : (opRow.num_mensalidades || 0)
-        return m * (opRow.valor_mensal || 0)
-      }
-      if (opRow.modelo === 'percentagem') return val * (opRow.percentagem || 0) / 100
-      return opRow.valor_comissao || 0
+      if (opRow.modelo === 'percentagem') return round2(val * (opRow.percentagem || 0) / 100)
+      return round2(opRow.valor_comissao || 0)
     }
     if (!comissao || !val) return 0
-    if (simTipo === 'energia') return (val * comissao.energia_percent / 100) + comissao.energia_fixo
-    return (val * comissao.telecom_percent / 100) + comissao.telecom_fixo
+    if (simTipo === 'energia') return round2((val * comissao.energia_percent / 100) + comissao.energia_fixo)
+    return round2((val * comissao.telecom_percent / 100) + comissao.telecom_fixo)
   })()
 
   const pagasTotal = calculo?.detalhes.filter(d => d.status === 'pago').reduce((s, d) => s + d.comissao, 0) || 0
   const pendentesTotal = (calculo?.total || 0) - pagasTotal
 
-  // Operadoras disponiveis para o tipo selecionado no simulador
+  // Operadoras e planos disponiveis
   const opsDisponiveis = [...new Set(comissoesOp.filter(o => o.servico === simTipo).map(o => o.operadora))]
+  const planosDisponiveis = simOperadora
+    ? [...new Set(comissoesOp.filter(o => o.servico === simTipo && o.operadora === simOperadora && o.plano).map(o => o.plano))]
+    : []
+
+  const isTelecomMensalidade = simTipo === 'telecom' && (!opRow || opRow.modelo === 'mensalidade')
 
   // Agrupar comissoes por servico
   const grouped: Record<string, ComissaoOp[]> = {}
@@ -138,59 +165,166 @@ export default function SimuladorPage() {
                     </h2>
                   </div>
                   <div className="p-5">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                      <div>
-                        <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Tipo de servico</label>
-                        <div className="flex gap-2">
-                          {(['telecom', 'energia'] as const).map(t => (
-                            <button key={t} type="button"
-                              onClick={() => { setSimTipo(t); setSimOperadora('') }}
-                              className="flex-1 rounded-lg py-2.5 text-sm font-semibold border transition"
-                              style={{
-                                background: simTipo === t ? '#4f46e5' : '#f9fafb',
-                                color: simTipo === t ? '#fff' : '#374151',
-                                border: simTipo === t ? '1px solid #4f46e5' : '1px solid #e5e7eb',
-                              }}>
-                              {t === 'telecom' ? 'Telecom' : 'Energia'}
-                            </button>
-                          ))}
+                    {/* Seletor tipo */}
+                    <div className="flex gap-2 mb-5">
+                      {(['telecom', 'energia'] as const).map(t => (
+                        <button key={t} type="button"
+                          onClick={() => { setSimTipo(t); setSimOperadora(''); setSimPlano('') }}
+                          className="rounded-lg px-5 py-2.5 text-sm font-semibold border transition"
+                          style={{
+                            background: simTipo === t ? '#4f46e5' : '#f9fafb',
+                            color: simTipo === t ? '#fff' : '#374151',
+                            border: simTipo === t ? '1px solid #4f46e5' : '1px solid #e5e7eb',
+                          }}>
+                          {t === 'telecom' ? 'Telecomunicacoes' : 'Energia'}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* TELECOM: modelo mensalidade (principal) */}
+                    {isTelecomMensalidade ? (
+                      <div className="space-y-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                          {/* Operadora */}
+                          {opsDisponiveis.length > 0 && (
+                            <div>
+                              <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Operadora</label>
+                              <select value={simOperadora} onChange={e => { setSimOperadora(e.target.value); setSimPlano('') }}
+                                className="w-full rounded-lg px-3 py-2.5 text-sm" style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}>
+                                <option value="">-- Selecionar --</option>
+                                {opsDisponiveis.map(o => <option key={o} value={o}>{o}</option>)}
+                              </select>
+                            </div>
+                          )}
+                          {/* Plano */}
+                          {planosDisponiveis.length > 0 && (
+                            <div>
+                              <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Plano</label>
+                              <select value={simPlano} onChange={e => setSimPlano(e.target.value)}
+                                className="w-full rounded-lg px-3 py-2.5 text-sm" style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}>
+                                <option value="">-- Todos --</option>
+                                {planosDisponiveis.map(p => <option key={p} value={p}>{p}</option>)}
+                              </select>
+                            </div>
+                          )}
+                          {/* Mensalidade do cliente */}
+                          <div>
+                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                              Mensalidade do cliente (€)
+                            </label>
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium" style={{ color: '#6b7280' }}>€</span>
+                              <input type="number" step="0.01" min="0" value={simMensalidade}
+                                onChange={e => setSimMensalidade(e.target.value)}
+                                className="w-full rounded-lg pl-7 pr-3 py-2.5 text-sm"
+                                style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}
+                                placeholder="Ex: 70.00" />
+                            </div>
+                          </div>
+                          {/* Nº contratos */}
+                          <div>
+                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                              Nº de contratos
+                            </label>
+                            <input type="number" step="1" min="1" value={simContratos}
+                              onChange={e => setSimContratos(e.target.value)}
+                              className="w-full rounded-lg px-3 py-2.5 text-sm"
+                              style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}
+                              placeholder="1" />
+                          </div>
                         </div>
+
+                        {/* Nº mensalidades — mostrar chips com o valor da tabela editavel */}
+                        {opRow && opRow.num_mensalidades > 0 && (
+                          <div>
+                            <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                              Nº mensalidades por contrato
+                              <span className="ml-2 text-xs font-normal" style={{ color: '#9ca3af' }}>
+                                (definido pelo admin: x{opRow.num_mensalidades})
+                              </span>
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                              {[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6].map(n => {
+                                const val = String(n)
+                                const isDefault = !simNumMens && n === opRow.num_mensalidades
+                                const isSelected = simNumMens === val
+                                return (
+                                  <button key={n} type="button"
+                                    onClick={() => setSimNumMens(simNumMens === val ? '' : val)}
+                                    className="rounded-lg px-3 py-1.5 text-xs font-bold border transition"
+                                    style={{
+                                      background: isSelected || isDefault ? '#4338ca' : '#fff',
+                                      color: isSelected || isDefault ? '#fff' : '#374151',
+                                      border: isSelected || isDefault ? '1px solid #4338ca' : '1px solid #d1d5db',
+                                    }}>
+                                    x{n}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Resultado telecom mensalidade */}
+                        {telecomMensalidadeResult ? (
+                          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #6ee7b7' }}>
+                            <div className="px-5 py-3" style={{ background: '#ecfdf5', borderBottom: '1px solid #a7f3d0' }}>
+                              <p className="text-sm font-semibold" style={{ color: '#065f46' }}>Resultado do calculo</p>
+                            </div>
+                            <div className="px-5 py-4 grid grid-cols-1 sm:grid-cols-3 gap-4" style={{ background: '#f0fdf4' }}>
+                              <div className="text-center">
+                                <p className="text-xs font-medium mb-1" style={{ color: '#6b7280' }}>Por contrato</p>
+                                <p className="text-2xl font-bold" style={{ color: '#059669' }}>
+                                  €{telecomMensalidadeResult.porContrato.toFixed(2)}
+                                </p>
+                                <p className="text-xs mt-1" style={{ color: '#6b7280' }}>
+                                  €{telecomMensalidadeResult.mensalidade.toFixed(2)} × x{telecomMensalidadeResult.nMens}
+                                </p>
+                              </div>
+                              <div className="text-center flex flex-col items-center justify-center">
+                                <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style={{ background: '#d1fae5', color: '#059669' }}>
+                                  ×{telecomMensalidadeResult.nContratos}
+                                </div>
+                                <p className="text-xs mt-1" style={{ color: '#9ca3af' }}>contratos</p>
+                              </div>
+                              <div className="text-center rounded-xl py-3 px-4" style={{ background: '#d1fae5', border: '2px solid #34d399' }}>
+                                <p className="text-xs font-semibold mb-1" style={{ color: '#065f46' }}>TOTAL</p>
+                                <p className="text-3xl font-bold" style={{ color: '#059669' }}>
+                                  €{telecomMensalidadeResult.total.toFixed(2)}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="px-5 py-3" style={{ background: '#ecfdf5', borderTop: '1px solid #a7f3d0' }}>
+                              <p className="text-xs" style={{ color: '#065f46' }}>
+                                Por cada contrato recebes <strong>x{telecomMensalidadeResult.nMens} mensalidades</strong> de <strong>€{telecomMensalidadeResult.mensalidade.toFixed(2)}</strong> = <strong>€{telecomMensalidadeResult.porContrato.toFixed(2)}</strong>
+                                {telecomMensalidadeResult.nContratos > 1 && (
+                                  <> &nbsp;|&nbsp; Total para <strong>{telecomMensalidadeResult.nContratos} contratos</strong>: <strong>€{telecomMensalidadeResult.total.toFixed(2)}</strong></>
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="rounded-xl p-6 text-center" style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                            <p className="text-sm" style={{ color: '#9ca3af' }}>
+                              {!parseFloat(simMensalidade) ? 'Insira a mensalidade do cliente para calcular' : 'Nenhuma comissao configurada para esta operadora/plano'}
+                            </p>
+                          </div>
+                        )}
                       </div>
 
-                      {opsDisponiveis.length > 0 && (
-                        <div>
-                          <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Operadora</label>
-                          <select value={simOperadora} onChange={e => setSimOperadora(e.target.value)}
-                            className="w-full rounded-lg px-3 py-2.5 text-sm" style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}>
-                            <option value="">-- Todas / Geral --</option>
-                            {opsDisponiveis.map(o => <option key={o} value={o}>{o}</option>)}
-                          </select>
-                        </div>
-                      )}
-
-                      {/* Se modelo mensalidade: mostrar campos mensalidade */}
-                      {opRow?.modelo === 'mensalidade' ? (
-                        <>
+                    ) : (
+                      /* Energia / Telecom nao-mensalidade */
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                        {opsDisponiveis.length > 0 && (
                           <div>
-                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Mensalidade (€/mes)</label>
-                            <input type="number" step="0.01" min="0"
-                              value={simMensalidade || opRow.valor_mensal}
-                              onChange={e => setSimMensalidade(e.target.value)}
-                              className="w-full rounded-lg px-3 py-2.5 text-sm"
-                              style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}
-                              placeholder={opRow.valor_mensal.toFixed(2)} />
+                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Operadora</label>
+                            <select value={simOperadora} onChange={e => setSimOperadora(e.target.value)}
+                              className="w-full rounded-lg px-3 py-2.5 text-sm" style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}>
+                              <option value="">-- Todas / Geral --</option>
+                              {opsDisponiveis.map(o => <option key={o} value={o}>{o}</option>)}
+                            </select>
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Num. mensalidades</label>
-                            <input type="number" step="0.5" min="0.5"
-                              value={simMensalidade ? '' : ''}
-                              onChange={e => setSimMensalidade(e.target.value)}
-                              className="w-full rounded-lg px-3 py-2.5 text-sm"
-                              style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}
-                              placeholder={String(opRow.num_mensalidades)} />
-                          </div>
-                        </>
-                      ) : (
+                        )}
                         <div>
                           <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Valor da venda (€)</label>
                           <input type="number" step="0.01" min="0" value={simValor}
@@ -198,25 +332,20 @@ export default function SimuladorPage() {
                             className="w-full rounded-lg px-3 py-2.5 text-sm"
                             style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }} />
                         </div>
-                      )}
-
-                      <div className="rounded-xl p-4 text-center" style={{ background: '#d1fae5', border: '1px solid #6ee7b7' }}>
-                        <p className="text-xs font-medium mb-1" style={{ color: '#065f46' }}>Comissao estimada</p>
-                        <p className="text-3xl font-bold" style={{ color: '#059669' }}>€{simResult.toFixed(2)}</p>
-                        {opRow && (
-                          <p className="text-xs mt-1" style={{ color: '#065f46' }}>
-                            {opRow.modelo === 'mensalidade'
-                              ? `${opRow.num_mensalidades} × €${opRow.valor_mensal}/mes`
-                              : opRow.modelo === 'percentagem'
-                              ? `${opRow.percentagem}% do valor`
-                              : `Fixo: €${opRow.valor_comissao}`}
-                          </p>
-                        )}
+                        <div className="rounded-xl p-4 text-center" style={{ background: '#d1fae5', border: '1px solid #6ee7b7' }}>
+                          <p className="text-xs font-medium mb-1" style={{ color: '#065f46' }}>Comissao estimada</p>
+                          <p className="text-3xl font-bold" style={{ color: '#059669' }}>€{(simResult ?? 0).toFixed(2)}</p>
+                          {opRow && (
+                            <p className="text-xs mt-1" style={{ color: '#065f46' }}>
+                              {opRow.modelo === 'percentagem' ? `${opRow.percentagem}% do valor` : `Fixo: €${opRow.valor_comissao}`}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
-                    {/* Quick sims valores */}
-                    {(!opRow || opRow.modelo !== 'mensalidade') && (
+                    {/* Quick sims valores (energia) */}
+                    {!isTelecomMensalidade && (
                       <div className="mt-4 flex flex-wrap gap-2 items-center">
                         <span className="text-xs" style={{ color: '#6b7280' }}>Valores rapidos:</span>
                         {[500, 1000, 2500, 5000, 10000].map(val => (
@@ -267,7 +396,7 @@ export default function SimuladorPage() {
                                   {items.map((c, i) => (
                                     <tr key={i} style={{ borderBottom: '1px solid #f9fafb' }}>
                                       <td className="py-2.5 font-semibold" style={{ color: '#111827' }}>{c.operadora}</td>
-                                      <td className="py-2.5" style={{ color: '#6b7280' }}>{c.plano || '—'}</td>
+                                      <td className="py-2.5" style={{ color: '#6b7280' }}>{c.plano || '���'}</td>
                                       <td className="py-2.5">
                                         <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: '#f3f4f6', color: '#374151' }}>
                                           {c.modelo === 'mensalidade' ? 'Mensalidade' : c.modelo === 'percentagem' ? 'Percentagem' : 'Fixo'}
@@ -326,7 +455,7 @@ export default function SimuladorPage() {
                       <table className="w-full">
                         <thead>
                           <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                            {['Cliente', 'Tipo', 'Operadora', 'Valor Venda', 'Comissao', 'Estado'].map(h => (
+                            {['Cliente', 'Tipo', 'Operadora', 'Plano', 'Mensalidade', 'x Mens.', 'Comissao', 'Estado'].map(h => (
                               <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>{h}</th>
                             ))}
                           </tr>
@@ -342,7 +471,17 @@ export default function SimuladorPage() {
                                 </span>
                               </td>
                               <td className="px-4 py-3 text-sm" style={{ color: '#374151' }}>{d.operator}</td>
-                              <td className="px-4 py-3 text-sm" style={{ color: '#374151' }}>€{(d.amount || 0).toFixed(2)}</td>
+                              <td className="px-4 py-3 text-sm" style={{ color: '#374151' }}>
+                                {d.plano ? (
+                                  <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: '#eef2ff', color: '#4338ca' }}>{d.plano}</span>
+                                ) : '—'}
+                              </td>
+                              <td className="px-4 py-3 text-sm" style={{ color: '#374151' }}>
+                                {d.amount > 0 ? `€${d.amount.toFixed(2)}` : '—'}
+                              </td>
+                              <td className="px-4 py-3 text-sm" style={{ color: '#374151' }}>
+                                {d.num_mensalidades ? `x${d.num_mensalidades}` : '—'}
+                              </td>
                               <td className="px-4 py-3 font-bold text-sm" style={{ color: '#059669' }}>€{(d.comissao || 0).toFixed(2)}</td>
                               <td className="px-4 py-3">
                                 <span className="px-2 py-1 rounded-full text-xs font-medium"

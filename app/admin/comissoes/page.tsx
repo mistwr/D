@@ -82,7 +82,8 @@ export default function AdminComissoesPage() {
     const modelo: Modelo = form.servico === 'telecom' ? form.modelo : 'fixo'
     const isMensalidade = modelo === 'mensalidade'
     const isPercentagem = modelo === 'percentagem'
-    if (isMensalidade && (!form.valor_mensal || !form.num_mensalidades)) { flash('Preencha o valor mensal e o numero de mensalidades por contrato', 'err'); return }
+    // Para telecom mensalidade: apenas nº mensalidades (o valor € vem da mensalidade do cliente na venda)
+    if (isMensalidade && !form.num_mensalidades) { flash('Preencha o numero de mensalidades por contrato', 'err'); return }
     if (isPercentagem && !form.percentagem) { flash('Preencha a percentagem', 'err'); return }
     if (!isMensalidade && !isPercentagem && !form.valor_comissao) { flash('Valor de comissao obrigatorio', 'err'); return }
     setSaving(true)
@@ -97,7 +98,7 @@ export default function AdminComissoesPage() {
         modelo,
         valor_comissao: (!isMensalidade && !isPercentagem) ? (parseFloat(form.valor_comissao) || 0) : 0,
         num_mensalidades: isMensalidade ? (parseFloat(form.num_mensalidades) || 0) : 0,
-        valor_mensal: isMensalidade ? (parseFloat(form.valor_mensal) || 0) : 0,
+        valor_mensal: 0, // nao usado — o valor vem da mensalidade do cliente na venda
         percentagem: isPercentagem ? (parseFloat(form.percentagem) || 0) : 0,
       }),
     })
@@ -299,7 +300,7 @@ export default function AdminComissoesPage() {
                               </>}
                               <td className="px-5 py-4 font-semibold text-sm" style={{ color: '#059669' }}>
                                 {c.modelo === 'mensalidade' && c.num_mensalidades > 0
-                                  ? <span>{'\u20AC'}{(c.valor_mensal ?? 0).toFixed(2)}<span className="font-normal text-xs ml-1" style={{ color: '#6b7280' }}>x {c.num_mensalidades} mensalidades/contrato</span></span>
+                                  ? <span className="font-bold">x{c.num_mensalidades}<span className="font-normal text-xs ml-1.5" style={{ color: '#6b7280' }}>mensalidades / contrato</span></span>
                                   : c.modelo === 'percentagem'
                                   ? <span>{(c.percentagem ?? 0).toFixed(2)}%</span>
                                   : <span>{'\u20AC'}{(c.valor_comissao ?? 0).toFixed(2)}</span>
@@ -409,43 +410,32 @@ export default function AdminComissoesPage() {
               {/* Campos condicionais por modelo */}
               {form.servico === 'telecom' && form.modelo === 'mensalidade' ? (
                 <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Valor por mensalidade (EUR)</label>
-                      <input type="number" step="0.01" min="0" value={form.valor_mensal}
-                        onChange={e => setForm(f => ({ ...f, valor_mensal: e.target.value }))}
-                        className="w-full rounded-lg px-3 py-2.5 text-sm" style={inputStyle}
-                        placeholder="Ex: 8.00" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Mensalidades por contrato</label>
-                      <div className="grid grid-cols-6 gap-1.5">
-                        {[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6].map(n => {
-                          const val = String(n)
-                          const selected = form.num_mensalidades === val
-                          return (
-                            <button key={n} type="button"
-                              onClick={() => setForm(f => ({ ...f, num_mensalidades: val }))}
-                              className="rounded-lg py-2 text-xs font-bold border transition"
-                              style={{
-                                background: selected ? '#4338ca' : '#fff',
-                                color: selected ? '#fff' : '#374151',
-                                border: selected ? '1px solid #4338ca' : '1px solid #d1d5db',
-                              }}>
-                              x{n}
-                            </button>
-                          )
-                        })}
-                      </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>Mensalidades por contrato</label>
+                    <div className="grid grid-cols-6 gap-1.5">
+                      {[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6].map(n => {
+                        const val = String(n)
+                        const selected = form.num_mensalidades === val
+                        return (
+                          <button key={n} type="button"
+                            onClick={() => setForm(f => ({ ...f, num_mensalidades: val }))}
+                            className="rounded-lg py-2 text-xs font-bold border transition"
+                            style={{
+                              background: selected ? '#4338ca' : '#fff',
+                              color: selected ? '#fff' : '#374151',
+                              border: selected ? '1px solid #4338ca' : '1px solid #d1d5db',
+                            }}>
+                            x{n}
+                          </button>
+                        )
+                      })}
                     </div>
                   </div>
-                  <div className="rounded-lg p-3 text-xs" style={{ background: '#fef3c7', color: '#92400e' }}>
+                  <div className="rounded-lg p-3 text-xs" style={{ background: '#eef2ff', color: '#4338ca', border: '1px solid #c7d2fe' }}>
                     {(() => {
                       const mens = parseFloat(form.num_mensalidades) || 0
-                      const mensal = parseFloat(form.valor_mensal) || 0
-                      const total = (mens * mensal).toFixed(2)
                       const label = mens === 1 ? '1 mensalidade' : `${mens} mensalidades`
-                      return <>Por cada contrato fechado o parceiro recebe <strong>{label}</strong> de <strong>€{mensal.toFixed(2)}</strong> = <strong>€{total}</strong> por contrato</>
+                      return <>Por cada contrato fechado o parceiro recebe <strong>{label}</strong> da mensalidade do cliente. O valor € e calculado automaticamente na venda.</>
                     })()}
                   </div>
                 </div>
