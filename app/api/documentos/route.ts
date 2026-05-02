@@ -91,7 +91,7 @@ export async function GET(req: NextRequest) {
   if (tipo === 'contrato') {
     query = query.eq('uploaded_by', user.id).is('venda_id', null)
   } else if (vendaId) {
-    const { data: venda } = await supabase.from('vendas').select('user_id').eq('id', vendaId).single()
+    const { data: venda } = await svc.from('vendas').select('user_id').eq('id', vendaId).single()
     if (!venda) return NextResponse.json({ error: 'Venda não encontrada' }, { status: 404 })
     if (!isAdmin && venda.user_id !== user.id) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
     query = query.eq('venda_id', vendaId)
