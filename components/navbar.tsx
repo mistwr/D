@@ -44,7 +44,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
             </Link>
             <span className="hidden sm:block text-sm font-medium" style={{ color: '#374151' }}>{user.full_name}</span>
             <span className="hidden sm:block rounded-full px-2 py-0.5 text-xs font-medium" style={{ background: user.role === 'admin' ? '#ede9fe' : '#dcfce7', color: user.role === 'admin' ? '#6d28d9' : '#166534' }}>
-              {user.role}
+              {user.role === 'admin' ? 'Admin' : 'Parceiro'}
             </span>
             <button onClick={handleLogout} className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm" style={{ color: '#ef4444' }}>
               <LogOut size={16} /> <span className="hidden sm:inline">Sair</span>

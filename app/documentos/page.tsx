@@ -26,7 +26,7 @@ interface Venda { id: string; client_name: string; status: string; contract_type
 interface Doc { id: string; venda_id: string; file_name: string; file_type: string; file_size: number; uploaded_by: string; created_at: string }
 
 export default function DocumentosPage() {
-  const { user, loading: authLoading } = useAuth('parceiro')
+  const { user, loading: authLoading, authFetch } = useAuth('parceiro')
   const [vendas, setVendas] = useState<Venda[]>([])
   const [docs, setDocs] = useState<Doc[]>([])
   const [loading, setLoading] = useState(true)
@@ -37,8 +37,8 @@ export default function DocumentosPage() {
   useEffect(() => {
     if (!user) return
     Promise.all([
-      fetch('/api/vendas', { credentials: 'include' }).then(r => r.json()),
-      fetch('/api/documentos', { credentials: 'include' }).then(r => r.json()),
+      authFetch('/api/vendas').then(r => r.json()),
+      authFetch('/api/documentos').then(r => r.json()),
     ]).then(([vData, dData]) => {
       setVendas(vData.vendas || [])
       setDocs(dData.documentos || [])
@@ -55,8 +55,8 @@ export default function DocumentosPage() {
       setUploading(true)
       for (const file of Array.from(input.files)) {
         const base64 = await toBase64(file)
-        const res = await fetch('/api/documentos', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+        const res = await authFetch('/api/documentos', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ venda_id: vendaId, file_name: file.name, file_type: file.type, file_size: file.size, file_data: base64 }),
         })
         if (res.ok) {
@@ -72,7 +72,7 @@ export default function DocumentosPage() {
   }
 
   async function handleDownload(docId: string) {
-    const res = await fetch(`/api/documentos?download=${docId}`, { credentials: 'include' })
+    const res = await authFetch(`/api/documentos?download=${docId}`)
     const data = await res.json()
     if (!data.documento?.file_data) { alert('Ficheiro nao disponivel'); return }
     const link = document.createElement('a')

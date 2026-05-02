@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import { Percent, Zap, Flame, Shield, Wifi } from 'lucide-react'
@@ -37,26 +37,19 @@ const SERVICO_STYLE: Record<string, { bg: string; color: string; border: string 
 }
 
 export default function ComissoesPage() {
-  const router = useRouter()
-  const [user, setUser]     = useState<any>(null)
+  const { user, loading: authLoading, authFetch } = useAuth('parceiro')
   const [comissoes, setComissoes] = useState<ComissaoOp[]>([])
-  const [loading, setLoading]     = useState(true)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function load() {
-      const me = await fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()).catch(() => null)
-      if (!me?.user) { router.push('/login'); return }
-      if (me.user.role === 'admin') { router.push('/admin/parceiros'); return }
-      setUser(me.user)
+    if (!user) return
+    authFetch('/api/comissoes/operadora')
+      .then(r => r.json())
+      .then(d => setComissoes(d.comissoes || []))
+      .finally(() => setLoading(false))
+  }, [user, authFetch])
 
-      const res = await fetch('/api/comissoes/operadora', { credentials: 'include' }).then(r => r.json())
-      setComissoes(res.comissoes || [])
-      setLoading(false)
-    }
-    load()
-  }, [router])
-
-  if (loading) return (
+  if (authLoading || loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
     </div>
@@ -148,14 +141,23 @@ export default function ComissoesPage() {
                             {items.map((c, i) => {
                               const comissaoLabel = (() => {
                                 if (c.modelo === 'mensalidade') {
-                                  const total = (c.num_mensalidades || 0) * (c.valor_mensal || 0)
+                                  const n = c.num_mensalidades || 0
+                                  const label = labelMensalidades(n)
+                                  if ((c.valor_mensal || 0) > 0) {
+                                    const total = n * (c.valor_mensal || 0)
+                                    return (
+                                      <div>
+                                        <span className="text-base font-bold" style={{ color: '#059669' }}>€{total.toFixed(2)}</span>
+                                        <span className="ml-2 text-xs" style={{ color: '#6b7280' }}>
+                                          ({label} × €{(c.valor_mensal || 0).toFixed(2)}/mes)
+                                        </span>
+                                      </div>
+                                    )
+                                  }
                                   return (
-                                    <div>
-                                      <span className="text-base font-bold" style={{ color: '#059669' }}>€{total.toFixed(2)}</span>
-                                      <span className="ml-2 text-xs" style={{ color: '#6b7280' }}>
-                                        ({c.num_mensalidades}x €{(c.valor_mensal || 0).toFixed(2)}/mes)
-                                      </span>
-                                    </div>
+                                    <span className="text-sm font-semibold" style={{ color: '#059669' }}>
+                                      {label} do pacote
+                                    </span>
                                   )
                                 }
                                 if (c.modelo === 'percentagem') {

@@ -11,32 +11,26 @@ function svc() {
 }
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const service = svc()
+  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
 
-  const service = svc()
-
-  // Buscar contratos
   let contratosQuery = service.from('contratos').select('*').order('created_at', { ascending: false })
   if (!isAdmin) contratosQuery = contratosQuery.eq('user_id', user.id)
   const { data: contratos } = await contratosQuery
 
   if (!contratos || contratos.length === 0) return NextResponse.json({ contratos: [] })
 
-  // Enriquecer com dados do parceiro
   const userIds = [...new Set(contratos.map((c: any) => c.user_id).filter(Boolean))]
   const { data: profiles } = await service.from('profiles').select('id, full_name, email, company, phone').in('id', userIds)
   const profilesMap = new Map((profiles ?? []).map((p: any) => [p.id, p]))
 
-  // Buscar documentos associados a cada contrato
   const contratoIds = contratos.map((c: any) => c.id)
   const { data: docs } = await service.from('documentos').select('*').in('venda_id', contratoIds)
 
-  // Gerar signed URLs para documentos
   const docsWithUrls = await Promise.all((docs ?? []).map(async (doc: any) => {
     if (!doc.file_path) return { ...doc, signed_url: null }
     const { data: signed } = await service.storage.from('documentos').createSignedUrl(doc.file_path, 3600)
@@ -59,13 +53,13 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ contratos: enriched })
 }
 
-export async function POST(req: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function POST(req: NextRequest) {
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
+  const service = svc()
   const body = await req.json()
-  const { data: contrato, error } = await supabase.from('contratos').insert({
+  const { data: contrato, error } = await service.from('contratos').insert({
     user_id: user.id,
     client_name: body.client_name,
     client_phone: body.client_phone ?? '',
@@ -84,38 +78,37 @@ export async function POST(req: Request) {
   return NextResponse.json({ contrato })
 }
 
-export async function DELETE(req: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function DELETE(req: NextRequest) {
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const service = svc()
+  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
 
   const { id } = await req.json()
   if (!id) return NextResponse.json({ error: 'id obrigatório' }, { status: 400 })
 
-  const service = svc()
   const { error } = await service.from('contratos').delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   return NextResponse.json({ ok: true })
 }
 
-export async function PATCH(req: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function PATCH(req: NextRequest) {
+  const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const service = svc()
+  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
 
   const { id, updates } = await req.json()
-  const { data: existing } = await supabase.from('contratos').select('user_id').eq('id', id).single()
+  const { data: existing } = await service.from('contratos').select('user_id').eq('id', id).single()
   if (!existing) return NextResponse.json({ error: 'Contrato não encontrado' }, { status: 404 })
   if (!isAdmin && existing.user_id !== user.id) return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
 
-  const { data: contrato } = await supabase
+  const { data: contrato } = await service
     .from('contratos')
     .update({ ...updates, updated_at: new Date().toISOString() })
     .eq('id', id)
