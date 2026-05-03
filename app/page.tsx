@@ -37,7 +37,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-8 px-6" style={{ background: '#f9fafb' }}>
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-3" style={{ color: '#111827' }}>Solucoes Diferentes</h1>
+        <h1 className="text-4xl font-bold mb-3" style={{ color: '#111827' }}>Soluções Diferentes</h1>
         <p className="text-lg" style={{ color: '#6b7280' }}>CRM Inteligente para Gestão de Vendas</p>
       </div>
       <div className="flex gap-4">

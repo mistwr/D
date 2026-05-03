@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { ArrowLeft, Shield, Cookie, FileText, Mail, Eye, Trash2, Lock, UserCheck } from 'lucide-react'
 
-const EMPRESA = 'Solucoes Diferentes'
+const EMPRESA = 'Soluções Diferentes'
 const EMAIL_DPO = 'privacidade@solucoesdiferentes.pt'
 const MORADA = 'Portugal'
 const DATA_ACTUALIZACAO = '2 de maio de 2025'
