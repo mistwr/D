@@ -9,7 +9,7 @@ export default function SobrePage() {
       {/* Navbar */}
       <nav className="border-b" style={{ borderColor: '#e5e7eb' }}>
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold" style={{ color: '#4338ca' }}>Solucoes Diferentes</h1>
+          <h1 className="text-2xl font-bold" style={{ color: '#4338ca' }}>Soluções Diferentes</h1>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-sm font-medium px-4 py-2 rounded-lg" style={{ color: '#4338ca', background: '#f3f4f6' }}>
               Entrar
@@ -139,7 +139,7 @@ export default function SobrePage() {
       <section className="max-w-4xl mx-auto px-6 py-20 border-t" style={{ borderColor: '#e5e7eb' }}>
         <div className="rounded-lg p-12 text-center" style={{ background: '#ede9fe' }}>
           <h3 className="text-3xl font-bold mb-4" style={{ color: '#4338ca' }}>Pronto para Aumentar as suas Vendas?</h3>
-          <p className="text-lg mb-8" style={{ color: '#6366f1' }}>Junte-se a parceiros que ja estao a usar o Solucoes Diferentes para gerenciar e crescer.</p>
+          <p className="text-lg mb-8" style={{ color: '#6366f1' }}>Junte-se a parceiros que já estão a usar o Soluções Diferentes para gerir e crescer.</p>
           <Link href="/register" className="inline-block px-8 py-4 rounded-lg font-semibold" style={{ background: '#4338ca', color: 'white' }}>
             Começar Agora - É Grátis
           </Link>
@@ -149,7 +149,7 @@ export default function SobrePage() {
       {/* Footer */}
       <footer className="border-t" style={{ borderColor: '#e5e7eb', background: '#f9fafb' }}>
         <div className="max-w-6xl mx-auto px-6 py-8 text-center">
-          <p style={{ color: '#6b7280' }}>&copy; 2025 Solucoes Diferentes. Todos os direitos reservados.</p>
+          <p style={{ color: '#6b7280' }}>&copy; 2025 Soluções Diferentes. Todos os direitos reservados.</p>
         </div>
       </footer>
     </div>
