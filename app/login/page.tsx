@@ -93,8 +93,9 @@ export default function LoginPage() {
           {/* Logo topo esquerdo */}
           <div className="flex items-center gap-3">
             <div className="h-12 w-12 rounded-xl overflow-hidden flex-shrink-0 shadow-lg" style={{ border: '2px solid rgba(255,255,255,0.2)' }}>
-                <Image src="/logo-solucoes.jpg" alt="Soluções Diferentes" width={48} height={48} className="object-cover h-full w-full" />
-              </div>
+              <Image src="/logo-solucoes.jpg" alt="Soluções Diferentes" width={48} height={48} className="object-cover h-full w-full" />
+            </div>
+            <div>
               <p className="text-white font-bold text-base leading-tight">Soluções Diferentes</p>
               <p className="text-xs" style={{ color: 'rgba(255,255,255,0.65)' }}>Telecomunicações & Energia</p>
             </div>
