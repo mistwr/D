@@ -1,87 +1,74 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
+import { getAuthUser } from '@/lib/supabase/get-auth-user'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 
-function svc() {
-  return createClient(
+function service() {
+  return createServiceClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { autoRefreshToken: false, persistSession: false } }
   )
 }
 
-async function getUser(req: NextRequest) {
-  const cookieStore = await cookies()
-  const token = cookieStore.get('sb-access-token')?.value
-  if (!token) return null
-  const { data } = await svc().auth.getUser(token)
-  return data.user
-}
-
 function getFileType(name: string): string {
   const ext = name.split('.').pop()?.toLowerCase() ?? ''
-  if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext)) return 'image'
   if (ext === 'pdf') return 'pdf'
-  if (['doc', 'docx'].includes(ext)) return 'word'
-  if (['xls', 'xlsx', 'csv'].includes(ext)) return 'excel'
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return 'image'
+  if (['doc', 'docx'].includes(ext)) return 'doc'
+  if (['xls', 'xlsx', 'csv'].includes(ext)) return 'spreadsheet'
   return 'other'
 }
 
 // GET - listar ficheiros de uma categoria
 export async function GET(req: NextRequest) {
-  const user = await getUser(req)
-  if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+  const { user } = await getAuthUser(req)
+  if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
   const categoriaId = req.nextUrl.searchParams.get('categoria_id')
-  if (!categoriaId) return NextResponse.json({ error: 'categoria_id obrigatório' }, { status: 400 })
+  if (!categoriaId) return NextResponse.json({ ficheiros: [] })
 
-  const { data, error } = await svc()
+  const svc = service()
+  const { data: ficheiros } = await svc
     .from('materiais_ficheiros')
     .select('*')
     .eq('categoria_id', categoriaId)
     .order('created_at', { ascending: false })
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-  // Gerar signed URLs
-  const ficheiros = await Promise.all((data || []).map(async f => {
-    let signed_url: string | null = null
-    if (f.file_path) {
-      const { data: urlData } = await svc().storage.from('materiais').createSignedUrl(f.file_path, 3600)
-      signed_url = urlData?.signedUrl ?? null
-    }
-    return { ...f, signed_url }
+  // Gerar URLs assinadas
+  const withUrls = await Promise.all((ficheiros ?? []).map(async (f: any) => {
+    const { data: signed } = await svc.storage.from('materiais').createSignedUrl(f.file_path, 3600)
+    return { ...f, signed_url: signed?.signedUrl ?? null }
   }))
 
-  return NextResponse.json({ ficheiros })
+  return NextResponse.json({ ficheiros: withUrls })
 }
 
-// POST - upload ficheiro (admin)
+// POST - upload de ficheiro (admin)
 export async function POST(req: NextRequest) {
-  const user = await getUser(req)
-  if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+  const { user } = await getAuthUser(req)
+  if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
+  const svc = service()
 
-  const { data: profile } = await svc().from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
+  const { data: profile } = await svc.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const formData = await req.formData()
   const categoriaId = formData.get('categoria_id') as string
-  const file = formData.get('file') as File
+  const file = formData.get('file') as File | null
 
-  if (!categoriaId || !file) return NextResponse.json({ error: 'Dados em falta' }, { status: 400 })
+  if (!categoriaId || !file) return NextResponse.json({ error: 'categoria_id e ficheiro sao obrigatorios' }, { status: 400 })
 
-  const buffer = Buffer.from(await file.arrayBuffer())
-  const fileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
-  const filePath = `${categoriaId}/${Date.now()}_${fileName}`
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+  const filePath = `${categoriaId}/${Date.now()}-${safeName}`
 
-  const { error: uploadError } = await svc().storage.from('materiais').upload(filePath, buffer, {
+  const bytes = await file.arrayBuffer()
+  const { error: uploadError } = await svc.storage.from('materiais').upload(filePath, bytes, {
     contentType: file.type,
     upsert: false,
   })
-
   if (uploadError) return NextResponse.json({ error: uploadError.message }, { status: 500 })
 
-  const { data, error } = await svc().from('materiais_ficheiros').insert({
+  const { data: row, error: dbErr } = await svc.from('materiais_ficheiros').insert({
     categoria_id: categoriaId,
     file_name: file.name,
     file_path: filePath,
@@ -89,31 +76,29 @@ export async function POST(req: NextRequest) {
     file_size: file.size,
   }).select().single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (dbErr) {
+    await svc.storage.from('materiais').remove([filePath])
+    return NextResponse.json({ error: dbErr.message }, { status: 500 })
+  }
 
-  // Gerar signed URL
-  const { data: urlData } = await svc().storage.from('materiais').createSignedUrl(filePath, 3600)
-
-  return NextResponse.json({ ficheiro: { ...data, signed_url: urlData?.signedUrl ?? null } })
+  const { data: signed } = await svc.storage.from('materiais').createSignedUrl(filePath, 3600)
+  return NextResponse.json({ ficheiro: { ...row, signed_url: signed?.signedUrl ?? null } })
 }
 
 // DELETE - apagar ficheiro (admin)
 export async function DELETE(req: NextRequest) {
-  const user = await getUser(req)
-  if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+  const { user } = await getAuthUser(req)
+  if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
+  const svc = service()
 
-  const { data: profile } = await svc().from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
+  const { data: profile } = await svc.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const { id } = await req.json()
 
-  // Obter path para apagar do storage
-  const { data: ficheiro } = await svc().from('materiais_ficheiros').select('file_path').eq('id', id).single()
-  if (ficheiro?.file_path) {
-    await svc().storage.from('materiais').remove([ficheiro.file_path])
-  }
+  const { data: row } = await svc.from('materiais_ficheiros').select('file_path').eq('id', id).single()
+  if (row?.file_path) await svc.storage.from('materiais').remove([row.file_path])
+  await svc.from('materiais_ficheiros').delete().eq('id', id)
 
-  await svc().from('materiais_ficheiros').delete().eq('id', id)
-
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ ok: true })
 }
