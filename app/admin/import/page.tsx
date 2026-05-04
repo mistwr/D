@@ -13,16 +13,17 @@ interface VendaExport {
   client_email: string
   client_phone: string
   client_iban: string
-  client_morada: string
+  client_address: string
   amount: number
   status: string
   service_type: string
   operator: string
   plano: string
-  fatura_eletronica: boolean
+  energia_tipo: string
+  is_dual: boolean
   created_at: string
-  paid_at: string | null
-  parceiro_name: string
+  updated_at: string
+  parceiro_name?: string
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -90,30 +91,52 @@ export default function ImportPage() {
         'Nome Parceiro',
         'Nome Cliente',
         'NIF',
-        'Localidade',
+        'Email',
+        'Telefone',
+        'Morada',
         'Tipo Produto',
-        'Fatura Eletronica',
+        'Operadora',
+        'Plano',
         'IBAN',
         'Criado Em',
+        'Actualizado Em',
         'Estado',
-        'Data Pagamento',
         'Valor'
       ]
 
       // Converter vendas para linhas CSV
-      const csvRows = vendas.map(v => [
-        v.parceiro_name || '',
-        v.client_name || '',
-        v.client_nif || '',
-        v.client_morada || '',
-        v.service_type === 'energia' ? 'Luz' : v.service_type === 'gas' ? 'Gás' : v.service_type || '',
-        v.fatura_eletronica ? 'Sim' : 'Não',
-        v.client_iban || '',
-        v.created_at ? new Date(v.created_at).toLocaleDateString('pt-PT') : '',
-        STATUS_LABELS[v.status] || v.status || '',
-        v.paid_at ? new Date(v.paid_at).toLocaleDateString('pt-PT') : '',
-        v.amount ? v.amount.toFixed(2).replace('.', ',') : '0,00'
-      ])
+      const csvRows = vendas.map(v => {
+        // Determinar tipo de produto
+        let tipoProduto = v.service_type || ''
+        if (v.service_type === 'energia') {
+          if (v.is_dual) tipoProduto = 'Luz + Gás (Dual)'
+          else if (v.energia_tipo === 'gas') tipoProduto = 'Gás'
+          else tipoProduto = 'Luz'
+        } else if (v.service_type === 'gas') {
+          tipoProduto = 'Gás'
+        } else if (v.service_type === 'telecom') {
+          tipoProduto = 'Telecomunicações'
+        } else if (v.service_type === 'seguros') {
+          tipoProduto = 'Seguros'
+        }
+
+        return [
+          v.parceiro_name || '',
+          v.client_name || '',
+          v.client_nif || '',
+          v.client_email || '',
+          v.client_phone || '',
+          v.client_address || '',
+          tipoProduto,
+          v.operator || '',
+          v.plano || '',
+          v.client_iban || '',
+          v.created_at ? new Date(v.created_at).toLocaleDateString('pt-PT') : '',
+          v.updated_at ? new Date(v.updated_at).toLocaleDateString('pt-PT') : '',
+          STATUS_LABELS[v.status] || v.status || '',
+          v.amount ? v.amount.toFixed(2).replace('.', ',') : '0,00'
+        ]
+      })
 
       // Criar conteudo CSV com BOM para Excel reconhecer UTF-8
       const BOM = '\uFEFF'
