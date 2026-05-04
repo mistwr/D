@@ -4,7 +4,37 @@ import { useEffect, useState, useCallback } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, Download, X } from 'lucide-react'
+import { Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, Download, X, FileDown } from 'lucide-react'
+
+interface VendaExport {
+  id: string
+  client_name: string
+  client_nif: string
+  client_email: string
+  client_phone: string
+  client_iban: string
+  client_address: string
+  amount: number
+  status: string
+  service_type: string
+  operator: string
+  plano: string
+  energia_tipo: string
+  is_dual: boolean
+  created_at: string
+  updated_at: string
+  parceiro_name?: string
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  pendente: 'Pendente',
+  em_revisao: 'Em Revisão',
+  ativa: 'Ativa',
+  processado: 'Processado',
+  pago: 'Pago',
+  cancelado: 'Cancelado',
+  rejeitado: 'Rejeitado',
+}
 
 const STATUS_MAP: Record<string, string> = {
   pendente: 'pendente', em_revisao: 'em_revisao', ativa: 'ativa', ativo: 'ativa',
@@ -40,6 +70,96 @@ export default function ImportPage() {
   const [importing, setImporting] = useState(false)
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null)
   const [dragOver, setDragOver] = useState(false)
+  const [exporting, setExporting] = useState(false)
+
+  // Funcao para exportar todas as vendas para Excel/CSV
+  async function handleExport() {
+    setExporting(true)
+    try {
+      const res = await authFetch('/api/vendas')
+      const data = await res.json()
+      const vendas: VendaExport[] = data.vendas || []
+
+      if (vendas.length === 0) {
+        setResult({ ok: false, message: 'Nenhuma venda para exportar' })
+        setExporting(false)
+        return
+      }
+
+      // Cabecalhos do CSV
+      const headers = [
+        'Nome Parceiro',
+        'Nome Cliente',
+        'NIF',
+        'Email',
+        'Telefone',
+        'Morada',
+        'Tipo Produto',
+        'Operadora',
+        'Plano',
+        'IBAN',
+        'Criado Em',
+        'Actualizado Em',
+        'Estado',
+        'Valor'
+      ]
+
+      // Converter vendas para linhas CSV
+      const csvRows = vendas.map(v => {
+        // Determinar tipo de produto
+        let tipoProduto = v.service_type || ''
+        if (v.service_type === 'energia') {
+          if (v.is_dual) tipoProduto = 'Luz + Gás (Dual)'
+          else if (v.energia_tipo === 'gas') tipoProduto = 'Gás'
+          else tipoProduto = 'Luz'
+        } else if (v.service_type === 'gas') {
+          tipoProduto = 'Gás'
+        } else if (v.service_type === 'telecom') {
+          tipoProduto = 'Telecomunicações'
+        } else if (v.service_type === 'seguros') {
+          tipoProduto = 'Seguros'
+        }
+
+        return [
+          v.parceiro_name || '',
+          v.client_name || '',
+          v.client_nif || '',
+          v.client_email || '',
+          v.client_phone || '',
+          v.client_address || '',
+          tipoProduto,
+          v.operator || '',
+          v.plano || '',
+          v.client_iban || '',
+          v.created_at ? new Date(v.created_at).toLocaleDateString('pt-PT') : '',
+          v.updated_at ? new Date(v.updated_at).toLocaleDateString('pt-PT') : '',
+          STATUS_LABELS[v.status] || v.status || '',
+          v.amount ? v.amount.toFixed(2).replace('.', ',') : '0,00'
+        ]
+      })
+
+      // Criar conteudo CSV com BOM para Excel reconhecer UTF-8
+      const BOM = '\uFEFF'
+      const csvContent = BOM + [
+        headers.join(';'),
+        ...csvRows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(';'))
+      ].join('\n')
+
+      // Download do ficheiro
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `vendas-export-${new Date().toISOString().split('T')[0]}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+
+      setResult({ ok: true, message: `${vendas.length} venda(s) exportada(s) com sucesso` })
+    } catch (err) {
+      setResult({ ok: false, message: 'Erro ao exportar vendas' })
+    }
+    setExporting(false)
+  }
 
 
 
@@ -117,13 +237,25 @@ export default function ImportPage() {
         <Sidebar userRole="admin" />
         <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-8 max-w-4xl">
-            <div className="flex items-center gap-3 mb-2">
-              <FileSpreadsheet size={28} style={{ color: '#4338ca' }} />
-              <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>{'Import Excel / CSV'}</h1>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <FileSpreadsheet size={28} style={{ color: '#4338ca' }} />
+                <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Import / Export Excel</h1>
+              </div>
+              <button
+                onClick={handleExport}
+                disabled={exporting}
+                className="flex items-center gap-2 rounded-xl px-5 py-2.5 font-medium text-white text-sm transition hover:opacity-90 disabled:opacity-50"
+                style={{ background: '#059669' }}
+              >
+                <FileDown size={18} />
+                {exporting ? 'A exportar...' : 'Exportar Vendas'}
+              </button>
             </div>
             <p className="text-sm mb-8" style={{ color: '#6b7280' }}>
-              Carregue um ficheiro CSV ou Excel para actualizar automaticamente o estado das vendas dos parceiros.
-              O ficheiro deve ter colunas: <strong>email</strong> (do cliente) e <strong>estado</strong>.
+              <strong>Import:</strong> Carregue um ficheiro CSV/Excel para actualizar o estado das vendas (colunas: email, estado).
+              <br />
+              <strong>Export:</strong> Exporte todas as vendas com dados de parceiros, clientes, estados e valores.
             </p>
 
             {result && (
