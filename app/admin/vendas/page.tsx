@@ -118,13 +118,18 @@ export default function AdminVendasPage() {
   async function saveFeedback() {
     if (!selected) return
     setSavingFeedback(true)
-    await authFetch('/api/vendas', {
+    console.log('[v0] Saving feedback:', { id: selected.id, admin_feedback: feedback })
+    const res = await authFetch('/api/vendas', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: selected.id, admin_feedback: feedback }),
     })
-    setVendas(prev => prev.map(v => v.id === selected.id ? { ...v, admin_feedback: feedback } : v))
-    setSelected(prev => prev ? { ...prev, admin_feedback: feedback } : prev)
+    const data = await res.json()
+    console.log('[v0] Save feedback response:', res.status, data)
+    if (res.ok) {
+      setVendas(prev => prev.map(v => v.id === selected.id ? { ...v, admin_feedback: feedback } : v))
+      setSelected(prev => prev ? { ...prev, admin_feedback: feedback } : prev)
+    }
     setSavingFeedback(false)
   }
 
