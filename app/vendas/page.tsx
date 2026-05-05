@@ -297,6 +297,12 @@ export default function VendasPage() {
                       <p className="font-mono font-medium" style={{ color: '#111827' }}>{selectedVenda.client_iban}</p>
                     </div>
                   )}
+                  {selectedVenda.client_address && (
+                    <div className="col-span-2">
+                      <p className="uppercase tracking-wide font-semibold mb-0.5" style={{ color: '#9ca3af', fontSize: 10 }}>Morada</p>
+                      <p className="font-medium" style={{ color: '#111827' }}>{selectedVenda.client_address}</p>
+                    </div>
+                  )}
                   {selectedVenda.cpe && (
                     <div>
                       <p className="uppercase tracking-wide font-semibold mb-0.5" style={{ color: '#9ca3af', fontSize: 10 }}>CPE</p>
