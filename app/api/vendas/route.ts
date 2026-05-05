@@ -87,6 +87,7 @@ export async function POST(req: NextRequest) {
     client_nif: body.client_nif || null,
     client_cc: body.client_cc || null,
     client_iban: body.client_iban || null,
+    client_address: body.client_address || null,
     amount: parseFloat(body.amount) || 0,
     currency: body.currency || 'EUR',
     description: body.description || '',
