@@ -143,20 +143,15 @@ export default function AdminVendasPage() {
   async function saveAddress() {
     if (!selected) return
     setSavingAddress(true)
-    console.log('[v0] Saving address:', { id: selected.id, client_address: addressValue })
     const res = await authFetch('/api/vendas', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: selected.id, client_address: addressValue }),
     })
-    const data = await res.json().catch(() => ({}))
-    console.log('[v0] Save address response:', res.status, res.ok, data)
     if (res.ok) {
       setVendas(prev => prev.map(v => v.id === selected.id ? { ...v, client_address: addressValue } : v))
       setSelected(prev => prev ? { ...prev, client_address: addressValue } : prev)
       setEditingAddress(false)
-    } else {
-      console.log('[v0] Error saving address:', data)
     }
     setSavingAddress(false)
   }
