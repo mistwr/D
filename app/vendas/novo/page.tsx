@@ -431,6 +431,18 @@ export default function NovaVendaPage() {
                       className="w-full rounded-lg px-3 py-2.5 text-sm font-mono" style={inp}
                       placeholder="XXXXXXXX X XXXXXXXX X" />
                   </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                      Morada Completa *
+                    </label>
+                    <input type="text" value={form.client_address} onChange={e => update('client_address', e.target.value)}
+                      className="w-full rounded-lg px-3 py-2.5 text-sm" 
+                      style={{ ...inp, borderColor: form.client_address ? '#d1d5db' : '#fbbf24', background: form.client_address ? '#ffffff' : '#fffbeb' }}
+                      required placeholder="Rua, numero, codigo postal, localidade (ex: Rua da Liberdade 123, 4000-001 Porto)" />
+                    {!form.client_address && (
+                      <p className="mt-1 text-xs" style={{ color: '#d97706' }}>Campo obrigatorio - insira a morada completa do cliente</p>
+                    )}
+                  </div>
                   <div>
                     <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Telefone</label>
                     <input type="tel" value={form.client_phone} onChange={e => update('client_phone', e.target.value)}
@@ -450,12 +462,6 @@ export default function NovaVendaPage() {
                     <input type="text" value={form.client_iban} onChange={e => update('client_iban', e.target.value)}
                       className="w-full rounded-lg px-3 py-2.5 text-sm font-mono" style={inp}
                       placeholder="PT50 XXXX XXXX XXXX XXXX XXXX X" />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Morada</label>
-                    <input type="text" value={form.client_address} onChange={e => update('client_address', e.target.value)}
-                      className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp}
-                      placeholder="Rua, numero, localidade, codigo postal" />
                   </div>
                 </div>
               </div>
