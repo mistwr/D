@@ -28,6 +28,8 @@ interface Venda {
   operator: string; plano: string; description: string
   notes: string; is_dual: boolean; energia_tipo: string
   cpe: string; cui: string; potencia: string; escalao: string
+  gas_escalao: string; cpes: string[]; cuis: string[]
+  admin_feedback: string
   created_at: string; parceiro_name: string; user_id: string
 }
 
@@ -79,6 +81,10 @@ export default function AdminVendasPage() {
   const [uploadingDoc, setUploadingDoc] = useState(false)
   const [uploadErr, setUploadErr] = useState('')
 
+  // Feedback do admin
+  const [feedback, setFeedback] = useState('')
+  const [savingFeedback, setSavingFeedback] = useState(false)
+
   useEffect(() => {
     if (!user) return
     authFetch('/api/vendas').then(r => r.json()).then(d => {
@@ -98,6 +104,7 @@ export default function AdminVendasPage() {
   function openDetail(v: Venda) {
     setSelected(v)
     setUploadErr('')
+    setFeedback(v.admin_feedback || '')
     loadDocs(v.id)
   }
 
@@ -105,6 +112,20 @@ export default function AdminVendasPage() {
     setSelected(null)
     setDocs([])
     setUploadErr('')
+    setFeedback('')
+  }
+
+  async function saveFeedback() {
+    if (!selected) return
+    setSavingFeedback(true)
+    await authFetch('/api/vendas', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: selected.id, admin_feedback: feedback }),
+    })
+    setVendas(prev => prev.map(v => v.id === selected.id ? { ...v, admin_feedback: feedback } : v))
+    setSelected(prev => prev ? { ...prev, admin_feedback: feedback } : prev)
+    setSavingFeedback(false)
   }
 
   async function changeStatus(id: string, status: string) {
@@ -409,7 +430,52 @@ export default function AdminVendasPage() {
                               </div>
                             </div>
                           )}
+                          {/* CPEs e CUIs multiplos */}
+                          {selected.cpes && selected.cpes.length > 1 && (
+                            <div className="col-span-2">
+                              <p className="text-xs font-medium mb-1" style={{ color: '#9ca3af' }}>CPEs Adicionais</p>
+                              <div className="flex flex-wrap gap-1">
+                                {selected.cpes.map((c, i) => (
+                                  <span key={i} className="rounded px-2 py-1 text-xs font-mono" style={{ background: '#eef2ff', color: '#4338ca' }}>{c}</span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {selected.cuis && selected.cuis.length > 1 && (
+                            <div className="col-span-2">
+                              <p className="text-xs font-medium mb-1" style={{ color: '#9ca3af' }}>CUIs Adicionais</p>
+                              <div className="flex flex-wrap gap-1">
+                                {selected.cuis.map((c, i) => (
+                                  <span key={i} className="rounded px-2 py-1 text-xs font-mono" style={{ background: '#fef3c7', color: '#92400e' }}>{c}</span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {selected.gas_escalao && (
+                            <Field label="Escalao Gas" value={`Escalao ${selected.gas_escalao}`} />
+                          )}
                         </div>
+                      </section>
+
+                      {/* Feedback do Admin */}
+                      <section className="px-5 py-4" style={{ borderBottom: '1px solid #f3f4f6' }}>
+                        <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: '#dc2626' }}>Feedback do Administrador</p>
+                        <textarea
+                          value={feedback}
+                          onChange={e => setFeedback(e.target.value)}
+                          rows={3}
+                          className="w-full rounded-lg px-3 py-2.5 text-sm resize-none"
+                          style={{ border: '1px solid #fecaca', background: '#fef2f2', color: '#111827' }}
+                          placeholder="Escreva aqui o feedback sobre esta venda... (visivel para o parceiro)"
+                        />
+                        <button
+                          onClick={saveFeedback}
+                          disabled={savingFeedback}
+                          className="mt-2 w-full rounded-lg py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                          style={{ background: '#dc2626' }}
+                        >
+                          {savingFeedback ? 'A guardar...' : 'Guardar Feedback'}
+                        </button>
                       </section>
 
                       {/* Ficheiros */}

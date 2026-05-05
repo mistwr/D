@@ -57,8 +57,13 @@ export default function NovaVendaPage() {
     cui: '',
     potencia: '',
     escalao: '',
+    gas_escalao: '',
     is_dual: false,
   })
+
+  // Multiplos CPE e CUI
+  const [cpes, setCpes] = useState<string[]>([''])
+  const [cuis, setCuis] = useState<string[]>([''])
 
   useEffect(() => {
     if (!user) return
@@ -118,14 +123,20 @@ export default function NovaVendaPage() {
     setError('')
     setLoading(true)
     try {
+      const isEnergyOrGas = form.service_type === 'energia' || form.service_type === 'gas'
+      const filteredCpes = cpes.filter(c => c.trim())
+      const filteredCuis = cuis.filter(c => c.trim())
       const payload = {
         ...form,
         is_dual: form.service_type === 'energia' && form.energia_tipo === 'dual',
-        energia_tipo: form.service_type === 'energia' ? form.energia_tipo : null,
-        cpe: form.service_type === 'energia' ? form.cpe : null,
-        cui: form.service_type === 'energia' ? form.cui : null,
-        potencia: form.service_type === 'energia' ? form.potencia : null,
-        escalao: form.service_type === 'energia' ? form.escalao : null,
+        energia_tipo: isEnergyOrGas ? form.energia_tipo : null,
+        cpe: isEnergyOrGas && filteredCpes.length > 0 ? filteredCpes[0] : null,
+        cui: isEnergyOrGas && filteredCuis.length > 0 ? filteredCuis[0] : null,
+        cpes: isEnergyOrGas ? filteredCpes : [],
+        cuis: isEnergyOrGas ? filteredCuis : [],
+        potencia: isEnergyOrGas ? form.potencia : null,
+        escalao: isEnergyOrGas ? form.escalao : null,
+        gas_escalao: isEnergyOrGas ? form.gas_escalao : null,
       }
       const res = await authFetch('/api/vendas', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -281,50 +292,116 @@ export default function NovaVendaPage() {
                         </p>
                       )}
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-4">
+                      {/* CPEs - Multiplos */}
                       {(form.energia_tipo === 'eletricidade' || form.energia_tipo === 'dual') && (
                         <div>
-                          <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>CPE (Eletricidade)</label>
-                          <input type="text" value={form.cpe} onChange={e => update('cpe', e.target.value)}
-                            className="w-full rounded-lg px-3 py-2.5 text-sm font-mono" style={inp}
-                            placeholder="PT00XXXXXXXXXX" />
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="text-sm font-medium" style={{ color: '#374151' }}>CPE (Eletricidade)</label>
+                            <button type="button" onClick={() => setCpes([...cpes, ''])}
+                              className="text-xs font-medium px-2 py-1 rounded-lg transition hover:opacity-80"
+                              style={{ background: '#eef2ff', color: '#4338ca' }}>
+                              + Adicionar CPE
+                            </button>
+                          </div>
+                          {cpes.map((cpe, idx) => (
+                            <div key={idx} className="flex gap-2 mb-2">
+                              <input type="text" value={cpe}
+                                onChange={e => { const n = [...cpes]; n[idx] = e.target.value; setCpes(n) }}
+                                className="flex-1 rounded-lg px-3 py-2.5 text-sm font-mono" style={inp}
+                                placeholder={`CPE ${idx + 1} - PT00XXXXXXXXXX`} />
+                              {cpes.length > 1 && (
+                                <button type="button" onClick={() => setCpes(cpes.filter((_, i) => i !== idx))}
+                                  className="rounded-lg px-3 py-2 text-xs transition hover:opacity-70"
+                                  style={{ background: '#fef2f2', color: '#dc2626' }}>
+                                  X
+                                </button>
+                              )}
+                            </div>
+                          ))}
                         </div>
                       )}
+
+                      {/* CUIs - Multiplos */}
                       {(form.energia_tipo === 'gas' || form.energia_tipo === 'dual') && (
                         <div>
-                          <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>CUI (Gas)</label>
-                          <input type="text" value={form.cui} onChange={e => update('cui', e.target.value)}
-                            className="w-full rounded-lg px-3 py-2.5 text-sm font-mono" style={inp}
-                            placeholder="PT00XXXXXXXXXXXX" />
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="text-sm font-medium" style={{ color: '#374151' }}>CUI (Gas)</label>
+                            <button type="button" onClick={() => setCuis([...cuis, ''])}
+                              className="text-xs font-medium px-2 py-1 rounded-lg transition hover:opacity-80"
+                              style={{ background: '#fef3c7', color: '#92400e' }}>
+                              + Adicionar CUI
+                            </button>
+                          </div>
+                          {cuis.map((cui, idx) => (
+                            <div key={idx} className="flex gap-2 mb-2">
+                              <input type="text" value={cui}
+                                onChange={e => { const n = [...cuis]; n[idx] = e.target.value; setCuis(n) }}
+                                className="flex-1 rounded-lg px-3 py-2.5 text-sm font-mono" style={inp}
+                                placeholder={`CUI ${idx + 1} - PT00XXXXXXXXXXXX`} />
+                              {cuis.length > 1 && (
+                                <button type="button" onClick={() => setCuis(cuis.filter((_, i) => i !== idx))}
+                                  className="rounded-lg px-3 py-2 text-xs transition hover:opacity-70"
+                                  style={{ background: '#fef2f2', color: '#dc2626' }}>
+                                  X
+                                </button>
+                              )}
+                            </div>
+                          ))}
                         </div>
                       )}
-                      {(form.energia_tipo === 'eletricidade' || form.energia_tipo === 'dual') && (
-                        <div>
-                          <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
-                            Potencia Contratada <span className="font-normal text-xs" style={{ color: '#9ca3af' }}>(kVA)</span>
-                          </label>
-                          <select value={form.potencia} onChange={e => update('potencia', e.target.value)}
-                            className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp}>
-                            <option value="">Selecionar potencia...</option>
-                            {['1.15', '2.3', '3.45', '4.6', '5.75', '6.9', '10.35', '13.8', '17.25', '20.7', '27.6', '34.5', '41.4'].map(p => (
-                              <option key={p} value={p}>{p} kVA</option>
-                            ))}
-                            <option value="outro">Outro</option>
-                          </select>
-                        </div>
-                      )}
-                      <div>
-                        <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
-                          Escalao / Ciclo Horario
-                        </label>
-                        <select value={form.escalao} onChange={e => update('escalao', e.target.value)}
-                          className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp}>
-                          <option value="">Selecionar escalao...</option>
-                          <option value="simples">Simples</option>
-                          <option value="bi-horario">Bi-horario (Vazio / Fora de Vazio)</option>
-                          <option value="tri-horario">Tri-horario (Ponta / Cheia / Vazio)</option>
-                          <option value="tetra-horario">Tetra-horario</option>
-                        </select>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Potencia - Eletricidade */}
+                        {(form.energia_tipo === 'eletricidade' || form.energia_tipo === 'dual') && (
+                          <div>
+                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                              Potencia Contratada <span className="font-normal text-xs" style={{ color: '#9ca3af' }}>(kVA)</span>
+                            </label>
+                            <select value={form.potencia} onChange={e => update('potencia', e.target.value)}
+                              className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp}>
+                              <option value="">Selecionar potencia...</option>
+                              {['1.15', '2.3', '3.45', '4.6', '5.75', '6.9', '10.35', '13.8', '17.25', '20.7', '27.6', '34.5', '41.4'].map(p => (
+                                <option key={p} value={p}>{p} kVA</option>
+                              ))}
+                              <option value="outro">Outro</option>
+                            </select>
+                          </div>
+                        )}
+
+                        {/* Escalao Eletricidade */}
+                        {(form.energia_tipo === 'eletricidade' || form.energia_tipo === 'dual') && (
+                          <div>
+                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                              Escalao Eletricidade
+                            </label>
+                            <select value={form.escalao} onChange={e => update('escalao', e.target.value)}
+                              className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp}>
+                              <option value="">Selecionar escalao...</option>
+                              <option value="simples">Simples</option>
+                              <option value="bi-horario">Bi-horario (Vazio / Fora de Vazio)</option>
+                              <option value="tri-horario">Tri-horario (Ponta / Cheia / Vazio)</option>
+                              <option value="tetra-horario">Tetra-horario</option>
+                            </select>
+                          </div>
+                        )}
+
+                        {/* Escalao Gas */}
+                        {(form.energia_tipo === 'gas' || form.energia_tipo === 'dual') && (
+                          <div>
+                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                              Escalao Gas
+                            </label>
+                            <select value={form.gas_escalao} onChange={e => update('gas_escalao', e.target.value)}
+                              className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp}>
+                              <option value="">Selecionar escalao gas...</option>
+                              <option value="1">Escalao 1 (ate 220 m3/ano)</option>
+                              <option value="2">Escalao 2 (221-500 m3/ano)</option>
+                              <option value="3">Escalao 3 (501-1000 m3/ano)</option>
+                              <option value="4">Escalao 4 (1001-10000 m3/ano)</option>
+                            </select>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
