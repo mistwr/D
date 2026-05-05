@@ -29,8 +29,12 @@ interface Venda {
   cui: string
   potencia: string
   escalao: string
+  gas_escalao: string
+  cpes: string[]
+  cuis: string[]
   is_dual: boolean
   created_at: string
+  admin_feedback: string
 }
 
 interface Documento {
@@ -332,6 +336,14 @@ export default function VendasPage() {
                   <div className="px-4 py-3" style={{ borderTop: '1px solid #f3f4f6', background: '#fffbeb' }}>
                     <p className="uppercase tracking-wide font-semibold mb-1" style={{ color: '#92400e', fontSize: 10 }}>Notas internas</p>
                     <p className="text-xs leading-relaxed" style={{ color: '#78350f' }}>{selectedVenda.notes}</p>
+                  </div>
+                )}
+
+                {/* Feedback do Administrador */}
+                {selectedVenda.admin_feedback && (
+                  <div className="px-4 py-3" style={{ borderTop: '1px solid #fecaca', background: '#fef2f2' }}>
+                    <p className="uppercase tracking-wide font-semibold mb-1" style={{ color: '#dc2626', fontSize: 10 }}>Feedback do Administrador</p>
+                    <p className="text-xs leading-relaxed" style={{ color: '#991b1b' }}>{selectedVenda.admin_feedback}</p>
                   </div>
                 )}
               </div>
