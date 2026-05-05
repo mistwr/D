@@ -24,6 +24,7 @@ interface Venda {
   id: string
   client_name: string; client_email: string; client_phone: string
   client_nif: string; client_cc: string; client_iban: string
+  client_address: string
   amount: number; status: string; service_type: string
   operator: string; plano: string; description: string
   notes: string; is_dual: boolean; energia_tipo: string
@@ -85,6 +86,11 @@ export default function AdminVendasPage() {
   const [feedback, setFeedback] = useState('')
   const [savingFeedback, setSavingFeedback] = useState(false)
 
+  // Editar morada
+  const [editingAddress, setEditingAddress] = useState(false)
+  const [addressValue, setAddressValue] = useState('')
+  const [savingAddress, setSavingAddress] = useState(false)
+
   useEffect(() => {
     if (!user) return
     authFetch('/api/vendas').then(r => r.json()).then(d => {
@@ -105,6 +111,8 @@ export default function AdminVendasPage() {
     setSelected(v)
     setUploadErr('')
     setFeedback(v.admin_feedback || '')
+    setAddressValue(v.client_address || '')
+    setEditingAddress(false)
     loadDocs(v.id)
   }
 
@@ -113,24 +121,44 @@ export default function AdminVendasPage() {
     setDocs([])
     setUploadErr('')
     setFeedback('')
+    setAddressValue('')
+    setEditingAddress(false)
   }
 
   async function saveFeedback() {
     if (!selected) return
     setSavingFeedback(true)
-    console.log('[v0] Saving feedback:', { id: selected.id, admin_feedback: feedback })
     const res = await authFetch('/api/vendas', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: selected.id, admin_feedback: feedback }),
     })
-    const data = await res.json()
-    console.log('[v0] Save feedback response:', res.status, data)
     if (res.ok) {
       setVendas(prev => prev.map(v => v.id === selected.id ? { ...v, admin_feedback: feedback } : v))
       setSelected(prev => prev ? { ...prev, admin_feedback: feedback } : prev)
     }
     setSavingFeedback(false)
+  }
+
+  async function saveAddress() {
+    if (!selected) return
+    setSavingAddress(true)
+    console.log('[v0] Saving address:', { id: selected.id, client_address: addressValue })
+    const res = await authFetch('/api/vendas', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: selected.id, client_address: addressValue }),
+    })
+    const data = await res.json().catch(() => ({}))
+    console.log('[v0] Save address response:', res.status, res.ok, data)
+    if (res.ok) {
+      setVendas(prev => prev.map(v => v.id === selected.id ? { ...v, client_address: addressValue } : v))
+      setSelected(prev => prev ? { ...prev, client_address: addressValue } : prev)
+      setEditingAddress(false)
+    } else {
+      console.log('[v0] Error saving address:', data)
+    }
+    setSavingAddress(false)
   }
 
   async function changeStatus(id: string, status: string) {
@@ -400,6 +428,53 @@ export default function AdminVendasPage() {
                           <Field label="Telemovel" value={selected.client_phone} />
                           <Field label="Email" value={selected.client_email} />
                           <Field label="IBAN" value={selected.client_iban} />
+                          
+                          {/* Morada - Editavel */}
+                          <div className="col-span-2">
+                            <div className="flex items-center justify-between mb-1">
+                              <p className="text-xs font-medium" style={{ color: '#9ca3af' }}>Morada</p>
+                              {!editingAddress && (
+                                <button
+                                  onClick={() => setEditingAddress(true)}
+                                  className="text-xs font-medium px-2 py-0.5 rounded transition hover:opacity-80"
+                                  style={{ background: '#eef2ff', color: '#4338ca' }}
+                                >
+                                  {selected.client_address ? 'Editar' : 'Adicionar'}
+                                </button>
+                              )}
+                            </div>
+                            {editingAddress ? (
+                              <div className="flex gap-2">
+                                <input
+                                  type="text"
+                                  value={addressValue}
+                                  onChange={e => setAddressValue(e.target.value)}
+                                  className="flex-1 rounded-lg px-3 py-2 text-sm"
+                                  style={{ border: '1px solid #d1d5db', background: '#ffffff' }}
+                                  placeholder="Rua, Numero, Codigo Postal, Localidade"
+                                />
+                                <button
+                                  onClick={saveAddress}
+                                  disabled={savingAddress}
+                                  className="rounded-lg px-3 py-2 text-xs font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+                                  style={{ background: '#059669' }}
+                                >
+                                  {savingAddress ? '...' : 'Guardar'}
+                                </button>
+                                <button
+                                  onClick={() => { setEditingAddress(false); setAddressValue(selected.client_address || '') }}
+                                  className="rounded-lg px-3 py-2 text-xs font-medium transition hover:opacity-70"
+                                  style={{ background: '#f3f4f6', color: '#374151' }}
+                                >
+                                  Cancelar
+                                </button>
+                              </div>
+                            ) : (
+                              <p className="text-sm font-medium break-all" style={{ color: selected.client_address ? '#111827' : '#9ca3af' }}>
+                                {selected.client_address || 'Sem morada definida'}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </section>
 

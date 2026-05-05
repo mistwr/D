@@ -16,6 +16,7 @@ interface Venda {
   client_nif: string
   client_cc: string
   client_iban: string
+  client_address: string
   amount: number
   status: string
   contract_type: string
@@ -295,6 +296,12 @@ export default function VendasPage() {
                     <div className="col-span-2">
                       <p className="uppercase tracking-wide font-semibold mb-0.5" style={{ color: '#9ca3af', fontSize: 10 }}>IBAN</p>
                       <p className="font-mono font-medium" style={{ color: '#111827' }}>{selectedVenda.client_iban}</p>
+                    </div>
+                  )}
+                  {selectedVenda.client_address && (
+                    <div className="col-span-2">
+                      <p className="uppercase tracking-wide font-semibold mb-0.5" style={{ color: '#9ca3af', fontSize: 10 }}>Morada</p>
+                      <p className="font-medium" style={{ color: '#111827' }}>{selectedVenda.client_address}</p>
                     </div>
                   )}
                   {selectedVenda.cpe && (
