@@ -16,6 +16,7 @@ interface Venda {
   client_nif: string
   client_cc: string
   client_iban: string
+  client_address: string
   amount: number
   status: string
   contract_type: string
