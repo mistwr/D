@@ -99,6 +99,7 @@ export async function POST(req: NextRequest) {
     notes: body.notes || '',
     is_dual: body.is_dual || false,
     energia_tipo: body.energia_tipo || null,
+    energia_tipo_processo: body.energia_tipo_processo || null,
     cpe: body.cpe || null,
     cui: body.cui || null,
     cpes: body.cpes || [],
@@ -106,6 +107,9 @@ export async function POST(req: NextRequest) {
     potencia: body.potencia || null,
     escalao: body.escalao || null,
     gas_escalao: body.gas_escalao || null,
+    telco_numeros: body.telco_numeros || [],
+    telco_fixo: body.telco_fixo || null,
+    telco_fixo_cvp: body.telco_fixo_cvp || null,
   }).select().single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
