@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/lib/auth-context'
-import Sidebar from '@/components/sidebar'
+import { useAuth } from '@/hooks/use-auth'
+import { Sidebar } from '@/components/sidebar'
 import { FileText, Upload, Trash2, Plus, X, Settings } from 'lucide-react'
 
 interface Template {
