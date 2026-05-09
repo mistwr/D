@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Send, Users, FileText, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper } from 'lucide-react'
+import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Send, Users, FileText, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, FileSignature } from 'lucide-react'
 
 interface SidebarProps { userRole: string }
 
@@ -15,6 +15,7 @@ export function Sidebar({ userRole }: SidebarProps) {
     { href: '/vendas/novo', label: 'Registar Nova Venda', icon: PlusCircle },
     { href: '/contratos', label: 'Os Meus Contratos', icon: FileCheck },
     { href: '/comissoes', label: 'As Minhas Comissoes', icon: Percent },
+    { href: '/chargebacks', label: 'Chargebacks', icon: AlertTriangle },
     { href: '/campanhas', label: 'Campanhas', icon: Megaphone },
     { href: '/materiais', label: 'Materiais de Apoio', icon: FolderOpen },
     { href: '/publicacoes', label: 'Publicacoes', icon: Newspaper },
@@ -25,11 +26,13 @@ export function Sidebar({ userRole }: SidebarProps) {
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/parceiros', label: 'Parceiros', icon: Users },
     { href: '/admin/vendas', label: 'Vendas', icon: ShoppingCart },
+    { href: '/admin/chargebacks', label: 'Chargebacks', icon: AlertTriangle },
     { href: '/admin/campanhas', label: 'Campanhas', icon: Megaphone },
     { href: '/admin/materiais', label: 'Materiais de Apoio', icon: FolderOpen },
     { href: '/admin/publicacoes', label: 'Publicacoes', icon: Newspaper },
     { href: '/admin/comissoes', label: 'Comissoes', icon: Percent },
     { href: '/admin/contratos', label: 'Contratos', icon: FileCheck },
+    { href: '/admin/templates', label: 'Templates PDF', icon: FileSignature },
     { href: '/admin/documentos', label: 'Documentos', icon: Upload },
     { href: '/admin/import', label: 'Import / Export', icon: FileSpreadsheet },
     { href: '/admin/passwords', label: 'Passwords', icon: KeyRound },

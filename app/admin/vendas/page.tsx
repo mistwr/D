@@ -16,9 +16,16 @@ const STATUS_LABELS: Record<string, { label: string; color: string; bg: string }
   pago:       { label: 'Pago',        color: '#065f46', bg: '#bbf7d0' },
   cancelado:  { label: 'Cancelado',   color: '#991b1b', bg: '#fee2e2' },
   rejeitado:  { label: 'Rejeitado',   color: '#7f1d1d', bg: '#fecaca' },
+  chargeback: { label: 'Chargeback',  color: '#7c2d12', bg: '#ffedd5' },
 }
 
 const STATUSES = Object.keys(STATUS_LABELS)
+
+const TIPO_PROCESSO_LABELS: Record<string, string> = {
+  ED: 'Entrada Direta',
+  AT: 'Alteracao Titularidade',
+  MC: 'Mudanca Comercializadora',
+}
 
 interface Venda {
   id: string
@@ -28,8 +35,11 @@ interface Venda {
   amount: number; status: string; service_type: string
   operator: string; plano: string; description: string
   notes: string; is_dual: boolean; energia_tipo: string
+  energia_tipo_processo: string
   cpe: string; cui: string; potencia: string; escalao: string
   gas_escalao: string; cpes: string[]; cuis: string[]
+  telco_numeros: {numero: string; cvp: string}[]
+  telco_fixo: string; telco_fixo_cvp: string
   admin_feedback: string
   created_at: string; parceiro_name: string; user_id: string
 }
@@ -91,6 +101,13 @@ export default function AdminVendasPage() {
   const [addressValue, setAddressValue] = useState('')
   const [savingAddress, setSavingAddress] = useState(false)
 
+  // Chargeback
+  const [showChargebackForm, setShowChargebackForm] = useState(false)
+  const [chargebackValor, setChargebackValor] = useState('')
+  const [chargebackMotivo, setChargebackMotivo] = useState('')
+  const [chargebackObs, setChargebackObs] = useState('')
+  const [savingChargeback, setSavingChargeback] = useState(false)
+
   useEffect(() => {
     if (!user) return
     authFetch('/api/vendas').then(r => r.json()).then(d => {
@@ -123,6 +140,35 @@ export default function AdminVendasPage() {
     setFeedback('')
     setAddressValue('')
     setEditingAddress(false)
+    setShowChargebackForm(false)
+    setChargebackValor('')
+    setChargebackMotivo('')
+    setChargebackObs('')
+  }
+
+  async function createChargeback() {
+    if (!selected || !chargebackValor || !chargebackMotivo) return
+    setSavingChargeback(true)
+    const res = await authFetch('/api/chargebacks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        venda_id: selected.id,
+        parceiro_id: selected.user_id,
+        valor: parseFloat(chargebackValor),
+        motivo: chargebackMotivo,
+        observacoes: chargebackObs,
+      }),
+    })
+    if (res.ok) {
+      setVendas(prev => prev.map(v => v.id === selected.id ? { ...v, status: 'chargeback' } : v))
+      setSelected(prev => prev ? { ...prev, status: 'chargeback' } : prev)
+      setShowChargebackForm(false)
+      setChargebackValor('')
+      setChargebackMotivo('')
+      setChargebackObs('')
+    }
+    setSavingChargeback(false)
   }
 
   async function saveFeedback() {
@@ -484,16 +530,46 @@ export default function AdminVendasPage() {
                           <Field label="Operadora" value={selected.operator} />
                           <Field label="Plano" value={selected.plano} />
                           <Field label="Valor" value={selected.amount ? `${selected.amount.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} EUR` : null} />
-                          {selected.service_type === 'energia' || selected.service_type === 'gas' ? (
+                          {/* Campos Energia */}
+                          {(selected.service_type === 'energia' || selected.service_type === 'gas') && (
                             <>
                               <Field label="Tipo" value={selected.energia_tipo} />
+                              <Field label="Tipo Processo" value={selected.energia_tipo_processo ? TIPO_PROCESSO_LABELS[selected.energia_tipo_processo] || selected.energia_tipo_processo : null} />
                               <Field label="Dual" value={selected.is_dual ? 'Sim' : null} />
                               <Field label="CPE" value={selected.cpe} />
                               <Field label="CUI" value={selected.cui} />
                               <Field label="Potencia" value={selected.potencia} />
                               <Field label="Escalao" value={selected.escalao} />
+                              <Field label="Escalao Gas" value={selected.gas_escalao} />
                             </>
-                          ) : null}
+                          )}
+                          {/* Campos Telco */}
+                          {selected.service_type === 'telecom' && (
+                            <>
+                              {selected.telco_numeros && selected.telco_numeros.length > 0 && (
+                                <div className="col-span-2">
+                                  <p className="text-xs font-medium mb-1" style={{ color: '#9ca3af' }}>Numeros Movel</p>
+                                  <div className="space-y-1">
+                                    {selected.telco_numeros.map((t, i) => (
+                                      <div key={i} className="flex gap-2 text-sm">
+                                        <span className="font-mono" style={{ color: '#111827' }}>{t.numero || '-'}</span>
+                                        {t.cvp && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#eef2ff', color: '#4338ca' }}>CVP: {t.cvp}</span>}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              {selected.telco_fixo && (
+                                <div className="col-span-2">
+                                  <p className="text-xs font-medium mb-1" style={{ color: '#9ca3af' }}>Numero Fixo</p>
+                                  <div className="flex gap-2 text-sm">
+                                    <span className="font-mono" style={{ color: '#111827' }}>{selected.telco_fixo}</span>
+                                    {selected.telco_fixo_cvp && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#fef3c7', color: '#92400e' }}>CVP: {selected.telco_fixo_cvp}</span>}
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          )}
                           <div className="col-span-2">
                             <Field label="Descricao" value={selected.description} />
                           </div>
@@ -551,6 +627,88 @@ export default function AdminVendasPage() {
                         >
                           {savingFeedback ? 'A guardar...' : 'Guardar Feedback'}
                         </button>
+                      </section>
+
+                      {/* Chargeback */}
+                      <section className="px-5 py-4" style={{ borderBottom: '1px solid #f3f4f6' }}>
+                        <div className="flex items-center justify-between mb-3">
+                          <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7c2d12' }}>Chargeback</p>
+                          {!showChargebackForm && selected.status !== 'chargeback' && (
+                            <button
+                              onClick={() => setShowChargebackForm(true)}
+                              className="text-xs font-medium px-3 py-1.5 rounded-lg transition hover:opacity-80"
+                              style={{ background: '#ffedd5', color: '#7c2d12' }}
+                            >
+                              Aplicar Chargeback
+                            </button>
+                          )}
+                        </div>
+                        {selected.status === 'chargeback' && (
+                          <div className="rounded-lg px-3 py-2 text-sm" style={{ background: '#ffedd5', color: '#7c2d12' }}>
+                            Esta venda tem chargeback aplicado.
+                          </div>
+                        )}
+                        {showChargebackForm && (
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Valor *</label>
+                              <input
+                                type="number"
+                                step="0.01"
+                                value={chargebackValor}
+                                onChange={e => setChargebackValor(e.target.value)}
+                                className="w-full rounded-lg px-3 py-2 text-sm"
+                                style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                placeholder="0.00"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Motivo *</label>
+                              <select
+                                value={chargebackMotivo}
+                                onChange={e => setChargebackMotivo(e.target.value)}
+                                className="w-full rounded-lg px-3 py-2 text-sm"
+                                style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                              >
+                                <option value="">Selecionar motivo...</option>
+                                <option value="Cancelamento de contrato">Cancelamento de contrato</option>
+                                <option value="Venda rejeitada pela operadora">Venda rejeitada pela operadora</option>
+                                <option value="Dados incorretos">Dados incorretos</option>
+                                <option value="Cliente desistiu">Cliente desistiu</option>
+                                <option value="Fraude">Fraude</option>
+                                <option value="Outro">Outro</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Observacoes</label>
+                              <textarea
+                                value={chargebackObs}
+                                onChange={e => setChargebackObs(e.target.value)}
+                                rows={2}
+                                className="w-full rounded-lg px-3 py-2 text-sm resize-none"
+                                style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                placeholder="Detalhes adicionais..."
+                              />
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={createChargeback}
+                                disabled={savingChargeback || !chargebackValor || !chargebackMotivo}
+                                className="flex-1 rounded-lg py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                                style={{ background: '#7c2d12' }}
+                              >
+                                {savingChargeback ? 'A processar...' : 'Confirmar Chargeback'}
+                              </button>
+                              <button
+                                onClick={() => setShowChargebackForm(false)}
+                                className="rounded-lg px-4 py-2 text-sm font-medium transition hover:opacity-70"
+                                style={{ background: '#f3f4f6', color: '#374151' }}
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </section>
 
                       {/* Ficheiros */}

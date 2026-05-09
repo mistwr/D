@@ -9,26 +9,36 @@ import Link from 'next/link'
 
 interface Venda { id: string; client_name: string; client_email: string; amount: number; status: string; created_at: string }
 interface ComCalculo { energia: number; telecom: number; total: number }
+interface Mensagem { mensagem: string; autor: string }
+interface Chargeback { id: string; valor: number; motivo: string; created_at: string }
 
 export default function DashboardPage() {
   const { user, loading: authLoading, authFetch } = useAuth('parceiro')
   const [vendas, setVendas] = useState<Venda[]>([])
   const [comCalc, setComCalc] = useState<ComCalculo | null>(null)
   const [dataLoading, setDataLoading] = useState(true)
+  const [mensagemDia, setMensagemDia] = useState<Mensagem | null>(null)
+  const [chargebacks, setChargebacks] = useState<Chargeback[]>([])
 
   useEffect(() => {
     if (!user) return // Espera que useAuth complete
 
     async function loadData() {
       try {
-        const [vRes, cRes] = await Promise.all([
+        const [vRes, cRes, mRes, chRes] = await Promise.all([
           authFetch('/api/vendas'),
-          authFetch('/api/comissoes')
+          authFetch('/api/comissoes'),
+          authFetch('/api/mensagens'),
+          authFetch('/api/chargebacks')
         ])
         const vData = await vRes.json()
         const cData = await cRes.json()
+        const mData = await mRes.json()
+        const chData = await chRes.json()
         setVendas(vData.vendas || [])
         if (cData.calculo) setComCalc(cData.calculo)
+        if (mData.mensagem) setMensagemDia(mData.mensagem)
+        setChargebacks(chData.chargebacks || [])
       } catch {
         // silencioso
       }
@@ -52,13 +62,15 @@ export default function DashboardPage() {
 
   const totalVendido = vendas.reduce((s, v) => s + (v.amount || 0), 0)
   const pendentes = vendas.filter((v) => v.status === 'pendente')
-  const clientes = new Set(vendas.map((v) => v.client_email)).size
+  const totalChargebacks = chargebacks.reduce((s, c) => s + (c.valor || 0), 0)
+  const comissaoBruta = comCalc?.total || 0
+  const saldoFinal = comissaoBruta - totalChargebacks
 
   const metrics = [
-    { label: 'Total Vendido', value: `\u20AC${totalVendido.toFixed(2)}`, icon: DollarSign, color: '#059669', bg: '#d1fae5' },
-    { label: 'Comissoes', value: `\u20AC${(comCalc?.total || 0).toFixed(2)}`, icon: Calculator, color: '#7c3aed', bg: '#ede9fe' },
-    { label: 'Vendas', value: vendas.length, icon: TrendingUp, color: '#4f46e5', bg: '#e0e7ff' },
-    { label: 'Pendentes', value: pendentes.length, icon: Clock, color: '#d97706', bg: '#fef3c7' },
+    { label: 'Comissao Bruta', value: `\u20AC${comissaoBruta.toFixed(2)}`, icon: DollarSign, color: '#059669', bg: '#d1fae5' },
+    { label: 'Chargebacks', value: `-\u20AC${totalChargebacks.toFixed(2)}`, icon: Calculator, color: '#dc2626', bg: '#fee2e2' },
+    { label: 'Saldo Liquido', value: `\u20AC${saldoFinal.toFixed(2)}`, icon: TrendingUp, color: '#7c3aed', bg: '#ede9fe' },
+    { label: 'Vendas', value: vendas.length, icon: Clock, color: '#4f46e5', bg: '#e0e7ff' },
   ]
 
   const statusStyles: Record<string, { bg: string; color: string }> = {
@@ -76,6 +88,28 @@ export default function DashboardPage() {
         <Sidebar userRole="parceiro" />
         <main className="flex-1 md:ml-64 pt-16" style={{ minHeight: '100vh' }}>
           <div className="p-4 md:p-8">
+            {/* Mensagem Motivacional */}
+            {mensagemDia && (
+              <div className="mb-6 rounded-xl p-5 shadow-sm" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', border: 'none' }}>
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 text-3xl">
+                    {new Date().getHours() < 12 ? '☀️' : new Date().getHours() < 18 ? '🌤️' : '🌙'}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-white/80 mb-1">
+                      {new Date().getHours() < 12 ? 'Bom dia' : new Date().getHours() < 18 ? 'Boa tarde' : 'Boa noite'}, {user?.full_name?.split(' ')[0]}!
+                    </p>
+                    <p className="text-lg font-semibold text-white leading-relaxed">
+                      {`"${mensagemDia.mensagem}"`}
+                    </p>
+                    {mensagemDia.autor && (
+                      <p className="mt-2 text-sm text-white/70">— {mensagemDia.autor}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
               <div>

@@ -53,17 +53,23 @@ export default function NovaVendaPage() {
     description: '',
     notes: '',
     energia_tipo: 'eletricidade',
+    energia_tipo_processo: '',
     cpe: '',
     cui: '',
     potencia: '',
     escalao: '',
     gas_escalao: '',
     is_dual: false,
+    telco_fixo: '',
+    telco_fixo_cvp: '',
   })
 
   // Multiplos CPE e CUI
   const [cpes, setCpes] = useState<string[]>([''])
   const [cuis, setCuis] = useState<string[]>([''])
+
+  // Multiplos numeros telco (ate 5)
+  const [telcoNumeros, setTelcoNumeros] = useState<{numero: string, cvp: string}[]>([{numero: '', cvp: ''}])
 
   useEffect(() => {
     if (!user) return
@@ -124,12 +130,15 @@ export default function NovaVendaPage() {
     setLoading(true)
     try {
       const isEnergyOrGas = form.service_type === 'energia' || form.service_type === 'gas'
+      const isTelecom = form.service_type === 'telecom'
       const filteredCpes = cpes.filter(c => c.trim())
       const filteredCuis = cuis.filter(c => c.trim())
+      const filteredTelcoNumeros = telcoNumeros.filter(t => t.numero.trim())
       const payload = {
         ...form,
         is_dual: form.service_type === 'energia' && form.energia_tipo === 'dual',
         energia_tipo: isEnergyOrGas ? form.energia_tipo : null,
+        energia_tipo_processo: isEnergyOrGas ? form.energia_tipo_processo : null,
         cpe: isEnergyOrGas && filteredCpes.length > 0 ? filteredCpes[0] : null,
         cui: isEnergyOrGas && filteredCuis.length > 0 ? filteredCuis[0] : null,
         cpes: isEnergyOrGas ? filteredCpes : [],
@@ -137,6 +146,9 @@ export default function NovaVendaPage() {
         potencia: isEnergyOrGas ? form.potencia : null,
         escalao: isEnergyOrGas ? form.escalao : null,
         gas_escalao: isEnergyOrGas ? form.gas_escalao : null,
+        telco_numeros: isTelecom ? filteredTelcoNumeros : [],
+        telco_fixo: isTelecom ? form.telco_fixo : null,
+        telco_fixo_cvp: isTelecom ? form.telco_fixo_cvp : null,
       }
       const res = await authFetch('/api/vendas', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -292,6 +304,31 @@ export default function NovaVendaPage() {
                         </p>
                       )}
                     </div>
+
+                    {/* Tipo de Processo Energia */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>Tipo de Processo *</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[
+                          { v: 'ED', l: 'ED', desc: 'Entrada Direta' },
+                          { v: 'AT', l: 'AT', desc: 'Alt. Titularidade' },
+                          { v: 'MC', l: 'MC', desc: 'Mudanca Comerc.' },
+                        ].map(({ v, l, desc }) => (
+                          <button key={v} type="button"
+                            onClick={() => update('energia_tipo_processo', v)}
+                            className="rounded-lg py-2.5 text-sm font-semibold border transition flex flex-col items-center"
+                            style={{
+                              background: form.energia_tipo_processo === v ? '#4338ca' : '#f9fafb',
+                              color: form.energia_tipo_processo === v ? '#fff' : '#374151',
+                              border: form.energia_tipo_processo === v ? '1px solid #4338ca' : '1px solid #e5e7eb',
+                            }}>
+                            <span className="font-bold">{l}</span>
+                            <span className="text-xs opacity-80">{desc}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                     <div className="space-y-4">
                       {/* CPEs - Multiplos */}
                       {(form.energia_tipo === 'eletricidade' || form.energia_tipo === 'dual') && (
@@ -402,6 +439,66 @@ export default function NovaVendaPage() {
                             </select>
                           </div>
                         )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* TELECOM: Numeros e CVP */}
+                {form.service_type === 'telecom' && (
+                  <div className="mt-4 space-y-4 pt-4" style={{ borderTop: '1px solid #f3f4f6' }}>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold" style={{ color: '#374151' }}>Numeros de Telemovel e CVP</h3>
+                      {telcoNumeros.length < 5 && (
+                        <button type="button" onClick={() => setTelcoNumeros([...telcoNumeros, {numero: '', cvp: ''}])}
+                          className="text-xs font-medium px-3 py-1.5 rounded-lg transition hover:opacity-80"
+                          style={{ background: '#eef2ff', color: '#4338ca' }}>
+                          + Adicionar Numero
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-xs" style={{ color: '#6b7280' }}>Adicione ate 5 numeros de telemovel com os respetivos CVP (opcionais)</p>
+                    
+                    {telcoNumeros.map((item, idx) => (
+                      <div key={idx} className="flex gap-2 items-center">
+                        <div className="flex-1">
+                          <label className="block text-xs font-medium mb-1" style={{ color: '#6b7280' }}>Numero {idx + 1}</label>
+                          <input type="text" value={item.numero}
+                            onChange={e => { const n = [...telcoNumeros]; n[idx].numero = e.target.value; setTelcoNumeros(n) }}
+                            className="w-full rounded-lg px-3 py-2 text-sm font-mono" style={inp}
+                            placeholder="9XXXXXXXX" maxLength={9} />
+                        </div>
+                        <div className="flex-1">
+                          <label className="block text-xs font-medium mb-1" style={{ color: '#6b7280' }}>CVP</label>
+                          <input type="text" value={item.cvp}
+                            onChange={e => { const n = [...telcoNumeros]; n[idx].cvp = e.target.value; setTelcoNumeros(n) }}
+                            className="w-full rounded-lg px-3 py-2 text-sm font-mono" style={inp}
+                            placeholder="CVP (opcional)" />
+                        </div>
+                        {telcoNumeros.length > 1 && (
+                          <button type="button" onClick={() => setTelcoNumeros(telcoNumeros.filter((_, i) => i !== idx))}
+                            className="rounded-lg px-2.5 py-2 text-xs mt-5 transition hover:opacity-70"
+                            style={{ background: '#fef2f2', color: '#dc2626' }}>
+                            X
+                          </button>
+                        )}
+                      </div>
+                    ))}
+
+                    {/* Numero Fixo */}
+                    <div className="pt-3" style={{ borderTop: '1px dashed #e5e7eb' }}>
+                      <h4 className="text-xs font-semibold mb-2" style={{ color: '#6b7280' }}>Numero Fixo (opcional)</h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <input type="text" value={form.telco_fixo} onChange={e => update('telco_fixo', e.target.value)}
+                            className="w-full rounded-lg px-3 py-2 text-sm font-mono" style={inp}
+                            placeholder="2XXXXXXXX" maxLength={9} />
+                        </div>
+                        <div>
+                          <input type="text" value={form.telco_fixo_cvp} onChange={e => update('telco_fixo_cvp', e.target.value)}
+                            className="w-full rounded-lg px-3 py-2 text-sm font-mono" style={inp}
+                            placeholder="CVP Fixo (opcional)" />
+                        </div>
                       </div>
                     </div>
                   </div>
