@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Send, Users, FileText, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, FileSignature } from 'lucide-react'
+import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle } from 'lucide-react'
 
 interface SidebarProps { userRole: string }
 
@@ -32,7 +32,6 @@ export function Sidebar({ userRole }: SidebarProps) {
     { href: '/admin/publicacoes', label: 'Publicacoes', icon: Newspaper },
     { href: '/admin/comissoes', label: 'Comissoes', icon: Percent },
     { href: '/admin/contratos', label: 'Contratos', icon: FileCheck },
-    { href: '/admin/templates', label: 'Templates PDF', icon: FileSignature },
     { href: '/admin/documentos', label: 'Documentos', icon: Upload },
     { href: '/admin/import', label: 'Import / Export', icon: FileSpreadsheet },
     { href: '/admin/passwords', label: 'Passwords', icon: KeyRound },
