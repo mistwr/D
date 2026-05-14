@@ -109,6 +109,31 @@ export default function AdminVendasPage() {
   })
   const [savingClient, setSavingClient] = useState(false)
 
+  // Editar dados do produto
+  const [editingProduct, setEditingProduct] = useState(false)
+  const [productForm, setProductForm] = useState({
+    service_type: '',
+    operator: '',
+    plano: '',
+    amount: '',
+    description: '',
+    notes: '',
+    // Energia
+    energia_tipo: '',
+    energia_tipo_processo: '',
+    is_dual: false,
+    cpe: '',
+    cui: '',
+    potencia: '',
+    escalao: '',
+    gas_escalao: '',
+    // Telco
+    telco_numeros: [] as { numero: string; cvp: string }[],
+    telco_fixo: '',
+    telco_fixo_cvp: '',
+  })
+  const [savingProduct, setSavingProduct] = useState(false)
+
   // Chargeback
   const [showChargebackForm, setShowChargebackForm] = useState(false)
   const [chargebackValor, setChargebackValor] = useState('')
@@ -146,6 +171,26 @@ export default function AdminVendasPage() {
       client_address: v.client_address || '',
     })
     setEditingClient(false)
+    setProductForm({
+      service_type: v.service_type || '',
+      operator: v.operator || '',
+      plano: v.plano || '',
+      amount: v.amount?.toString() || '',
+      description: v.description || '',
+      notes: v.notes || '',
+      energia_tipo: v.energia_tipo || '',
+      energia_tipo_processo: v.energia_tipo_processo || '',
+      is_dual: v.is_dual || false,
+      cpe: v.cpe || '',
+      cui: v.cui || '',
+      potencia: v.potencia || '',
+      escalao: v.escalao || '',
+      gas_escalao: v.gas_escalao || '',
+      telco_numeros: v.telco_numeros || [],
+      telco_fixo: v.telco_fixo || '',
+      telco_fixo_cvp: v.telco_fixo_cvp || '',
+    })
+    setEditingProduct(false)
     loadDocs(v.id)
   }
 
@@ -164,6 +209,26 @@ export default function AdminVendasPage() {
       client_address: '',
     })
     setEditingClient(false)
+    setProductForm({
+      service_type: '',
+      operator: '',
+      plano: '',
+      amount: '',
+      description: '',
+      notes: '',
+      energia_tipo: '',
+      energia_tipo_processo: '',
+      is_dual: false,
+      cpe: '',
+      cui: '',
+      potencia: '',
+      escalao: '',
+      gas_escalao: '',
+      telco_numeros: [],
+      telco_fixo: '',
+      telco_fixo_cvp: '',
+    })
+    setEditingProduct(false)
     setShowChargebackForm(false)
     setChargebackValor('')
     setChargebackMotivo('')
@@ -243,6 +308,61 @@ export default function AdminVendasPage() {
       setEditingClient(false)
     }
     setSavingClient(false)
+  }
+
+  async function saveProductData() {
+    if (!selected) return
+    setSavingProduct(true)
+    const res = await authFetch('/api/vendas', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        id: selected.id, 
+        service_type: productForm.service_type,
+        operator: productForm.operator,
+        plano: productForm.plano,
+        amount: productForm.amount ? parseFloat(productForm.amount) : null,
+        description: productForm.description,
+        notes: productForm.notes,
+        energia_tipo: productForm.energia_tipo,
+        energia_tipo_processo: productForm.energia_tipo_processo,
+        is_dual: productForm.is_dual,
+        cpe: productForm.cpe,
+        cui: productForm.cui,
+        potencia: productForm.potencia,
+        escalao: productForm.escalao,
+        gas_escalao: productForm.gas_escalao,
+        telco_numeros: productForm.telco_numeros,
+        telco_fixo: productForm.telco_fixo,
+        telco_fixo_cvp: productForm.telco_fixo_cvp,
+      }),
+    })
+    if (res.ok) {
+      const updatedData = {
+        ...selected,
+        service_type: productForm.service_type,
+        operator: productForm.operator,
+        plano: productForm.plano,
+        amount: productForm.amount ? parseFloat(productForm.amount) : null,
+        description: productForm.description,
+        notes: productForm.notes,
+        energia_tipo: productForm.energia_tipo,
+        energia_tipo_processo: productForm.energia_tipo_processo,
+        is_dual: productForm.is_dual,
+        cpe: productForm.cpe,
+        cui: productForm.cui,
+        potencia: productForm.potencia,
+        escalao: productForm.escalao,
+        gas_escalao: productForm.gas_escalao,
+        telco_numeros: productForm.telco_numeros,
+        telco_fixo: productForm.telco_fixo,
+        telco_fixo_cvp: productForm.telco_fixo_cvp,
+      }
+      setVendas(prev => prev.map(v => v.id === selected.id ? { ...v, ...updatedData } : v))
+      setSelected(updatedData)
+      setEditingProduct(false)
+    }
+    setSavingProduct(false)
   }
 
   async function changeStatus(id: string, status: string) {
@@ -645,91 +765,397 @@ export default function AdminVendasPage() {
 
                       {/* Dados do Produto */}
                       <section className="px-5 py-4" style={{ borderBottom: '1px solid #f3f4f6' }}>
-                        <div className="flex items-center gap-2 mb-3">
-                          <Package size={14} style={{ color: '#4338ca' }} />
-                          <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#4338ca' }}>Dados do Produto</p>
-                        </div>
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                          <Field label="Servico" value={selected.service_type} />
-                          <Field label="Operadora" value={selected.operator} />
-                          <Field label="Plano" value={selected.plano} />
-                          <Field label="Valor" value={selected.amount ? `${selected.amount.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} EUR` : null} />
-                          {/* Campos Energia */}
-                          {(selected.service_type === 'energia' || selected.service_type === 'gas') && (
-                            <>
-                              <Field label="Tipo" value={selected.energia_tipo} />
-                              <Field label="Tipo Processo" value={selected.energia_tipo_processo ? TIPO_PROCESSO_LABELS[selected.energia_tipo_processo] || selected.energia_tipo_processo : null} />
-                              <Field label="Dual" value={selected.is_dual ? 'Sim' : null} />
-                              <Field label="CPE" value={selected.cpe} />
-                              <Field label="CUI" value={selected.cui} />
-                              <Field label="Potencia" value={selected.potencia} />
-                              <Field label="Escalao" value={selected.escalao} />
-                              <Field label="Escalao Gas" value={selected.gas_escalao} />
-                            </>
-                          )}
-                          {/* Campos Telco */}
-                          {selected.service_type === 'telecom' && (
-                            <>
-                              {selected.telco_numeros && selected.telco_numeros.length > 0 && (
-                                <div className="col-span-2">
-                                  <p className="text-xs font-medium mb-1" style={{ color: '#9ca3af' }}>Numeros Movel</p>
-                                  <div className="space-y-1">
-                                    {selected.telco_numeros.map((t, i) => (
-                                      <div key={i} className="flex gap-2 text-sm">
-                                        <span className="font-mono" style={{ color: '#111827' }}>{t.numero || '-'}</span>
-                                        {t.cvp && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#eef2ff', color: '#4338ca' }}>CVP: {t.cvp}</span>}
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                              {selected.telco_fixo && (
-                                <div className="col-span-2">
-                                  <p className="text-xs font-medium mb-1" style={{ color: '#9ca3af' }}>Numero Fixo</p>
-                                  <div className="flex gap-2 text-sm">
-                                    <span className="font-mono" style={{ color: '#111827' }}>{selected.telco_fixo}</span>
-                                    {selected.telco_fixo_cvp && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#fef3c7', color: '#92400e' }}>CVP: {selected.telco_fixo_cvp}</span>}
-                                  </div>
-                                </div>
-                              )}
-                            </>
-                          )}
-                          <div className="col-span-2">
-                            <Field label="Descricao" value={selected.description} />
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <Package size={14} style={{ color: '#4338ca' }} />
+                            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#4338ca' }}>Dados do Produto</p>
                           </div>
-                          {selected.notes && (
-                            <div className="col-span-2">
-                              <p className="text-xs font-medium mb-1" style={{ color: '#9ca3af' }}>Notas do Parceiro</p>
-                              <div className="rounded-lg px-3 py-2 text-sm whitespace-pre-wrap" style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e' }}>
-                                {selected.notes}
-                              </div>
-                            </div>
-                          )}
-                          {/* CPEs e CUIs multiplos */}
-                          {selected.cpes && selected.cpes.length > 1 && (
-                            <div className="col-span-2">
-                              <p className="text-xs font-medium mb-1" style={{ color: '#9ca3af' }}>CPEs Adicionais</p>
-                              <div className="flex flex-wrap gap-1">
-                                {selected.cpes.map((c, i) => (
-                                  <span key={i} className="rounded px-2 py-1 text-xs font-mono" style={{ background: '#eef2ff', color: '#4338ca' }}>{c}</span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          {selected.cuis && selected.cuis.length > 1 && (
-                            <div className="col-span-2">
-                              <p className="text-xs font-medium mb-1" style={{ color: '#9ca3af' }}>CUIs Adicionais</p>
-                              <div className="flex flex-wrap gap-1">
-                                {selected.cuis.map((c, i) => (
-                                  <span key={i} className="rounded px-2 py-1 text-xs font-mono" style={{ background: '#fef3c7', color: '#92400e' }}>{c}</span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          {selected.gas_escalao && (
-                            <Field label="Escalao Gas" value={`Escalao ${selected.gas_escalao}`} />
+                          {!editingProduct && (
+                            <button
+                              onClick={() => setEditingProduct(true)}
+                              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition hover:opacity-80"
+                              style={{ background: '#eef2ff', color: '#4338ca' }}
+                            >
+                              <Edit3 size={12} />
+                              Editar Produto
+                            </button>
                           )}
                         </div>
+
+                        {editingProduct ? (
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                              {/* Campos Base */}
+                              <div>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Tipo de Servico</label>
+                                <select
+                                  value={productForm.service_type}
+                                  onChange={e => setProductForm(f => ({ ...f, service_type: e.target.value }))}
+                                  className="w-full rounded-lg px-3 py-2 text-sm"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                >
+                                  <option value="">Selecionar...</option>
+                                  <option value="energia">Energia</option>
+                                  <option value="gas">Gas</option>
+                                  <option value="telecom">Telecom</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Operadora</label>
+                                <input
+                                  type="text"
+                                  value={productForm.operator}
+                                  onChange={e => setProductForm(f => ({ ...f, operator: e.target.value }))}
+                                  className="w-full rounded-lg px-3 py-2 text-sm"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                  placeholder="Nome da operadora"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Plano</label>
+                                <input
+                                  type="text"
+                                  value={productForm.plano}
+                                  onChange={e => setProductForm(f => ({ ...f, plano: e.target.value }))}
+                                  className="w-full rounded-lg px-3 py-2 text-sm"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                  placeholder="Nome do plano"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Valor (EUR)</label>
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  value={productForm.amount}
+                                  onChange={e => setProductForm(f => ({ ...f, amount: e.target.value }))}
+                                  className="w-full rounded-lg px-3 py-2 text-sm"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                  placeholder="0.00"
+                                />
+                              </div>
+
+                              {/* Campos Energia/Gas */}
+                              {(productForm.service_type === 'energia' || productForm.service_type === 'gas') && (
+                                <>
+                                  <div>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Tipo Energia</label>
+                                    <select
+                                      value={productForm.energia_tipo}
+                                      onChange={e => setProductForm(f => ({ ...f, energia_tipo: e.target.value }))}
+                                      className="w-full rounded-lg px-3 py-2 text-sm"
+                                      style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                    >
+                                      <option value="">Selecionar...</option>
+                                      <option value="eletricidade">Eletricidade</option>
+                                      <option value="gas">Gas</option>
+                                      <option value="dual">Dual</option>
+                                    </select>
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Tipo de Processo</label>
+                                    <select
+                                      value={productForm.energia_tipo_processo}
+                                      onChange={e => setProductForm(f => ({ ...f, energia_tipo_processo: e.target.value }))}
+                                      className="w-full rounded-lg px-3 py-2 text-sm"
+                                      style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                    >
+                                      <option value="">Selecionar...</option>
+                                      <option value="mudanca">Mudanca de Comercializador</option>
+                                      <option value="nova_ligacao">Nova Ligacao</option>
+                                      <option value="reativacao">Reativacao</option>
+                                    </select>
+                                  </div>
+                                  <div className="flex items-center gap-2 col-span-2">
+                                    <input
+                                      type="checkbox"
+                                      id="is_dual"
+                                      checked={productForm.is_dual}
+                                      onChange={e => setProductForm(f => ({ ...f, is_dual: e.target.checked }))}
+                                      className="rounded"
+                                    />
+                                    <label htmlFor="is_dual" className="text-sm" style={{ color: '#374151' }}>Contrato Dual (Eletricidade + Gas)</label>
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>CPE</label>
+                                    <input
+                                      type="text"
+                                      value={productForm.cpe}
+                                      onChange={e => setProductForm(f => ({ ...f, cpe: e.target.value }))}
+                                      className="w-full rounded-lg px-3 py-2 text-sm font-mono"
+                                      style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                      placeholder="PT0000..."
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>CUI</label>
+                                    <input
+                                      type="text"
+                                      value={productForm.cui}
+                                      onChange={e => setProductForm(f => ({ ...f, cui: e.target.value }))}
+                                      className="w-full rounded-lg px-3 py-2 text-sm font-mono"
+                                      style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                      placeholder="PT0000..."
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Potencia</label>
+                                    <input
+                                      type="text"
+                                      value={productForm.potencia}
+                                      onChange={e => setProductForm(f => ({ ...f, potencia: e.target.value }))}
+                                      className="w-full rounded-lg px-3 py-2 text-sm"
+                                      style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                      placeholder="ex: 6.9 kVA"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Escalao</label>
+                                    <input
+                                      type="text"
+                                      value={productForm.escalao}
+                                      onChange={e => setProductForm(f => ({ ...f, escalao: e.target.value }))}
+                                      className="w-full rounded-lg px-3 py-2 text-sm"
+                                      style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                      placeholder="ex: 1, 2, 3..."
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Escalao Gas</label>
+                                    <input
+                                      type="text"
+                                      value={productForm.gas_escalao}
+                                      onChange={e => setProductForm(f => ({ ...f, gas_escalao: e.target.value }))}
+                                      className="w-full rounded-lg px-3 py-2 text-sm"
+                                      style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                      placeholder="ex: 1, 2, 3..."
+                                    />
+                                  </div>
+                                </>
+                              )}
+
+                              {/* Campos Telecom */}
+                              {productForm.service_type === 'telecom' && (
+                                <>
+                                  <div className="col-span-2">
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Numeros Movel</label>
+                                    <div className="space-y-2">
+                                      {productForm.telco_numeros.map((num, idx) => (
+                                        <div key={idx} className="flex gap-2">
+                                          <input
+                                            type="text"
+                                            value={num.numero}
+                                            onChange={e => {
+                                              const updated = [...productForm.telco_numeros]
+                                              updated[idx] = { ...updated[idx], numero: e.target.value }
+                                              setProductForm(f => ({ ...f, telco_numeros: updated }))
+                                            }}
+                                            className="flex-1 rounded-lg px-3 py-2 text-sm font-mono"
+                                            style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                            placeholder="912345678"
+                                          />
+                                          <input
+                                            type="text"
+                                            value={num.cvp}
+                                            onChange={e => {
+                                              const updated = [...productForm.telco_numeros]
+                                              updated[idx] = { ...updated[idx], cvp: e.target.value }
+                                              setProductForm(f => ({ ...f, telco_numeros: updated }))
+                                            }}
+                                            className="w-24 rounded-lg px-3 py-2 text-sm font-mono"
+                                            style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                            placeholder="CVP"
+                                          />
+                                          <button
+                                            onClick={() => {
+                                              const updated = productForm.telco_numeros.filter((_, i) => i !== idx)
+                                              setProductForm(f => ({ ...f, telco_numeros: updated }))
+                                            }}
+                                            className="px-2 rounded-lg text-red-600 hover:bg-red-50"
+                                          >
+                                            <Trash2 size={14} />
+                                          </button>
+                                        </div>
+                                      ))}
+                                      <button
+                                        onClick={() => setProductForm(f => ({ ...f, telco_numeros: [...f.telco_numeros, { numero: '', cvp: '' }] }))}
+                                        className="text-xs font-medium px-3 py-1.5 rounded-lg"
+                                        style={{ background: '#eef2ff', color: '#4338ca' }}
+                                      >
+                                        + Adicionar Numero
+                                      </button>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Numero Fixo</label>
+                                    <input
+                                      type="text"
+                                      value={productForm.telco_fixo}
+                                      onChange={e => setProductForm(f => ({ ...f, telco_fixo: e.target.value }))}
+                                      className="w-full rounded-lg px-3 py-2 text-sm font-mono"
+                                      style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                      placeholder="211234567"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>CVP Fixo</label>
+                                    <input
+                                      type="text"
+                                      value={productForm.telco_fixo_cvp}
+                                      onChange={e => setProductForm(f => ({ ...f, telco_fixo_cvp: e.target.value }))}
+                                      className="w-full rounded-lg px-3 py-2 text-sm font-mono"
+                                      style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                      placeholder="CVP"
+                                    />
+                                  </div>
+                                </>
+                              )}
+
+                              <div className="col-span-2">
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Descricao</label>
+                                <input
+                                  type="text"
+                                  value={productForm.description}
+                                  onChange={e => setProductForm(f => ({ ...f, description: e.target.value }))}
+                                  className="w-full rounded-lg px-3 py-2 text-sm"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                  placeholder="Descricao do produto/servico"
+                                />
+                              </div>
+                              <div className="col-span-2">
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Notas</label>
+                                <textarea
+                                  value={productForm.notes}
+                                  onChange={e => setProductForm(f => ({ ...f, notes: e.target.value }))}
+                                  rows={2}
+                                  className="w-full rounded-lg px-3 py-2 text-sm resize-none"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                  placeholder="Notas adicionais..."
+                                />
+                              </div>
+                            </div>
+                            <div className="flex gap-2 pt-2">
+                              <button
+                                onClick={saveProductData}
+                                disabled={savingProduct}
+                                className="flex-1 rounded-lg py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                                style={{ background: '#059669' }}
+                              >
+                                {savingProduct ? 'A guardar...' : 'Guardar Alteracoes'}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditingProduct(false)
+                                  setProductForm({
+                                    service_type: selected.service_type || '',
+                                    operator: selected.operator || '',
+                                    plano: selected.plano || '',
+                                    amount: selected.amount?.toString() || '',
+                                    description: selected.description || '',
+                                    notes: selected.notes || '',
+                                    energia_tipo: selected.energia_tipo || '',
+                                    energia_tipo_processo: selected.energia_tipo_processo || '',
+                                    is_dual: selected.is_dual || false,
+                                    cpe: selected.cpe || '',
+                                    cui: selected.cui || '',
+                                    potencia: selected.potencia || '',
+                                    escalao: selected.escalao || '',
+                                    gas_escalao: selected.gas_escalao || '',
+                                    telco_numeros: selected.telco_numeros || [],
+                                    telco_fixo: selected.telco_fixo || '',
+                                    telco_fixo_cvp: selected.telco_fixo_cvp || '',
+                                  })
+                                }}
+                                className="rounded-lg px-4 py-2 text-sm font-medium transition hover:opacity-70"
+                                style={{ background: '#f3f4f6', color: '#374151' }}
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                            <Field label="Servico" value={selected.service_type} />
+                            <Field label="Operadora" value={selected.operator} />
+                            <Field label="Plano" value={selected.plano} />
+                            <Field label="Valor" value={selected.amount ? `${selected.amount.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} EUR` : null} />
+                            {/* Campos Energia */}
+                            {(selected.service_type === 'energia' || selected.service_type === 'gas') && (
+                              <>
+                                <Field label="Tipo" value={selected.energia_tipo} />
+                                <Field label="Tipo Processo" value={selected.energia_tipo_processo ? TIPO_PROCESSO_LABELS[selected.energia_tipo_processo] || selected.energia_tipo_processo : null} />
+                                <Field label="Dual" value={selected.is_dual ? 'Sim' : null} />
+                                <Field label="CPE" value={selected.cpe} />
+                                <Field label="CUI" value={selected.cui} />
+                                <Field label="Potencia" value={selected.potencia} />
+                                <Field label="Escalao" value={selected.escalao} />
+                                <Field label="Escalao Gas" value={selected.gas_escalao} />
+                              </>
+                            )}
+                            {/* Campos Telco */}
+                            {selected.service_type === 'telecom' && (
+                              <>
+                                {selected.telco_numeros && selected.telco_numeros.length > 0 && (
+                                  <div className="col-span-2">
+                                    <p className="text-xs font-medium mb-1" style={{ color: '#9ca3af' }}>Numeros Movel</p>
+                                    <div className="space-y-1">
+                                      {selected.telco_numeros.map((t, i) => (
+                                        <div key={i} className="flex gap-2 text-sm">
+                                          <span className="font-mono" style={{ color: '#111827' }}>{t.numero || '-'}</span>
+                                          {t.cvp && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#eef2ff', color: '#4338ca' }}>CVP: {t.cvp}</span>}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                                {selected.telco_fixo && (
+                                  <div className="col-span-2">
+                                    <p className="text-xs font-medium mb-1" style={{ color: '#9ca3af' }}>Numero Fixo</p>
+                                    <div className="flex gap-2 text-sm">
+                                      <span className="font-mono" style={{ color: '#111827' }}>{selected.telco_fixo}</span>
+                                      {selected.telco_fixo_cvp && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#fef3c7', color: '#92400e' }}>CVP: {selected.telco_fixo_cvp}</span>}
+                                    </div>
+                                  </div>
+                                )}
+                              </>
+                            )}
+                            <div className="col-span-2">
+                              <Field label="Descricao" value={selected.description} />
+                            </div>
+                            {selected.notes && (
+                              <div className="col-span-2">
+                                <p className="text-xs font-medium mb-1" style={{ color: '#9ca3af' }}>Notas do Parceiro</p>
+                                <div className="rounded-lg px-3 py-2 text-sm whitespace-pre-wrap" style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e' }}>
+                                  {selected.notes}
+                                </div>
+                              </div>
+                            )}
+                            {/* CPEs e CUIs multiplos */}
+                            {selected.cpes && selected.cpes.length > 1 && (
+                              <div className="col-span-2">
+                                <p className="text-xs font-medium mb-1" style={{ color: '#9ca3af' }}>CPEs Adicionais</p>
+                                <div className="flex flex-wrap gap-1">
+                                  {selected.cpes.map((c, i) => (
+                                    <span key={i} className="rounded px-2 py-1 text-xs font-mono" style={{ background: '#eef2ff', color: '#4338ca' }}>{c}</span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {selected.cuis && selected.cuis.length > 1 && (
+                              <div className="col-span-2">
+                                <p className="text-xs font-medium mb-1" style={{ color: '#9ca3af' }}>CUIs Adicionais</p>
+                                <div className="flex flex-wrap gap-1">
+                                  {selected.cuis.map((c, i) => (
+                                    <span key={i} className="rounded px-2 py-1 text-xs font-mono" style={{ background: '#fef3c7', color: '#92400e' }}>{c}</span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {selected.gas_escalao && (
+                              <Field label="Escalao Gas" value={`Escalao ${selected.gas_escalao}`} />
+                            )}
+                          </div>
+                        )}
                       </section>
 
                       {/* Feedback do Admin */}
