@@ -6,7 +6,7 @@ import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import {
   ShoppingCart, Search, ChevronDown, Trash2, X, FileText,
-  User, Package, Paperclip, ExternalLink, Download, Upload, RefreshCw
+  User, Package, Paperclip, ExternalLink, Download, Upload, RefreshCw, Edit3
 } from 'lucide-react'
 
 const STATUS_LABELS: Record<string, { label: string; color: string; bg: string }> = {
@@ -96,10 +96,18 @@ export default function AdminVendasPage() {
   const [feedback, setFeedback] = useState('')
   const [savingFeedback, setSavingFeedback] = useState(false)
 
-  // Editar morada
-  const [editingAddress, setEditingAddress] = useState(false)
-  const [addressValue, setAddressValue] = useState('')
-  const [savingAddress, setSavingAddress] = useState(false)
+  // Editar dados do cliente
+  const [editingClient, setEditingClient] = useState(false)
+  const [clientForm, setClientForm] = useState({
+    client_name: '',
+    client_nif: '',
+    client_cc: '',
+    client_phone: '',
+    client_email: '',
+    client_iban: '',
+    client_address: '',
+  })
+  const [savingClient, setSavingClient] = useState(false)
 
   // Chargeback
   const [showChargebackForm, setShowChargebackForm] = useState(false)
@@ -128,8 +136,16 @@ export default function AdminVendasPage() {
     setSelected(v)
     setUploadErr('')
     setFeedback(v.admin_feedback || '')
-    setAddressValue(v.client_address || '')
-    setEditingAddress(false)
+    setClientForm({
+      client_name: v.client_name || '',
+      client_nif: v.client_nif || '',
+      client_cc: v.client_cc || '',
+      client_phone: v.client_phone || '',
+      client_email: v.client_email || '',
+      client_iban: v.client_iban || '',
+      client_address: v.client_address || '',
+    })
+    setEditingClient(false)
     loadDocs(v.id)
   }
 
@@ -138,8 +154,16 @@ export default function AdminVendasPage() {
     setDocs([])
     setUploadErr('')
     setFeedback('')
-    setAddressValue('')
-    setEditingAddress(false)
+    setClientForm({
+      client_name: '',
+      client_nif: '',
+      client_cc: '',
+      client_phone: '',
+      client_email: '',
+      client_iban: '',
+      client_address: '',
+    })
+    setEditingClient(false)
     setShowChargebackForm(false)
     setChargebackValor('')
     setChargebackMotivo('')
@@ -186,20 +210,39 @@ export default function AdminVendasPage() {
     setSavingFeedback(false)
   }
 
-  async function saveAddress() {
+  async function saveClientData() {
     if (!selected) return
-    setSavingAddress(true)
+    setSavingClient(true)
     const res = await authFetch('/api/vendas', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: selected.id, client_address: addressValue }),
+      body: JSON.stringify({ 
+        id: selected.id, 
+        client_name: clientForm.client_name,
+        client_nif: clientForm.client_nif,
+        client_cc: clientForm.client_cc,
+        client_phone: clientForm.client_phone,
+        client_email: clientForm.client_email,
+        client_iban: clientForm.client_iban,
+        client_address: clientForm.client_address,
+      }),
     })
     if (res.ok) {
-      setVendas(prev => prev.map(v => v.id === selected.id ? { ...v, client_address: addressValue } : v))
-      setSelected(prev => prev ? { ...prev, client_address: addressValue } : prev)
-      setEditingAddress(false)
+      const updatedData = {
+        ...selected,
+        client_name: clientForm.client_name,
+        client_nif: clientForm.client_nif,
+        client_cc: clientForm.client_cc,
+        client_phone: clientForm.client_phone,
+        client_email: clientForm.client_email,
+        client_iban: clientForm.client_iban,
+        client_address: clientForm.client_address,
+      }
+      setVendas(prev => prev.map(v => v.id === selected.id ? { ...v, ...updatedData } : v))
+      setSelected(updatedData)
+      setEditingClient(false)
     }
-    setSavingAddress(false)
+    setSavingClient(false)
   }
 
   async function changeStatus(id: string, status: string) {
@@ -458,65 +501,146 @@ export default function AdminVendasPage() {
                     <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
                       {/* Dados do Cliente */}
                       <section className="px-5 py-4" style={{ borderBottom: '1px solid #f3f4f6' }}>
-                        <div className="flex items-center gap-2 mb-3">
-                          <User size={14} style={{ color: '#4338ca' }} />
-                          <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#4338ca' }}>Dados do Cliente</p>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <User size={14} style={{ color: '#4338ca' }} />
+                            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#4338ca' }}>Dados do Cliente</p>
+                          </div>
+                          {!editingClient && (
+                            <button
+                              onClick={() => setEditingClient(true)}
+                              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition hover:opacity-80"
+                              style={{ background: '#eef2ff', color: '#4338ca' }}
+                            >
+                              <Edit3 size={12} />
+                              Editar Dados
+                            </button>
+                          )}
                         </div>
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                          <Field label="Nome" value={selected.client_name} />
-                          <Field label="NIF" value={selected.client_nif} />
-                          <Field label="CC / BI" value={selected.client_cc} />
-                          <Field label="Telemovel" value={selected.client_phone} />
-                          <Field label="Email" value={selected.client_email} />
-                          <Field label="IBAN" value={selected.client_iban} />
-                          
-                          {/* Morada - Editavel */}
-                          <div className="col-span-2">
-                            <div className="flex items-center justify-between mb-1">
-                              <p className="text-xs font-medium" style={{ color: '#9ca3af' }}>Morada</p>
-                              {!editingAddress && (
-                                <button
-                                  onClick={() => setEditingAddress(true)}
-                                  className="text-xs font-medium px-2 py-0.5 rounded transition hover:opacity-80"
-                                  style={{ background: '#eef2ff', color: '#4338ca' }}
-                                >
-                                  {selected.client_address ? 'Editar' : 'Adicionar'}
-                                </button>
-                              )}
-                            </div>
-                            {editingAddress ? (
-                              <div className="flex gap-2">
+
+                        {editingClient ? (
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="col-span-2">
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Nome *</label>
                                 <input
                                   type="text"
-                                  value={addressValue}
-                                  onChange={e => setAddressValue(e.target.value)}
-                                  className="flex-1 rounded-lg px-3 py-2 text-sm"
-                                  style={{ border: '1px solid #d1d5db', background: '#ffffff' }}
+                                  value={clientForm.client_name}
+                                  onChange={e => setClientForm(f => ({ ...f, client_name: e.target.value }))}
+                                  className="w-full rounded-lg px-3 py-2 text-sm"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                  placeholder="Nome completo do cliente"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>NIF</label>
+                                <input
+                                  type="text"
+                                  value={clientForm.client_nif}
+                                  onChange={e => setClientForm(f => ({ ...f, client_nif: e.target.value }))}
+                                  className="w-full rounded-lg px-3 py-2 text-sm font-mono"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                  placeholder="123456789"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>CC / BI</label>
+                                <input
+                                  type="text"
+                                  value={clientForm.client_cc}
+                                  onChange={e => setClientForm(f => ({ ...f, client_cc: e.target.value }))}
+                                  className="w-full rounded-lg px-3 py-2 text-sm font-mono"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                  placeholder="12345678"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Telemovel</label>
+                                <input
+                                  type="text"
+                                  value={clientForm.client_phone}
+                                  onChange={e => setClientForm(f => ({ ...f, client_phone: e.target.value }))}
+                                  className="w-full rounded-lg px-3 py-2 text-sm"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                  placeholder="912345678"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Email</label>
+                                <input
+                                  type="email"
+                                  value={clientForm.client_email}
+                                  onChange={e => setClientForm(f => ({ ...f, client_email: e.target.value }))}
+                                  className="w-full rounded-lg px-3 py-2 text-sm"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                  placeholder="email@exemplo.pt"
+                                />
+                              </div>
+                              <div className="col-span-2">
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>IBAN</label>
+                                <input
+                                  type="text"
+                                  value={clientForm.client_iban}
+                                  onChange={e => setClientForm(f => ({ ...f, client_iban: e.target.value }))}
+                                  className="w-full rounded-lg px-3 py-2 text-sm font-mono"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                  placeholder="PT50 0000 0000 0000 0000 0000 0"
+                                />
+                              </div>
+                              <div className="col-span-2">
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Morada</label>
+                                <input
+                                  type="text"
+                                  value={clientForm.client_address}
+                                  onChange={e => setClientForm(f => ({ ...f, client_address: e.target.value }))}
+                                  className="w-full rounded-lg px-3 py-2 text-sm"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
                                   placeholder="Rua, Numero, Codigo Postal, Localidade"
                                 />
-                                <button
-                                  onClick={saveAddress}
-                                  disabled={savingAddress}
-                                  className="rounded-lg px-3 py-2 text-xs font-medium text-white transition hover:opacity-90 disabled:opacity-50"
-                                  style={{ background: '#059669' }}
-                                >
-                                  {savingAddress ? '...' : 'Guardar'}
-                                </button>
-                                <button
-                                  onClick={() => { setEditingAddress(false); setAddressValue(selected.client_address || '') }}
-                                  className="rounded-lg px-3 py-2 text-xs font-medium transition hover:opacity-70"
-                                  style={{ background: '#f3f4f6', color: '#374151' }}
-                                >
-                                  Cancelar
-                                </button>
                               </div>
-                            ) : (
-                              <p className="text-sm font-medium break-all" style={{ color: selected.client_address ? '#111827' : '#9ca3af' }}>
-                                {selected.client_address || 'Sem morada definida'}
-                              </p>
-                            )}
+                            </div>
+                            <div className="flex gap-2 pt-2">
+                              <button
+                                onClick={saveClientData}
+                                disabled={savingClient || !clientForm.client_name.trim()}
+                                className="flex-1 rounded-lg py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                                style={{ background: '#059669' }}
+                              >
+                                {savingClient ? 'A guardar...' : 'Guardar Alteracoes'}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditingClient(false)
+                                  setClientForm({
+                                    client_name: selected.client_name || '',
+                                    client_nif: selected.client_nif || '',
+                                    client_cc: selected.client_cc || '',
+                                    client_phone: selected.client_phone || '',
+                                    client_email: selected.client_email || '',
+                                    client_iban: selected.client_iban || '',
+                                    client_address: selected.client_address || '',
+                                  })
+                                }}
+                                className="rounded-lg px-4 py-2 text-sm font-medium transition hover:opacity-70"
+                                style={{ background: '#f3f4f6', color: '#374151' }}
+                              >
+                                Cancelar
+                              </button>
+                            </div>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                            <Field label="Nome" value={selected.client_name} />
+                            <Field label="NIF" value={selected.client_nif} />
+                            <Field label="CC / BI" value={selected.client_cc} />
+                            <Field label="Telemovel" value={selected.client_phone} />
+                            <Field label="Email" value={selected.client_email} />
+                            <Field label="IBAN" value={selected.client_iban} />
+                            <div className="col-span-2">
+                              <Field label="Morada" value={selected.client_address || 'Sem morada definida'} />
+                            </div>
+                          </div>
+                        )}
                       </section>
 
                       {/* Dados do Produto */}
