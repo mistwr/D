@@ -22,11 +22,13 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const { user } = await getAuthUser(req)
+  console.log('[v0] POST /api/cargos - user:', user?.id, user?.email)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
   const service = svc()
-  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
+  const { data: profile, error: profileError } = await service.from('profiles').select('role').eq('id', user.id).single()
+  console.log('[v0] POST /api/cargos - profile:', profile, 'error:', profileError)
+  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin - role atual: ' + (profile?.role || 'nenhum') }, { status: 403 })
 
   const body = await req.json()
   const { data, error } = await service.from('cargos').insert(body).select().single()
