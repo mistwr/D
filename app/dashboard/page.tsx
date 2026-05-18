@@ -86,7 +86,7 @@ export default function DashboardPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="parceiro" />
-        <main className="flex-1 md:ml-64 pt-4 md:pt-6" style={{ minHeight: '100vh' }}>
+        <main className="flex-1 md:ml-64 pt-14 md:pt-16" style={{ minHeight: '100vh' }}>
           <div className="p-4 md:p-8">
             {/* Mensagem Motivacional */}
             {mensagemDia && (
