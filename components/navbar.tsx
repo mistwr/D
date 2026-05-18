@@ -1,9 +1,8 @@
 'use client'
 
-import { Bell, LogOut, Menu, X } from 'lucide-react'
+import { Bell, LogOut, Menu, X, User } from 'lucide-react'
 import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 
 interface NavbarProps {
   user: { full_name: string; role: string; email: string } | null
@@ -20,34 +19,30 @@ export function Navbar({ user, onLogout }: NavbarProps) {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between px-4 shadow-sm" style={{ background: '#ffffff', borderBottom: '1px solid #e5e7eb' }}>
-      <div className="flex items-center gap-3">
-        <button className="md:hidden" onClick={() => setOpen(!open)} aria-label="Menu">
-          {open ? <X size={20} /> : <Menu size={20} />}
-        </button>
-        <Link href={user?.role === 'admin' ? '/admin/dashboard' : '/dashboard'} className="flex items-center gap-2">
-          <Image
-            src="/logo-mypoupar.png"
-            alt="MyPoupar+"
-            width={120}
-            height={36}
-            className="h-9 w-auto object-contain"
-            priority
-          />
-        </Link>
+    <nav className="fixed top-0 left-64 right-0 z-40 hidden md:flex h-16 items-center justify-between px-6" style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+      <div className="flex items-center gap-4">
+        <h1 className="text-lg font-semibold" style={{ color: '#1e293b' }}>
+          {user?.role === 'admin' ? 'Painel de Administracao' : 'Portal do Parceiro'}
+        </h1>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         {user && (
           <>
-            <Link href={user.role === 'admin' ? '/admin/dashboard' : '/dashboard'} aria-label="Notificacoes">
-              <Bell size={18} style={{ color: '#6b7280' }} />
-            </Link>
-            <span className="hidden sm:block text-sm font-medium" style={{ color: '#374151' }}>{user.full_name}</span>
-            <span className="hidden sm:block rounded-full px-2 py-0.5 text-xs font-medium" style={{ background: user.role === 'admin' ? '#ede9fe' : '#dcfce7', color: user.role === 'admin' ? '#6d28d9' : '#166534' }}>
-              {user.role === 'admin' ? 'Admin' : 'Parceiro'}
-            </span>
-            <button onClick={handleLogout} className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm" style={{ color: '#ef4444' }}>
-              <LogOut size={16} /> <span className="hidden sm:inline">Sair</span>
+            <button className="relative p-2 rounded-full transition-colors hover:bg-white" aria-label="Notificacoes">
+              <Bell size={20} style={{ color: '#64748b' }} />
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: '#f97316' }}></span>
+            </button>
+            <div className="flex items-center gap-3 pl-4" style={{ borderLeft: '1px solid #e2e8f0' }}>
+              <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
+                <User size={18} className="text-white" />
+              </div>
+              <div className="hidden lg:block">
+                <p className="text-sm font-semibold" style={{ color: '#1e293b' }}>{user.full_name}</p>
+                <p className="text-xs" style={{ color: '#64748b' }}>{user.role === 'admin' ? 'Administrador' : 'Parceiro'}</p>
+              </div>
+            </div>
+            <button onClick={handleLogout} className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all hover:shadow-md" style={{ background: '#fee2e2', color: '#dc2626' }}>
+              <LogOut size={16} /> <span className="hidden lg:inline">Sair</span>
             </button>
           </>
         )}
