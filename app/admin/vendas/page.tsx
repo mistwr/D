@@ -56,7 +56,7 @@ function Field({ label, value }: { label: string; value?: string | number | null
   return (
     <div>
       <p className="text-xs font-medium mb-0.5" style={{ color: '#9ca3af' }}>{label}</p>
-      <p className="text-sm font-medium break-all" style={{ color: '#111827' }}>{String(value)}</p>
+      <p className="text-sm font-medium break-all" style={{ color: '#1e293b' }}>{String(value)}</p>
     </div>
   )
 }
@@ -425,8 +425,8 @@ export default function AdminVendasPage() {
   }
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
-      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
     </div>
   )
 
@@ -444,17 +444,17 @@ export default function AdminVendasPage() {
   const totalFiltrado = filtered.reduce((s, v) => s + (v.amount || 0), 0)
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" />
         <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-6">
             <div className="flex items-center gap-3 mb-5">
-              <ShoppingCart size={26} style={{ color: '#4338ca' }} />
+              <ShoppingCart size={26} style={{ color: '#0ea5e9' }} />
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Gestao de Vendas</h1>
-                <p className="text-sm" style={{ color: '#6b7280' }}>{vendas.length} vendas registadas</p>
+                <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Gestao de Vendas</h1>
+                <p className="text-sm" style={{ color: '#64748b' }}>{vendas.length} vendas registadas</p>
               </div>
             </div>
 
@@ -462,25 +462,25 @@ export default function AdminVendasPage() {
               {/* Lista */}
               <div className="flex-1 min-w-0">
                 {/* Filtros */}
-                <div className="rounded-xl p-3 mb-4 flex flex-wrap gap-2" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                <div className="rounded-xl p-3 mb-4 flex flex-wrap gap-2" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                   <div className="relative flex-1 min-w-44">
                     <Search size={15} className="absolute left-3 top-2.5" style={{ color: '#9ca3af' }} />
                     <input value={search} onChange={e => setSearch(e.target.value)}
                       placeholder="Cliente, NIF, operadora, parceiro..." className="w-full pl-8 pr-3 py-2 rounded-lg text-sm outline-none"
-                      style={{ border: '1px solid #d1d5db', color: '#111827' }} />
+                      style={{ border: '1px solid #d1d5db', color: '#1e293b' }} />
                   </div>
                   <select value={filterParceiro} onChange={e => setFilterParceiro(e.target.value)}
-                    className="rounded-lg px-3 py-2 text-sm outline-none" style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}>
+                    className="rounded-lg px-3 py-2 text-sm outline-none" style={{ border: '1px solid #d1d5db', color: '#1e293b', background: '#fff' }}>
                     <option value="todos">Todos os parceiros</option>
                     {parceirosUnicos.map(p => <option key={p} value={p}>{p}</option>)}
                   </select>
                   <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-                    className="rounded-lg px-3 py-2 text-sm outline-none" style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}>
+                    className="rounded-lg px-3 py-2 text-sm outline-none" style={{ border: '1px solid #d1d5db', color: '#1e293b', background: '#fff' }}>
                     <option value="todas">Todos os estados</option>
                     {STATUSES.map(s => <option key={s} value={s}>{STATUS_LABELS[s].label}</option>)}
                   </select>
                   <select value={filterServico} onChange={e => setFilterServico(e.target.value)}
-                    className="rounded-lg px-3 py-2 text-sm outline-none" style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}>
+                    className="rounded-lg px-3 py-2 text-sm outline-none" style={{ border: '1px solid #d1d5db', color: '#1e293b', background: '#fff' }}>
                     <option value="todos">Todos os servicos</option>
                     <option value="telecom">Telecom</option>
                     <option value="energia">Energia</option>
@@ -499,17 +499,17 @@ export default function AdminVendasPage() {
                         className="rounded-xl p-3 text-left transition-all"
                         style={{ background: filterStatus === s ? st.bg : '#fff', border: `1px solid ${filterStatus === s ? 'transparent' : '#e5e7eb'}` }}>
                         <p className="text-xl font-bold" style={{ color: st.color }}>{count}</p>
-                        <p className="text-xs font-medium mt-0.5" style={{ color: '#6b7280' }}>{st.label}</p>
+                        <p className="text-xs font-medium mt-0.5" style={{ color: '#64748b' }}>{st.label}</p>
                       </button>
                     )
                   })}
                 </div>
 
                 {/* Tabela */}
-                <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                  <div className="flex items-center justify-between px-5 py-3" style={{ borderBottom: '1px solid #e5e7eb' }}>
-                    <p className="text-sm font-medium" style={{ color: '#374151' }}>{filtered.length} resultados</p>
-                    <p className="text-sm font-semibold" style={{ color: '#4338ca' }}>
+                <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                  <div className="flex items-center justify-between px-5 py-3" style={{ borderBottom: '1px solid #e2e8f0' }}>
+                    <p className="text-sm font-medium" style={{ color: '#475569' }}>{filtered.length} resultados</p>
+                    <p className="text-sm font-semibold" style={{ color: '#0ea5e9' }}>
                       Total: {totalFiltrado.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} EUR
                     </p>
                   </div>
@@ -522,15 +522,15 @@ export default function AdminVendasPage() {
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
-                          <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                          <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
                             {['Cliente', 'Parceiro', 'Servico', 'Valor', 'Data', 'Estado', ''].map(h => (
-                              <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>{h}</th>
+                              <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#64748b' }}>{h}</th>
                             ))}
                           </tr>
                         </thead>
                         <tbody>
                           {filtered.map((v, i) => {
-                            const st = STATUS_LABELS[v.status] || { label: v.status, color: '#374151', bg: '#f3f4f6' }
+                            const st = STATUS_LABELS[v.status] || { label: v.status, color: '#475569', bg: '#f3f4f6' }
                             const isSelected = selected?.id === v.id
                             return (
                               <tr key={v.id}
@@ -541,19 +541,19 @@ export default function AdminVendasPage() {
                                   background: isSelected ? '#eef2ff' : undefined,
                                 }}>
                                 <td className="px-4 py-3">
-                                  <p className="font-medium" style={{ color: '#111827' }}>{v.client_name}</p>
-                                  {v.client_nif && <p className="text-xs font-mono mt-0.5" style={{ color: '#6b7280' }}>NIF: {v.client_nif}</p>}
+                                  <p className="font-medium" style={{ color: '#1e293b' }}>{v.client_name}</p>
+                                  {v.client_nif && <p className="text-xs font-mono mt-0.5" style={{ color: '#64748b' }}>NIF: {v.client_nif}</p>}
                                 </td>
-                                <td className="px-4 py-3 text-xs" style={{ color: '#6b7280' }}>{v.parceiro_name || '—'}</td>
+                                <td className="px-4 py-3 text-xs" style={{ color: '#64748b' }}>{v.parceiro_name || '—'}</td>
                                 <td className="px-4 py-3">
-                                  <span className="rounded-md px-2 py-0.5 text-xs font-medium" style={{ background: '#eef2ff', color: '#4338ca' }}>
+                                  <span className="rounded-md px-2 py-0.5 text-xs font-medium" style={{ background: '#eef2ff', color: '#0ea5e9' }}>
                                     {v.service_type}{v.plano ? ` · ${v.plano}` : ''}
                                   </span>
                                 </td>
-                                <td className="px-4 py-3 font-semibold text-xs" style={{ color: '#111827' }}>
+                                <td className="px-4 py-3 font-semibold text-xs" style={{ color: '#1e293b' }}>
                                   {(v.amount || 0).toLocaleString('pt-PT', { minimumFractionDigits: 2 })} €
                                 </td>
-                                <td className="px-4 py-3 text-xs" style={{ color: '#6b7280' }}>
+                                <td className="px-4 py-3 text-xs" style={{ color: '#64748b' }}>
                                   {new Date(v.created_at).toLocaleDateString('pt-PT')}
                                 </td>
                                 <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
@@ -579,7 +579,7 @@ export default function AdminVendasPage() {
                                       </button>
                                       <button onClick={() => setConfirmDelete(null)}
                                         className="rounded-lg px-2 py-1 text-xs font-medium"
-                                        style={{ background: '#f3f4f6', color: '#374151' }}>
+                                        style={{ background: '#f8fafc', color: '#475569' }}>
                                         Cancelar
                                       </button>
                                     </div>
@@ -604,17 +604,17 @@ export default function AdminVendasPage() {
               {/* Painel de detalhe */}
               {selected && (
                 <div className="w-full max-w-sm flex-shrink-0" style={{ minWidth: 340 }}>
-                  <div className="rounded-xl shadow-sm sticky top-20 overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                  <div className="rounded-xl shadow-sm sticky top-20 overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                     {/* Header */}
-                    <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #e5e7eb', background: '#fafafa' }}>
+                    <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #e2e8f0', background: '#fafafa' }}>
                       <div>
-                        <p className="font-semibold text-sm" style={{ color: '#111827' }}>{selected.client_name}</p>
-                        <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>
+                        <p className="font-semibold text-sm" style={{ color: '#1e293b' }}>{selected.client_name}</p>
+                        <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>
                           {new Date(selected.created_at).toLocaleDateString('pt-PT')} · {selected.parceiro_name}
                         </p>
                       </div>
-                      <button onClick={closeDetail} className="rounded-lg p-1.5 transition hover:opacity-70" style={{ background: '#f3f4f6' }}>
-                        <X size={16} style={{ color: '#6b7280' }} />
+                      <button onClick={closeDetail} className="rounded-lg p-1.5 transition hover:opacity-70" style={{ background: '#f8fafc' }}>
+                        <X size={16} style={{ color: '#64748b' }} />
                       </button>
                     </div>
 
@@ -623,14 +623,14 @@ export default function AdminVendasPage() {
                       <section className="px-5 py-4" style={{ borderBottom: '1px solid #f3f4f6' }}>
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
-                            <User size={14} style={{ color: '#4338ca' }} />
-                            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#4338ca' }}>Dados do Cliente</p>
+                            <User size={14} style={{ color: '#0ea5e9' }} />
+                            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#0ea5e9' }}>Dados do Cliente</p>
                           </div>
                           {!editingClient && (
                             <button
                               onClick={() => setEditingClient(true)}
                               className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition hover:opacity-80"
-                              style={{ background: '#eef2ff', color: '#4338ca' }}
+                              style={{ background: '#eef2ff', color: '#0ea5e9' }}
                             >
                               <Edit3 size={12} />
                               Editar Dados
@@ -642,7 +642,7 @@ export default function AdminVendasPage() {
                           <div className="space-y-3">
                             <div className="grid grid-cols-2 gap-3">
                               <div className="col-span-2">
-                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Nome *</label>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Nome *</label>
                                 <input
                                   type="text"
                                   value={clientForm.client_name}
@@ -653,7 +653,7 @@ export default function AdminVendasPage() {
                                 />
                               </div>
                               <div>
-                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>NIF</label>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>NIF</label>
                                 <input
                                   type="text"
                                   value={clientForm.client_nif}
@@ -664,7 +664,7 @@ export default function AdminVendasPage() {
                                 />
                               </div>
                               <div>
-                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>CC / BI</label>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>CC / BI</label>
                                 <input
                                   type="text"
                                   value={clientForm.client_cc}
@@ -675,7 +675,7 @@ export default function AdminVendasPage() {
                                 />
                               </div>
                               <div>
-                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Telemovel</label>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Telemovel</label>
                                 <input
                                   type="text"
                                   value={clientForm.client_phone}
@@ -686,7 +686,7 @@ export default function AdminVendasPage() {
                                 />
                               </div>
                               <div>
-                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Email</label>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Email</label>
                                 <input
                                   type="email"
                                   value={clientForm.client_email}
@@ -697,7 +697,7 @@ export default function AdminVendasPage() {
                                 />
                               </div>
                               <div className="col-span-2">
-                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>IBAN</label>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>IBAN</label>
                                 <input
                                   type="text"
                                   value={clientForm.client_iban}
@@ -708,7 +708,7 @@ export default function AdminVendasPage() {
                                 />
                               </div>
                               <div className="col-span-2">
-                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Morada</label>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Morada</label>
                                 <input
                                   type="text"
                                   value={clientForm.client_address}
@@ -742,7 +742,7 @@ export default function AdminVendasPage() {
                                   })
                                 }}
                                 className="rounded-lg px-4 py-2 text-sm font-medium transition hover:opacity-70"
-                                style={{ background: '#f3f4f6', color: '#374151' }}
+                                style={{ background: '#f8fafc', color: '#475569' }}
                               >
                                 Cancelar
                               </button>
@@ -767,14 +767,14 @@ export default function AdminVendasPage() {
                       <section className="px-5 py-4" style={{ borderBottom: '1px solid #f3f4f6' }}>
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
-                            <Package size={14} style={{ color: '#4338ca' }} />
-                            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#4338ca' }}>Dados do Produto</p>
+                            <Package size={14} style={{ color: '#0ea5e9' }} />
+                            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#0ea5e9' }}>Dados do Produto</p>
                           </div>
                           {!editingProduct && (
                             <button
                               onClick={() => setEditingProduct(true)}
                               className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition hover:opacity-80"
-                              style={{ background: '#eef2ff', color: '#4338ca' }}
+                              style={{ background: '#eef2ff', color: '#0ea5e9' }}
                             >
                               <Edit3 size={12} />
                               Editar Produto
@@ -787,7 +787,7 @@ export default function AdminVendasPage() {
                             <div className="grid grid-cols-2 gap-3">
                               {/* Campos Base */}
                               <div>
-                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Tipo de Servico</label>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Tipo de Servico</label>
                                 <select
                                   value={productForm.service_type}
                                   onChange={e => setProductForm(f => ({ ...f, service_type: e.target.value }))}
@@ -801,7 +801,7 @@ export default function AdminVendasPage() {
                                 </select>
                               </div>
                               <div>
-                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Operadora</label>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Operadora</label>
                                 <input
                                   type="text"
                                   value={productForm.operator}
@@ -812,7 +812,7 @@ export default function AdminVendasPage() {
                                 />
                               </div>
                               <div>
-                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Plano</label>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Plano</label>
                                 <input
                                   type="text"
                                   value={productForm.plano}
@@ -823,7 +823,7 @@ export default function AdminVendasPage() {
                                 />
                               </div>
                               <div>
-                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Valor (EUR)</label>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Valor (EUR)</label>
                                 <input
                                   type="number"
                                   step="0.01"
@@ -839,7 +839,7 @@ export default function AdminVendasPage() {
                               {(productForm.service_type === 'energia' || productForm.service_type === 'gas') && (
                                 <>
                                   <div>
-                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Tipo Energia</label>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Tipo Energia</label>
                                     <select
                                       value={productForm.energia_tipo}
                                       onChange={e => setProductForm(f => ({ ...f, energia_tipo: e.target.value }))}
@@ -853,7 +853,7 @@ export default function AdminVendasPage() {
                                     </select>
                                   </div>
                                   <div>
-                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Tipo de Processo</label>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Tipo de Processo</label>
                                     <select
                                       value={productForm.energia_tipo_processo}
                                       onChange={e => setProductForm(f => ({ ...f, energia_tipo_processo: e.target.value }))}
@@ -874,10 +874,10 @@ export default function AdminVendasPage() {
                                       onChange={e => setProductForm(f => ({ ...f, is_dual: e.target.checked }))}
                                       className="rounded"
                                     />
-                                    <label htmlFor="is_dual" className="text-sm" style={{ color: '#374151' }}>Contrato Dual (Eletricidade + Gas)</label>
+                                    <label htmlFor="is_dual" className="text-sm" style={{ color: '#475569' }}>Contrato Dual (Eletricidade + Gas)</label>
                                   </div>
                                   <div>
-                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>CPE</label>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>CPE</label>
                                     <input
                                       type="text"
                                       value={productForm.cpe}
@@ -888,7 +888,7 @@ export default function AdminVendasPage() {
                                     />
                                   </div>
                                   <div>
-                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>CUI</label>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>CUI</label>
                                     <input
                                       type="text"
                                       value={productForm.cui}
@@ -899,7 +899,7 @@ export default function AdminVendasPage() {
                                     />
                                   </div>
                                   <div>
-                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Potencia</label>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Potencia</label>
                                     <input
                                       type="text"
                                       value={productForm.potencia}
@@ -910,7 +910,7 @@ export default function AdminVendasPage() {
                                     />
                                   </div>
                                   <div>
-                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Escalao</label>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Escalao</label>
                                     <input
                                       type="text"
                                       value={productForm.escalao}
@@ -921,7 +921,7 @@ export default function AdminVendasPage() {
                                     />
                                   </div>
                                   <div>
-                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Escalao Gas</label>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Escalao Gas</label>
                                     <input
                                       type="text"
                                       value={productForm.gas_escalao}
@@ -938,7 +938,7 @@ export default function AdminVendasPage() {
                               {productForm.service_type === 'telecom' && (
                                 <>
                                   <div className="col-span-2">
-                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Numeros Movel</label>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Numeros Movel</label>
                                     <div className="space-y-2">
                                       {productForm.telco_numeros.map((num, idx) => (
                                         <div key={idx} className="flex gap-2">
@@ -980,14 +980,14 @@ export default function AdminVendasPage() {
                                       <button
                                         onClick={() => setProductForm(f => ({ ...f, telco_numeros: [...f.telco_numeros, { numero: '', cvp: '' }] }))}
                                         className="text-xs font-medium px-3 py-1.5 rounded-lg"
-                                        style={{ background: '#eef2ff', color: '#4338ca' }}
+                                        style={{ background: '#eef2ff', color: '#0ea5e9' }}
                                       >
                                         + Adicionar Numero
                                       </button>
                                     </div>
                                   </div>
                                   <div>
-                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Numero Fixo</label>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Numero Fixo</label>
                                     <input
                                       type="text"
                                       value={productForm.telco_fixo}
@@ -998,7 +998,7 @@ export default function AdminVendasPage() {
                                     />
                                   </div>
                                   <div>
-                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>CVP Fixo</label>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>CVP Fixo</label>
                                     <input
                                       type="text"
                                       value={productForm.telco_fixo_cvp}
@@ -1012,7 +1012,7 @@ export default function AdminVendasPage() {
                               )}
 
                               <div className="col-span-2">
-                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Descricao</label>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Descricao</label>
                                 <input
                                   type="text"
                                   value={productForm.description}
@@ -1023,7 +1023,7 @@ export default function AdminVendasPage() {
                                 />
                               </div>
                               <div className="col-span-2">
-                                <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Notas</label>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Notas</label>
                                 <textarea
                                   value={productForm.notes}
                                   onChange={e => setProductForm(f => ({ ...f, notes: e.target.value }))}
@@ -1067,7 +1067,7 @@ export default function AdminVendasPage() {
                                   })
                                 }}
                                 className="rounded-lg px-4 py-2 text-sm font-medium transition hover:opacity-70"
-                                style={{ background: '#f3f4f6', color: '#374151' }}
+                                style={{ background: '#f8fafc', color: '#475569' }}
                               >
                                 Cancelar
                               </button>
@@ -1101,8 +1101,8 @@ export default function AdminVendasPage() {
                                     <div className="space-y-1">
                                       {selected.telco_numeros.map((t, i) => (
                                         <div key={i} className="flex gap-2 text-sm">
-                                          <span className="font-mono" style={{ color: '#111827' }}>{t.numero || '-'}</span>
-                                          {t.cvp && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#eef2ff', color: '#4338ca' }}>CVP: {t.cvp}</span>}
+                                          <span className="font-mono" style={{ color: '#1e293b' }}>{t.numero || '-'}</span>
+                                          {t.cvp && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#eef2ff', color: '#0ea5e9' }}>CVP: {t.cvp}</span>}
                                         </div>
                                       ))}
                                     </div>
@@ -1112,7 +1112,7 @@ export default function AdminVendasPage() {
                                   <div className="col-span-2">
                                     <p className="text-xs font-medium mb-1" style={{ color: '#9ca3af' }}>Numero Fixo</p>
                                     <div className="flex gap-2 text-sm">
-                                      <span className="font-mono" style={{ color: '#111827' }}>{selected.telco_fixo}</span>
+                                      <span className="font-mono" style={{ color: '#1e293b' }}>{selected.telco_fixo}</span>
                                       {selected.telco_fixo_cvp && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#fef3c7', color: '#92400e' }}>CVP: {selected.telco_fixo_cvp}</span>}
                                     </div>
                                   </div>
@@ -1136,7 +1136,7 @@ export default function AdminVendasPage() {
                                 <p className="text-xs font-medium mb-1" style={{ color: '#9ca3af' }}>CPEs Adicionais</p>
                                 <div className="flex flex-wrap gap-1">
                                   {selected.cpes.map((c, i) => (
-                                    <span key={i} className="rounded px-2 py-1 text-xs font-mono" style={{ background: '#eef2ff', color: '#4338ca' }}>{c}</span>
+                                    <span key={i} className="rounded px-2 py-1 text-xs font-mono" style={{ background: '#eef2ff', color: '#0ea5e9' }}>{c}</span>
                                   ))}
                                 </div>
                               </div>
@@ -1166,7 +1166,7 @@ export default function AdminVendasPage() {
                           onChange={e => setFeedback(e.target.value)}
                           rows={3}
                           className="w-full rounded-lg px-3 py-2.5 text-sm resize-none"
-                          style={{ border: '1px solid #fecaca', background: '#fef2f2', color: '#111827' }}
+                          style={{ border: '1px solid #fecaca', background: '#fef2f2', color: '#1e293b' }}
                           placeholder="Escreva aqui o feedback sobre esta venda... (visivel para o parceiro)"
                         />
                         <button
@@ -1201,7 +1201,7 @@ export default function AdminVendasPage() {
                         {showChargebackForm && (
                           <div className="space-y-3">
                             <div>
-                              <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Valor *</label>
+                              <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Valor *</label>
                               <input
                                 type="number"
                                 step="0.01"
@@ -1213,7 +1213,7 @@ export default function AdminVendasPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Motivo *</label>
+                              <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Motivo *</label>
                               <select
                                 value={chargebackMotivo}
                                 onChange={e => setChargebackMotivo(e.target.value)}
@@ -1230,7 +1230,7 @@ export default function AdminVendasPage() {
                               </select>
                             </div>
                             <div>
-                              <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Observacoes</label>
+                              <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Observacoes</label>
                               <textarea
                                 value={chargebackObs}
                                 onChange={e => setChargebackObs(e.target.value)}
@@ -1252,7 +1252,7 @@ export default function AdminVendasPage() {
                               <button
                                 onClick={() => setShowChargebackForm(false)}
                                 className="rounded-lg px-4 py-2 text-sm font-medium transition hover:opacity-70"
-                                style={{ background: '#f3f4f6', color: '#374151' }}
+                                style={{ background: '#f8fafc', color: '#475569' }}
                               >
                                 Cancelar
                               </button>
@@ -1265,17 +1265,17 @@ export default function AdminVendasPage() {
                       <section className="px-5 py-4">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
-                            <Paperclip size={14} style={{ color: '#4338ca' }} />
-                            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#4338ca' }}>
+                            <Paperclip size={14} style={{ color: '#0ea5e9' }} />
+                            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#0ea5e9' }}>
                               Ficheiros {docs.length > 0 ? `(${docs.length})` : ''}
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
-                            <button onClick={() => loadDocs(selected.id)} title="Atualizar" className="rounded-lg p-1 transition hover:opacity-70" style={{ background: '#f3f4f6' }}>
-                              <RefreshCw size={12} style={{ color: '#6b7280' }} />
+                            <button onClick={() => loadDocs(selected.id)} title="Atualizar" className="rounded-lg p-1 transition hover:opacity-70" style={{ background: '#f8fafc' }}>
+                              <RefreshCw size={12} style={{ color: '#64748b' }} />
                             </button>
                             <label className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium cursor-pointer transition hover:opacity-80"
-                              style={{ background: '#eef2ff', color: '#4338ca' }}>
+                              style={{ background: '#eef2ff', color: '#0ea5e9' }}>
                               <Upload size={12} />
                               {uploadingDoc ? 'A carregar...' : 'Adicionar'}
                               <input type="file" className="hidden" onChange={handleUpload} disabled={uploadingDoc} />
@@ -1303,7 +1303,7 @@ export default function AdminVendasPage() {
                                 style={{ background: doc._orphan ? '#fffbeb' : '#f9fafb', border: `1px solid ${doc._orphan ? '#fde68a' : '#e5e7eb'}` }}>
                                 <DocIcon type={doc.file_type} />
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-medium truncate" style={{ color: '#111827' }}>{doc.file_name}</p>
+                                  <p className="text-xs font-medium truncate" style={{ color: '#1e293b' }}>{doc.file_name}</p>
                                   <p className="text-xs mt-0.5" style={{ color: '#9ca3af' }}>
                                     {fmtSize(doc.file_size)} · {new Date(doc.created_at).toLocaleDateString('pt-PT')}
                                     {doc.uploader_name ? ` · ${doc.uploader_name}` : ''}
@@ -1315,7 +1315,7 @@ export default function AdminVendasPage() {
                                       <a href={doc.signed_url} target="_blank" rel="noreferrer"
                                         className="rounded-lg p-1.5 transition hover:opacity-80"
                                         style={{ background: '#eef2ff' }} title="Abrir">
-                                        <ExternalLink size={12} style={{ color: '#4338ca' }} />
+                                        <ExternalLink size={12} style={{ color: '#0ea5e9' }} />
                                       </a>
                                       <a href={doc.signed_url} download={doc.file_name} target="_blank" rel="noreferrer"
                                         className="rounded-lg p-1.5 transition hover:opacity-80"

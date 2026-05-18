@@ -145,13 +145,13 @@ export default function AdminContratosPage() {
   })
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
-      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
     </div>
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" />
@@ -160,14 +160,14 @@ export default function AdminContratosPage() {
 
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Contratos / Vendas</h1>
-                <p className="mt-1 text-sm" style={{ color: '#6b7280' }}>
+                <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Contratos / Vendas</h1>
+                <p className="mt-1 text-sm" style={{ color: '#64748b' }}>
                   Todas as vendas registadas pelos parceiros com documentos associados
                 </p>
               </div>
               <button onClick={loadVendas}
                 className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition hover:opacity-80"
-                style={{ background: '#eef2ff', color: '#4338ca' }}>
+                style={{ background: '#eef2ff', color: '#0ea5e9' }}>
                 <RefreshCw size={14} /> Actualizar
               </button>
             </div>
@@ -175,31 +175,31 @@ export default function AdminContratosPage() {
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
               {[
-                { label: 'Total',      value: vendas.length,                                              bg: '#e0e7ff', color: '#4338ca' },
+                { label: 'Total',      value: vendas.length,                                              bg: '#e0e7ff', color: '#0ea5e9' },
                 { label: 'Pendente',   value: vendas.filter(v => v.status === 'pendente').length,         bg: '#fef3c7', color: '#92400e' },
                 { label: 'Em Revisao', value: vendas.filter(v => v.status === 'em_revisao').length,       bg: '#dbeafe', color: '#1e40af' },
                 { label: 'Processado', value: vendas.filter(v => v.status === 'processado').length,       bg: '#ede9fe', color: '#6d28d9' },
                 { label: 'Pago',       value: vendas.filter(v => v.status === 'pago').length,             bg: '#d1fae5', color: '#065f46' },
               ].map(s => (
-                <div key={s.label} className="rounded-xl p-4 shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                <div key={s.label} className="rounded-xl p-4 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                   <p className="text-xl font-bold" style={{ color: s.color }}>{s.value}</p>
-                  <p className="text-xs mt-1" style={{ color: '#6b7280' }}>{s.label}</p>
+                  <p className="text-xs mt-1" style={{ color: '#64748b' }}>{s.label}</p>
                 </div>
               ))}
             </div>
 
             {/* Filtros */}
-            <div className="mb-5 rounded-xl p-4 flex flex-col md:flex-row gap-3" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+            <div className="mb-5 rounded-xl p-4 flex flex-col md:flex-row gap-3" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
               <div className="relative flex-1">
                 <Search size={16} className="absolute left-3 top-2.5" style={{ color: '#9ca3af' }} />
                 <input value={search} onChange={e => setSearch(e.target.value)}
                   placeholder="Pesquisar por cliente, NIF, parceiro, operadora ou plano..."
                   className="w-full pl-9 pr-4 py-2 rounded-lg text-sm outline-none"
-                  style={{ border: '1px solid #d1d5db', color: '#111827' }} />
+                  style={{ border: '1px solid #d1d5db', color: '#1e293b' }} />
               </div>
               <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
                 className="rounded-lg px-3 py-2 text-sm outline-none"
-                style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}>
+                style={{ border: '1px solid #d1d5db', color: '#1e293b', background: '#fff' }}>
                 <option value="todos">Todos os estados</option>
                 <option value="pendente">Pendente</option>
                 <option value="em_revisao">Em Revisao</option>
@@ -213,22 +213,22 @@ export default function AdminContratosPage() {
 
             {/* Lista */}
             {filtered.length === 0 ? (
-              <div className="rounded-xl p-12 text-center" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+              <div className="rounded-xl p-12 text-center" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <FileText size={48} className="mx-auto mb-4" style={{ color: '#d1d5db' }} />
-                <p className="text-base font-medium" style={{ color: '#374151' }}>
+                <p className="text-base font-medium" style={{ color: '#475569' }}>
                   {vendas.length === 0 ? 'Nenhuma venda registada ainda' : 'Nenhum resultado'}
                 </p>
               </div>
             ) : (
               <div className="space-y-3">
                 {filtered.map(v => {
-                  const st = STATUS[v.status] || { bg: '#f3f4f6', color: '#6b7280', label: v.status }
+                  const st = STATUS[v.status] || { bg: '#f3f4f6', color: '#64748b', label: v.status }
                   const isOpen = expanded === v.id
                   const docs = docsMap[v.id]
                   const isLoadingDocs = docsLoading === v.id
 
                   return (
-                    <div key={v.id} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                    <div key={v.id} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                       {/* Linha principal */}
                       <button
                         onClick={() => toggleVenda(v)}
@@ -241,9 +241,9 @@ export default function AdminContratosPage() {
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2">
-                              <p className="font-bold text-sm" style={{ color: '#111827' }}>{v.client_name}</p>
+                              <p className="font-bold text-sm" style={{ color: '#1e293b' }}>{v.client_name}</p>
                               {v.client_nif && (
-                                <span className="text-xs font-mono px-1.5 py-0.5 rounded" style={{ background: '#f3f4f6', color: '#6b7280' }}>
+                                <span className="text-xs font-mono px-1.5 py-0.5 rounded" style={{ background: '#f8fafc', color: '#64748b' }}>
                                   NIF {v.client_nif}
                                 </span>
                               )}
@@ -264,17 +264,17 @@ export default function AdminContratosPage() {
                             </div>
                             <div className="flex flex-wrap gap-3 mt-1">
                               {v.parceiro_name && (
-                                <span className="flex items-center gap-1 text-xs" style={{ color: '#6b7280' }}>
+                                <span className="flex items-center gap-1 text-xs" style={{ color: '#64748b' }}>
                                   <Building2 size={11} /> {v.parceiro_name}
                                 </span>
                               )}
                               {v.client_phone && (
-                                <span className="flex items-center gap-1 text-xs" style={{ color: '#6b7280' }}>
+                                <span className="flex items-center gap-1 text-xs" style={{ color: '#64748b' }}>
                                   <Phone size={11} /> {v.client_phone}
                                 </span>
                               )}
                               {v.client_email && (
-                                <span className="flex items-center gap-1 text-xs" style={{ color: '#6b7280' }}>
+                                <span className="flex items-center gap-1 text-xs" style={{ color: '#64748b' }}>
                                   <Mail size={11} /> {v.client_email}
                                 </span>
                               )}
@@ -309,9 +309,9 @@ export default function AdminContratosPage() {
                               { label: 'Contrato', value: v.contract_type },
                               { label: 'Descricao', value: v.description },
                             ].filter(f => f.value).map(f => (
-                              <div key={f.label} className="rounded-lg px-3 py-2" style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                              <div key={f.label} className="rounded-lg px-3 py-2" style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
                                 <p className="text-xs font-medium" style={{ color: '#9ca3af' }}>{f.label}</p>
-                                <p className="text-sm font-medium mt-0.5 break-all" style={{ color: '#111827' }}>{f.value}</p>
+                                <p className="text-sm font-medium mt-0.5 break-all" style={{ color: '#1e293b' }}>{f.value}</p>
                               </div>
                             ))}
                           </div>
@@ -319,20 +319,20 @@ export default function AdminContratosPage() {
                           {/* Documentos */}
                           <div>
                             <div className="flex items-center justify-between mb-2">
-                              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>
+                              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#64748b' }}>
                                 Documentos
                                 {docs && docs.length > 0 && ` (${docs.length})`}
                               </p>
                               <button onClick={() => reloadDocs(v.id)}
                                 className="flex items-center gap-1 text-xs rounded-lg px-2 py-1 transition hover:opacity-80"
-                                style={{ background: '#eef2ff', color: '#4338ca' }}>
+                                style={{ background: '#eef2ff', color: '#0ea5e9' }}>
                                 <RefreshCw size={11} /> Actualizar
                               </button>
                             </div>
 
                             {isLoadingDocs ? (
                               <div className="flex items-center justify-center py-8">
-                                <div className="animate-spin rounded-full h-6 w-6 border-b-2" style={{ borderColor: '#4f46e5' }} />
+                                <div className="animate-spin rounded-full h-6 w-6 border-b-2" style={{ borderColor: '#0ea5e9' }} />
                               </div>
                             ) : !docs || docs.length === 0 ? (
                               <div className="rounded-xl p-6 text-center" style={{ background: '#f9fafb', border: '1px dashed #d1d5db' }}>
@@ -351,11 +351,11 @@ export default function AdminContratosPage() {
                                       <div className="flex flex-wrap items-center gap-3 px-4 py-3"
                                         style={{ background: d._orphan ? '#fffbeb' : '#f9fafb' }}>
                                         <span className="flex h-7 w-10 items-center justify-center rounded text-[10px] font-bold uppercase flex-shrink-0"
-                                          style={{ background: '#e0e7ff', color: '#4338ca' }}>
+                                          style={{ background: '#e0e7ff', color: '#0ea5e9' }}>
                                           {ext || 'DOC'}
                                         </span>
                                         <div className="flex-1 min-w-0">
-                                          <p className="text-sm font-semibold truncate" style={{ color: '#111827' }}>{d.file_name}</p>
+                                          <p className="text-sm font-semibold truncate" style={{ color: '#1e293b' }}>{d.file_name}</p>
                                           <p className="text-xs mt-0.5" style={{ color: '#9ca3af' }}>
                                             {formatSize(d.file_size)} · {new Date(d.created_at).toLocaleDateString('pt-PT')}
                                             {d.uploader_name ? ` · ${d.uploader_name}` : ''}
@@ -365,7 +365,7 @@ export default function AdminContratosPage() {
                                           {d.signed_url && (isImage || isPdf) && (
                                             <button onClick={() => setViewer(d)}
                                               className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
-                                              style={{ background: '#eef2ff', color: '#4338ca' }}>
+                                              style={{ background: '#eef2ff', color: '#0ea5e9' }}>
                                               <Eye size={13} /> Ver
                                             </button>
                                           )}
@@ -390,7 +390,7 @@ export default function AdminContratosPage() {
                                                 </button>
                                                 <button onClick={() => setConfirmDeleteDoc(null)}
                                                   className="rounded-lg px-2 py-1 text-xs"
-                                                  style={{ background: '#f3f4f6', color: '#374151' }}>
+                                                  style={{ background: '#f8fafc', color: '#475569' }}>
                                                   Cancelar
                                                 </button>
                                               </div>
@@ -411,7 +411,7 @@ export default function AdminContratosPage() {
                                           {/* eslint-disable-next-line @next/next/no-img-element */}
                                           <img src={d.signed_url} alt={d.file_name}
                                             className="w-full rounded-lg object-contain max-h-48"
-                                            style={{ background: '#f3f4f6' }} />
+                                            style={{ background: '#f8fafc' }} />
                                         </div>
                                       )}
                                     </div>
@@ -443,8 +443,8 @@ export default function AdminContratosPage() {
             style={{ background: '#fff', maxHeight: '90vh' }}
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #e5e7eb' }}>
-              <p className="font-semibold text-sm" style={{ color: '#111827' }}>{viewer.file_name}</p>
+            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #e2e8f0' }}>
+              <p className="font-semibold text-sm" style={{ color: '#1e293b' }}>{viewer.file_name}</p>
               <div className="flex items-center gap-3">
                 {viewer.signed_url && (
                   <a href={viewer.signed_url} download={viewer.file_name}
@@ -455,8 +455,8 @@ export default function AdminContratosPage() {
                 )}
                 <button onClick={() => setViewer(null)}
                   className="rounded-lg p-1.5 transition hover:opacity-80"
-                  style={{ background: '#f3f4f6' }}>
-                  <X size={16} style={{ color: '#6b7280' }} />
+                  style={{ background: '#f8fafc' }}>
+                  <X size={16} style={{ color: '#64748b' }} />
                 </button>
               </div>
             </div>

@@ -32,14 +32,14 @@ export default function ChargebacksParceiroPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
+      <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
       </div>
     )
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="parceiro" />
@@ -50,8 +50,8 @@ export default function ChargebacksParceiroPage() {
               <div className="flex items-center gap-3">
                 <AlertTriangle size={28} style={{ color: '#7c2d12' }} />
                 <div>
-                  <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Meus Chargebacks</h1>
-                  <p className="text-sm" style={{ color: '#6b7280' }}>Historico de estornos nas suas comissoes</p>
+                  <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Meus Chargebacks</h1>
+                  <p className="text-sm" style={{ color: '#64748b' }}>Historico de estornos nas suas comissoes</p>
                 </div>
               </div>
               {chargebacks.length > 0 && (
@@ -71,14 +71,14 @@ export default function ChargebacksParceiroPage() {
             </div>
 
             {/* List */}
-            <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+            <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
               {chargebacks.length === 0 ? (
                 <div className="p-12 text-center">
                   <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: '#d1fae5' }}>
                     <AlertTriangle size={24} style={{ color: '#059669' }} />
                   </div>
-                  <p className="font-medium" style={{ color: '#111827' }}>Sem chargebacks</p>
-                  <p className="text-sm mt-1" style={{ color: '#6b7280' }}>Nao tem nenhum chargeback aplicado. Continue o bom trabalho!</p>
+                  <p className="font-medium" style={{ color: '#1e293b' }}>Sem chargebacks</p>
+                  <p className="text-sm mt-1" style={{ color: '#64748b' }}>Nao tem nenhum chargeback aplicado. Continue o bom trabalho!</p>
                 </div>
               ) : (
                 <div className="divide-y" style={{ borderColor: '#f3f4f6' }}>
@@ -86,12 +86,12 @@ export default function ChargebacksParceiroPage() {
                     <div key={c.id} className="p-5">
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <p className="font-medium" style={{ color: '#111827' }}>{c.venda?.client_name || 'Venda removida'}</p>
-                          <p className="text-sm" style={{ color: '#6b7280' }}>{c.venda?.operator} - {c.venda?.service_type}</p>
+                          <p className="font-medium" style={{ color: '#1e293b' }}>{c.venda?.client_name || 'Venda removida'}</p>
+                          <p className="text-sm" style={{ color: '#64748b' }}>{c.venda?.operator} - {c.venda?.service_type}</p>
                         </div>
                         <div className="text-right">
                           <p className="font-bold text-lg" style={{ color: '#dc2626' }}>-{c.valor.toFixed(2)} EUR</p>
-                          <p className="text-xs" style={{ color: '#6b7280' }}>{new Date(c.created_at).toLocaleDateString('pt-PT')}</p>
+                          <p className="text-xs" style={{ color: '#64748b' }}>{new Date(c.created_at).toLocaleDateString('pt-PT')}</p>
                         </div>
                       </div>
                       <div className="rounded-lg px-3 py-2" style={{ background: '#fef2f2' }}>

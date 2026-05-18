@@ -71,33 +71,33 @@ export default function AdminPasswordsPage() {
   }
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
-      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
     </div>
   )
 
-  const inputStyle = { border: '1px solid #d1d5db', background: '#fff', color: '#111827' }
+  const inputStyle = { border: '1px solid #d1d5db', background: '#fff', color: '#1e293b' }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" />
         <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-8 max-w-2xl">
             <div className="flex items-center gap-3 mb-8">
-              <KeyRound size={28} style={{ color: '#4338ca' }} />
+              <KeyRound size={28} style={{ color: '#0ea5e9' }} />
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Gestao de Passwords</h1>
-                <p className="text-sm" style={{ color: '#6b7280' }}>Altere passwords de parceiros ou da sua conta</p>
+                <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Gestao de Passwords</h1>
+                <p className="text-sm" style={{ color: '#64748b' }}>Altere passwords de parceiros ou da sua conta</p>
               </div>
             </div>
 
             {/* Alterar password de parceiro */}
-            <div className="rounded-xl p-6 mb-6 shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+            <div className="rounded-xl p-6 mb-6 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
               <div className="flex items-center gap-2 mb-5">
-                <User size={18} style={{ color: '#4338ca' }} />
-                <h2 className="text-base font-semibold" style={{ color: '#111827' }}>Alterar Password de Parceiro</h2>
+                <User size={18} style={{ color: '#0ea5e9' }} />
+                <h2 className="text-base font-semibold" style={{ color: '#1e293b' }}>Alterar Password de Parceiro</h2>
               </div>
               {errorP && <div className="mb-4 rounded-lg p-3 text-sm" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>{errorP}</div>}
               {successP && (
@@ -107,7 +107,7 @@ export default function AdminPasswordsPage() {
               )}
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Parceiro *</label>
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Parceiro *</label>
                   <select value={selectedId} onChange={e => setSelectedId(e.target.value)}
                     className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={inputStyle}>
                     <option value="">Selecionar parceiro...</option>
@@ -117,7 +117,7 @@ export default function AdminPasswordsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Nova Password *</label>
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Nova Password *</label>
                   <div className="relative">
                     <input type={showNew ? 'text' : 'password'} value={newPass} onChange={e => setNewPass(e.target.value)}
                       className="w-full rounded-lg px-4 py-2.5 text-sm outline-none pr-10" placeholder="Minimo 6 caracteres" style={inputStyle} />
@@ -128,17 +128,17 @@ export default function AdminPasswordsPage() {
                 </div>
                 <button onClick={changeParceiroPass} disabled={savingP}
                   className="w-full rounded-lg px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
-                  style={{ background: '#4338ca' }}>
+                  style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                   {savingP ? 'A guardar...' : 'Alterar Password do Parceiro'}
                 </button>
               </div>
             </div>
 
             {/* Alterar propria password */}
-            <div className="rounded-xl p-6 shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+            <div className="rounded-xl p-6 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
               <div className="flex items-center gap-2 mb-5">
-                <KeyRound size={18} style={{ color: '#4338ca' }} />
-                <h2 className="text-base font-semibold" style={{ color: '#111827' }}>Alterar a Minha Password</h2>
+                <KeyRound size={18} style={{ color: '#0ea5e9' }} />
+                <h2 className="text-base font-semibold" style={{ color: '#1e293b' }}>Alterar a Minha Password</h2>
               </div>
               {errorM && <div className="mb-4 rounded-lg p-3 text-sm" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>{errorM}</div>}
               {successM && (
@@ -148,7 +148,7 @@ export default function AdminPasswordsPage() {
               )}
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Nova Password *</label>
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Nova Password *</label>
                   <div className="relative">
                     <input type={showMy ? 'text' : 'password'} value={myPass} onChange={e => setMyPass(e.target.value)}
                       className="w-full rounded-lg px-4 py-2.5 text-sm outline-none pr-10" placeholder="Minimo 6 caracteres" style={inputStyle} />
@@ -159,7 +159,7 @@ export default function AdminPasswordsPage() {
                 </div>
                 <button onClick={changeMyPass} disabled={savingM}
                   className="w-full rounded-lg px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
-                  style={{ background: '#4338ca' }}>
+                  style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                   {savingM ? 'A guardar...' : 'Alterar a Minha Password'}
                 </button>
               </div>

@@ -53,14 +53,14 @@ export default function ChargebacksPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
+      <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
       </div>
     )
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" />
@@ -71,8 +71,8 @@ export default function ChargebacksPage() {
               <div className="flex items-center gap-3">
                 <AlertTriangle size={28} style={{ color: '#7c2d12' }} />
                 <div>
-                  <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Chargebacks</h1>
-                  <p className="text-sm" style={{ color: '#6b7280' }}>Gestao de estornos e debitos</p>
+                  <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Chargebacks</h1>
+                  <p className="text-sm" style={{ color: '#64748b' }}>Gestao de estornos e debitos</p>
                 </div>
               </div>
               <div className="rounded-xl px-5 py-3 shadow-sm" style={{ background: '#ffedd5', border: '1px solid #fed7aa' }}>
@@ -90,48 +90,48 @@ export default function ChargebacksPage() {
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Pesquisar por parceiro, cliente ou motivo..."
                 className="w-full rounded-xl pl-10 pr-4 py-3 text-sm"
-                style={{ background: '#fff', border: '1px solid #e5e7eb' }}
+                style={{ background: '#fff', border: '1px solid #e2e8f0' }}
               />
             </div>
 
             {/* Table */}
-            <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+            <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
               {filtered.length === 0 ? (
                 <div className="p-12 text-center">
                   <AlertTriangle size={48} style={{ color: '#d1d5db' }} className="mx-auto mb-4" />
-                  <p style={{ color: '#6b7280' }}>Nenhum chargeback registado</p>
+                  <p style={{ color: '#64748b' }}>Nenhum chargeback registado</p>
                 </div>
               ) : (
                 <table className="w-full">
                   <thead>
-                    <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                      <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Parceiro</th>
-                      <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Cliente</th>
-                      <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Motivo</th>
-                      <th className="px-5 py-3 text-right text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Valor</th>
-                      <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Data</th>
-                      <th className="px-5 py-3 text-center text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Acoes</th>
+                    <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e2e8f0' }}>
+                      <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>Parceiro</th>
+                      <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>Cliente</th>
+                      <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>Motivo</th>
+                      <th className="px-5 py-3 text-right text-xs font-semibold uppercase" style={{ color: '#64748b' }}>Valor</th>
+                      <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>Data</th>
+                      <th className="px-5 py-3 text-center text-xs font-semibold uppercase" style={{ color: '#64748b' }}>Acoes</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map(c => (
                       <tr key={c.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
                         <td className="px-5 py-4">
-                          <p className="font-medium text-sm" style={{ color: '#111827' }}>{c.parceiro?.full_name || '-'}</p>
-                          <p className="text-xs" style={{ color: '#6b7280' }}>{c.parceiro?.email}</p>
+                          <p className="font-medium text-sm" style={{ color: '#1e293b' }}>{c.parceiro?.full_name || '-'}</p>
+                          <p className="text-xs" style={{ color: '#64748b' }}>{c.parceiro?.email}</p>
                         </td>
                         <td className="px-5 py-4">
-                          <p className="text-sm" style={{ color: '#111827' }}>{c.venda?.client_name || '-'}</p>
-                          <p className="text-xs" style={{ color: '#6b7280' }}>{c.venda?.operator}</p>
+                          <p className="text-sm" style={{ color: '#1e293b' }}>{c.venda?.client_name || '-'}</p>
+                          <p className="text-xs" style={{ color: '#64748b' }}>{c.venda?.operator}</p>
                         </td>
                         <td className="px-5 py-4">
-                          <p className="text-sm" style={{ color: '#111827' }}>{c.motivo}</p>
-                          {c.observacoes && <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>{c.observacoes}</p>}
+                          <p className="text-sm" style={{ color: '#1e293b' }}>{c.motivo}</p>
+                          {c.observacoes && <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>{c.observacoes}</p>}
                         </td>
                         <td className="px-5 py-4 text-right">
                           <p className="font-semibold text-sm" style={{ color: '#dc2626' }}>-{c.valor.toFixed(2)} EUR</p>
                         </td>
-                        <td className="px-5 py-4 text-sm" style={{ color: '#6b7280' }}>
+                        <td className="px-5 py-4 text-sm" style={{ color: '#64748b' }}>
                           {new Date(c.created_at).toLocaleDateString('pt-PT')}
                         </td>
                         <td className="px-5 py-4 text-center">

@@ -68,7 +68,7 @@ export default function CampanhasParceiroPage() {
   }
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4338ca' }} />
     </div>
   )
@@ -76,7 +76,7 @@ export default function CampanhasParceiroPage() {
   const ativas = campanhas.filter(c => c.status === 'ativa')
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="parceiro" />
@@ -84,19 +84,19 @@ export default function CampanhasParceiroPage() {
           <div className="p-4 md:p-8">
             <div className="flex items-center gap-3 mb-8">
               <div className="rounded-xl p-2.5" style={{ background: '#eef2ff' }}>
-                <Megaphone size={24} style={{ color: '#4338ca' }} />
+                <Megaphone size={24} style={{ color: '#0ea5e9' }} />
               </div>
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Campanhas</h1>
-                <p className="text-sm" style={{ color: '#6b7280' }}>Materiais e tabelas de campanhas activas</p>
+                <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Campanhas</h1>
+                <p className="text-sm" style={{ color: '#64748b' }}>Materiais e tabelas de campanhas activas</p>
               </div>
             </div>
 
             {ativas.length === 0 ? (
-              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <Megaphone size={48} style={{ color: '#d1d5db' }} className="mx-auto mb-4" />
-                <p className="text-lg font-medium" style={{ color: '#374151' }}>Nenhuma campanha activa</p>
-                <p className="text-sm" style={{ color: '#6b7280' }}>As campanhas activas aparecerao aqui com os seus materiais.</p>
+                <p className="text-lg font-medium" style={{ color: '#475569' }}>Nenhuma campanha activa</p>
+                <p className="text-sm" style={{ color: '#64748b' }}>As campanhas activas aparecerao aqui com os seus materiais.</p>
               </div>
             ) : (
               <div className="flex flex-col gap-4">
@@ -107,7 +107,7 @@ export default function CampanhasParceiroPage() {
                   const campFich = ficheiros[c.id] ?? []
 
                   return (
-                    <div key={c.id} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                    <div key={c.id} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                       {/* Cabeçalho da campanha */}
                       <div className="flex items-center gap-4 p-5">
                         {/* Logo */}
@@ -122,7 +122,7 @@ export default function CampanhasParceiroPage() {
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="font-bold text-base" style={{ color: '#111827' }}>{c.title}</h3>
+                            <h3 className="font-bold text-base" style={{ color: '#1e293b' }}>{c.title}</h3>
                             {c.operator && (
                               <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: svc.bg, color: svc.color }}>
                                 {c.operator}
@@ -133,7 +133,7 @@ export default function CampanhasParceiroPage() {
                             </span>
                           </div>
                           {c.description && (
-                            <p className="text-sm mt-1 line-clamp-2" style={{ color: '#6b7280' }}>{c.description}</p>
+                            <p className="text-sm mt-1 line-clamp-2" style={{ color: '#64748b' }}>{c.description}</p>
                           )}
                           <p className="text-xs mt-1" style={{ color: '#9ca3af' }}>
                             {c.pdf_count ?? 0} ficheiro{(c.pdf_count ?? 0) !== 1 ? 's' : ''} &middot; {new Date(c.created_at).toLocaleDateString('pt-PT')}
@@ -142,7 +142,7 @@ export default function CampanhasParceiroPage() {
 
                         <button onClick={() => toggleExpand(c.id)}
                           className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors flex-shrink-0"
-                          style={{ background: isOpen ? '#eef2ff' : '#f9fafb', color: isOpen ? '#4338ca' : '#374151', border: '1px solid #e5e7eb' }}>
+                          style={{ background: isOpen ? '#eef2ff' : '#f9fafb', color: isOpen ? '#4338ca' : '#374151', border: '1px solid #e2e8f0' }}>
                           {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                           {isOpen ? 'Fechar' : 'Ver materiais'}
                         </button>
@@ -164,13 +164,13 @@ export default function CampanhasParceiroPage() {
                             <div className="grid gap-2 sm:grid-cols-2">
                               {campFich.map(f => (
                                 <div key={f.id} className="flex items-center justify-between rounded-lg p-3 gap-3"
-                                  style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                                  style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
                                   <div className="flex items-center gap-2.5 min-w-0">
-                                    <div className="rounded-lg p-1.5 flex-shrink-0" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                                    <div className="rounded-lg p-1.5 flex-shrink-0" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                                       <FileText size={16} style={{ color: f.file_type === 'image' ? '#0891b2' : f.file_type === 'pdf' ? '#dc2626' : '#6b7280' }} />
                                     </div>
                                     <div className="min-w-0">
-                                      <p className="text-sm font-medium truncate" style={{ color: '#111827' }}>{f.file_name}</p>
+                                      <p className="text-sm font-medium truncate" style={{ color: '#1e293b' }}>{f.file_name}</p>
                                       <p className="text-xs" style={{ color: '#9ca3af' }}>{f.file_type.toUpperCase()} &middot; {formatSize(f.file_size)}</p>
                                     </div>
                                   </div>
@@ -178,7 +178,7 @@ export default function CampanhasParceiroPage() {
                                     <div className="flex items-center gap-1.5 flex-shrink-0">
                                       <a href={f.signed_url} target="_blank" rel="noreferrer"
                                         className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
-                                        style={{ background: '#eef2ff', color: '#4338ca' }}>
+                                        style={{ background: '#eef2ff', color: '#0ea5e9' }}>
                                         <ExternalLink size={12} /> Abrir
                                       </a>
                                       <a href={f.signed_url} download={f.file_name} target="_blank" rel="noreferrer"

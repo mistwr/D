@@ -23,14 +23,14 @@ interface Detalhe { venda_id: string; client_name: string; service_type: string;
 interface Calculo { energia: number; telecom: number; total: number; detalhes: Detalhe[] }
 
 const SERVICO_STYLE: Record<string, { bg: string; color: string; border: string }> = {
-  telecom:  { bg: '#eef2ff', color: '#4338ca', border: '#c7d2fe' },
+  telecom:  { bg: '#eef2ff', color: '#0ea5e9', border: '#c7d2fe' },
   energia:  { bg: '#fef3c7', color: '#92400e', border: '#fde68a' },
   gas:      { bg: '#fee2e2', color: '#991b1b', border: '#fecaca' },
   seguros:  { bg: '#f0fdf4', color: '#166534', border: '#86efac' },
 }
 
 function ServicoIcon({ s }: { s: string }) {
-  if (s === 'telecom') return <Wifi size={14} style={{ color: '#4338ca' }} />
+  if (s === 'telecom') return <Wifi size={14} style={{ color: '#0ea5e9' }} />
   if (s === 'energia') return <Zap size={14} style={{ color: '#d97706' }} />
   if (s === 'gas') return <Flame size={14} style={{ color: '#dc2626' }} />
   return <Shield size={14} style={{ color: '#059669' }} />
@@ -73,8 +73,8 @@ export default function SimuladorPage() {
   }, [router])
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
-      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
     </div>
   )
 
@@ -134,33 +134,33 @@ export default function SimuladorPage() {
   const hasData = comissoesOp.length > 0 || comissao
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="parceiro" />
         <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-8">
             <div className="flex items-center gap-3 mb-8">
-              <Calculator size={28} style={{ color: '#4338ca' }} />
+              <Calculator size={28} style={{ color: '#0ea5e9' }} />
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Simulador de Comissoes</h1>
-                <p className="text-sm" style={{ color: '#6b7280' }}>Simule os seus ganhos com base nas suas tabelas de comissao</p>
+                <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Simulador de Comissoes</h1>
+                <p className="text-sm" style={{ color: '#64748b' }}>Simule os seus ganhos com base nas suas tabelas de comissao</p>
               </div>
             </div>
 
             {!hasData ? (
-              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <Calculator size={48} style={{ color: '#d1d5db' }} className="mx-auto mb-4" />
-                <p className="text-lg font-medium" style={{ color: '#374151' }}>Comissoes ainda nao definidas</p>
-                <p className="text-sm" style={{ color: '#6b7280' }}>O administrador precisa de definir as suas taxas de comissao.</p>
+                <p className="text-lg font-medium" style={{ color: '#475569' }}>Comissoes ainda nao definidas</p>
+                <p className="text-sm" style={{ color: '#64748b' }}>O administrador precisa de definir as suas taxas de comissao.</p>
               </div>
             ) : (
               <div className="space-y-6">
 
                 {/* SIMULADOR */}
-                <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                  <div className="px-5 py-4" style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                    <h2 className="font-bold flex items-center gap-2" style={{ color: '#111827' }}>
+                <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                  <div className="px-5 py-4" style={{ background: '#f9fafb', borderBottom: '1px solid #e2e8f0' }}>
+                    <h2 className="font-bold flex items-center gap-2" style={{ color: '#1e293b' }}>
                       <Calculator size={18} /> Simular Comissao
                     </h2>
                   </div>
@@ -188,9 +188,9 @@ export default function SimuladorPage() {
                           {/* Operadora */}
                           {opsDisponiveis.length > 0 && (
                             <div>
-                              <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Operadora</label>
+                              <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Operadora</label>
                               <select value={simOperadora} onChange={e => { setSimOperadora(e.target.value); setSimPlano('') }}
-                                className="w-full rounded-lg px-3 py-2.5 text-sm" style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}>
+                                className="w-full rounded-lg px-3 py-2.5 text-sm" style={{ border: '1px solid #d1d5db', color: '#1e293b', background: '#fff' }}>
                                 <option value="">-- Selecionar --</option>
                                 {opsDisponiveis.map(o => <option key={o} value={o}>{o}</option>)}
                               </select>
@@ -199,9 +199,9 @@ export default function SimuladorPage() {
                           {/* Plano */}
                           {planosDisponiveis.length > 0 && (
                             <div>
-                              <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Plano</label>
+                              <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Plano</label>
                               <select value={simPlano} onChange={e => setSimPlano(e.target.value)}
-                                className="w-full rounded-lg px-3 py-2.5 text-sm" style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}>
+                                className="w-full rounded-lg px-3 py-2.5 text-sm" style={{ border: '1px solid #d1d5db', color: '#1e293b', background: '#fff' }}>
                                 <option value="">-- Todos --</option>
                                 {planosDisponiveis.map(p => <option key={p} value={p}>{p}</option>)}
                               </select>
@@ -209,27 +209,27 @@ export default function SimuladorPage() {
                           )}
                           {/* Mensalidade do cliente */}
                           <div>
-                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>
                               Mensalidade do cliente (€)
                             </label>
                             <div className="relative">
-                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium" style={{ color: '#6b7280' }}>€</span>
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium" style={{ color: '#64748b' }}>€</span>
                               <input type="number" step="0.01" min="0" value={simMensalidade}
                                 onChange={e => setSimMensalidade(e.target.value)}
                                 className="w-full rounded-lg pl-7 pr-3 py-2.5 text-sm"
-                                style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}
+                                style={{ border: '1px solid #d1d5db', color: '#1e293b', background: '#fff' }}
                                 placeholder="Ex: 70.00" />
                             </div>
                           </div>
                           {/* Nº contratos */}
                           <div>
-                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>
                               Nº de contratos
                             </label>
                             <input type="number" step="1" min="1" value={simContratos}
                               onChange={e => setSimContratos(e.target.value)}
                               className="w-full rounded-lg px-3 py-2.5 text-sm"
-                              style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}
+                              style={{ border: '1px solid #d1d5db', color: '#1e293b', background: '#fff' }}
                               placeholder="1" />
                           </div>
                         </div>
@@ -237,7 +237,7 @@ export default function SimuladorPage() {
                         {/* Nº mensalidades — mostrar chips com o valor da tabela editavel */}
                         {opRow && opRow.num_mensalidades > 0 && (
                           <div>
-                            <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>
+                            <label className="block text-sm font-medium mb-2" style={{ color: '#475569' }}>
                               Nº mensalidades por contrato
                               <span className="ml-2 text-xs font-normal" style={{ color: '#9ca3af' }}>
                                 (definido pelo admin: x{opRow.num_mensalidades})
@@ -273,11 +273,11 @@ export default function SimuladorPage() {
                             </div>
                             <div className="px-5 py-4 grid grid-cols-1 sm:grid-cols-3 gap-4" style={{ background: '#f0fdf4' }}>
                               <div className="text-center">
-                                <p className="text-xs font-medium mb-1" style={{ color: '#6b7280' }}>Por contrato</p>
+                                <p className="text-xs font-medium mb-1" style={{ color: '#64748b' }}>Por contrato</p>
                                 <p className="text-2xl font-bold" style={{ color: '#059669' }}>
                                   €{telecomMensalidadeResult.porContrato.toFixed(2)}
                                 </p>
-                                <p className="text-xs mt-1" style={{ color: '#6b7280' }}>
+                                <p className="text-xs mt-1" style={{ color: '#64748b' }}>
                                   €{telecomMensalidadeResult.mensalidade.toFixed(2)} × x{telecomMensalidadeResult.nMens}
                                 </p>
                               </div>
@@ -304,7 +304,7 @@ export default function SimuladorPage() {
                             </div>
                           </div>
                         ) : (
-                          <div className="rounded-xl p-6 text-center" style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                          <div className="rounded-xl p-6 text-center" style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
                             <p className="text-sm" style={{ color: '#9ca3af' }}>
                               {!parseFloat(simMensalidade) ? 'Insira a mensalidade do cliente para calcular' : 'Nenhuma comissao configurada para esta operadora/plano'}
                             </p>
@@ -317,20 +317,20 @@ export default function SimuladorPage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                         {opsDisponiveis.length > 0 && (
                           <div>
-                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Operadora</label>
+                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Operadora</label>
                             <select value={simOperadora} onChange={e => setSimOperadora(e.target.value)}
-                              className="w-full rounded-lg px-3 py-2.5 text-sm" style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}>
+                              className="w-full rounded-lg px-3 py-2.5 text-sm" style={{ border: '1px solid #d1d5db', color: '#1e293b', background: '#fff' }}>
                               <option value="">-- Todas / Geral --</option>
                               {opsDisponiveis.map(o => <option key={o} value={o}>{o}</option>)}
                             </select>
                           </div>
                         )}
                         <div>
-                          <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Valor da venda (€)</label>
+                          <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Valor da venda (€)</label>
                           <input type="number" step="0.01" min="0" value={simValor}
                             onChange={e => setSimValor(e.target.value)} placeholder="Ex: 1500.00"
                             className="w-full rounded-lg px-3 py-2.5 text-sm"
-                            style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }} />
+                            style={{ border: '1px solid #d1d5db', color: '#1e293b', background: '#fff' }} />
                         </div>
                         <div className="rounded-xl p-4 text-center" style={{ background: '#d1fae5', border: '1px solid #6ee7b7' }}>
                           <p className="text-xs font-medium mb-1" style={{ color: '#065f46' }}>Comissao estimada</p>
@@ -347,7 +347,7 @@ export default function SimuladorPage() {
                     {/* Quick sims valores (energia) */}
                     {!isTelecomMensalidade && (
                       <div className="mt-4 flex flex-wrap gap-2 items-center">
-                        <span className="text-xs" style={{ color: '#6b7280' }}>Valores rapidos:</span>
+                        <span className="text-xs" style={{ color: '#64748b' }}>Valores rapidos:</span>
                         {[500, 1000, 2500, 5000, 10000].map(val => (
                           <button key={val} type="button" onClick={() => setSimValor(String(val))}
                             className="px-3 py-1 rounded-full text-xs font-medium transition"
@@ -365,10 +365,10 @@ export default function SimuladorPage() {
 
                 {/* TABELA DE COMISSOES POR OPERADORA */}
                 {Object.keys(grouped).length > 0 && (
-                  <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                    <div className="px-5 py-4" style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                      <h2 className="font-bold" style={{ color: '#111827' }}>As Suas Tabelas de Comissao</h2>
-                      <p className="text-sm mt-0.5" style={{ color: '#6b7280' }}>Definidas pelo administrador por operadora e servico</p>
+                  <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                    <div className="px-5 py-4" style={{ background: '#f9fafb', borderBottom: '1px solid #e2e8f0' }}>
+                      <h2 className="font-bold" style={{ color: '#1e293b' }}>As Suas Tabelas de Comissao</h2>
+                      <p className="text-sm mt-0.5" style={{ color: '#64748b' }}>Definidas pelo administrador por operadora e servico</p>
                     </div>
                     <div className="divide-y" style={{ borderColor: '#f3f4f6' }}>
                       {Object.entries(grouped).map(([servico, items]) => {
@@ -386,7 +386,7 @@ export default function SimuladorPage() {
                             <div className="overflow-x-auto">
                               <table className="w-full text-sm">
                                 <thead>
-                                  <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                                  <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
                                     {['Operadora', 'Plano', 'Modelo', 'Comissao'].map(h => (
                                       <th key={h} className="pb-2 text-left text-xs font-semibold uppercase" style={{ color: '#9ca3af' }}>{h}</th>
                                     ))}
@@ -395,10 +395,10 @@ export default function SimuladorPage() {
                                 <tbody>
                                   {items.map((c, i) => (
                                     <tr key={i} style={{ borderBottom: '1px solid #f9fafb' }}>
-                                      <td className="py-2.5 font-semibold" style={{ color: '#111827' }}>{c.operadora}</td>
-                                      <td className="py-2.5" style={{ color: '#6b7280' }}>{c.plano || '���'}</td>
+                                      <td className="py-2.5 font-semibold" style={{ color: '#1e293b' }}>{c.operadora}</td>
+                                      <td className="py-2.5" style={{ color: '#64748b' }}>{c.plano || '���'}</td>
                                       <td className="py-2.5">
-                                        <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: '#f3f4f6', color: '#374151' }}>
+                                        <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: '#f8fafc', color: '#475569' }}>
                                           {c.modelo === 'mensalidade' ? 'Mensalidade' : c.modelo === 'percentagem' ? 'Percentagem' : 'Fixo'}
                                         </span>
                                       </td>
@@ -426,22 +426,22 @@ export default function SimuladorPage() {
                   {[
                     { label: 'Total comissoes', val: calculo?.total || 0, icon: <DollarSign size={20} style={{ color: '#059669' }} />, color: '#059669', bg: '#d1fae5' },
                     { label: 'Energia', val: calculo?.energia || 0, icon: <Zap size={20} style={{ color: '#d97706' }} />, color: '#d97706', bg: '#fef3c7' },
-                    { label: 'Telecom', val: calculo?.telecom || 0, icon: <Wifi size={20} style={{ color: '#4338ca' }} />, color: '#4338ca', bg: '#eef2ff' },
+                    { label: 'Telecom', val: calculo?.telecom || 0, icon: <Wifi size={20} style={{ color: '#0ea5e9' }} />, color: '#0ea5e9', bg: '#eef2ff' },
                     { label: 'Ja pagas', val: pagasTotal, icon: <TrendingUp size={20} style={{ color: '#0891b2' }} />, color: '#0891b2', bg: '#e0f2fe' },
                   ].map(({ label, val, icon, color, bg }) => (
-                    <div key={label} className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                    <div key={label} className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                       <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg" style={{ background: bg }}>{icon}</div>
                       <p className="text-2xl font-bold" style={{ color }}>€{val.toFixed(2)}</p>
-                      <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>{label}</p>
+                      <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>{label}</p>
                     </div>
                   ))}
                 </div>
 
                 {/* Detalhes por venda */}
                 {calculo && calculo.detalhes.length > 0 && (
-                  <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                    <div className="px-5 py-4" style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                      <h2 className="font-bold" style={{ color: '#111827' }}>Detalhe por Venda</h2>
+                  <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                    <div className="px-5 py-4" style={{ background: '#f9fafb', borderBottom: '1px solid #e2e8f0' }}>
+                      <h2 className="font-bold" style={{ color: '#1e293b' }}>Detalhe por Venda</h2>
                       <div className="flex gap-3 mt-2">
                         <span className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: '#d1fae5', color: '#065f46' }}>
                           Pagas: €{pagasTotal.toFixed(2)}
@@ -454,32 +454,32 @@ export default function SimuladorPage() {
                     <div className="overflow-x-auto">
                       <table className="w-full">
                         <thead>
-                          <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+                          <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e2e8f0' }}>
                             {['Cliente', 'Tipo', 'Operadora', 'Plano', 'Mensalidade', 'x Mens.', 'Comissao', 'Estado'].map(h => (
-                              <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>{h}</th>
+                              <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>{h}</th>
                             ))}
                           </tr>
                         </thead>
                         <tbody>
                           {calculo.detalhes.map((d, i) => (
                             <tr key={i} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                              <td className="px-4 py-3 text-sm font-medium" style={{ color: '#111827' }}>{d.client_name}</td>
+                              <td className="px-4 py-3 text-sm font-medium" style={{ color: '#1e293b' }}>{d.client_name}</td>
                               <td className="px-4 py-3">
                                 <span className="px-2 py-0.5 rounded-full text-xs font-medium"
                                   style={{ background: d.service_type === 'energia' ? '#fef3c7' : '#e0e7ff', color: d.service_type === 'energia' ? '#92400e' : '#4338ca' }}>
                                   {d.service_type === 'energia' ? 'Energia' : 'Telecom'}
                                 </span>
                               </td>
-                              <td className="px-4 py-3 text-sm" style={{ color: '#374151' }}>{d.operator}</td>
-                              <td className="px-4 py-3 text-sm" style={{ color: '#374151' }}>
+                              <td className="px-4 py-3 text-sm" style={{ color: '#475569' }}>{d.operator}</td>
+                              <td className="px-4 py-3 text-sm" style={{ color: '#475569' }}>
                                 {d.plano ? (
-                                  <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: '#eef2ff', color: '#4338ca' }}>{d.plano}</span>
+                                  <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: '#eef2ff', color: '#0ea5e9' }}>{d.plano}</span>
                                 ) : '—'}
                               </td>
-                              <td className="px-4 py-3 text-sm" style={{ color: '#374151' }}>
+                              <td className="px-4 py-3 text-sm" style={{ color: '#475569' }}>
                                 {d.amount > 0 ? `€${d.amount.toFixed(2)}` : '—'}
                               </td>
-                              <td className="px-4 py-3 text-sm" style={{ color: '#374151' }}>
+                              <td className="px-4 py-3 text-sm" style={{ color: '#475569' }}>
                                 {d.num_mensalidades ? `x${d.num_mensalidades}` : '—'}
                               </td>
                               <td className="px-4 py-3 font-bold text-sm" style={{ color: '#059669' }}>€{(d.comissao || 0).toFixed(2)}</td>

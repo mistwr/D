@@ -27,7 +27,7 @@ interface Ficheiro {
 }
 
 const TIPO_ICONS: Record<string, { icon: React.ElementType; color: string; bg: string; label: string }> = {
-  fa:           { icon: ClipboardList, color: '#4338ca', bg: '#eef2ff', label: 'Formulários de Adesão' },
+  fa:           { icon: ClipboardList, color: '#0ea5e9', bg: '#eef2ff', label: 'Formulários de Adesão' },
   portabilidade: { icon: Wifi,         color: '#2563eb', bg: '#eff6ff', label: 'Portabilidade' },
   apoio:        { icon: FolderOpen,    color: '#16a34a', bg: '#f0fdf4', label: 'Material de Apoio' },
   energia:      { icon: Zap,           color: '#d97706', bg: '#fef3c7', label: 'Energia' },
@@ -71,7 +71,7 @@ export default function MateriaisParceiroPage() {
   }
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4338ca' }} />
     </div>
   )
@@ -79,7 +79,7 @@ export default function MateriaisParceiroPage() {
   const ativas = categorias.filter(c => c.status === 'ativa')
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="parceiro" />
@@ -87,19 +87,19 @@ export default function MateriaisParceiroPage() {
           <div className="p-4 md:p-8">
             <div className="flex items-center gap-3 mb-8">
               <div className="rounded-xl p-2.5" style={{ background: '#eef2ff' }}>
-                <FolderOpen size={24} style={{ color: '#4338ca' }} />
+                <FolderOpen size={24} style={{ color: '#0ea5e9' }} />
               </div>
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>{"FA's e Material de Apoio"}</h1>
-                <p className="text-sm" style={{ color: '#6b7280' }}>Formulários de adesão, portabilidade e materiais de apoio</p>
+                <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>{"FA's e Material de Apoio"}</h1>
+                <p className="text-sm" style={{ color: '#64748b' }}>Formulários de adesão, portabilidade e materiais de apoio</p>
               </div>
             </div>
 
             {ativas.length === 0 ? (
-              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <FolderOpen size={48} style={{ color: '#d1d5db' }} className="mx-auto mb-4" />
-                <p className="text-lg font-medium" style={{ color: '#374151' }}>Nenhum material disponível</p>
-                <p className="text-sm" style={{ color: '#6b7280' }}>Os materiais de apoio aparecerão aqui quando disponíveis.</p>
+                <p className="text-lg font-medium" style={{ color: '#475569' }}>Nenhum material disponível</p>
+                <p className="text-sm" style={{ color: '#64748b' }}>Os materiais de apoio aparecerão aqui quando disponíveis.</p>
               </div>
             ) : (
               <div className="flex flex-col gap-4">
@@ -110,7 +110,7 @@ export default function MateriaisParceiroPage() {
                   const catFich = ficheiros[c.id] ?? []
 
                   return (
-                    <div key={c.id} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                    <div key={c.id} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                       {/* Cabeçalho */}
                       <div className="flex items-center gap-4 p-5">
                         <div className="h-14 w-14 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center"
@@ -120,13 +120,13 @@ export default function MateriaisParceiroPage() {
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="font-bold text-base" style={{ color: '#111827' }}>{c.title}</h3>
+                            <h3 className="font-bold text-base" style={{ color: '#1e293b' }}>{c.title}</h3>
                             <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: tipoInfo.bg, color: tipoInfo.color }}>
                               {tipoInfo.label}
                             </span>
                           </div>
                           {c.description && (
-                            <p className="text-sm mt-1 line-clamp-2" style={{ color: '#6b7280' }}>{c.description}</p>
+                            <p className="text-sm mt-1 line-clamp-2" style={{ color: '#64748b' }}>{c.description}</p>
                           )}
                           <p className="text-xs mt-1" style={{ color: '#9ca3af' }}>
                             {c.file_count ?? 0} ficheiro{(c.file_count ?? 0) !== 1 ? 's' : ''} &middot; {new Date(c.created_at).toLocaleDateString('pt-PT')}
@@ -135,7 +135,7 @@ export default function MateriaisParceiroPage() {
 
                         <button onClick={() => toggleExpand(c.id)}
                           className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors flex-shrink-0"
-                          style={{ background: isOpen ? '#eef2ff' : '#f9fafb', color: isOpen ? '#4338ca' : '#374151', border: '1px solid #e5e7eb' }}>
+                          style={{ background: isOpen ? '#eef2ff' : '#f9fafb', color: isOpen ? '#4338ca' : '#374151', border: '1px solid #e2e8f0' }}>
                           {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                           {isOpen ? 'Fechar' : 'Ver ficheiros'}
                         </button>
@@ -157,13 +157,13 @@ export default function MateriaisParceiroPage() {
                             <div className="grid gap-2 sm:grid-cols-2">
                               {catFich.map(f => (
                                 <div key={f.id} className="flex items-center justify-between rounded-lg p-3 gap-3"
-                                  style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                                  style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
                                   <div className="flex items-center gap-2.5 min-w-0">
-                                    <div className="rounded-lg p-1.5 flex-shrink-0" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                                    <div className="rounded-lg p-1.5 flex-shrink-0" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                                       <FileText size={16} style={{ color: f.file_type === 'image' ? '#0891b2' : f.file_type === 'pdf' ? '#dc2626' : '#6b7280' }} />
                                     </div>
                                     <div className="min-w-0">
-                                      <p className="text-sm font-medium truncate" style={{ color: '#111827' }}>{f.file_name}</p>
+                                      <p className="text-sm font-medium truncate" style={{ color: '#1e293b' }}>{f.file_name}</p>
                                       <p className="text-xs" style={{ color: '#9ca3af' }}>{f.file_type.toUpperCase()} &middot; {formatSize(f.file_size)}</p>
                                     </div>
                                   </div>
@@ -171,7 +171,7 @@ export default function MateriaisParceiroPage() {
                                     <div className="flex items-center gap-1.5 flex-shrink-0">
                                       <a href={f.signed_url} target="_blank" rel="noreferrer"
                                         className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
-                                        style={{ background: '#eef2ff', color: '#4338ca' }}>
+                                        style={{ background: '#eef2ff', color: '#0ea5e9' }}>
                                         <ExternalLink size={12} /> Abrir
                                       </a>
                                       <a href={f.signed_url} download={f.file_name} target="_blank" rel="noreferrer"

@@ -82,20 +82,20 @@ export function CookieBanner() {
     >
       <div
         className="max-w-3xl mx-auto rounded-2xl shadow-2xl overflow-hidden"
-        style={{ background: '#fff', border: '1px solid #e5e7eb' }}
+        style={{ background: '#fff', border: '1px solid #e2e8f0' }}
       >
         {/* Header */}
         <div className="flex items-start gap-4 px-6 pt-6 pb-4">
           <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#eef2ff' }}>
-            <Cookie size={20} style={{ color: '#4338ca' }} />
+            <Cookie size={20} style={{ color: '#0ea5e9' }} />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-base font-semibold" style={{ color: '#111827' }}>
+            <h2 className="text-base font-semibold" style={{ color: '#1e293b' }}>
               Utilizamos cookies
             </h2>
-            <p className="text-sm mt-1 leading-relaxed" style={{ color: '#6b7280' }}>
+            <p className="text-sm mt-1 leading-relaxed" style={{ color: '#64748b' }}>
               Utilizamos cookies para garantir o funcionamento da plataforma e melhorar a sua experiência. Os cookies estritamente necessários não podem ser desactivados.{' '}
-              <Link href="/rgpd" className="underline font-medium" style={{ color: '#4338ca' }}>
+              <Link href="/rgpd" className="underline font-medium" style={{ color: '#0ea5e9' }}>
                 Saiba mais na nossa Política de Privacidade e Cookies.
               </Link>
             </p>
@@ -115,7 +115,7 @@ export function CookieBanner() {
           <button
             onClick={() => setExpanded(e => !e)}
             className="w-full flex items-center justify-between px-6 py-3 text-sm font-medium transition hover:opacity-70"
-            style={{ color: '#374151' }}
+            style={{ color: '#475569' }}
           >
             <span>Gerir preferencias de cookies</span>
             {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -124,10 +124,10 @@ export function CookieBanner() {
           {expanded && (
             <div className="px-6 pb-4 space-y-3">
               {/* Necessarios */}
-              <div className="flex items-start justify-between gap-4 rounded-xl p-4" style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+              <div className="flex items-start justify-between gap-4 rounded-xl p-4" style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: '#111827' }}>Cookies necessarios</p>
-                  <p className="text-xs mt-0.5 leading-relaxed" style={{ color: '#6b7280' }}>
+                  <p className="text-sm font-semibold" style={{ color: '#1e293b' }}>Cookies necessarios</p>
+                  <p className="text-xs mt-0.5 leading-relaxed" style={{ color: '#64748b' }}>
                     Essenciais para o funcionamento da plataforma: autenticacao, sessao e seguranca. Nao podem ser desactivados.
                   </p>
                 </div>
@@ -139,10 +139,10 @@ export function CookieBanner() {
               </div>
 
               {/* Analiticos */}
-              <div className="flex items-start justify-between gap-4 rounded-xl p-4" style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+              <div className="flex items-start justify-between gap-4 rounded-xl p-4" style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: '#111827' }}>Cookies analiticos</p>
-                  <p className="text-xs mt-0.5 leading-relaxed" style={{ color: '#6b7280' }}>
+                  <p className="text-sm font-semibold" style={{ color: '#1e293b' }}>Cookies analiticos</p>
+                  <p className="text-xs mt-0.5 leading-relaxed" style={{ color: '#64748b' }}>
                     Permitem-nos compreender como a plataforma e utilizada para a melhorar continuamente. Os dados sao anonimizados.
                   </p>
                 </div>
@@ -161,10 +161,10 @@ export function CookieBanner() {
               </div>
 
               {/* Marketing */}
-              <div className="flex items-start justify-between gap-4 rounded-xl p-4" style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+              <div className="flex items-start justify-between gap-4 rounded-xl p-4" style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: '#111827' }}>Cookies de marketing</p>
-                  <p className="text-xs mt-0.5 leading-relaxed" style={{ color: '#6b7280' }}>
+                  <p className="text-sm font-semibold" style={{ color: '#1e293b' }}>Cookies de marketing</p>
+                  <p className="text-xs mt-0.5 leading-relaxed" style={{ color: '#64748b' }}>
                     Utilizados para personalizar conteudo e comunicacoes relevantes. Apenas partilhamos dados com parceiros de confianca.
                   </p>
                 </div>
@@ -191,7 +191,7 @@ export function CookieBanner() {
             onClick={() => save(false, false, false)}
             disabled={saving}
             className="flex-1 rounded-xl py-2.5 text-sm font-semibold border transition hover:opacity-80 disabled:opacity-50"
-            style={{ background: '#fff', color: '#374151', border: '1px solid #d1d5db' }}
+            style={{ background: '#fff', color: '#475569', border: '1px solid #d1d5db' }}
           >
             Rejeitar opcionais
           </button>
@@ -200,7 +200,7 @@ export function CookieBanner() {
               onClick={() => save(true, analytics, marketing)}
               disabled={saving}
               className="flex-1 rounded-xl py-2.5 text-sm font-semibold border transition hover:opacity-80 disabled:opacity-50"
-              style={{ background: '#eef2ff', color: '#4338ca', border: '1px solid #c7d2fe' }}
+              style={{ background: '#eef2ff', color: '#0ea5e9', border: '1px solid #c7d2fe' }}
             >
               Guardar preferencias
             </button>
@@ -209,7 +209,7 @@ export function CookieBanner() {
             onClick={() => save(true, true, true)}
             disabled={saving}
             className="flex-1 rounded-xl py-2.5 text-sm font-semibold transition hover:opacity-80 disabled:opacity-50"
-            style={{ background: '#4338ca', color: '#fff' }}
+            style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', color: '#fff' }}
           >
             Aceitar todos
           </button>

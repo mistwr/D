@@ -159,7 +159,7 @@ export default function LoginPage() {
 
           <div className="mb-6">
             <h2 className="text-2xl font-bold" style={{ color: '#0f172a' }}>Bem-vindo</h2>
-            <p className="mt-1 text-sm" style={{ color: '#6b7280' }}>Entre na sua conta para continuar</p>
+            <p className="mt-1 text-sm" style={{ color: '#64748b' }}>Entre na sua conta para continuar</p>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -170,7 +170,7 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium" style={{ color: '#374151' }}>Email</label>
+              <label className="mb-1.5 block text-sm font-medium" style={{ color: '#475569' }}>Email</label>
               <input
                 type="email"
                 value={email}
@@ -179,12 +179,12 @@ export default function LoginPage() {
                 autoComplete="email"
                 placeholder="o-seu@email.com"
                 className="w-full rounded-xl px-4 py-3 text-sm outline-none transition focus:ring-2"
-                style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', color: '#111827' }}
+                style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', color: '#1e293b' }}
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium" style={{ color: '#374151' }}>Password</label>
+              <label className="mb-1.5 block text-sm font-medium" style={{ color: '#475569' }}>Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -194,7 +194,7 @@ export default function LoginPage() {
                   autoComplete="current-password"
                   placeholder="••••••••"
                   className="w-full rounded-xl px-4 py-3 pr-11 text-sm outline-none transition focus:ring-2"
-                  style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', color: '#111827' }}
+                  style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', color: '#1e293b' }}
                 />
                 <button
                   type="button"
@@ -229,7 +229,7 @@ export default function LoginPage() {
 
           <p className="mt-3 text-center text-xs" style={{ color: '#9ca3af' }}>
             Ao aceder esta plataforma está a aceitar a nossa{' '}
-            <a href="/rgpd" className="underline hover:opacity-80 transition" style={{ color: '#4338ca' }}>
+            <a href="/rgpd" className="underline hover:opacity-80 transition" style={{ color: '#0ea5e9' }}>
               Política de Privacidade e Cookies
             </a>
           </p>

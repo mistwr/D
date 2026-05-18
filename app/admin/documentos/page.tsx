@@ -115,21 +115,21 @@ export default function AdminDocumentosPage() {
   })
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
-      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
     </div>
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" />
         <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-8">
             <div className="mb-6">
-              <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Documentos dos Parceiros</h1>
-              <p className="mt-1 text-sm" style={{ color: '#6b7280' }}>
+              <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Documentos dos Parceiros</h1>
+              <p className="mt-1 text-sm" style={{ color: '#64748b' }}>
                 Todos os ficheiros carregados — visualize e descarregue directamente
               </p>
             </div>
@@ -137,31 +137,31 @@ export default function AdminDocumentosPage() {
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
               {[
-                { label: 'Total Docs',  value: docs.length,                                                    bg: '#e0e7ff', color: '#4338ca' },
+                { label: 'Total Docs',  value: docs.length,                                                    bg: '#e0e7ff', color: '#0ea5e9' },
                 { label: 'Parceiros',   value: new Set(docs.map(d => d.uploaded_by)).size,                     bg: '#fce7f3', color: '#9d174d' },
                 { label: 'PDF',         value: docs.filter(d => getExt(d.file_name) === 'pdf').length,         bg: '#fee2e2', color: '#991b1b' },
                 { label: 'Imagens',     value: docs.filter(d => ['jpg','jpeg','png','webp'].includes(getExt(d.file_name))).length, bg: '#d1fae5', color: '#065f46' },
                 { label: 'Word/Excel',  value: docs.filter(d => ['doc','docx','xls','xlsx'].includes(getExt(d.file_name))).length, bg: '#fef3c7', color: '#92400e' },
               ].map(s => (
-                <div key={s.label} className="rounded-xl p-4 shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                <div key={s.label} className="rounded-xl p-4 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                   <p className="text-xl font-bold" style={{ color: s.color }}>{s.value}</p>
-                  <p className="text-xs mt-1" style={{ color: '#6b7280' }}>{s.label}</p>
+                  <p className="text-xs mt-1" style={{ color: '#64748b' }}>{s.label}</p>
                 </div>
               ))}
             </div>
 
             {/* Filtros */}
-            <div className="mb-5 rounded-xl p-4 flex flex-col md:flex-row gap-3" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+            <div className="mb-5 rounded-xl p-4 flex flex-col md:flex-row gap-3" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
               <div className="relative flex-1">
                 <Search size={16} className="absolute left-3 top-2.5" style={{ color: '#9ca3af' }} />
                 <input value={search} onChange={e => setSearch(e.target.value)}
                   placeholder="Pesquisar por ficheiro, parceiro, cliente, NIF ou operadora..."
                   className="w-full pl-9 pr-4 py-2 rounded-lg text-sm outline-none"
-                  style={{ border: '1px solid #d1d5db', color: '#111827' }} />
+                  style={{ border: '1px solid #d1d5db', color: '#1e293b' }} />
               </div>
               <select value={filterType} onChange={e => setFilterType(e.target.value)}
                 className="rounded-lg px-3 py-2 text-sm outline-none"
-                style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}>
+                style={{ border: '1px solid #d1d5db', color: '#1e293b', background: '#fff' }}>
                 <option value="todos">Todos os tipos</option>
                 <option value="pdf">PDF</option>
                 <option value="img">Imagens</option>
@@ -172,9 +172,9 @@ export default function AdminDocumentosPage() {
 
             {/* Lista agrupada por parceiro */}
             {parceirosMap.size === 0 ? (
-              <div className="rounded-xl p-12 text-center" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+              <div className="rounded-xl p-12 text-center" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <FileText size={48} className="mx-auto mb-4" style={{ color: '#d1d5db' }} />
-                <p className="text-base font-medium" style={{ color: '#374151' }}>
+                <p className="text-base font-medium" style={{ color: '#475569' }}>
                   {docs.length === 0 ? 'Nenhum documento carregado ainda' : 'Nenhum resultado'}
                 </p>
               </div>
@@ -183,7 +183,7 @@ export default function AdminDocumentosPage() {
                 {Array.from(parceirosMap.entries()).map(([parceiroId, parceiro]) => {
                   const isOpen = expandedParceiro === parceiroId
                   return (
-                    <div key={parceiroId} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                    <div key={parceiroId} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                       {/* Header parceiro */}
                       <button
                         onClick={() => setExpandedParceiro(isOpen ? null : parceiroId)}
@@ -195,14 +195,14 @@ export default function AdminDocumentosPage() {
                             <User size={20} style={{ color: '#4f46e5' }} />
                           </div>
                           <div>
-                            <p className="font-bold" style={{ color: '#111827' }}>{parceiro.name}</p>
+                            <p className="font-bold" style={{ color: '#1e293b' }}>{parceiro.name}</p>
                             <div className="flex flex-wrap gap-3 mt-0.5">
                               {parceiro.company && (
-                                <span className="flex items-center gap-1 text-xs" style={{ color: '#6b7280' }}>
+                                <span className="flex items-center gap-1 text-xs" style={{ color: '#64748b' }}>
                                   <Building2 size={11} /> {parceiro.company}
                                 </span>
                               )}
-                              <span className="flex items-center gap-1 text-xs" style={{ color: '#6b7280' }}>
+                              <span className="flex items-center gap-1 text-xs" style={{ color: '#64748b' }}>
                                 <Mail size={11} /> {parceiro.email}
                               </span>
                             </div>
@@ -226,26 +226,26 @@ export default function AdminDocumentosPage() {
                               const isImage = ['jpg','jpeg','png','gif','webp'].includes(ext)
                               const isPdf = ext === 'pdf'
                               const canPreview = isImage || isPdf
-                              const st = ST[d.venda_status] || { bg: '#f3f4f6', color: '#6b7280', label: d.venda_status }
+                              const st = ST[d.venda_status] || { bg: '#f3f4f6', color: '#64748b', label: d.venda_status }
 
                               return (
-                                <div key={d.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid #e5e7eb' }}>
+                                <div key={d.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0' }}>
                                   {/* Linha do documento */}
                                   <div className="flex flex-wrap items-center gap-3 px-4 py-3" style={{ background: '#f9fafb' }}>
                                     {/* Badge tipo */}
                                     <span className="flex h-7 w-10 items-center justify-center rounded text-[10px] font-bold uppercase flex-shrink-0"
-                                      style={{ background: '#e0e7ff', color: '#4338ca' }}>
+                                      style={{ background: '#e0e7ff', color: '#0ea5e9' }}>
                                       {ext || 'DOC'}
                                     </span>
 
                                     {/* Nome + meta */}
                                     <div className="flex-1 min-w-0">
-                                      <p className="text-sm font-semibold truncate" style={{ color: '#111827' }}>{d.file_name}</p>
+                                      <p className="text-sm font-semibold truncate" style={{ color: '#1e293b' }}>{d.file_name}</p>
                                       <div className="flex flex-wrap gap-3 mt-0.5">
                                         <span className="text-xs" style={{ color: '#9ca3af' }}>{formatSize(d.file_size)}</span>
                                         <span className="text-xs" style={{ color: '#9ca3af' }}>{new Date(d.created_at).toLocaleDateString('pt-PT')}</span>
                                         {d.client_name && (
-                                          <span className="text-xs font-medium" style={{ color: '#374151' }}>Cliente: {d.client_name}{d.client_nif ? ` (NIF: ${d.client_nif})` : ''}</span>
+                                          <span className="text-xs font-medium" style={{ color: '#475569' }}>Cliente: {d.client_name}{d.client_nif ? ` (NIF: ${d.client_nif})` : ''}</span>
                                         )}
                                         {d.venda_service_type && (
                                           <span className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full font-medium"
@@ -271,7 +271,7 @@ export default function AdminDocumentosPage() {
                                         <button
                                           onClick={() => setViewer(d)}
                                           className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition"
-                                          style={{ background: '#eef2ff', color: '#4338ca' }}
+                                          style={{ background: '#eef2ff', color: '#0ea5e9' }}
                                         >
                                           <Eye size={13} /> Ver
                                         </button>
@@ -300,7 +300,7 @@ export default function AdminDocumentosPage() {
                                           </button>
                                           <button onClick={() => setConfirmDelete(null)}
                                             className="rounded-lg px-2 py-1 text-xs"
-                                            style={{ background: '#f3f4f6', color: '#374151' }}>
+                                            style={{ background: '#f8fafc', color: '#475569' }}>
                                             Cancelar
                                           </button>
                                         </div>
@@ -321,7 +321,7 @@ export default function AdminDocumentosPage() {
                                       {/* eslint-disable-next-line @next/next/no-img-element */}
                                       <img src={d.signed_url} alt={d.file_name}
                                         className="w-full rounded-lg object-contain max-h-64"
-                                        style={{ background: '#f3f4f6' }} />
+                                        style={{ background: '#f8fafc' }} />
                                     </div>
                                   )}
                                 </div>
@@ -352,10 +352,10 @@ export default function AdminDocumentosPage() {
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #e5e7eb' }}>
+            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #e2e8f0' }}>
               <div>
-                <p className="font-semibold text-sm" style={{ color: '#111827' }}>{viewer.file_name}</p>
-                <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>
+                <p className="font-semibold text-sm" style={{ color: '#1e293b' }}>{viewer.file_name}</p>
+                <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>
                   {viewer.uploader_name} · {formatSize(viewer.file_size)} · {new Date(viewer.created_at).toLocaleDateString('pt-PT')}
                 </p>
               </div>
@@ -368,12 +368,12 @@ export default function AdminDocumentosPage() {
                   </a>
                 )}
                 <button onClick={() => setViewer(null)} className="rounded-lg p-2 transition hover:bg-gray-100">
-                  <X size={18} style={{ color: '#6b7280' }} />
+                  <X size={18} style={{ color: '#64748b' }} />
                 </button>
               </div>
             </div>
             {/* Conteudo */}
-            <div style={{ height: '75vh', overflow: 'auto', background: '#f3f4f6' }}>
+            <div style={{ height: '75vh', overflow: 'auto', background: '#f8fafc' }}>
               {getExt(viewer.file_name) === 'pdf' ? (
                 <iframe src={viewer.signed_url!} title={viewer.file_name} className="w-full h-full" style={{ border: 'none', minHeight: '70vh' }} />
               ) : (

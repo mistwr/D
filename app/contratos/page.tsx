@@ -201,15 +201,15 @@ export default function ContratosPage() {
   )
 
   if (authLoading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
-      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
     </div>
   )
 
-  const inp = { background: '#f9fafb', border: '1px solid #e5e7eb', color: '#111827' }
+  const inp = { background: '#f9fafb', border: '1px solid #e2e8f0', color: '#1e293b' }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="parceiro" />
@@ -219,14 +219,14 @@ export default function ContratosPage() {
             {/* Cabecalho */}
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Contratos e Documentos</h1>
-                <p className="text-sm mt-1" style={{ color: '#6b7280' }}>
+                <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Contratos e Documentos</h1>
+                <p className="text-sm mt-1" style={{ color: '#64748b' }}>
                   {vendas.length} venda{vendas.length !== 1 ? 's' : ''} registada{vendas.length !== 1 ? 's' : ''}
                 </p>
               </div>
               <button onClick={() => { setTab('gerais'); fileRef.current?.click() }} disabled={uploading}
                 className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-60"
-                style={{ background: '#4f46e5' }}>
+                style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                 <Upload size={16} /> Enviar Documento Geral
               </button>
             </div>
@@ -276,12 +276,12 @@ export default function ContratosPage() {
 
                 {loadingVendas ? (
                   <div className="flex items-center justify-center py-16">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#4f46e5' }} />
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#0ea5e9' }} />
                   </div>
                 ) : filteredVendas.length === 0 ? (
-                  <div className="rounded-xl p-16 text-center" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                  <div className="rounded-xl p-16 text-center" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                     <Package size={40} className="mx-auto mb-3" style={{ color: '#d1d5db' }} />
-                    <p className="text-sm font-medium" style={{ color: '#374151' }}>Nenhuma venda registada</p>
+                    <p className="text-sm font-medium" style={{ color: '#475569' }}>Nenhuma venda registada</p>
                     <p className="text-xs mt-1" style={{ color: '#9ca3af' }}>
                       Registe vendas na aba Vendas para as ver aqui com os documentos associados
                     </p>
@@ -309,20 +309,20 @@ export default function ContratosPage() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <p className="font-semibold text-sm" style={{ color: '#111827' }}>{v.client_name}</p>
+                                <p className="font-semibold text-sm" style={{ color: '#1e293b' }}>{v.client_name}</p>
                                 <span className="px-2 py-0.5 rounded-full text-xs font-medium"
                                   style={st}>{STATUS_LABELS[v.status] || v.status}</span>
                                 <span className="px-2 py-0.5 rounded-full text-xs font-medium"
-                                  style={{ background: '#f3f4f6', color: '#374151' }}>
+                                  style={{ background: '#f8fafc', color: '#475569' }}>
                                   {SVC_LABELS[v.service_type] || v.service_type}
                                 </span>
                               </div>
-                              <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>
+                              <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>
                                 {v.operator}{v.plano ? ` · ${v.plano}` : ''} · {new Date(v.created_at).toLocaleDateString('pt-PT')}
                               </p>
                             </div>
                             <div className="flex-shrink-0 text-right">
-                              <p className="font-bold text-sm" style={{ color: '#111827' }}>€{(v.amount || 0).toFixed(2)}</p>
+                              <p className="font-bold text-sm" style={{ color: '#1e293b' }}>€{(v.amount || 0).toFixed(2)}</p>
                               <p className="text-xs" style={{ color: '#9ca3af' }}>
                                 {isLoadingThisDoc ? 'a carregar...' : `${docs.length} doc${docs.length !== 1 ? 's' : ''}`}
                               </p>
@@ -334,13 +334,13 @@ export default function ContratosPage() {
                             <div className="border-t px-5 py-4" style={{ borderColor: '#f3f4f6', background: '#fafbff' }}>
                               {isLoadingThisDoc ? (
                                 <div className="flex items-center justify-center py-6">
-                                  <div className="animate-spin rounded-full h-6 w-6 border-b-2" style={{ borderColor: '#4f46e5' }} />
+                                  <div className="animate-spin rounded-full h-6 w-6 border-b-2" style={{ borderColor: '#0ea5e9' }} />
                                 </div>
                               ) : (
                                 <>
                                   {/* Botao de upload para esta venda */}
                                   <div className="flex items-center justify-between mb-3">
-                                    <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>
+                                    <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#64748b' }}>
                                       Documentos desta venda
                                     </p>
                                     <label className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer transition hover:opacity-80"
@@ -355,7 +355,7 @@ export default function ContratosPage() {
                                   </div>
 
                                   {docs.length === 0 ? (
-                                    <div className="rounded-lg py-8 text-center" style={{ background: '#f3f4f6' }}>
+                                    <div className="rounded-lg py-8 text-center" style={{ background: '#f8fafc' }}>
                                       <FileText size={28} className="mx-auto mb-2" style={{ color: '#d1d5db' }} />
                                       <p className="text-xs" style={{ color: '#9ca3af' }}>
                                         Nenhum documento anexado a esta venda
@@ -365,12 +365,12 @@ export default function ContratosPage() {
                                     <ul className="space-y-2">
                                       {docs.map(doc => (
                                         <li key={doc.id} className="flex items-center gap-3 rounded-lg px-3 py-2.5"
-                                          style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                                          style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                                           <div className="rounded p-1.5 flex-shrink-0" style={{ background: '#eef2ff' }}>
                                             <FileText size={14} style={{ color: '#4f46e5' }} />
                                           </div>
                                           <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium truncate" style={{ color: '#111827' }}>{doc.file_name}</p>
+                                            <p className="text-sm font-medium truncate" style={{ color: '#1e293b' }}>{doc.file_name}</p>
                                             <p className="text-xs" style={{ color: '#9ca3af' }}>
                                               {doc.file_size ? `${(doc.file_size / 1024).toFixed(0)} KB · ` : ''}
                                               {new Date(doc.created_at).toLocaleDateString('pt-PT')}
@@ -434,16 +434,16 @@ export default function ContratosPage() {
 
                 {loadingGerais ? (
                   <div className="flex items-center justify-center py-10">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#4f46e5' }} />
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#0ea5e9' }} />
                   </div>
                 ) : docsGerais.length === 0 ? (
-                  <div className="rounded-xl p-14 text-center" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                  <div className="rounded-xl p-14 text-center" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                     <FileText size={36} className="mx-auto mb-3" style={{ color: '#d1d5db' }} />
-                    <p className="text-sm font-medium" style={{ color: '#374151' }}>Nenhum documento geral ainda</p>
+                    <p className="text-sm font-medium" style={{ color: '#475569' }}>Nenhum documento geral ainda</p>
                     <p className="text-xs mt-1" style={{ color: '#9ca3af' }}>Use o botao acima para enviar PDF, Word ou imagens</p>
                   </div>
                 ) : (
-                  <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                  <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                     <ul className="divide-y" style={{ borderColor: '#f3f4f6' }}>
                       {docsGerais.map(doc => (
                         <li key={doc.id} className="flex items-center gap-4 px-5 py-4">
@@ -451,7 +451,7 @@ export default function ContratosPage() {
                             <FileText size={18} style={{ color: '#4f46e5' }} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold truncate" style={{ color: '#111827' }}>{doc.file_name}</p>
+                            <p className="text-sm font-semibold truncate" style={{ color: '#1e293b' }}>{doc.file_name}</p>
                             <p className="text-xs mt-0.5" style={{ color: '#9ca3af' }}>
                               {doc.file_size ? `${(doc.file_size / 1024).toFixed(0)} KB · ` : ''}
                               {new Date(doc.created_at).toLocaleDateString('pt-PT')}

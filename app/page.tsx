@@ -28,8 +28,8 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center" style={{ background: '#f3f4f6' }}>
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" style={{ borderColor: '#4f46e5', borderTopColor: 'transparent' }} />
+      <div className="flex min-h-screen items-center justify-center" style={{ background: '#f8fafc' }}>
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" style={{ borderColor: '#0ea5e9', borderTopColor: 'transparent' }} />
       </div>
     )
   }
@@ -37,17 +37,17 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-8 px-6" style={{ background: '#f9fafb' }}>
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-3" style={{ color: '#111827' }}>Soluções Diferentes</h1>
-        <p className="text-lg" style={{ color: '#6b7280' }}>CRM Inteligente para Gestão de Vendas</p>
+        <h1 className="text-4xl font-bold mb-3" style={{ color: '#1e293b' }}>Soluções Diferentes</h1>
+        <p className="text-lg" style={{ color: '#64748b' }}>CRM Inteligente para Gestão de Vendas</p>
       </div>
       <div className="flex gap-4">
-        <Link href="/sobre" className="px-6 py-3 rounded-lg font-medium" style={{ background: '#f3f4f6', color: '#4338ca' }}>
+        <Link href="/sobre" className="px-6 py-3 rounded-lg font-medium" style={{ background: '#f8fafc', color: '#0ea5e9' }}>
           Saber Mais
         </Link>
-        <Link href="/login" className="px-6 py-3 rounded-lg font-medium" style={{ background: '#4338ca', color: 'white' }}>
+        <Link href="/login" className="px-6 py-3 rounded-lg font-medium" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', color: 'white' }}>
           Entrar
         </Link>
-        <Link href="/register" className="px-6 py-3 rounded-lg font-medium" style={{ background: '#e5e7eb', color: '#111827' }}>
+        <Link href="/register" className="px-6 py-3 rounded-lg font-medium" style={{ background: '#e5e7eb', color: '#1e293b' }}>
           Registar
         </Link>
       </div>

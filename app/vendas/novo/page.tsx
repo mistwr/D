@@ -187,39 +187,39 @@ export default function NovaVendaPage() {
   }
 
   if (!user) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
-      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
     </div>
   )
 
   if (success) return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-4" style={{ background: '#f3f4f6' }}>
+    <div className="flex flex-col items-center justify-center min-h-screen gap-4" style={{ background: '#f8fafc' }}>
       <div className="rounded-full p-4" style={{ background: '#d1fae5' }}>
         <CheckCircle size={48} style={{ color: '#059669' }} />
       </div>
-      <p className="text-xl font-bold" style={{ color: '#111827' }}>Venda registada com sucesso!</p>
-      <p className="text-sm" style={{ color: '#6b7280' }}>A redirecionar para as suas vendas...</p>
+      <p className="text-xl font-bold" style={{ color: '#1e293b' }}>Venda registada com sucesso!</p>
+      <p className="text-sm" style={{ color: '#64748b' }}>A redirecionar para as suas vendas...</p>
     </div>
   )
 
-  const inp = { background: '#fff', border: '1px solid #d1d5db', color: '#111827' }
+  const inp = { background: '#fff', border: '1px solid #d1d5db', color: '#1e293b' }
   const ops = OPERADORAS[form.service_type] || OPERADORAS.telecom
   const isEnergia = form.service_type === 'energia'
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole={user?.role || 'parceiro'} />
         <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-8 max-w-3xl">
             <div className="flex items-center gap-3 mb-6">
-              <Link href="/vendas" className="rounded-lg p-2 transition hover:bg-gray-200" style={{ color: '#6b7280' }}>
+              <Link href="/vendas" className="rounded-lg p-2 transition hover:bg-gray-200" style={{ color: '#64748b' }}>
                 <ArrowLeft size={20} />
               </Link>
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Registar Nova Venda</h1>
-                <p className="text-sm" style={{ color: '#6b7280' }}>Preencha os dados do contrato e do cliente</p>
+                <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Registar Nova Venda</h1>
+                <p className="text-sm" style={{ color: '#64748b' }}>Preencha os dados do contrato e do cliente</p>
               </div>
             </div>
 
@@ -232,8 +232,8 @@ export default function NovaVendaPage() {
             <form onSubmit={handleSubmit} className="space-y-5">
 
               {/* TIPO DE SERVICO */}
-              <div className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                <h2 className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#6b7280' }}>1. Tipo de Servico</h2>
+              <div className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                <h2 className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#64748b' }}>1. Tipo de Servico</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {(['telecom', 'energia', 'gas', 'seguros'] as const).map(s => (
                     <button key={s} type="button"
@@ -251,24 +251,24 @@ export default function NovaVendaPage() {
               </div>
 
               {/* OPERADORA */}
-              <div className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                <h2 className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#6b7280' }}>2. Operadora e Plano</h2>
+              <div className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                <h2 className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#64748b' }}>2. Operadora e Plano</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Operadora *</label>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Operadora *</label>
                     <select value={form.operator} onChange={e => update('operator', e.target.value)}
                       className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp} required>
                       {ops.map(op => <option key={op} value={op}>{op}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Plano / Pacote</label>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Plano / Pacote</label>
                     <input type="text" value={form.plano} onChange={e => update('plano', e.target.value)}
                       className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp}
                       placeholder={form.service_type === 'telecom' ? 'Ex: 3P, 4P, Pack Familia' : 'Ex: Simples, Bi-horario'} />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Tipo de Contrato</label>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Tipo de Contrato</label>
                     <input type="text" value={form.contract_type} onChange={e => update('contract_type', e.target.value)}
                       className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp}
                       placeholder="Ex: Residencial 24 meses, Empresarial, Mensal" />
@@ -279,7 +279,7 @@ export default function NovaVendaPage() {
                 {isEnergia && (
                   <div className="mt-4 space-y-4 pt-4" style={{ borderTop: '1px solid #f3f4f6' }}>
                     <div>
-                      <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>Tipo de Fornecimento</label>
+                      <label className="block text-sm font-medium mb-2" style={{ color: '#475569' }}>Tipo de Fornecimento</label>
                       <div className="grid grid-cols-3 gap-2">
                         {[
                           { v: 'eletricidade', l: 'Eletricidade' },
@@ -307,7 +307,7 @@ export default function NovaVendaPage() {
 
                     {/* Tipo de Processo Energia */}
                     <div>
-                      <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>Tipo de Processo *</label>
+                      <label className="block text-sm font-medium mb-2" style={{ color: '#475569' }}>Tipo de Processo *</label>
                       <div className="grid grid-cols-3 gap-2">
                         {[
                           { v: 'ED', l: 'ED', desc: 'Entrada Direta' },
@@ -334,10 +334,10 @@ export default function NovaVendaPage() {
                       {(form.energia_tipo === 'eletricidade' || form.energia_tipo === 'dual') && (
                         <div>
                           <div className="flex items-center justify-between mb-1.5">
-                            <label className="text-sm font-medium" style={{ color: '#374151' }}>CPE (Eletricidade)</label>
+                            <label className="text-sm font-medium" style={{ color: '#475569' }}>CPE (Eletricidade)</label>
                             <button type="button" onClick={() => setCpes([...cpes, ''])}
                               className="text-xs font-medium px-2 py-1 rounded-lg transition hover:opacity-80"
-                              style={{ background: '#eef2ff', color: '#4338ca' }}>
+                              style={{ background: '#eef2ff', color: '#0ea5e9' }}>
                               + Adicionar CPE
                             </button>
                           </div>
@@ -363,7 +363,7 @@ export default function NovaVendaPage() {
                       {(form.energia_tipo === 'gas' || form.energia_tipo === 'dual') && (
                         <div>
                           <div className="flex items-center justify-between mb-1.5">
-                            <label className="text-sm font-medium" style={{ color: '#374151' }}>CUI (Gas)</label>
+                            <label className="text-sm font-medium" style={{ color: '#475569' }}>CUI (Gas)</label>
                             <button type="button" onClick={() => setCuis([...cuis, ''])}
                               className="text-xs font-medium px-2 py-1 rounded-lg transition hover:opacity-80"
                               style={{ background: '#fef3c7', color: '#92400e' }}>
@@ -392,7 +392,7 @@ export default function NovaVendaPage() {
                         {/* Potencia - Eletricidade */}
                         {(form.energia_tipo === 'eletricidade' || form.energia_tipo === 'dual') && (
                           <div>
-                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>
                               Potencia Contratada <span className="font-normal text-xs" style={{ color: '#9ca3af' }}>(kVA)</span>
                             </label>
                             <select value={form.potencia} onChange={e => update('potencia', e.target.value)}
@@ -409,7 +409,7 @@ export default function NovaVendaPage() {
                         {/* Escalao Eletricidade */}
                         {(form.energia_tipo === 'eletricidade' || form.energia_tipo === 'dual') && (
                           <div>
-                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>
                               Escalao Eletricidade
                             </label>
                             <select value={form.escalao} onChange={e => update('escalao', e.target.value)}
@@ -426,7 +426,7 @@ export default function NovaVendaPage() {
                         {/* Escalao Gas */}
                         {(form.energia_tipo === 'gas' || form.energia_tipo === 'dual') && (
                           <div>
-                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                            <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>
                               Escalao Gas
                             </label>
                             <select value={form.gas_escalao} onChange={e => update('gas_escalao', e.target.value)}
@@ -448,28 +448,28 @@ export default function NovaVendaPage() {
                 {form.service_type === 'telecom' && (
                   <div className="mt-4 space-y-4 pt-4" style={{ borderTop: '1px solid #f3f4f6' }}>
                     <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-semibold" style={{ color: '#374151' }}>Numeros de Telemovel e CVP</h3>
+                      <h3 className="text-sm font-semibold" style={{ color: '#475569' }}>Numeros de Telemovel e CVP</h3>
                       {telcoNumeros.length < 5 && (
                         <button type="button" onClick={() => setTelcoNumeros([...telcoNumeros, {numero: '', cvp: ''}])}
                           className="text-xs font-medium px-3 py-1.5 rounded-lg transition hover:opacity-80"
-                          style={{ background: '#eef2ff', color: '#4338ca' }}>
+                          style={{ background: '#eef2ff', color: '#0ea5e9' }}>
                           + Adicionar Numero
                         </button>
                       )}
                     </div>
-                    <p className="text-xs" style={{ color: '#6b7280' }}>Adicione ate 5 numeros de telemovel com os respetivos CVP (opcionais)</p>
+                    <p className="text-xs" style={{ color: '#64748b' }}>Adicione ate 5 numeros de telemovel com os respetivos CVP (opcionais)</p>
                     
                     {telcoNumeros.map((item, idx) => (
                       <div key={idx} className="flex gap-2 items-center">
                         <div className="flex-1">
-                          <label className="block text-xs font-medium mb-1" style={{ color: '#6b7280' }}>Numero {idx + 1}</label>
+                          <label className="block text-xs font-medium mb-1" style={{ color: '#64748b' }}>Numero {idx + 1}</label>
                           <input type="text" value={item.numero}
                             onChange={e => { const n = [...telcoNumeros]; n[idx].numero = e.target.value; setTelcoNumeros(n) }}
                             className="w-full rounded-lg px-3 py-2 text-sm font-mono" style={inp}
                             placeholder="9XXXXXXXX" maxLength={9} />
                         </div>
                         <div className="flex-1">
-                          <label className="block text-xs font-medium mb-1" style={{ color: '#6b7280' }}>CVP</label>
+                          <label className="block text-xs font-medium mb-1" style={{ color: '#64748b' }}>CVP</label>
                           <input type="text" value={item.cvp}
                             onChange={e => { const n = [...telcoNumeros]; n[idx].cvp = e.target.value; setTelcoNumeros(n) }}
                             className="w-full rounded-lg px-3 py-2 text-sm font-mono" style={inp}
@@ -487,7 +487,7 @@ export default function NovaVendaPage() {
 
                     {/* Numero Fixo */}
                     <div className="pt-3" style={{ borderTop: '1px dashed #e5e7eb' }}>
-                      <h4 className="text-xs font-semibold mb-2" style={{ color: '#6b7280' }}>Numero Fixo (opcional)</h4>
+                      <h4 className="text-xs font-semibold mb-2" style={{ color: '#64748b' }}>Numero Fixo (opcional)</h4>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <input type="text" value={form.telco_fixo} onChange={e => update('telco_fixo', e.target.value)}
@@ -506,22 +506,22 @@ export default function NovaVendaPage() {
               </div>
 
               {/* DADOS CLIENTE */}
-              <div className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                <h2 className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#6b7280' }}>3. Dados do Cliente</h2>
+              <div className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                <h2 className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#64748b' }}>3. Dados do Cliente</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Nome Completo *</label>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Nome Completo *</label>
                     <input type="text" value={form.client_name} onChange={e => update('client_name', e.target.value)}
                       className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp} required placeholder="Nome completo do cliente" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>NIF *</label>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>NIF *</label>
                     <input type="text" value={form.client_nif} onChange={e => update('client_nif', e.target.value.replace(/\D/g, ''))}
                       className="w-full rounded-lg px-3 py-2.5 text-sm font-mono" style={inp}
                       required placeholder="123456789" maxLength={9} />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>
                       Numero do CC <span className="font-normal text-xs" style={{ color: '#9ca3af' }}>(opcional)</span>
                     </label>
                     <input type="text" value={form.client_cc} onChange={e => update('client_cc', e.target.value)}
@@ -529,7 +529,7 @@ export default function NovaVendaPage() {
                       placeholder="XXXXXXXX X XXXXXXXX X" />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>
                       Morada Completa *
                     </label>
                     <input type="text" value={form.client_address} onChange={e => update('client_address', e.target.value)}
@@ -541,19 +541,19 @@ export default function NovaVendaPage() {
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Telefone</label>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Telefone</label>
                     <input type="tel" value={form.client_phone} onChange={e => update('client_phone', e.target.value)}
                       className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp} placeholder="9XX XXX XXX" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>
                       Email <span className="font-normal text-xs" style={{ color: '#9ca3af' }}>(opcional)</span>
                     </label>
                     <input type="email" value={form.client_email} onChange={e => update('client_email', e.target.value)}
                       className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp} placeholder="email@exemplo.pt" />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>
                       IBAN <span className="font-normal text-xs" style={{ color: '#9ca3af' }}>(opcional)</span>
                     </label>
                     <input type="text" value={form.client_iban} onChange={e => update('client_iban', e.target.value)}
@@ -564,11 +564,11 @@ export default function NovaVendaPage() {
               </div>
 
               {/* VENDA */}
-              <div className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                <h2 className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#6b7280' }}>4. Dados da Venda</h2>
+              <div className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                <h2 className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#64748b' }}>4. Dados da Venda</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>
                       {form.service_type === 'telecom' ? 'Valor Mensal do Pacote (€)' : 'Valor do Contrato (€)'}
                     </label>
                     <input type="number" step="0.01" min="0" value={form.amount} onChange={e => update('amount', e.target.value)}
@@ -580,13 +580,13 @@ export default function NovaVendaPage() {
                     )}
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Descricao</label>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Descricao</label>
                     <textarea rows={2} value={form.description} onChange={e => update('description', e.target.value)}
                       className="w-full rounded-lg px-3 py-2.5 text-sm resize-none" style={inp}
                       placeholder="Descricao do servico contratado..." />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>
                       Notas Internas <span className="font-normal text-xs" style={{ color: '#9ca3af' }}>(apenas visivel para si e admin)</span>
                     </label>
                     <textarea rows={2} value={form.notes} onChange={e => update('notes', e.target.value)}
@@ -597,8 +597,8 @@ export default function NovaVendaPage() {
               </div>
 
               {/* DOCUMENTOS */}
-              <div className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                <h2 className="text-xs font-semibold mb-1 uppercase tracking-wider" style={{ color: '#6b7280' }}>5. Documentos Anexos</h2>
+              <div className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                <h2 className="text-xs font-semibold mb-1 uppercase tracking-wider" style={{ color: '#64748b' }}>5. Documentos Anexos</h2>
                 <p className="text-xs mb-4" style={{ color: '#9ca3af' }}>Contratos, faturas, comprovativos ou outros documentos</p>
                 <input ref={fileRef} type="file" multiple className="hidden" onChange={handleFiles}
                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
@@ -609,13 +609,13 @@ export default function NovaVendaPage() {
                     <Upload size={18} style={{ color: '#4f46e5' }} />
                   </div>
                   <div className="text-left">
-                    <p className="font-semibold text-sm" style={{ color: '#111827' }}>Clique para adicionar ficheiros</p>
+                    <p className="font-semibold text-sm" style={{ color: '#1e293b' }}>Clique para adicionar ficheiros</p>
                     <p className="text-xs mt-0.5" style={{ color: '#9ca3af' }}>PDF, DOC, JPG, PNG</p>
                   </div>
                 </button>
                 {uploadProgress && (
                   <div className="mt-3 flex items-center gap-2 text-xs font-medium" style={{ color: '#4f46e5' }}>
-                    <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2" style={{ borderColor: '#4f46e5' }} />
+                    <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2" style={{ borderColor: '#0ea5e9' }} />
                     {uploadProgress}
                   </div>
                 )}
@@ -623,10 +623,10 @@ export default function NovaVendaPage() {
                   <div className="mt-3 space-y-2">
                     {files.map((f, i) => (
                       <div key={i} className="flex items-center gap-3 rounded-lg px-3 py-2.5"
-                        style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                        <FileText size={16} style={{ color: '#6b7280', flexShrink: 0 }} />
+                        style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
+                        <FileText size={16} style={{ color: '#64748b', flexShrink: 0 }} />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate" style={{ color: '#111827' }}>{f.name}</p>
+                          <p className="text-sm font-medium truncate" style={{ color: '#1e293b' }}>{f.name}</p>
                           <p className="text-xs" style={{ color: '#9ca3af' }}>{formatSize(f.size)}</p>
                         </div>
                         <button type="button" onClick={() => removeFile(i)} className="rounded p-1 hover:opacity-70">
@@ -642,13 +642,13 @@ export default function NovaVendaPage() {
               <div className="flex gap-3 pb-8">
                 <Link href="/vendas" className="flex-1">
                   <button type="button" className="w-full rounded-lg py-3 text-sm font-semibold border transition hover:bg-gray-50"
-                    style={{ color: '#374151', border: '1px solid #d1d5db' }}>
+                    style={{ color: '#475569', border: '1px solid #d1d5db' }}>
                     Cancelar
                   </button>
                 </Link>
                 <button type="submit" disabled={loading}
                   className="flex-1 rounded-lg py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
-                  style={{ background: '#4f46e5' }}>
+                  style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                   {loading ? (uploadProgress || 'A registar...') : `Registar Venda${files.length > 0 ? ` + ${files.length} doc.` : ''}`}
                 </button>
               </div>

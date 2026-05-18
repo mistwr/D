@@ -126,7 +126,7 @@ export default function AdminComissoesPage() {
     }
   }
 
-  const inputStyle = { border: '1px solid #d1d5db', background: '#fff', color: '#111827' }
+  const inputStyle = { border: '1px solid #d1d5db', background: '#fff', color: '#1e293b' }
   const tabColors: Record<Servico, { text: string; bg: string; border: string }> = {
     energia: { text: '#d97706', bg: '#fffbeb', border: '#fde68a' },
     gas:     { text: '#0284c7', bg: '#f0f9ff', border: '#bae6fd' },
@@ -138,28 +138,28 @@ export default function AdminComissoesPage() {
   const parceiroSelecionado = parceiros.find(p => p.id === selectedParceiro)
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4338ca' }} />
     </div>
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" />
         <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-8 max-w-5xl">
 
-            <Link href="/admin/dashboard" className="inline-flex items-center gap-2 mb-6 text-sm font-medium" style={{ color: '#4338ca' }}>
+            <Link href="/admin/dashboard" className="inline-flex items-center gap-2 mb-6 text-sm font-medium" style={{ color: '#0ea5e9' }}>
               <ArrowLeft size={16} /> Voltar
             </Link>
 
             <div className="flex items-center gap-3 mb-8">
-              <Percent size={28} style={{ color: '#4338ca' }} />
+              <Percent size={28} style={{ color: '#0ea5e9' }} />
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Comissoes por Parceiro</h1>
-                <p className="text-sm" style={{ color: '#6b7280' }}>Selecione um parceiro e defina os valores por operadora e plano</p>
+                <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Comissoes por Parceiro</h1>
+                <p className="text-sm" style={{ color: '#64748b' }}>Selecione um parceiro e defina os valores por operadora e plano</p>
               </div>
             </div>
 
@@ -172,13 +172,13 @@ export default function AdminComissoesPage() {
             )}
 
             {/* Seletor de Parceiro */}
-            <div className="rounded-xl p-6 mb-6 shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+            <div className="rounded-xl p-6 mb-6 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
               <div className="flex items-center gap-2 mb-4">
-                <Users size={18} style={{ color: '#4338ca' }} />
-                <h2 className="font-semibold" style={{ color: '#111827' }}>Selecionar Parceiro</h2>
+                <Users size={18} style={{ color: '#0ea5e9' }} />
+                <h2 className="font-semibold" style={{ color: '#1e293b' }}>Selecionar Parceiro</h2>
               </div>
               {parceiros.length === 0 ? (
-                <p className="text-sm" style={{ color: '#6b7280' }}>Nenhum parceiro encontrado.</p>
+                <p className="text-sm" style={{ color: '#64748b' }}>Nenhum parceiro encontrado.</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {parceiros.map(p => {
@@ -190,11 +190,11 @@ export default function AdminComissoesPage() {
                           border: isActive ? '2px solid #4338ca' : '1px solid #e5e7eb',
                           background: isActive ? '#eef2ff' : '#fff',
                         }}>
-                        <p className="font-semibold text-sm" style={{ color: '#111827' }}>{p.full_name}</p>
-                        {p.company_name && <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>{p.company_name}</p>}
+                        <p className="font-semibold text-sm" style={{ color: '#1e293b' }}>{p.full_name}</p>
+                        {p.company_name && <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>{p.company_name}</p>}
                         <p className="text-xs mt-0.5" style={{ color: '#9ca3af' }}>{p.email}</p>
                         {isActive && (
-                          <span className="mt-2 inline-block text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: '#4338ca', color: '#fff' }}>
+                          <span className="mt-2 inline-block text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', color: '#fff' }}>
                             Selecionado
                           </span>
                         )}
@@ -209,12 +209,12 @@ export default function AdminComissoesPage() {
             {selectedParceiro && (
               <>
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                  <p className="text-sm font-medium" style={{ color: '#374151' }}>
+                  <p className="text-sm font-medium" style={{ color: '#475569' }}>
                     Comissoes de <strong>{parceiroSelecionado?.full_name}</strong>
                   </p>
                   <button onClick={openForm}
                     className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition"
-                    style={{ background: '#4338ca' }}>
+                    style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                     <Plus size={15} /> Adicionar Comissao
                   </button>
                 </div>
@@ -227,7 +227,7 @@ export default function AdminComissoesPage() {
                       style={{
                         background: tab === s ? '#4338ca' : '#fff',
                         color: tab === s ? '#fff' : '#374151',
-                        border: '1px solid #e5e7eb',
+                        border: '1px solid #e2e8f0',
                       }}>
                       {s === 'energia' ? <Flame size={14} /> : s === 'telecom' ? <Zap size={14} /> : <Shield size={14} />}
                       {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -236,7 +236,7 @@ export default function AdminComissoesPage() {
                 </div>
 
                 {/* Tabela */}
-                <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                   <div className="px-5 py-4 flex items-center justify-between" style={{ background: tc.bg, borderBottom: `1px solid ${tc.border}` }}>
                     <h3 className="font-bold text-sm" style={{ color: tc.text }}>
                       {tab.charAt(0).toUpperCase() + tab.slice(1)} — {tabData.length} {tabData.length === 1 ? 'comissao' : 'comissoes'}
@@ -249,7 +249,7 @@ export default function AdminComissoesPage() {
                     </div>
                   ) : tabData.length === 0 ? (
                     <div className="p-8 text-center">
-                      <p className="text-sm" style={{ color: '#6b7280' }}>
+                      <p className="text-sm" style={{ color: '#64748b' }}>
                         Nenhuma comissao definida para {tab}. Clique em &quot;Adicionar Comissao&quot;.
                       </p>
                     </div>
@@ -257,13 +257,13 @@ export default function AdminComissoesPage() {
                     <div className="overflow-x-auto">
                       <table className="w-full">
                         <thead>
-                          <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                            <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Operadora</th>
+                          <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e2e8f0' }}>
+                            <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>Operadora</th>
                             {tab === 'telecom' && <>
-                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Plano</th>
-                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Modelo</th>
+                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>Plano</th>
+                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>Modelo</th>
                             </>}
-                            <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Valor</th>
+                            <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>Valor</th>
                             <th className="px-5 py-3" />
                           </tr>
                         </thead>
@@ -277,12 +277,12 @@ export default function AdminComissoesPage() {
                                       <Image src={LOGOS[c.operadora]} alt={c.operadora} width={28} height={28} className="object-cover w-full h-full" />
                                     </div>
                                   )}
-                                  <span className="font-medium text-sm" style={{ color: '#111827' }}>{c.operadora}</span>
+                                  <span className="font-medium text-sm" style={{ color: '#1e293b' }}>{c.operadora}</span>
                                 </div>
                               </td>
                               {tab === 'telecom' && <>
                                 <td className="px-5 py-4">
-                                  <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: '#e0e7ff', color: '#4338ca' }}>
+                                  <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: '#e0e7ff', color: '#0ea5e9' }}>
                                     {c.plano || '-'}
                                   </span>
                                 </td>
@@ -300,7 +300,7 @@ export default function AdminComissoesPage() {
                               </>}
                               <td className="px-5 py-4 font-semibold text-sm" style={{ color: '#059669' }}>
                                 {c.modelo === 'mensalidade' && c.num_mensalidades > 0
-                                  ? <span className="font-bold">x{c.num_mensalidades}<span className="font-normal text-xs ml-1.5" style={{ color: '#6b7280' }}>mensalidades / contrato</span></span>
+                                  ? <span className="font-bold">x{c.num_mensalidades}<span className="font-normal text-xs ml-1.5" style={{ color: '#64748b' }}>mensalidades / contrato</span></span>
                                   : c.modelo === 'percentagem'
                                   ? <span>{(c.percentagem ?? 0).toFixed(2)}%</span>
                                   : <span>{'\u20AC'}{(c.valor_comissao ?? 0).toFixed(2)}</span>
@@ -325,7 +325,7 @@ export default function AdminComissoesPage() {
                                     className="rounded-lg p-1.5 transition hover:opacity-70"
                                     style={{ background: '#eef2ff' }}
                                     title="Editar comissao">
-                                    <Pencil size={15} style={{ color: '#4338ca' }} />
+                                    <Pencil size={15} style={{ color: '#0ea5e9' }} />
                                   </button>
                                   <button
                                     onClick={() => {
@@ -351,9 +351,9 @@ export default function AdminComissoesPage() {
             )}
 
             {!selectedParceiro && !loading && parceiros.length > 0 && (
-              <div className="rounded-xl p-10 text-center" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+              <div className="rounded-xl p-10 text-center" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <Percent size={36} className="mx-auto mb-3" style={{ color: '#d1d5db' }} />
-                <p className="text-sm font-medium" style={{ color: '#6b7280' }}>Selecione um parceiro para ver e editar as suas comissoes</p>
+                <p className="text-sm font-medium" style={{ color: '#64748b' }}>Selecione um parceiro para ver e editar as suas comissoes</p>
               </div>
             )}
 
@@ -365,15 +365,15 @@ export default function AdminComissoesPage() {
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
           <div className="w-full max-w-md rounded-2xl shadow-2xl" style={{ background: '#fff' }}>
-            <div className="flex items-center justify-between p-5" style={{ borderBottom: '1px solid #e5e7eb' }}>
-              <h2 className="font-bold" style={{ color: '#111827' }}>Adicionar Comissao</h2>
+            <div className="flex items-center justify-between p-5" style={{ borderBottom: '1px solid #e2e8f0' }}>
+              <h2 className="font-bold" style={{ color: '#1e293b' }}>Adicionar Comissao</h2>
               <button onClick={() => setShowForm(false)} className="rounded-lg p-1.5 hover:bg-gray-100">
-                <X size={18} style={{ color: '#6b7280' }} />
+                <X size={18} style={{ color: '#64748b' }} />
               </button>
             </div>
             <div className="p-5 space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Servico</label>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Servico</label>
                 <select value={form.servico} onChange={e => {
                   const s = e.target.value as Servico
                   setForm(f => ({ ...f, servico: s, operadora: OPERADORAS[s][0], plano: s === 'telecom' ? '1P' : '' }))
@@ -385,7 +385,7 @@ export default function AdminComissoesPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Operadora</label>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Operadora</label>
                 <select value={form.operadora} onChange={e => setForm(f => ({ ...f, operadora: e.target.value }))}
                   className="w-full rounded-lg px-3 py-2.5 text-sm" style={inputStyle}>
                   {OPERADORAS[form.servico].map(o => <option key={o} value={o}>{o}</option>)}
@@ -394,14 +394,14 @@ export default function AdminComissoesPage() {
               {form.servico === 'telecom' && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Plano</label>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Plano</label>
                     <select value={form.plano} onChange={e => setForm(f => ({ ...f, plano: e.target.value }))}
                       className="w-full rounded-lg px-3 py-2.5 text-sm" style={inputStyle}>
                       {PLANOS_TELECOM.map(p => <option key={p} value={p}>{p}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Modelo de comissao</label>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Modelo de comissao</label>
                     <div className="grid grid-cols-3 gap-2">
                       {([
                         { value: 'fixo', label: 'Valor Fixo' },
@@ -424,7 +424,7 @@ export default function AdminComissoesPage() {
               {form.servico === 'telecom' && form.modelo === 'mensalidade' ? (
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>Mensalidades por contrato</label>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#475569' }}>Mensalidades por contrato</label>
                     <div className="grid grid-cols-6 gap-1.5">
                       {[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6].map(n => {
                         const val = String(n)
@@ -444,7 +444,7 @@ export default function AdminComissoesPage() {
                       })}
                     </div>
                   </div>
-                  <div className="rounded-lg p-3 text-xs" style={{ background: '#eef2ff', color: '#4338ca', border: '1px solid #c7d2fe' }}>
+                  <div className="rounded-lg p-3 text-xs" style={{ background: '#eef2ff', color: '#0ea5e9', border: '1px solid #c7d2fe' }}>
                     {(() => {
                       const mens = parseFloat(form.num_mensalidades) || 0
                       const label = mens === 1 ? '1 mensalidade' : `${mens} mensalidades`
@@ -454,19 +454,19 @@ export default function AdminComissoesPage() {
                 </div>
               ) : form.servico === 'telecom' && form.modelo === 'percentagem' ? (
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Percentagem (%)</label>
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Percentagem (%)</label>
                   <div className="relative">
                     <input type="number" step="0.01" min="0" max="100" value={form.percentagem}
                       onChange={e => setForm(f => ({ ...f, percentagem: e.target.value }))}
                       className="w-full rounded-lg px-3 py-2.5 pr-8 text-sm" style={inputStyle}
                       placeholder="Ex: 5.00" />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium" style={{ color: '#6b7280' }}>%</span>
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium" style={{ color: '#64748b' }}>%</span>
                   </div>
-                  <p className="mt-1.5 text-xs" style={{ color: '#6b7280' }}>O parceiro recebe esta percentagem do valor total do contrato</p>
+                  <p className="mt-1.5 text-xs" style={{ color: '#64748b' }}>O parceiro recebe esta percentagem do valor total do contrato</p>
                 </div>
               ) : (
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Valor fixo por contrato (EUR)</label>
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Valor fixo por contrato (EUR)</label>
                   <input type="number" step="0.01" min="0" value={form.valor_comissao}
                     onChange={e => setForm(f => ({ ...f, valor_comissao: e.target.value }))}
                     className="w-full rounded-lg px-3 py-2.5 text-sm" style={inputStyle}
@@ -475,10 +475,10 @@ export default function AdminComissoesPage() {
               )}
               <div className="flex gap-3 pt-2">
                 <button onClick={() => setShowForm(false)} className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium"
-                  style={{ border: '1px solid #d1d5db', color: '#374151' }}>Cancelar</button>
+                  style={{ border: '1px solid #d1d5db', color: '#475569' }}>Cancelar</button>
                 <button onClick={saveRow} disabled={saving}
                   className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
-                  style={{ background: '#4338ca' }}>{saving ? 'A guardar...' : 'Guardar'}</button>
+                  style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>{saving ? 'A guardar...' : 'Guardar'}</button>
               </div>
             </div>
           </div>

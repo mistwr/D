@@ -95,12 +95,12 @@ export default function ContratoPage() {
 
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <Link href="/contratos" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#4338ca', textDecoration: 'none', marginBottom: '20px', fontSize: '14px' }}>
+      <Link href="/contratos" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#0ea5e9', textDecoration: 'none', marginBottom: '20px', fontSize: '14px' }}>
         <ArrowLeft size={16} /> Voltar
       </Link>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827' }}>Contrato #{contratoId.slice(0, 8)}</h1>
+        <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1e293b' }}>Contrato #{contratoId.slice(0, 8)}</h1>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
           {contrato.assinado_cliente && <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#059669' }}><CheckCircle size={18} /> Cliente Assinado</div>}
           {!contrato.assinado_cliente && <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dc2626' }}><AlertCircle size={18} /> Aguardando Cliente</div>}
@@ -110,8 +110,8 @@ export default function ContratoPage() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '30px' }}>
-        <div style={{ background: '#f3f4f6', padding: '16px', borderRadius: '8px' }}>
-          <h3 style={{ fontWeight: '600', marginBottom: '12px', color: '#111827' }}>Dados do Cliente</h3>
+        <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px' }}>
+          <h3 style={{ fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>Dados do Cliente</h3>
           <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
             <p style={{ margin: '0 0 6px 0' }}><strong>Nome:</strong> {contrato.client_name}</p>
             <p style={{ margin: '0 0 6px 0' }}><strong>Contacto:</strong> {contrato.client_phone}</p>
@@ -122,8 +122,8 @@ export default function ContratoPage() {
           </div>
         </div>
 
-        <div style={{ background: '#f3f4f6', padding: '16px', borderRadius: '8px' }}>
-          <h3 style={{ fontWeight: '600', marginBottom: '12px', color: '#111827' }}>Detalhes</h3>
+        <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px' }}>
+          <h3 style={{ fontWeight: '600', marginBottom: '12px', color: '#1e293b' }}>Detalhes</h3>
           <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
             <p style={{ margin: '0 0 6px 0' }}><strong>Serviço:</strong> {contrato.servico_type === 'energia' ? 'Energia' : 'Telecom'}</p>
             <p style={{ margin: '0 0 6px 0' }}><strong>Operadora:</strong> {contrato.operadora}</p>
