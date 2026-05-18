@@ -22,6 +22,8 @@ export default function EstruturaComericalPage() {
   const [expandedUsers, setExpandedUsers] = useState<string[]>([])
   const [editingUser, setEditingUser] = useState<string | null>(null)
   const [userChanges, setUserChanges] = useState<Partial<User>>({})
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user) return
@@ -43,34 +45,70 @@ export default function EstruturaComericalPage() {
   }
 
   async function saveCargo(cargo: Cargo) {
-    await authFetch('/api/cargos', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cargo) })
-    setEditingCargo(null)
-    loadData()
+    setError(null)
+    try {
+      const res = await authFetch('/api/cargos', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cargo) })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro ao guardar cargo')
+      setSuccess('Cargo guardado com sucesso!')
+      setTimeout(() => setSuccess(null), 3000)
+      setEditingCargo(null)
+      loadData()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao guardar cargo')
+    }
   }
 
   async function addCargo() {
     if (!newCargo.nome) return
-    await authFetch('/api/cargos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newCargo) })
-    setNewCargo({ nome: '', nivel: 5, descricao: '' })
-    setShowAddCargo(false)
-    loadData()
+    setError(null)
+    try {
+      const res = await authFetch('/api/cargos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newCargo) })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro ao criar cargo')
+      setSuccess('Cargo criado com sucesso!')
+      setTimeout(() => setSuccess(null), 3000)
+      setNewCargo({ nome: '', nivel: 5, descricao: '' })
+      setShowAddCargo(false)
+      loadData()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao criar cargo')
+    }
   }
 
   async function deleteCargo(id: string) {
     if (!confirm('Tem a certeza que quer eliminar este cargo?')) return
-    await authFetch(`/api/cargos?id=${id}`, { method: 'DELETE' })
-    loadData()
+    setError(null)
+    try {
+      const res = await authFetch(`/api/cargos?id=${id}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro ao eliminar cargo')
+      setSuccess('Cargo eliminado com sucesso!')
+      setTimeout(() => setSuccess(null), 3000)
+      loadData()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao eliminar cargo')
+    }
   }
 
   async function saveUserHierarchy(userId: string) {
-    await authFetch('/api/users', { 
-      method: 'PUT', 
-      headers: { 'Content-Type': 'application/json' }, 
-      body: JSON.stringify({ id: userId, ...userChanges }) 
-    })
-    setEditingUser(null)
-    setUserChanges({})
-    loadData()
+    setError(null)
+    try {
+      const res = await authFetch('/api/users', { 
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ id: userId, ...userChanges }) 
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro ao guardar hierarquia')
+      setSuccess('Hierarquia guardada com sucesso!')
+      setTimeout(() => setSuccess(null), 3000)
+      setEditingUser(null)
+      setUserChanges({})
+      loadData()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao guardar hierarquia')
+    }
   }
 
   function toggleUserExpand(cargoId: string) {
@@ -106,7 +144,17 @@ export default function EstruturaComericalPage() {
               </button>
             </div>
 
-            {/* Stats */}
+            {/* Mensagens de Erro/Sucesso */}
+            {error && (
+              <div className="mb-4 rounded-lg px-4 py-3 text-sm font-medium" style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca' }}>
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="mb-4 rounded-lg px-4 py-3 text-sm font-medium" style={{ background: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0' }}>
+                {success}
+              </div>
+            )}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               <div className="rounded-2xl p-5 shadow-sm" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
                 <div className="flex items-center gap-3 mb-3">

@@ -17,6 +17,8 @@ export default function UnidadesPage() {
   const [editingUnidade, setEditingUnidade] = useState<Unidade | null>(null)
   const [showAdd, setShowAdd] = useState(false)
   const [newUnidade, setNewUnidade] = useState({ nome: '', responsavel_id: '', segmento: '', localizacao: '', objectivo_mensal: 0, comissao_percentagem: 0 })
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user) return
@@ -37,23 +39,50 @@ export default function UnidadesPage() {
 
   async function saveUnidade() {
     if (!editingUnidade) return
-    await authFetch('/api/unidades', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editingUnidade) })
-    setEditingUnidade(null)
-    loadData()
+    setError(null)
+    try {
+      const res = await authFetch('/api/unidades', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editingUnidade) })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro ao guardar unidade')
+      setSuccess('Unidade guardada com sucesso!')
+      setTimeout(() => setSuccess(null), 3000)
+      setEditingUnidade(null)
+      loadData()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao guardar unidade')
+    }
   }
 
   async function addUnidade() {
     if (!newUnidade.nome) return
-    await authFetch('/api/unidades', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newUnidade) })
-    setNewUnidade({ nome: '', responsavel_id: '', segmento: '', localizacao: '', objectivo_mensal: 0, comissao_percentagem: 0 })
-    setShowAdd(false)
-    loadData()
+    setError(null)
+    try {
+      const res = await authFetch('/api/unidades', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newUnidade) })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro ao criar unidade')
+      setSuccess('Unidade criada com sucesso!')
+      setTimeout(() => setSuccess(null), 3000)
+      setNewUnidade({ nome: '', responsavel_id: '', segmento: '', localizacao: '', objectivo_mensal: 0, comissao_percentagem: 0 })
+      setShowAdd(false)
+      loadData()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao criar unidade')
+    }
   }
 
   async function deleteUnidade(id: string) {
     if (!confirm('Tem a certeza que quer eliminar esta unidade?')) return
-    await authFetch(`/api/unidades?id=${id}`, { method: 'DELETE' })
-    loadData()
+    setError(null)
+    try {
+      const res = await authFetch(`/api/unidades?id=${id}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro ao eliminar unidade')
+      setSuccess('Unidade eliminada com sucesso!')
+      setTimeout(() => setSuccess(null), 3000)
+      loadData()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao eliminar unidade')
+    }
   }
 
   function getUserName(id: string) {
@@ -82,6 +111,18 @@ export default function UnidadesPage() {
                 <Plus size={18} /> Nova Unidade
               </button>
             </div>
+
+            {/* Mensagens de Erro/Sucesso */}
+            {error && (
+              <div className="mb-4 rounded-lg px-4 py-3 text-sm font-medium" style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca' }}>
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="mb-4 rounded-lg px-4 py-3 text-sm font-medium" style={{ background: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0' }}>
+                {success}
+              </div>
+            )}
 
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
