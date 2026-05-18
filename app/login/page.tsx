@@ -139,17 +139,17 @@ export default function LoginPage() {
       </div>
 
       {/* ---- LADO DIREITO: Formulario ---- */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', background: '#ffffff' }}>
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12 lg:py-10 safe-area-inset" style={{ background: '#ffffff' }}>
         <div className="w-full max-w-[380px]">
 
           {/* Branding mobile (so visivel sem o painel esquerdo) */}
-          <div className="mb-8 flex flex-col items-center lg:items-start">
+          <div className="mb-6 sm:mb-8 flex flex-col items-center lg:items-start">
             <div className="flex items-center gap-3 mb-1">
-              <div className="h-14 w-14 rounded-xl overflow-hidden flex-shrink-0 shadow-md lg:hidden">
+              <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl overflow-hidden flex-shrink-0 shadow-md lg:hidden">
                 <Image src="/logo.jpg" alt="Soluções Diferentes" width={56} height={56} className="object-cover h-full w-full" />
               </div>
               <div>
-                <h1 className="text-xl font-bold" style={{ color: '#0f172a' }}>
+                <h1 className="text-lg sm:text-xl font-bold" style={{ color: '#0f172a' }}>
                   Soluções Diferentes
                 </h1>
                 <p className="text-xs" style={{ color: '#64748b' }}>Telecomunicações & Energia</p>
@@ -157,8 +157,8 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold" style={{ color: '#0f172a' }}>Bem-vindo</h2>
+          <div className="mb-5 sm:mb-6 text-center lg:text-left">
+            <h2 className="text-xl sm:text-2xl font-bold" style={{ color: '#0f172a' }}>Bem-vindo</h2>
             <p className="mt-1 text-sm" style={{ color: '#64748b' }}>Entre na sua conta para continuar</p>
           </div>
 
@@ -211,8 +211,8 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 w-full rounded-xl py-3.5 font-semibold text-white transition-all shadow-lg hover:shadow-xl disabled:opacity-60"
-              style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}
+              className="mt-2 w-full rounded-xl py-4 font-semibold text-white transition-all shadow-lg hover:shadow-xl disabled:opacity-60 active:scale-[0.98]"
+              style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', minHeight: '48px' }}
             >
               {loading ? 'A entrar...' : 'Entrar'}
             </button>
