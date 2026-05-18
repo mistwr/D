@@ -86,24 +86,24 @@ export default function DashboardPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="parceiro" />
-        <main className="flex-1 md:ml-64 pt-14 md:pt-16" style={{ minHeight: '100vh' }}>
-          <div className="p-4 md:p-8">
+        <main className="flex-1 md:ml-64 pt-14 md:pt-16 pb-20 md:pb-8" style={{ minHeight: '100vh' }}>
+          <div className="p-3 sm:p-4 md:p-8">
             {/* Mensagem Motivacional */}
             {mensagemDia && (
-              <div className="mb-6 rounded-2xl p-6 shadow-lg" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style={{ background: 'rgba(255,255,255,0.2)' }}>
+              <div className="mb-4 sm:mb-6 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="hidden sm:flex flex-shrink-0 w-12 h-12 rounded-xl items-center justify-center text-2xl" style={{ background: 'rgba(255,255,255,0.2)' }}>
                     {new Date().getHours() < 12 ? '☀️' : new Date().getHours() < 18 ? '🌤️' : '🌙'}
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium mb-1" style={{ color: 'rgba(255,255,255,0.8)' }}>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs sm:text-sm font-medium mb-1" style={{ color: 'rgba(255,255,255,0.8)' }}>
                       {new Date().getHours() < 12 ? 'Bom dia' : new Date().getHours() < 18 ? 'Boa tarde' : 'Boa noite'}, {user?.full_name?.split(' ')[0]}!
                     </p>
-                    <p className="text-lg font-semibold text-white leading-relaxed">
+                    <p className="text-sm sm:text-lg font-semibold text-white leading-relaxed">
                       {`"${mensagemDia.mensagem}"`}
                     </p>
                     {mensagemDia.autor && (
-                      <p className="mt-2 text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>— {mensagemDia.autor}</p>
+                      <p className="mt-2 text-xs sm:text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>— {mensagemDia.autor}</p>
                     )}
                   </div>
                 </div>
@@ -111,57 +111,59 @@ export default function DashboardPage() {
             )}
 
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold" style={{ color: '#1e293b' }}>Dashboard</h1>
-                <p className="mt-1" style={{ color: '#64748b' }}>Acompanhe o seu desempenho</p>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold" style={{ color: '#1e293b' }}>Dashboard</h1>
+                <p className="mt-1 text-sm" style={{ color: '#64748b' }}>Acompanhe o seu desempenho</p>
               </div>
-              <Link href="/vendas/novo">
-                <button className="flex items-center gap-2 rounded-xl px-6 py-3 font-semibold text-white shadow-lg transition-all hover:shadow-xl" style={{ background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)' }}>
+              <Link href="/vendas/novo" className="w-full sm:w-auto">
+                <button className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl px-5 sm:px-6 py-3 font-semibold text-white shadow-lg transition-all hover:shadow-xl active:scale-[0.98]" style={{ background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)' }}>
                   <Plus size={20} /> Nova Venda
                 </button>
               </Link>
             </div>
 
             {/* Metrics */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
               {metrics.map((m) => (
-                <div key={m.label} className="rounded-2xl p-5 shadow-sm transition-all hover:shadow-md" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl" style={{ background: m.bg }}>
-                      <m.icon size={22} style={{ color: m.color }} />
+                <div key={m.label} className="rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-sm transition-all hover:shadow-md" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
+                  <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                    <div className="flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-lg sm:rounded-xl" style={{ background: m.bg }}>
+                      <m.icon size={18} className="sm:hidden" style={{ color: m.color }} />
+                      <m.icon size={22} className="hidden sm:block" style={{ color: m.color }} />
                     </div>
                   </div>
-                  <p className="text-2xl font-bold" style={{ color: '#1e293b' }}>{m.value}</p>
-                  <p className="text-sm mt-1" style={{ color: '#64748b' }}>{m.label}</p>
+                  <p className="text-lg sm:text-2xl font-bold" style={{ color: '#1e293b' }}>{m.value}</p>
+                  <p className="text-xs sm:text-sm mt-0.5 sm:mt-1 truncate" style={{ color: '#64748b' }}>{m.label}</p>
                 </div>
               ))}
             </div>
 
             {/* Vendas */}
-            <div className="rounded-2xl shadow-sm" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
-              <div className="p-5 flex items-center justify-between" style={{ borderBottom: '1px solid #e2e8f0' }}>
-                <h2 className="text-lg font-bold" style={{ color: '#1e293b' }}>Vendas Recentes</h2>
-                <Link href="/vendas" className="text-sm font-medium transition-colors hover:opacity-80" style={{ color: '#0ea5e9' }}>Ver todas</Link>
+            <div className="rounded-xl sm:rounded-2xl shadow-sm" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
+              <div className="p-4 sm:p-5 flex items-center justify-between" style={{ borderBottom: '1px solid #e2e8f0' }}>
+                <h2 className="text-base sm:text-lg font-bold" style={{ color: '#1e293b' }}>Vendas Recentes</h2>
+                <Link href="/vendas" className="text-xs sm:text-sm font-medium transition-colors hover:opacity-80" style={{ color: '#0ea5e9' }}>Ver todas</Link>
               </div>
               {vendas.length === 0 ? (
-                <div className="p-12 text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: '#f1f5f9' }}>
-                    <Clock size={32} style={{ color: '#94a3b8' }} />
+                <div className="p-8 sm:p-12 text-center">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full flex items-center justify-center" style={{ background: '#f1f5f9' }}>
+                    <Clock size={24} className="sm:hidden" style={{ color: '#94a3b8' }} />
+                    <Clock size={32} className="hidden sm:block" style={{ color: '#94a3b8' }} />
                   </div>
-                  <p className="mb-4 text-lg" style={{ color: '#64748b' }}>Nenhuma venda registrada ainda.</p>
+                  <p className="mb-4 text-sm sm:text-lg" style={{ color: '#64748b' }}>Nenhuma venda registrada ainda.</p>
                   <Link href="/vendas/novo">
-                    <button className="rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-lg" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>Registar Primeira Venda</button>
+                    <button className="rounded-xl px-5 sm:px-6 py-2.5 sm:py-3 text-sm font-semibold text-white shadow-lg active:scale-[0.98]" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>Registar Primeira Venda</button>
                   </Link>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full">
+                  <table className="w-full min-w-[400px]">
                     <thead>
                       <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>Cliente</th>
-                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>Valor</th>
-                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>Estado</th>
+                        <th className="px-3 sm:px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>Cliente</th>
+                        <th className="px-3 sm:px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>Valor</th>
+                        <th className="px-3 sm:px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>Estado</th>
                         <th className="hidden sm:table-cell px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>Data</th>
                       </tr>
                     </thead>

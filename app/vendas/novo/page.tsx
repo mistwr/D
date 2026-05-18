@@ -215,15 +215,15 @@ export default function NovaVendaPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole={user?.role || 'parceiro'} />
-        <main className="flex-1 md:ml-64 pt-16">
-          <div className="p-4 md:p-8 max-w-3xl">
-            <div className="flex items-center gap-3 mb-6">
-              <Link href="/vendas" className="rounded-lg p-2 transition hover:bg-gray-200" style={{ color: '#64748b' }}>
+        <main className="flex-1 md:ml-64 pt-14 md:pt-16 pb-20 md:pb-8">
+          <div className="p-3 sm:p-4 md:p-8 max-w-3xl mx-auto">
+            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+              <Link href="/vendas" className="rounded-lg p-2 transition hover:bg-gray-200 flex-shrink-0" style={{ color: '#64748b' }}>
                 <ArrowLeft size={20} />
               </Link>
-              <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Registar Nova Venda</h1>
-                <p className="text-sm" style={{ color: '#64748b' }}>Preencha os dados do contrato e do cliente</p>
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold truncate" style={{ color: '#1e293b' }}>Registar Nova Venda</h1>
+                <p className="text-xs sm:text-sm hidden sm:block" style={{ color: '#64748b' }}>Preencha os dados do contrato e do cliente</p>
               </div>
             </div>
 
@@ -233,10 +233,10 @@ export default function NovaVendaPage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
 
               {/* TIPO DE SERVICO */}
-              <div className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+              <div className="rounded-xl p-4 sm:p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <h2 className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#64748b' }}>1. Tipo de Servico</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {(['telecom', 'energia', 'gas', 'seguros'] as const).map(s => (
