@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2 } from 'lucide-react'
+import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2, Target } from 'lucide-react'
 
 interface SidebarProps { userRole: string }
 
@@ -37,6 +37,7 @@ export function Sidebar({ userRole }: SidebarProps) {
     { href: '/admin/import', label: 'Import / Export', icon: FileSpreadsheet },
     { href: '/admin/passwords', label: 'Passwords', icon: KeyRound },
     // Enterprise
+    { href: '/admin/leads', label: 'Leads', icon: Target },
     { href: '/admin/estrutura', label: 'Estrutura Comercial', icon: Network },
     { href: '/admin/pipelines', label: 'Pipelines', icon: GitBranch },
     { href: '/admin/permissoes', label: 'Permissoes', icon: Shield },
