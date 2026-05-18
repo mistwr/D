@@ -91,15 +91,15 @@ export default function AdminPublicacoesPage() {
   }
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
-      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
     </div>
   )
 
-  const inp = { background: '#fff', border: '1px solid #d1d5db', color: '#111827' }
+  const inp = { background: '#fff', border: '1px solid #d1d5db', color: '#1e293b' }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" />
@@ -108,46 +108,46 @@ export default function AdminPublicacoesPage() {
 
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <Newspaper size={28} style={{ color: '#4338ca' }} />
+                <Newspaper size={28} style={{ color: '#0ea5e9' }} />
                 <div>
-                  <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Publicacoes</h1>
-                  <p className="text-sm" style={{ color: '#6b7280' }}>{pubs.length} publicacao{pubs.length !== 1 ? 'es' : ''}</p>
+                  <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Publicacoes</h1>
+                  <p className="text-sm" style={{ color: '#64748b' }}>{pubs.length} publicacao{pubs.length !== 1 ? 'es' : ''}</p>
                 </div>
               </div>
               <button onClick={() => setShowForm(true)}
                 className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition"
-                style={{ background: '#4f46e5' }}>
+                style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                 <Plus size={16} /> Nova Publicacao
               </button>
             </div>
 
             {/* Lista */}
             {pubs.length === 0 ? (
-              <div className="rounded-xl p-16 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+              <div className="rounded-xl p-16 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <Newspaper size={48} style={{ color: '#d1d5db' }} className="mx-auto mb-4" />
-                <p className="text-base font-medium" style={{ color: '#374151' }}>Nenhuma publicacao</p>
+                <p className="text-base font-medium" style={{ color: '#475569' }}>Nenhuma publicacao</p>
               </div>
             ) : (
               <div className="flex flex-col gap-3">
                 {pubs.map(p => (
-                  <div key={p.id} className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                  <div key={p.id} className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-bold text-sm" style={{ color: '#111827' }}>{p.title}</h3>
+                          <h3 className="font-bold text-sm" style={{ color: '#1e293b' }}>{p.title}</h3>
                           <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: p.parceiro_id ? '#eef2ff' : '#f0fdf4', color: p.parceiro_id ? '#4338ca' : '#166534' }}>
                             {p.parceiro_id ? 'Especifico' : 'Todos'}
                           </span>
                         </div>
                         {(p.content || p.message) && (
-                          <p className="text-sm" style={{ color: '#6b7280' }}>{p.content || p.message}</p>
+                          <p className="text-sm" style={{ color: '#64748b' }}>{p.content || p.message}</p>
                         )}
                         {(p.file_name || p.file_path) && (
                           <div className="mt-2 flex items-center gap-2">
-                            <FileText size={13} style={{ color: '#6b7280' }} />
+                            <FileText size={13} style={{ color: '#64748b' }} />
                             {p.signed_url ? (
                               <a href={p.signed_url} target="_blank" rel="noreferrer"
-                                className="text-xs font-medium hover:underline" style={{ color: '#4338ca' }}>
+                                className="text-xs font-medium hover:underline" style={{ color: '#0ea5e9' }}>
                                 {p.file_name || p.file_path}
                               </a>
                             ) : (
@@ -177,10 +177,10 @@ export default function AdminPublicacoesPage() {
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
           <div className="w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col" style={{ background: '#fff' }}>
-            <div className="flex items-center justify-between px-6 py-4 flex-shrink-0" style={{ borderBottom: '1px solid #e5e7eb' }}>
-              <h2 className="font-bold text-base" style={{ color: '#111827' }}>Nova Publicacao</h2>
+            <div className="flex items-center justify-between px-6 py-4 flex-shrink-0" style={{ borderBottom: '1px solid #e2e8f0' }}>
+              <h2 className="font-bold text-base" style={{ color: '#1e293b' }}>Nova Publicacao</h2>
               <button onClick={() => setShowForm(false)} className="rounded-full p-1.5 hover:bg-gray-100 transition">
-                <X size={18} style={{ color: '#6b7280' }} />
+                <X size={18} style={{ color: '#64748b' }} />
               </button>
             </div>
 
@@ -190,32 +190,32 @@ export default function AdminPublicacoesPage() {
               )}
 
               <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Titulo *</label>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Titulo *</label>
                 <input type="text" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                   className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp} required placeholder="Titulo da publicacao" />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Mensagem / Conteudo</label>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Mensagem / Conteudo</label>
                 <textarea rows={4} value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
                   className="w-full rounded-lg px-3 py-2.5 text-sm resize-none" style={inp}
                   placeholder="Texto da publicacao para os parceiros..." />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Ficheiro anexo</label>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Ficheiro anexo</label>
                 <input ref={fileRef} type="file" className="hidden" onChange={e => setFile(e.target.files?.[0] || null)}
                   accept=".pdf,.doc,.docx,.xlsx,.xls,.jpg,.jpeg,.png" />
                 <div className="flex items-center gap-3">
                   <button type="button" onClick={() => fileRef.current?.click()}
                     className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium border transition hover:bg-gray-50"
-                    style={{ border: '1px solid #d1d5db', color: '#374151' }}>
+                    style={{ border: '1px solid #d1d5db', color: '#475569' }}>
                     <FileText size={15} />
                     {file ? 'Alterar ficheiro' : 'Adicionar ficheiro'}
                   </button>
                   {file && (
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium truncate max-w-48" style={{ color: '#111827' }}>{file.name}</span>
+                      <span className="text-sm font-medium truncate max-w-48" style={{ color: '#1e293b' }}>{file.name}</span>
                       <button type="button" onClick={() => setFile(null)}>
                         <X size={14} style={{ color: '#9ca3af' }} />
                       </button>
@@ -225,7 +225,7 @@ export default function AdminPublicacoesPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#374151' }}>Destinatarios</label>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#475569' }}>Destinatarios</label>
                 <div className="flex gap-2 mb-3">
                   <button type="button" onClick={() => setForm(f => ({ ...f, destino: 'todos', parceiroIds: [] }))}
                     className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium border transition"
@@ -248,7 +248,7 @@ export default function AdminPublicacoesPage() {
                 </div>
 
                 {form.destino === 'parceiros' && (
-                  <div className="rounded-lg p-3 max-h-48 overflow-y-auto space-y-1" style={{ border: '1px solid #e5e7eb', background: '#f9fafb' }}>
+                  <div className="rounded-lg p-3 max-h-48 overflow-y-auto space-y-1" style={{ border: '1px solid #e2e8f0', background: '#f9fafb' }}>
                     {parceiros.length === 0 ? (
                       <p className="text-sm text-center py-4" style={{ color: '#9ca3af' }}>Nenhum parceiro registado</p>
                     ) : parceiros.map(p => (
@@ -257,7 +257,7 @@ export default function AdminPublicacoesPage() {
                         <input type="checkbox" checked={form.parceiroIds.includes(p.id)} onChange={() => toggleParceiro(p.id)}
                           className="rounded" style={{ accentColor: '#4f46e5' }} />
                         <div>
-                          <p className="text-sm font-medium" style={{ color: '#111827' }}>{p.full_name}</p>
+                          <p className="text-sm font-medium" style={{ color: '#1e293b' }}>{p.full_name}</p>
                           <p className="text-xs" style={{ color: '#9ca3af' }}>{p.email}</p>
                         </div>
                       </label>
@@ -269,12 +269,12 @@ export default function AdminPublicacoesPage() {
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowForm(false)}
                   className="flex-1 rounded-lg py-3 text-sm font-semibold border transition hover:bg-gray-50"
-                  style={{ color: '#374151', border: '1px solid #d1d5db' }}>
+                  style={{ color: '#475569', border: '1px solid #d1d5db' }}>
                   Cancelar
                 </button>
                 <button type="submit" disabled={sending}
                   className="flex-1 flex items-center justify-center gap-2 rounded-lg py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
-                  style={{ background: '#4f46e5' }}>
+                  style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                   {sending
                     ? <><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" /> A publicar...</>
                     : <><Send size={15} /> Publicar</>

@@ -226,7 +226,7 @@ export default function ImportPage() {
 
   if (authLoading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8f9fb' }}>
-      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
     </div>
   )
 
@@ -239,8 +239,8 @@ export default function ImportPage() {
           <div className="p-4 md:p-8 max-w-4xl">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
-                <FileSpreadsheet size={28} style={{ color: '#4338ca' }} />
-                <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Import / Export Excel</h1>
+                <FileSpreadsheet size={28} style={{ color: '#0ea5e9' }} />
+                <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Import / Export Excel</h1>
               </div>
               <button
                 onClick={handleExport}
@@ -252,7 +252,7 @@ export default function ImportPage() {
                 {exporting ? 'A exportar...' : 'Exportar Vendas'}
               </button>
             </div>
-            <p className="text-sm mb-8" style={{ color: '#6b7280' }}>
+            <p className="text-sm mb-8" style={{ color: '#64748b' }}>
               <strong>Import:</strong> Carregue um ficheiro CSV/Excel para actualizar o estado das vendas (colunas: email, estado).
               <br />
               <strong>Export:</strong> Exporte todas as vendas com dados de parceiros, clientes, estados e valores.
@@ -278,26 +278,26 @@ export default function ImportPage() {
                 }}
               >
                 <Upload size={48} style={{ color: dragOver ? '#4338ca' : '#d1d5db' }} className="mx-auto mb-4" />
-                <p className="text-lg font-medium mb-1" style={{ color: '#374151' }}>Arraste o ficheiro aqui</p>
-                <p className="text-sm mb-6" style={{ color: '#6b7280' }}>ou clique para seleccionar (CSV, XLS, XLSX)</p>
-                <label className="inline-flex items-center gap-2 rounded-lg px-6 py-3 font-medium text-white cursor-pointer text-sm" style={{ background: '#4338ca' }}>
+                <p className="text-lg font-medium mb-1" style={{ color: '#475569' }}>Arraste o ficheiro aqui</p>
+                <p className="text-sm mb-6" style={{ color: '#64748b' }}>ou clique para seleccionar (CSV, XLS, XLSX)</p>
+                <label className="inline-flex items-center gap-2 rounded-lg px-6 py-3 font-medium text-white cursor-pointer text-sm" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                   <Upload size={16} /> Seleccionar Ficheiro
                   <input type="file" accept=".csv,.xls,.xlsx,.txt" onChange={handleFileInput} className="hidden" />
                 </label>
                 <div className="mt-6">
-                  <button onClick={downloadSample} className="inline-flex items-center gap-2 text-sm font-medium" style={{ color: '#4338ca' }}>
+                  <button onClick={downloadSample} className="inline-flex items-center gap-2 text-sm font-medium" style={{ color: '#0ea5e9' }}>
                     <Download size={14} /> Descarregar modelo CSV
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                <div className="p-5 flex items-center justify-between" style={{ borderBottom: '1px solid #e5e7eb' }}>
+              <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                <div className="p-5 flex items-center justify-between" style={{ borderBottom: '1px solid #e2e8f0' }}>
                   <div className="flex items-center gap-3">
                     <FileSpreadsheet size={20} style={{ color: '#059669' }} />
                     <div>
-                      <p className="font-medium text-sm" style={{ color: '#111827' }}>{fileName}</p>
-                      <p className="text-xs" style={{ color: '#6b7280' }}>{rows.length} linha(s) validas encontradas</p>
+                      <p className="font-medium text-sm" style={{ color: '#1e293b' }}>{fileName}</p>
+                      <p className="text-xs" style={{ color: '#64748b' }}>{rows.length} linha(s) validas encontradas</p>
                     </div>
                   </div>
                   <button onClick={clearFile} className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium" style={{ color: '#dc2626', border: '1px solid #fca5a5' }}>
@@ -309,35 +309,35 @@ export default function ImportPage() {
                 <div className="overflow-x-auto" style={{ maxHeight: '320px' }}>
                   <table className="w-full">
                     <thead>
-                      <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                        <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>#</th>
-                        <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Email Cliente</th>
-                        <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Novo Estado</th>
-                        <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>Notas</th>
+                      <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e2e8f0' }}>
+                        <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>#</th>
+                        <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>Email Cliente</th>
+                        <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>Novo Estado</th>
+                        <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>Notas</th>
                       </tr>
                     </thead>
                     <tbody>
                       {rows.slice(0, 50).map((r, i) => (
                         <tr key={i} style={{ borderBottom: '1px solid #f3f4f6' }}>
                           <td className="px-4 py-2 text-xs" style={{ color: '#9ca3af' }}>{i + 1}</td>
-                          <td className="px-4 py-2 text-sm font-medium" style={{ color: '#111827' }}>{r.client_email}</td>
+                          <td className="px-4 py-2 text-sm font-medium" style={{ color: '#1e293b' }}>{r.client_email}</td>
                           <td className="px-4 py-2">
-                            <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: '#e0e7ff', color: '#4338ca' }}>{r.status}</span>
+                            <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: '#e0e7ff', color: '#0ea5e9' }}>{r.status}</span>
                           </td>
-                          <td className="px-4 py-2 text-xs" style={{ color: '#6b7280' }}>{r.notes || '-'}</td>
+                          <td className="px-4 py-2 text-xs" style={{ color: '#64748b' }}>{r.notes || '-'}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                   {rows.length > 50 && (
-                    <div className="p-3 text-center text-xs" style={{ color: '#6b7280', background: '#f9fafb' }}>
+                    <div className="p-3 text-center text-xs" style={{ color: '#64748b', background: '#f9fafb' }}>
                       {`Mostrando 50 de ${rows.length} linhas`}
                     </div>
                   )}
                 </div>
 
                 <div className="p-5 flex items-center justify-between" style={{ borderTop: '1px solid #e5e7eb', background: '#f9fafb' }}>
-                  <p className="text-sm" style={{ color: '#6b7280' }}>
+                  <p className="text-sm" style={{ color: '#64748b' }}>
                     {rows.length} venda(s) serao actualizadas com base no email do cliente
                   </p>
                   <button onClick={handleImport} disabled={importing}
@@ -351,8 +351,8 @@ export default function ImportPage() {
             )}
 
             {/* Instrucoes */}
-            <div className="mt-8 rounded-xl p-6 shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-              <h2 className="font-semibold mb-3" style={{ color: '#111827' }}>Como funciona</h2>
+            <div className="mt-8 rounded-xl p-6 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+              <h2 className="font-semibold mb-3" style={{ color: '#1e293b' }}>Como funciona</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
                   { step: '1', title: 'Prepare o ficheiro', desc: 'Crie um CSV/Excel com colunas "email" e "estado". Os estados validos sao: pendente, em_revisao, ativa, processado, pago, cancelado, rejeitado.' },
@@ -360,9 +360,9 @@ export default function ImportPage() {
                   { step: '3', title: 'Confirme o import', desc: 'O sistema actualiza automaticamente o estado de todas as vendas que correspondam ao email do cliente.' },
                 ].map(s => (
                   <div key={s.step}>
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white mb-2" style={{ background: '#4338ca' }}>{s.step}</div>
-                    <h3 className="font-medium text-sm mb-1" style={{ color: '#111827' }}>{s.title}</h3>
-                    <p className="text-xs leading-relaxed" style={{ color: '#6b7280' }}>{s.desc}</p>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white mb-2" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>{s.step}</div>
+                    <h3 className="font-medium text-sm mb-1" style={{ color: '#1e293b' }}>{s.title}</h3>
+                    <p className="text-xs leading-relaxed" style={{ color: '#64748b' }}>{s.desc}</p>
                   </div>
                 ))}
               </div>

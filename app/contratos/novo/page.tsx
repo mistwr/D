@@ -76,19 +76,19 @@ export default function NovoContratoPage() {
 
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <Link href="/contratos" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#4338ca', textDecoration: 'none', marginBottom: '20px', fontSize: '14px' }}>
+      <Link href="/contratos" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#0ea5e9', textDecoration: 'none', marginBottom: '20px', fontSize: '14px' }}>
         <ArrowLeft size={16} /> Voltar
       </Link>
 
-      <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827', marginBottom: '30px' }}>Novo Contrato</h1>
+      <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1e293b', marginBottom: '30px' }}>Novo Contrato</h1>
 
       <form onSubmit={handleSubmit} style={{ background: '#f9fafb', padding: '24px', borderRadius: '8px' }}>
         {/* Serviço */}
         <div style={{ marginBottom: '20px' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', marginBottom: '12px' }}>Tipo de Serviço</h2>
+          <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#1e293b', marginBottom: '12px' }}>Tipo de Serviço</h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#374151' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#475569' }}>
                 Serviço
               </label>
               <select value={form.servico_type} onChange={(e) => {
@@ -100,7 +100,7 @@ export default function NovoContratoPage() {
               </select>
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#374151' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#475569' }}>
                 Operadora
               </label>
               <select value={form.operadora} onChange={(e) => setForm({ ...form, operadora: e.target.value })} style={inputStyle}>
@@ -112,38 +112,38 @@ export default function NovoContratoPage() {
 
         {/* Cliente */}
         <div style={{ marginBottom: '20px' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', marginBottom: '12px' }}>Dados do Cliente</h2>
+          <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#1e293b', marginBottom: '12px' }}>Dados do Cliente</h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#374151' }}>Nome *</label>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#475569' }}>Nome *</label>
               <input type="text" value={form.client_name} onChange={(e) => setForm({ ...form, client_name: e.target.value })} required style={inputStyle} placeholder="Nome completo" />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#374151' }}>Contacto *</label>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#475569' }}>Contacto *</label>
               <input type="tel" value={form.client_phone} onChange={(e) => setForm({ ...form, client_phone: e.target.value })} required style={inputStyle} placeholder="Telefone ou email" />
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#374151' }}>CC *</label>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#475569' }}>CC *</label>
               <input type="text" value={form.client_cc} onChange={(e) => setForm({ ...form, client_cc: e.target.value })} required style={inputStyle} placeholder="Número CC" />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#374151' }}>NIF *</label>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#475569' }}>NIF *</label>
               <input type="text" value={form.client_nif} onChange={(e) => setForm({ ...form, client_nif: e.target.value })} required style={inputStyle} placeholder="NIF" />
             </div>
           </div>
           <div style={{ marginBottom: '12px' }}>
-            <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#374151' }}>Morada *</label>
+            <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#475569' }}>Morada *</label>
             <input type="text" value={form.client_morada} onChange={(e) => setForm({ ...form, client_morada: e.target.value })} required style={inputStyle} placeholder="Morada" />
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#374151' }}>Email (opcional)</label>
+            <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#475569' }}>Email (opcional)</label>
             <input type="email" value={form.client_email} onChange={(e) => setForm({ ...form, client_email: e.target.value })} style={inputStyle} placeholder="Email" />
           </div>
         </div>
 
-        <button type="submit" disabled={submitting} style={{ width: '100%', padding: '12px', background: '#4338ca', color: 'white', border: 'none', borderRadius: '6px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+        <button type="submit" disabled={submitting} style={{ width: '100%', padding: '12px', background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', color: 'white', border: 'none', borderRadius: '6px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
           {submitting ? 'A criar...' : 'Criar Contrato'}
         </button>
       </form>

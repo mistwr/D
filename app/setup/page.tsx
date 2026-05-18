@@ -134,7 +134,7 @@ export default function SetupPage() {
           <div style={{ marginTop: '30px' }}>
             <Link href="/login" style={{
               display: 'inline-block',
-              background: '#4f46e5',
+              background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
               color: 'white',
               padding: '12px 24px',
               borderRadius: '6px',
@@ -152,7 +152,7 @@ export default function SetupPage() {
         <button 
           onClick={runSetup}
           style={{
-            background: '#4f46e5',
+            background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
             color: 'white',
             border: 'none',
             padding: '12px 24px',

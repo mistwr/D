@@ -21,7 +21,7 @@ const ALL_OPERADORAS: Record<string, string[]> = {
 }
 
 const SVC_META: Record<string, { label: string; color: string; bg: string }> = {
-  telecom: { label: 'Telecom',  color: '#4338ca', bg: '#eef2ff' },
+  telecom: { label: 'Telecom',  color: '#0ea5e9', bg: '#eef2ff' },
   energia: { label: 'Energia',  color: '#d97706', bg: '#fef3c7' },
   gas:     { label: 'Gas',      color: '#dc2626', bg: '#fee2e2' },
   seguros: { label: 'Seguros',  color: '#16a34a', bg: '#f0fdf4' },
@@ -143,7 +143,7 @@ export default function CampanhasPage() {
     setCampanhas(prev => prev.map(c => c.id === campanhaId ? { ...c, pdf_count: Math.max(0, (c.pdf_count ?? 1) - 1) } : c))
   }
 
-  const inputStyle = { background: '#fff', border: '1px solid #d1d5db', color: '#111827' }
+  const inputStyle = { background: '#fff', border: '1px solid #d1d5db', color: '#1e293b' }
   const currentOps = ALL_OPERADORAS[form.service_type] ?? []
 
   if (authLoading || loading) return (
@@ -171,16 +171,16 @@ export default function CampanhasPage() {
             <div className="flex justify-between items-center mb-8">
               <div className="flex items-center gap-3">
                 <div className="rounded-xl p-2.5" style={{ background: '#eef2ff' }}>
-                  <Megaphone size={24} style={{ color: '#4338ca' }} />
+                  <Megaphone size={24} style={{ color: '#0ea5e9' }} />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Campanhas</h1>
-                  <p className="text-sm" style={{ color: '#6b7280' }}>Gerir campanhas e materiais por operadora</p>
+                  <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Campanhas</h1>
+                  <p className="text-sm" style={{ color: '#64748b' }}>Gerir campanhas e materiais por operadora</p>
                 </div>
               </div>
               <button onClick={() => setShowForm(!showForm)}
                 className="flex items-center gap-2 rounded-lg px-4 py-2.5 font-medium text-white text-sm"
-                style={{ background: '#4338ca' }}>
+                style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                 {showForm ? <X size={16} /> : <Plus size={16} />}
                 {showForm ? 'Cancelar' : 'Nova Campanha'}
               </button>
@@ -188,16 +188,16 @@ export default function CampanhasPage() {
 
             {/* Formulário criar campanha */}
             {showForm && (
-              <form onSubmit={handleCreate} className="rounded-xl p-6 shadow-sm mb-6" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                <h2 className="font-semibold mb-5" style={{ color: '#111827' }}>Nova Campanha</h2>
+              <form onSubmit={handleCreate} className="rounded-xl p-6 shadow-sm mb-6" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                <h2 className="font-semibold mb-5" style={{ color: '#1e293b' }}>Nova Campanha</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                   <div className="lg:col-span-2">
-                    <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Titulo *</label>
+                    <label className="mb-1 block text-sm font-medium" style={{ color: '#475569' }}>Titulo *</label>
                     <input type="text" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} required
                       className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={inputStyle} placeholder="Ex: Campanha Verao MEO 2026" />
                   </div>
                   <div>
-                    <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Servico *</label>
+                    <label className="mb-1 block text-sm font-medium" style={{ color: '#475569' }}>Servico *</label>
                     <select value={form.service_type} onChange={e => {
                       const s = e.target.value
                       setForm(f => ({ ...f, service_type: s, operator: ALL_OPERADORAS[s]?.[0] ?? '' }))
@@ -209,7 +209,7 @@ export default function CampanhasPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Operadora *</label>
+                    <label className="mb-1 block text-sm font-medium" style={{ color: '#475569' }}>Operadora *</label>
                     <select value={form.operator} onChange={e => setForm(f => ({ ...f, operator: e.target.value }))}
                       className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={inputStyle}>
                       {currentOps.map(o => <option key={o} value={o}>{o}</option>)}
@@ -217,21 +217,21 @@ export default function CampanhasPage() {
                   </div>
                 </div>
                 <div className="mb-5">
-                  <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Descricao</label>
+                  <label className="mb-1 block text-sm font-medium" style={{ color: '#475569' }}>Descricao</label>
                   <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2}
                     className="w-full rounded-lg px-4 py-2.5 text-sm outline-none resize-none" style={inputStyle} placeholder="Detalhes, condicoes e objectivos da campanha..." />
                 </div>
-                <button type="submit" disabled={saving} className="rounded-lg px-6 py-2.5 text-sm font-medium text-white disabled:opacity-50" style={{ background: '#4338ca' }}>
+                <button type="submit" disabled={saving} className="rounded-lg px-6 py-2.5 text-sm font-medium text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                   {saving ? 'A criar...' : 'Criar Campanha'}
                 </button>
               </form>
             )}
 
             {campanhas.length === 0 && !showForm ? (
-              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <Megaphone size={48} style={{ color: '#d1d5db' }} className="mx-auto mb-4" />
-                <p className="text-lg font-medium" style={{ color: '#374151' }}>Nenhuma campanha criada</p>
-                <p className="text-sm" style={{ color: '#6b7280' }}>Crie a primeira campanha para organizar materiais por operadora.</p>
+                <p className="text-lg font-medium" style={{ color: '#475569' }}>Nenhuma campanha criada</p>
+                <p className="text-sm" style={{ color: '#64748b' }}>Crie a primeira campanha para organizar materiais por operadora.</p>
               </div>
             ) : (
               <div className="flex flex-col gap-4">
@@ -240,7 +240,7 @@ export default function CampanhasPage() {
                   const campPdfs = pdfs[c.id] || []
                   const svc = SVC_META[c.service_type] ?? SVC_META['telecom']
                   return (
-                    <div key={c.id} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                    <div key={c.id} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                       {/* Cabeçalho */}
                       <div className="p-5 flex items-center gap-4">
                         {/* Logo / upload */}
@@ -268,13 +268,13 @@ export default function CampanhasPage() {
                         {/* Info */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <h3 className="font-bold text-sm" style={{ color: '#111827' }}>{c.title}</h3>
+                            <h3 className="font-bold text-sm" style={{ color: '#1e293b' }}>{c.title}</h3>
                             {c.operator && (
                               <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: svc.bg, color: svc.color }}>{c.operator}</span>
                             )}
                             <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: svc.bg, color: svc.color }}>{svc.label}</span>
                           </div>
-                          {c.description && <p className="text-xs line-clamp-1" style={{ color: '#6b7280' }}>{c.description}</p>}
+                          {c.description && <p className="text-xs line-clamp-1" style={{ color: '#64748b' }}>{c.description}</p>}
                           <p className="text-xs mt-0.5" style={{ color: '#9ca3af' }}>{c.pdf_count ?? 0} ficheiro{(c.pdf_count ?? 0) !== 1 ? 's' : ''} &middot; {new Date(c.created_at).toLocaleDateString('pt-PT')}</p>
                         </div>
 
@@ -290,7 +290,7 @@ export default function CampanhasPage() {
 
                           {/* Expandir */}
                           <button onClick={() => toggleExpand(c.id)}
-                            className="rounded-lg p-1.5" style={{ background: '#f3f4f6', color: '#374151' }}>
+                            className="rounded-lg p-1.5" style={{ background: '#f8fafc', color: '#475569' }}>
                             {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                           </button>
 
@@ -306,10 +306,10 @@ export default function CampanhasPage() {
                       {/* Ficheiros expandidos */}
                       {isOpen && (
                         <div className="px-5 pb-5" style={{ borderTop: '1px solid #f3f4f6' }}>
-                          {c.description && <p className="text-sm py-3" style={{ color: '#6b7280' }}>{c.description}</p>}
+                          {c.description && <p className="text-sm py-3" style={{ color: '#64748b' }}>{c.description}</p>}
 
                           <div className="flex items-center justify-between mb-3 pt-2">
-                            <h4 className="text-sm font-semibold" style={{ color: '#374151' }}>
+                            <h4 className="text-sm font-semibold" style={{ color: '#475569' }}>
                               Ficheiros <span style={{ color: '#9ca3af' }}>({campPdfs.length})</span>
                             </h4>
                             <label className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer text-white"
@@ -325,17 +325,17 @@ export default function CampanhasPage() {
                           {campPdfs.length === 0 ? (
                             <div className="rounded-lg p-6 text-center" style={{ background: '#f9fafb', border: '1px dashed #d1d5db' }}>
                               <FileText size={28} style={{ color: '#d1d5db' }} className="mx-auto mb-2" />
-                              <p className="text-sm" style={{ color: '#6b7280' }}>Nenhum ficheiro — PDF, Word, Excel, CSV, imagens</p>
+                              <p className="text-sm" style={{ color: '#64748b' }}>Nenhum ficheiro — PDF, Word, Excel, CSV, imagens</p>
                             </div>
                           ) : (
                             <div className="flex flex-col gap-2">
                               {campPdfs.map(pdf => (
                                 <div key={pdf.id} className="flex items-center justify-between rounded-lg p-3 gap-3"
-                                  style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                                  style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
                                   <div className="flex items-center gap-2.5 min-w-0">
                                     <FileText size={16} style={{ color: pdf.file_type === 'image' ? '#0891b2' : pdf.file_type === 'pdf' ? '#dc2626' : '#6b7280' }} />
                                     <div className="min-w-0">
-                                      <p className="text-sm font-medium truncate" style={{ color: '#111827' }}>{pdf.file_name}</p>
+                                      <p className="text-sm font-medium truncate" style={{ color: '#1e293b' }}>{pdf.file_name}</p>
                                       <p className="text-xs" style={{ color: '#9ca3af' }}>{pdf.file_type.toUpperCase()} &middot; {formatSize(pdf.file_size)} &middot; {new Date(pdf.created_at).toLocaleDateString('pt-PT')}</p>
                                     </div>
                                   </div>
@@ -350,7 +350,7 @@ export default function CampanhasPage() {
                                     {pdf.signed_url && (
                                       <a href={pdf.signed_url} target="_blank" rel="noreferrer"
                                         className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
-                                        style={{ background: '#eef2ff', color: '#4338ca' }}
+                                        style={{ background: '#eef2ff', color: '#0ea5e9' }}
                                         title="Abrir em nova aba">
                                         <Download size={12} /> Abrir
                                       </a>

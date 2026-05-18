@@ -23,14 +23,14 @@ const SERVICO_LABEL: Record<string, string> = {
 }
 
 function ServicoIcon({ servico }: { servico: string }) {
-  if (servico === 'telecom') return <Wifi size={15} style={{ color: '#4338ca' }} />
+  if (servico === 'telecom') return <Wifi size={15} style={{ color: '#0ea5e9' }} />
   if (servico === 'energia') return <Zap size={15} style={{ color: '#d97706' }} />
   if (servico === 'gas')    return <Flame size={15} style={{ color: '#dc2626' }} />
   return <Shield size={15} style={{ color: '#059669' }} />
 }
 
 const SERVICO_STYLE: Record<string, { bg: string; color: string; border: string }> = {
-  telecom:  { bg: '#eef2ff', color: '#4338ca', border: '#c7d2fe' },
+  telecom:  { bg: '#eef2ff', color: '#0ea5e9', border: '#c7d2fe' },
   energia:  { bg: '#fef3c7', color: '#92400e', border: '#fde68a' },
   gas:      { bg: '#fee2e2', color: '#991b1b', border: '#fecaca' },
   seguros:  { bg: '#f0fdf4', color: '#166534', border: '#86efac' },
@@ -50,8 +50,8 @@ export default function ComissoesPage() {
   }, [user, authFetch])
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
-      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
     </div>
   )
 
@@ -77,7 +77,7 @@ export default function ComissoesPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="parceiro" />
@@ -86,10 +86,10 @@ export default function ComissoesPage() {
 
             {/* Header */}
             <div className="flex items-center gap-3 mb-8">
-              <Percent size={28} style={{ color: '#4338ca' }} />
+              <Percent size={28} style={{ color: '#0ea5e9' }} />
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>As Minhas Comissoes</h1>
-                <p className="text-sm" style={{ color: '#6b7280' }}>
+                <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>As Minhas Comissoes</h1>
+                <p className="text-sm" style={{ color: '#64748b' }}>
                   {comissoes.length === 0
                     ? 'Ainda nao tem comissoes definidas'
                     : `${comissoes.length} comissao(oes) definidas pelo administrador`}
@@ -98,17 +98,17 @@ export default function ComissoesPage() {
             </div>
 
             {comissoes.length === 0 ? (
-              <div className="rounded-xl p-16 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+              <div className="rounded-xl p-16 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <Percent size={48} className="mx-auto mb-4" style={{ color: '#d1d5db' }} />
-                <p className="text-base font-medium" style={{ color: '#374151' }}>Nenhuma comissao atribuida</p>
+                <p className="text-base font-medium" style={{ color: '#475569' }}>Nenhuma comissao atribuida</p>
                 <p className="text-sm mt-1" style={{ color: '#9ca3af' }}>O administrador ainda nao definiu as suas comissoes. Contacte o suporte.</p>
               </div>
             ) : (
               <div className="space-y-6">
                 {Object.entries(grouped).map(([servico, items]) => {
-                  const st = SERVICO_STYLE[servico] || { bg: '#f3f4f6', color: '#374151', border: '#d1d5db' }
+                  const st = SERVICO_STYLE[servico] || { bg: '#f3f4f6', color: '#475569', border: '#d1d5db' }
                   return (
-                    <div key={servico} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                    <div key={servico} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                       {/* Cabecalho do servico */}
                       <div className="flex items-center justify-between px-6 py-4" style={{ background: st.bg, borderBottom: `1px solid ${st.border}` }}>
                         <div className="flex items-center gap-2">
@@ -129,11 +129,11 @@ export default function ComissoesPage() {
                       <div className="overflow-x-auto">
                         <table className="w-full">
                           <thead>
-                            <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>Operadora</th>
-                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>Plano</th>
-                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>Modelo</th>
-                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#6b7280' }}>Comissao</th>
+                            <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e2e8f0' }}>
+                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#64748b' }}>Operadora</th>
+                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#64748b' }}>Plano</th>
+                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#64748b' }}>Modelo</th>
+                              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#64748b' }}>Comissao</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -145,8 +145,8 @@ export default function ComissoesPage() {
                                   // telecom: valor calculado dinamicamente (mensalidade do cliente × nº mensalidades)
                                   return (
                                     <div>
-                                      <span className="text-base font-bold" style={{ color: '#4338ca' }}>x{n}</span>
-                                      <span className="ml-2 text-sm font-medium" style={{ color: '#374151' }}>{label}</span>
+                                      <span className="text-base font-bold" style={{ color: '#0ea5e9' }}>x{n}</span>
+                                      <span className="ml-2 text-sm font-medium" style={{ color: '#475569' }}>{label}</span>
                                       <p className="text-xs mt-0.5" style={{ color: '#9ca3af' }}>
                                         valor calculado com base na mensalidade do cliente
                                       </p>
@@ -160,14 +160,14 @@ export default function ComissoesPage() {
                               })()
                               return (
                                 <tr key={i} style={{ borderBottom: i < items.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
-                                  <td className="px-5 py-3.5 text-sm font-semibold" style={{ color: '#111827' }}>{c.operadora}</td>
+                                  <td className="px-5 py-3.5 text-sm font-semibold" style={{ color: '#1e293b' }}>{c.operadora}</td>
                                   <td className="px-5 py-3.5">
                                     <span className="px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: st.bg, color: st.color }}>
                                       {c.plano || '—'}
                                     </span>
                                   </td>
                                   <td className="px-5 py-3.5">
-                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: '#f3f4f6', color: '#374151' }}>
+                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: '#f8fafc', color: '#475569' }}>
                                       {c.modelo === 'mensalidade' ? 'Mensalidade' : c.modelo === 'percentagem' ? 'Percentagem' : 'Fixo'}
                                     </span>
                                   </td>

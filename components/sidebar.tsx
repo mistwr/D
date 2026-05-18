@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle } from 'lucide-react'
+import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone } from 'lucide-react'
 
 interface SidebarProps { userRole: string }
 
@@ -40,22 +41,54 @@ export function Sidebar({ userRole }: SidebarProps) {
   const links = userRole === 'admin' ? adminLinks : parceiroLinks
 
   return (
-    <aside className="hidden md:flex fixed left-0 top-16 bottom-0 w-64 flex-col overflow-y-auto" style={{ background: '#ffffff', borderRight: '1px solid #e5e7eb' }}>
-      <nav className="flex flex-col gap-1 p-4">
-        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#9ca3af' }}>
+    <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 flex-col overflow-y-auto shadow-lg" style={{ background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)' }}>
+      {/* Logo */}
+      <div className="p-5 flex items-center gap-3 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+        <Image src="/logo.jpg" alt="Solucoes Diferentes" width={48} height={48} className="rounded-lg" />
+        <div>
+          <p className="font-bold text-white text-sm leading-tight">Solucoes</p>
+          <p className="font-bold text-sm leading-tight" style={{ color: '#22c55e' }}>Diferentes</p>
+        </div>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-lg p-2.5 text-center" style={{ background: 'rgba(14,165,233,0.15)' }}>
+            <Phone size={16} className="mx-auto mb-1" style={{ color: '#38bdf8' }} />
+            <p className="text-xs font-medium" style={{ color: '#38bdf8' }}>Telecom</p>
+          </div>
+          <div className="rounded-lg p-2.5 text-center" style={{ background: 'rgba(249,115,22,0.15)' }}>
+            <Zap size={16} className="mx-auto mb-1" style={{ color: '#fb923c' }} />
+            <p className="text-xs font-medium" style={{ color: '#fb923c' }}>Energia</p>
+          </div>
+        </div>
+      </div>
+
+      <nav className="flex-1 flex flex-col gap-1 p-4 overflow-y-auto">
+        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>
           {userRole === 'admin' ? 'Administracao' : 'Menu'}
         </p>
         {links.map(l => {
           const active = pathname === l.href
           return (
-            <Link key={l.href} href={l.href} className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
-              style={{ background: active ? '#eef2ff' : 'transparent', color: active ? '#4338ca' : '#374151' }}>
+            <Link key={l.href} href={l.href} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200"
+              style={{ 
+                background: active ? 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' : 'transparent', 
+                color: active ? '#ffffff' : '#94a3b8',
+                boxShadow: active ? '0 4px 12px rgba(14,165,233,0.3)' : 'none'
+              }}>
               <l.icon size={18} />
               {l.label}
             </Link>
           )
         })}
       </nav>
+
+      {/* Footer */}
+      <div className="p-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+        <p className="text-xs text-center" style={{ color: '#64748b' }}>Telecomunicacoes & Energia</p>
+      </div>
     </aside>
   )
 }

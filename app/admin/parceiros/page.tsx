@@ -176,8 +176,8 @@ export default function ParceirosPage() {
   }
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
-      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
     </div>
   )
 
@@ -185,7 +185,7 @@ export default function ParceirosPage() {
   const getTotal = (pid: string) => getParceiroVendas(pid).reduce((s, v) => s + (v.amount || 0), 0)
   const selectedParceiro = parceiros.find(p => p.id === selected)
   const selectedVendas = selected ? getParceiroVendas(selected) : []
-  const inputStyle = { border: '1px solid #d1d5db', background: '#fff', color: '#111827' }
+  const inputStyle = { border: '1px solid #d1d5db', background: '#fff', color: '#1e293b' }
 
   const statusColor: Record<string, { bg: string; color: string }> = {
     ativo:      { bg: '#dcfce7', color: '#166534' },
@@ -195,7 +195,7 @@ export default function ParceirosPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" />
@@ -205,15 +205,15 @@ export default function ParceirosPage() {
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
-                <Users size={28} style={{ color: '#4338ca' }} />
+                <Users size={28} style={{ color: '#0ea5e9' }} />
                 <div>
-                  <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>Parceiros</h1>
-                  <p className="text-sm" style={{ color: '#6b7280' }}>{parceiros.length} parceiros registados</p>
+                  <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Parceiros</h1>
+                  <p className="text-sm" style={{ color: '#64748b' }}>{parceiros.length} parceiros registados</p>
                 </div>
               </div>
               <button onClick={() => { setShowNovo(true); setNovoError(''); setNovoSuccess('') }}
                 className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
-                style={{ background: '#4338ca' }}>
+                style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                 <Plus size={16} /> Novo Parceiro
               </button>
             </div>
@@ -226,11 +226,11 @@ export default function ParceirosPage() {
                     <div className="mx-auto mb-4 flex items-center justify-center w-12 h-12 rounded-full" style={{ background: '#fef2f2' }}>
                       <AlertTriangle size={24} style={{ color: '#dc2626' }} />
                     </div>
-                    <h2 className="text-lg font-bold mb-2" style={{ color: '#111827' }}>Apagar Parceiro</h2>
-                    <p className="text-sm mb-1" style={{ color: '#374151' }}>
+                    <h2 className="text-lg font-bold mb-2" style={{ color: '#1e293b' }}>Apagar Parceiro</h2>
+                    <p className="text-sm mb-1" style={{ color: '#475569' }}>
                       Tem a certeza que quer apagar <strong>{confirmDelete.full_name}</strong>?
                     </p>
-                    <p className="text-xs mb-5" style={{ color: '#6b7280' }}>
+                    <p className="text-xs mb-5" style={{ color: '#64748b' }}>
                       Esta acao e irreversivel e remove todas as vendas e dados associados.
                     </p>
                     {deleteError && (
@@ -239,7 +239,7 @@ export default function ParceirosPage() {
                     <div className="flex gap-3">
                       <button onClick={() => { setConfirmDelete(null); setDeleteError('') }}
                         className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium"
-                        style={{ border: '1px solid #d1d5db', color: '#374151' }}>Cancelar</button>
+                        style={{ border: '1px solid #d1d5db', color: '#475569' }}>Cancelar</button>
                       <button onClick={() => apagarParceiro(confirmDelete)} disabled={deleting}
                         className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
                         style={{ background: '#dc2626' }}>{deleting ? 'A apagar...' : 'Apagar'}</button>
@@ -253,10 +253,10 @@ export default function ParceirosPage() {
             {showNovo && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
                 <div className="w-full max-w-md rounded-2xl shadow-2xl" style={{ background: '#fff' }}>
-                  <div className="flex items-center justify-between p-6" style={{ borderBottom: '1px solid #e5e7eb' }}>
-                    <h2 className="text-lg font-bold" style={{ color: '#111827' }}>Criar Novo Parceiro</h2>
+                  <div className="flex items-center justify-between p-6" style={{ borderBottom: '1px solid #e2e8f0' }}>
+                    <h2 className="text-lg font-bold" style={{ color: '#1e293b' }}>Criar Novo Parceiro</h2>
                     <button onClick={() => setShowNovo(false)} className="rounded-lg p-1.5 hover:bg-gray-100">
-                      <X size={20} style={{ color: '#6b7280' }} />
+                      <X size={20} style={{ color: '#64748b' }} />
                     </button>
                   </div>
                   <div className="p-6 space-y-4">
@@ -269,20 +269,20 @@ export default function ParceirosPage() {
                       { label: 'Telefone', key: 'phone', type: 'tel', ph: '+351 912 345 678' },
                     ].map(f => (
                       <div key={f.key}>
-                        <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>{f.label}</label>
+                        <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>{f.label}</label>
                         <input type={f.type} value={(novoForm as any)[f.key]}
                           onChange={e => setNovoForm(prev => ({ ...prev, [f.key]: e.target.value }))}
                           className="w-full rounded-lg px-3 py-2.5 text-sm outline-none" placeholder={f.ph}
-                          style={{ border: '1px solid #d1d5db', color: '#111827' }} />
+                          style={{ border: '1px solid #d1d5db', color: '#1e293b' }} />
                       </div>
                     ))}
                     <div>
-                      <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Password *</label>
+                      <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Password *</label>
                       <div className="relative">
                         <input type={showPass ? 'text' : 'password'} value={novoForm.password}
                           onChange={e => setNovoForm(f => ({ ...f, password: e.target.value }))}
                           className="w-full rounded-lg px-3 py-2.5 text-sm outline-none pr-10" placeholder="Minimo 6 caracteres"
-                          style={{ border: '1px solid #d1d5db', color: '#111827' }} />
+                          style={{ border: '1px solid #d1d5db', color: '#1e293b' }} />
                         <button type="button" onClick={() => setShowPass(s => !s)} className="absolute right-3 top-2.5">
                           {showPass ? <EyeOff size={16} style={{ color: '#9ca3af' }} /> : <Eye size={16} style={{ color: '#9ca3af' }} />}
                         </button>
@@ -290,10 +290,10 @@ export default function ParceirosPage() {
                     </div>
                     <div className="flex gap-3 pt-2">
                       <button onClick={() => setShowNovo(false)} className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium"
-                        style={{ border: '1px solid #d1d5db', color: '#374151' }}>Cancelar</button>
+                        style={{ border: '1px solid #d1d5db', color: '#475569' }}>Cancelar</button>
                       <button onClick={criarParceiro} disabled={novoLoading}
                         className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
-                        style={{ background: '#4338ca' }}>{novoLoading ? 'A criar...' : 'Criar Parceiro'}</button>
+                        style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>{novoLoading ? 'A criar...' : 'Criar Parceiro'}</button>
                     </div>
                   </div>
                 </div>
@@ -301,18 +301,18 @@ export default function ParceirosPage() {
             )}
 
             {parceiros.length === 0 ? (
-              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <Users size={48} style={{ color: '#d1d5db' }} className="mx-auto mb-4" />
-                <p className="text-lg font-medium" style={{ color: '#374151' }}>Nenhum parceiro registado</p>
-                <p className="text-sm mt-1" style={{ color: '#6b7280' }}>Clique em &quot;Novo Parceiro&quot; para adicionar o primeiro.</p>
+                <p className="text-lg font-medium" style={{ color: '#475569' }}>Nenhum parceiro registado</p>
+                <p className="text-sm mt-1" style={{ color: '#64748b' }}>Clique em &quot;Novo Parceiro&quot; para adicionar o primeiro.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Lista parceiros */}
                 <div className="lg:col-span-1">
-                  <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                    <div className="p-4" style={{ borderBottom: '1px solid #e5e7eb' }}>
-                      <h2 className="font-semibold text-sm" style={{ color: '#374151' }}>Selecionar Parceiro</h2>
+                  <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                    <div className="p-4" style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <h2 className="font-semibold text-sm" style={{ color: '#475569' }}>Selecionar Parceiro</h2>
                     </div>
                     <div className="max-h-[600px] overflow-y-auto">
                       {parceiros.map(p => {
@@ -321,19 +321,19 @@ export default function ParceirosPage() {
                           <div key={p.id} className="relative group"
                             style={{ borderBottom: '1px solid #f3f4f6', background: isActive ? '#eef2ff' : '#fff' }}>
                             <button onClick={() => selectParceiro(p.id)} className="w-full text-left p-4 pr-12">
-                              <p className="font-medium text-sm" style={{ color: '#111827' }}>{p.full_name}</p>
+                              <p className="font-medium text-sm" style={{ color: '#1e293b' }}>{p.full_name}</p>
                               <div className="flex items-center gap-1 mt-1">
                                 <Mail size={12} style={{ color: '#9ca3af' }} />
-                                <span className="text-xs" style={{ color: '#6b7280' }}>{p.email}</span>
+                                <span className="text-xs" style={{ color: '#64748b' }}>{p.email}</span>
                               </div>
                               {p.company_name && (
                                 <div className="flex items-center gap-1 mt-0.5">
                                   <Building2 size={12} style={{ color: '#9ca3af' }} />
-                                  <span className="text-xs" style={{ color: '#6b7280' }}>{p.company_name}</span>
+                                  <span className="text-xs" style={{ color: '#64748b' }}>{p.company_name}</span>
                                 </div>
                               )}
                               <div className="flex gap-3 mt-2">
-                                <span className="text-xs font-medium" style={{ color: '#4338ca' }}>{getParceiroVendas(p.id).length} vendas</span>
+                                <span className="text-xs font-medium" style={{ color: '#0ea5e9' }}>{getParceiroVendas(p.id).length} vendas</span>
                                 <span className="text-xs font-medium" style={{ color: '#059669' }}>€{getTotal(p.id).toFixed(2)}</span>
                               </div>
                             </button>
@@ -352,9 +352,9 @@ export default function ParceirosPage() {
                 {/* Detalhe */}
                 <div className="lg:col-span-2">
                   {!selected ? (
-                    <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                    <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                       <Shield size={48} style={{ color: '#d1d5db' }} className="mx-auto mb-4" />
-                      <p style={{ color: '#6b7280' }}>Selecione um parceiro para gerir vendas, comissoes e password</p>
+                      <p style={{ color: '#64748b' }}>Selecione um parceiro para gerir vendas, comissoes e password</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -370,7 +370,7 @@ export default function ParceirosPage() {
                             style={{
                               background: tab === t.key ? '#4338ca' : '#fff',
                               color: tab === t.key ? '#fff' : '#374151',
-                              border: '1px solid #e5e7eb',
+                              border: '1px solid #e2e8f0',
                             }}>
                             <t.icon size={14} />{t.label}
                           </button>
@@ -379,28 +379,28 @@ export default function ParceirosPage() {
 
                       {/* Tab: Vendas */}
                       {tab === 'vendas' && (
-                        <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                          <div className="p-5" style={{ borderBottom: '1px solid #e5e7eb' }}>
-                            <h2 className="font-bold" style={{ color: '#111827' }}>Vendas — {selectedParceiro?.full_name}</h2>
+                        <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                          <div className="p-5" style={{ borderBottom: '1px solid #e2e8f0' }}>
+                            <h2 className="font-bold" style={{ color: '#1e293b' }}>Vendas — {selectedParceiro?.full_name}</h2>
                           </div>
                           {selectedVendas.length === 0 ? (
-                            <div className="p-8 text-center"><p style={{ color: '#6b7280' }}>Sem vendas registadas.</p></div>
+                            <div className="p-8 text-center"><p style={{ color: '#64748b' }}>Sem vendas registadas.</p></div>
                           ) : (
                             <div className="overflow-x-auto">
                               <table className="w-full">
                                 <thead>
-                                  <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+                                  <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e2e8f0' }}>
                                     {['Cliente', 'Servico', 'Operadora', 'Plano', 'Valor', 'Estado'].map(h => (
-                                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>{h}</th>
+                                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>{h}</th>
                                     ))}
                                   </tr>
                                 </thead>
                                 <tbody>
                                   {selectedVendas.map(v => {
-                                    const sc = statusColor[v.status] || { bg: '#f3f4f6', color: '#374151' }
+                                    const sc = statusColor[v.status] || { bg: '#f3f4f6', color: '#475569' }
                                     return (
                                       <tr key={v.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                                        <td className="px-4 py-3 text-sm font-medium" style={{ color: '#111827' }}>{v.client_name}</td>
+                                        <td className="px-4 py-3 text-sm font-medium" style={{ color: '#1e293b' }}>{v.client_name}</td>
                                         <td className="px-4 py-3">
                                           <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{
                                             background: v.service_type === 'telecom' ? '#e0e7ff' : v.service_type === 'seguros' ? '#fce7f3' : '#fef3c7',
@@ -409,9 +409,9 @@ export default function ParceirosPage() {
                                             {SERVICO_LABEL[v.service_type] || v.service_type}
                                           </span>
                                         </td>
-                                        <td className="px-4 py-3 text-sm" style={{ color: '#374151' }}>{v.operator || '—'}</td>
-                                        <td className="px-4 py-3 text-sm" style={{ color: '#374151' }}>{v.plano || '—'}</td>
-                                        <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#111827' }}>€{(v.amount || 0).toFixed(2)}</td>
+                                        <td className="px-4 py-3 text-sm" style={{ color: '#475569' }}>{v.operator || '—'}</td>
+                                        <td className="px-4 py-3 text-sm" style={{ color: '#475569' }}>{v.plano || '—'}</td>
+                                        <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#1e293b' }}>€{(v.amount || 0).toFixed(2)}</td>
                                         <td className="px-4 py-3">
                                           <span className="px-2 py-1 rounded-full text-xs font-medium" style={sc}>{v.status}</span>
                                         </td>
@@ -429,15 +429,15 @@ export default function ParceirosPage() {
                       {tab === 'comissoes' && (
                         <div className="space-y-4">
                           {/* Adicionar comissao */}
-                          <div className="rounded-xl shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                            <div className="p-5" style={{ borderBottom: '1px solid #e5e7eb', background: '#f9fafb' }}>
-                              <h2 className="font-bold" style={{ color: '#111827' }}>Definir Comissao — {selectedParceiro?.full_name}</h2>
-                              <p className="text-xs mt-1" style={{ color: '#6b7280' }}>Valor fixo por venda, por operadora e plano</p>
+                          <div className="rounded-xl shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                            <div className="p-5" style={{ borderBottom: '1px solid #e2e8f0', background: '#f9fafb' }}>
+                              <h2 className="font-bold" style={{ color: '#1e293b' }}>Definir Comissao — {selectedParceiro?.full_name}</h2>
+                              <p className="text-xs mt-1" style={{ color: '#64748b' }}>Valor fixo por venda, por operadora e plano</p>
                             </div>
                             <div className="p-5">
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                                 <div>
-                                  <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Servico</label>
+                                  <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Servico</label>
                                   <select value={comServico} onChange={e => {
                                     const s = e.target.value as typeof SERVICOS[number]
                                     setComServico(s)
@@ -450,7 +450,7 @@ export default function ParceirosPage() {
                                   </select>
                                 </div>
                                 <div>
-                                  <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Operadora</label>
+                                  <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Operadora</label>
                                   <select value={comOperadora} onChange={e => setComOperadora(e.target.value)}
                                     className="w-full rounded-lg px-3 py-2 text-sm outline-none" style={inputStyle}>
                                     {OPERADORAS[comServico].map(o => <option key={o} value={o}>{o}</option>)}
@@ -458,7 +458,7 @@ export default function ParceirosPage() {
                                 </div>
                                 {comServico === 'telecom' && (
                                   <div>
-                                    <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Plano</label>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Plano</label>
                                     <select value={comPlano} onChange={e => setComPlano(e.target.value)}
                                       className="w-full rounded-lg px-3 py-2 text-sm outline-none" style={inputStyle}>
                                       {PLANOS_TELECOM.map(p => <option key={p} value={p}>{p}</option>)}
@@ -466,7 +466,7 @@ export default function ParceirosPage() {
                                   </div>
                                 )}
                                 <div>
-                                  <label className="block text-xs font-medium mb-1" style={{ color: '#374151' }}>Valor (€)</label>
+                                  <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Valor (€)</label>
                                   <input type="number" min="0" step="0.5" value={comValor}
                                     onChange={e => setComValor(e.target.value)}
                                     placeholder="0.00"
@@ -477,7 +477,7 @@ export default function ParceirosPage() {
                               <div className="flex items-center gap-3">
                                 <button onClick={saveComissaoOp} disabled={comSaving || !comValor}
                                   className="flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
-                                  style={{ background: '#4338ca' }}>
+                                  style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                                   <Save size={15} />{comSaving ? 'A guardar...' : 'Guardar'}
                                 </button>
                                 {comSaved && <span className="text-sm font-medium" style={{ color: '#059669' }}>Guardado!</span>}
@@ -487,16 +487,16 @@ export default function ParceirosPage() {
 
                           {/* Tabela comissoes guardadas */}
                           {comOps.length > 0 && (
-                            <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                              <div className="p-4" style={{ borderBottom: '1px solid #e5e7eb' }}>
-                                <h3 className="font-semibold text-sm" style={{ color: '#374151' }}>Comissoes Definidas</h3>
+                            <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                              <div className="p-4" style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                <h3 className="font-semibold text-sm" style={{ color: '#475569' }}>Comissoes Definidas</h3>
                               </div>
                               <div className="overflow-x-auto">
                                 <table className="w-full">
                                   <thead>
-                                    <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+                                    <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e2e8f0' }}>
                                       {['Servico', 'Operadora', 'Plano', 'Valor', ''].map(h => (
-                                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#6b7280' }}>{h}</th>
+                                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>{h}</th>
                                       ))}
                                     </tr>
                                   </thead>
@@ -505,12 +505,12 @@ export default function ParceirosPage() {
                                       <tr key={i} style={{ borderBottom: '1px solid #f3f4f6' }}>
                                         <td className="px-4 py-3">
                                           <span className="flex items-center gap-1.5">
-                                            {c.servico === 'telecom' ? <Zap size={14} style={{ color: '#4338ca' }} /> : <Flame size={14} style={{ color: '#d97706' }} />}
-                                            <span className="text-sm" style={{ color: '#374151' }}>{SERVICO_LABEL[c.servico] || c.servico}</span>
+                                            {c.servico === 'telecom' ? <Zap size={14} style={{ color: '#0ea5e9' }} /> : <Flame size={14} style={{ color: '#d97706' }} />}
+                                            <span className="text-sm" style={{ color: '#475569' }}>{SERVICO_LABEL[c.servico] || c.servico}</span>
                                           </span>
                                         </td>
-                                        <td className="px-4 py-3 text-sm font-medium" style={{ color: '#111827' }}>{c.operadora}</td>
-                                        <td className="px-4 py-3 text-sm" style={{ color: '#374151' }}>{c.plano || '—'}</td>
+                                        <td className="px-4 py-3 text-sm font-medium" style={{ color: '#1e293b' }}>{c.operadora}</td>
+                                        <td className="px-4 py-3 text-sm" style={{ color: '#475569' }}>{c.plano || '—'}</td>
                                         <td className="px-4 py-3 text-sm font-bold" style={{ color: '#059669' }}>
                                           {c.modelo === 'mensalidade' && (c.num_mensalidades || 0) > 0
                                             ? <span>{c.num_mensalidades}x €{(c.valor_mensal || 0).toFixed(2)}/mes = €{((c.num_mensalidades || 0) * (c.valor_mensal || 0)).toFixed(2)}</span>
@@ -530,7 +530,7 @@ export default function ParceirosPage() {
                                             }}
                                             className="rounded-lg p-1.5 transition-colors hover:bg-indigo-50"
                                             title="Editar comissao">
-                                            <Pencil size={14} style={{ color: '#4338ca' }} />
+                                            <Pencil size={14} style={{ color: '#0ea5e9' }} />
                                           </button>
                                         </td>
                                       </tr>
@@ -545,21 +545,21 @@ export default function ParceirosPage() {
 
                       {/* Tab: Alterar Password */}
                       {tab === 'password' && (
-                        <div className="rounded-xl shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                          <div className="p-5" style={{ borderBottom: '1px solid #e5e7eb', background: '#f9fafb' }}>
-                            <h2 className="font-bold" style={{ color: '#111827' }}>Alterar Password — {selectedParceiro?.full_name}</h2>
-                            <p className="text-xs mt-1" style={{ color: '#6b7280' }}>{selectedParceiro?.email}</p>
+                        <div className="rounded-xl shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                          <div className="p-5" style={{ borderBottom: '1px solid #e2e8f0', background: '#f9fafb' }}>
+                            <h2 className="font-bold" style={{ color: '#1e293b' }}>Alterar Password — {selectedParceiro?.full_name}</h2>
+                            <p className="text-xs mt-1" style={{ color: '#64748b' }}>{selectedParceiro?.email}</p>
                           </div>
                           <div className="p-5 max-w-sm space-y-4">
                             {passMsg && <div className="rounded-lg p-3 text-sm" style={{ background: '#f0fdf4', border: '1px solid #86efac', color: '#166534' }}>{passMsg}</div>}
                             {passError && <div className="rounded-lg p-3 text-sm" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>{passError}</div>}
                             <div>
-                              <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>Nova Password</label>
+                              <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Nova Password</label>
                               <div className="relative">
                                 <input type={showNewPass ? 'text' : 'password'} value={newPass}
                                   onChange={e => { setNewPass(e.target.value); setPassError('') }}
                                   className="w-full rounded-lg px-3 py-2.5 text-sm outline-none pr-10" placeholder="Minimo 6 caracteres"
-                                  style={{ border: '1px solid #d1d5db', color: '#111827' }} />
+                                  style={{ border: '1px solid #d1d5db', color: '#1e293b' }} />
                                 <button type="button" onClick={() => setShowNewPass(s => !s)} className="absolute right-3 top-2.5">
                                   {showNewPass ? <EyeOff size={16} style={{ color: '#9ca3af' }} /> : <Eye size={16} style={{ color: '#9ca3af' }} />}
                                 </button>
@@ -567,7 +567,7 @@ export default function ParceirosPage() {
                             </div>
                             <button onClick={alterarPassword} disabled={passLoading || !newPass}
                               className="flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
-                              style={{ background: '#4338ca' }}>
+                              style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                               <KeyRound size={15} />{passLoading ? 'A alterar...' : 'Alterar Password'}
                             </button>
                           </div>

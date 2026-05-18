@@ -92,12 +92,12 @@ export default function LoginPage() {
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 3, display: 'flex', flexDirection: 'column', padding: '40px' }}>
           {/* Logo topo esquerdo */}
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-xl overflow-hidden flex-shrink-0 shadow-lg" style={{ border: '2px solid rgba(255,255,255,0.2)' }}>
-              <Image src="/logo-solucoes.jpg" alt="Soluções Diferentes" width={48} height={48} className="object-cover h-full w-full" />
+            <div className="h-14 w-14 rounded-xl overflow-hidden flex-shrink-0 shadow-lg" style={{ border: '2px solid rgba(255,255,255,0.2)' }}>
+              <Image src="/logo.jpg" alt="Soluções Diferentes" width={56} height={56} className="object-cover h-full w-full" />
             </div>
             <div>
-              <p className="text-white font-bold text-base leading-tight">Soluções Diferentes</p>
-              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.65)' }}>Telecomunicações & Energia</p>
+              <p className="text-white font-bold text-lg leading-tight">Soluções Diferentes</p>
+              <p className="text-sm" style={{ color: 'rgba(255,255,255,0.65)' }}>Telecomunicações & Energia</p>
             </div>
           </div>
 
@@ -145,21 +145,21 @@ export default function LoginPage() {
           {/* Branding mobile (so visivel sem o painel esquerdo) */}
           <div className="mb-8 flex flex-col items-center lg:items-start">
             <div className="flex items-center gap-3 mb-1">
-              <div className="h-12 w-12 rounded-xl overflow-hidden flex-shrink-0 shadow-md lg:hidden">
-                <Image src="/logo-solucoes.jpg" alt="Soluções Diferentes" width={48} height={48} className="object-cover h-full w-full" />
+              <div className="h-14 w-14 rounded-xl overflow-hidden flex-shrink-0 shadow-md lg:hidden">
+                <Image src="/logo.jpg" alt="Soluções Diferentes" width={56} height={56} className="object-cover h-full w-full" />
               </div>
               <div>
                 <h1 className="text-xl font-bold" style={{ color: '#0f172a' }}>
                   Soluções Diferentes
                 </h1>
-                <p className="text-xs" style={{ color: '#6b7280' }}>Telecomunicações & Energia</p>
+                <p className="text-xs" style={{ color: '#64748b' }}>Telecomunicações & Energia</p>
               </div>
             </div>
           </div>
 
           <div className="mb-6">
             <h2 className="text-2xl font-bold" style={{ color: '#0f172a' }}>Bem-vindo</h2>
-            <p className="mt-1 text-sm" style={{ color: '#6b7280' }}>Entre na sua conta para continuar</p>
+            <p className="mt-1 text-sm" style={{ color: '#64748b' }}>Entre na sua conta para continuar</p>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -170,7 +170,7 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium" style={{ color: '#374151' }}>Email</label>
+              <label className="mb-1.5 block text-sm font-medium" style={{ color: '#475569' }}>Email</label>
               <input
                 type="email"
                 value={email}
@@ -179,12 +179,12 @@ export default function LoginPage() {
                 autoComplete="email"
                 placeholder="o-seu@email.com"
                 className="w-full rounded-xl px-4 py-3 text-sm outline-none transition focus:ring-2"
-                style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', color: '#111827' }}
+                style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', color: '#1e293b' }}
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium" style={{ color: '#374151' }}>Password</label>
+              <label className="mb-1.5 block text-sm font-medium" style={{ color: '#475569' }}>Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -194,7 +194,7 @@ export default function LoginPage() {
                   autoComplete="current-password"
                   placeholder="••••••••"
                   className="w-full rounded-xl px-4 py-3 pr-11 text-sm outline-none transition focus:ring-2"
-                  style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', color: '#111827' }}
+                  style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', color: '#1e293b' }}
                 />
                 <button
                   type="button"
@@ -211,17 +211,16 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-1 w-full rounded-xl py-3 font-semibold text-white transition disabled:opacity-60"
-              style={{ background: '#1e3a5f' }}
+              className="mt-2 w-full rounded-xl py-3.5 font-semibold text-white transition-all shadow-lg hover:shadow-xl disabled:opacity-60"
+              style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}
             >
               {loading ? 'A entrar...' : 'Entrar'}
             </button>
           </form>
 
-          {/* MyPoupar+ badge */}
-          <div className="mt-8 flex items-center justify-center gap-2 rounded-xl py-3 px-4" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
-            <Image src="/logo-mypoupar.png" alt="MyPoupar+" width={24} height={24} className="object-contain" />
-            <span className="text-xs font-medium" style={{ color: '#166534' }}>Powered by MyPoupar+</span>
+          {/* Badge */}
+          <div className="mt-8 flex items-center justify-center gap-2 rounded-xl py-3 px-4" style={{ background: '#f0f9ff', border: '1px solid #bae6fd' }}>
+            <span className="text-xs font-medium" style={{ color: '#0369a1' }}>Plataforma CRM Soluções Diferentes</span>
           </div>
 
           <p className="mt-4 text-center text-xs" style={{ color: '#9ca3af' }}>
@@ -230,7 +229,7 @@ export default function LoginPage() {
 
           <p className="mt-3 text-center text-xs" style={{ color: '#9ca3af' }}>
             Ao aceder esta plataforma está a aceitar a nossa{' '}
-            <a href="/rgpd" className="underline hover:opacity-80 transition" style={{ color: '#4338ca' }}>
+            <a href="/rgpd" className="underline hover:opacity-80 transition" style={{ color: '#0ea5e9' }}>
               Política de Privacidade e Cookies
             </a>
           </p>

@@ -50,8 +50,8 @@ export default function DashboardPage() {
 
   if (authLoading || dataLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}>
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} />
+      <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
       </div>
     )
   }
@@ -67,10 +67,10 @@ export default function DashboardPage() {
   const saldoFinal = comissaoBruta - totalChargebacks
 
   const metrics = [
-    { label: 'Comissao Bruta', value: `\u20AC${comissaoBruta.toFixed(2)}`, icon: DollarSign, color: '#059669', bg: '#d1fae5' },
-    { label: 'Chargebacks', value: `-\u20AC${totalChargebacks.toFixed(2)}`, icon: Calculator, color: '#dc2626', bg: '#fee2e2' },
-    { label: 'Saldo Liquido', value: `\u20AC${saldoFinal.toFixed(2)}`, icon: TrendingUp, color: '#7c3aed', bg: '#ede9fe' },
-    { label: 'Vendas', value: vendas.length, icon: Clock, color: '#4f46e5', bg: '#e0e7ff' },
+    { label: 'Comissao Bruta', value: `\u20AC${comissaoBruta.toFixed(2)}`, icon: DollarSign, color: '#0ea5e9', bg: '#e0f2fe' },
+    { label: 'Chargebacks', value: `-\u20AC${totalChargebacks.toFixed(2)}`, icon: Calculator, color: '#ef4444', bg: '#fee2e2' },
+    { label: 'Saldo Liquido', value: `\u20AC${saldoFinal.toFixed(2)}`, icon: TrendingUp, color: '#22c55e', bg: '#dcfce7' },
+    { label: 'Vendas', value: vendas.length, icon: Clock, color: '#f97316', bg: '#ffedd5' },
   ]
 
   const statusStyles: Record<string, { bg: string; color: string }> = {
@@ -82,28 +82,28 @@ export default function DashboardPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="parceiro" />
-        <main className="flex-1 md:ml-64 pt-16" style={{ minHeight: '100vh' }}>
+        <main className="flex-1 md:ml-64 pt-14 md:pt-16" style={{ minHeight: '100vh' }}>
           <div className="p-4 md:p-8">
             {/* Mensagem Motivacional */}
             {mensagemDia && (
-              <div className="mb-6 rounded-xl p-5 shadow-sm" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', border: 'none' }}>
+              <div className="mb-6 rounded-2xl p-6 shadow-lg" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 text-3xl">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style={{ background: 'rgba(255,255,255,0.2)' }}>
                     {new Date().getHours() < 12 ? '☀️' : new Date().getHours() < 18 ? '🌤️' : '🌙'}
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-white/80 mb-1">
+                    <p className="text-sm font-medium mb-1" style={{ color: 'rgba(255,255,255,0.8)' }}>
                       {new Date().getHours() < 12 ? 'Bom dia' : new Date().getHours() < 18 ? 'Boa tarde' : 'Boa noite'}, {user?.full_name?.split(' ')[0]}!
                     </p>
                     <p className="text-lg font-semibold text-white leading-relaxed">
                       {`"${mensagemDia.mensagem}"`}
                     </p>
                     {mensagemDia.autor && (
-                      <p className="mt-2 text-sm text-white/70">— {mensagemDia.autor}</p>
+                      <p className="mt-2 text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>— {mensagemDia.autor}</p>
                     )}
                   </div>
                 </div>
@@ -113,12 +113,12 @@ export default function DashboardPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold" style={{ color: '#111827' }}>Dashboard</h1>
-                <p className="mt-1" style={{ color: '#6b7280' }}>Bem-vindo, {user?.full_name}!</p>
+                <h1 className="text-2xl md:text-3xl font-bold" style={{ color: '#1e293b' }}>Dashboard</h1>
+                <p className="mt-1" style={{ color: '#64748b' }}>Acompanhe o seu desempenho</p>
               </div>
               <Link href="/vendas/novo">
-                <button className="flex items-center gap-2 rounded-lg px-5 py-2.5 font-medium text-white" style={{ background: '#4f46e5' }}>
-                  <Plus size={18} /> Nova Venda
+                <button className="flex items-center gap-2 rounded-xl px-6 py-3 font-semibold text-white shadow-lg transition-all hover:shadow-xl" style={{ background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)' }}>
+                  <Plus size={20} /> Nova Venda
                 </button>
               </Link>
             </div>
@@ -126,57 +126,61 @@ export default function DashboardPage() {
             {/* Metrics */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               {metrics.map((m) => (
-                <div key={m.label} className="rounded-xl p-5 shadow-sm" style={{ background: '#ffffff', border: '1px solid #e5e7eb' }}>
+                <div key={m.label} className="rounded-2xl p-5 shadow-sm transition-all hover:shadow-md" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ background: m.bg }}>
-                      <m.icon size={20} style={{ color: m.color }} />
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl" style={{ background: m.bg }}>
+                      <m.icon size={22} style={{ color: m.color }} />
                     </div>
                   </div>
-                  <p className="text-2xl font-bold" style={{ color: '#111827' }}>{m.value}</p>
-                  <p className="text-sm mt-1" style={{ color: '#6b7280' }}>{m.label}</p>
+                  <p className="text-2xl font-bold" style={{ color: '#1e293b' }}>{m.value}</p>
+                  <p className="text-sm mt-1" style={{ color: '#64748b' }}>{m.label}</p>
                 </div>
               ))}
             </div>
 
             {/* Vendas */}
-            <div className="rounded-xl shadow-sm" style={{ background: '#ffffff', border: '1px solid #e5e7eb' }}>
-              <div className="p-5" style={{ borderBottom: '1px solid #e5e7eb' }}>
-                <h2 className="text-lg font-bold" style={{ color: '#111827' }}>Vendas Recentes</h2>
+            <div className="rounded-2xl shadow-sm" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
+              <div className="p-5 flex items-center justify-between" style={{ borderBottom: '1px solid #e2e8f0' }}>
+                <h2 className="text-lg font-bold" style={{ color: '#1e293b' }}>Vendas Recentes</h2>
+                <Link href="/vendas" className="text-sm font-medium transition-colors hover:opacity-80" style={{ color: '#0ea5e9' }}>Ver todas</Link>
               </div>
               {vendas.length === 0 ? (
                 <div className="p-12 text-center">
-                  <p className="mb-4" style={{ color: '#6b7280' }}>Nenhuma venda registrada ainda.</p>
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: '#f1f5f9' }}>
+                    <Clock size={32} style={{ color: '#94a3b8' }} />
+                  </div>
+                  <p className="mb-4 text-lg" style={{ color: '#64748b' }}>Nenhuma venda registrada ainda.</p>
                   <Link href="/vendas/novo">
-                    <button className="rounded-lg px-5 py-2 text-sm font-medium text-white" style={{ background: '#4f46e5' }}>Registar Primeira Venda</button>
+                    <button className="rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-lg" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>Registar Primeira Venda</button>
                   </Link>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                        <th className="px-5 py-3 text-left text-sm font-semibold" style={{ color: '#374151' }}>Cliente</th>
-                        <th className="px-5 py-3 text-left text-sm font-semibold" style={{ color: '#374151' }}>Valor</th>
-                        <th className="px-5 py-3 text-left text-sm font-semibold" style={{ color: '#374151' }}>Estado</th>
-                        <th className="hidden sm:table-cell px-5 py-3 text-left text-sm font-semibold" style={{ color: '#374151' }}>Data</th>
+                      <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>Cliente</th>
+                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>Valor</th>
+                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>Estado</th>
+                        <th className="hidden sm:table-cell px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>Data</th>
                       </tr>
                     </thead>
                     <tbody>
                       {vendas.slice(0, 10).map((v) => {
                         const st = statusStyles[v.status] || statusStyles.pendente
                         return (
-                          <tr key={v.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                          <tr key={v.id} className="transition-colors hover:bg-slate-50" style={{ borderBottom: '1px solid #f1f5f9' }}>
                             <td className="px-5 py-4">
-                              <p className="font-medium text-sm" style={{ color: '#111827' }}>{v.client_name}</p>
-                              <p className="text-xs" style={{ color: '#6b7280' }}>{v.client_email}</p>
+                              <p className="font-semibold text-sm" style={{ color: '#1e293b' }}>{v.client_name}</p>
+                              <p className="text-xs" style={{ color: '#64748b' }}>{v.client_email}</p>
                             </td>
-                            <td className="px-5 py-4 font-semibold text-sm" style={{ color: '#111827' }}>{'\u20AC'}{v.amount?.toFixed(2)}</td>
+                            <td className="px-5 py-4 font-bold text-sm" style={{ color: '#0ea5e9' }}>{'\u20AC'}{v.amount?.toFixed(2)}</td>
                             <td className="px-5 py-4">
-                              <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ background: st.bg, color: st.color }}>
+                              <span className="px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: st.bg, color: st.color }}>
                                 {v.status.replace('_', ' ').toUpperCase()}
                               </span>
                             </td>
-                            <td className="hidden sm:table-cell px-5 py-4 text-sm" style={{ color: '#6b7280' }}>
+                            <td className="hidden sm:table-cell px-5 py-4 text-sm" style={{ color: '#64748b' }}>
                               {new Date(v.created_at).toLocaleDateString('pt-PT')}
                             </td>
                           </tr>

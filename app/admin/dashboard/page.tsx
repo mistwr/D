@@ -45,7 +45,7 @@ export default function AdminDashboardPage() {
   }, [user])
 
   if (authLoading || dataLoading) {
-    return <div className="flex items-center justify-center min-h-screen" style={{ background: '#f3f4f6' }}><div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4f46e5' }} /></div>
+    return <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}><div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} /></div>
   }
 
   if (!user) return <div>Erro de autenticação</div>
@@ -76,14 +76,14 @@ export default function AdminDashboardPage() {
   const parceiros = new Set(vendas.map(v => v.parceiro_name)).size
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" />
         <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-8">
-            <h1 className="text-3xl font-bold mb-1" style={{ color: '#111827' }}>Painel Admin</h1>
-            <p className="mb-8 text-sm" style={{ color: '#6b7280' }}>Visao geral de todas as vendas</p>
+            <h1 className="text-3xl font-bold mb-1" style={{ color: '#1e293b' }}>Painel Admin</h1>
+            <p className="mb-8 text-sm" style={{ color: '#64748b' }}>Visao geral de todas as vendas</p>
 
             {/* Metricas */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -93,18 +93,18 @@ export default function AdminDashboardPage() {
                 { label: 'Parceiros', value: parceiros,                icon: Users,       color: '#0891b2', bg: '#cffafe' },
                 { label: 'Pendentes', value: pendentes,                icon: Clock,       color: '#d97706', bg: '#fef3c7' },
               ].map(m => (
-                <div key={m.label} className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                <div key={m.label} className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg mb-3" style={{ background: m.bg }}>
                     <m.icon size={20} style={{ color: m.color }} />
                   </div>
-                  <p className="text-2xl font-bold" style={{ color: '#111827' }}>{m.value}</p>
-                  <p className="text-sm mt-1" style={{ color: '#6b7280' }}>{m.label}</p>
+                  <p className="text-2xl font-bold" style={{ color: '#1e293b' }}>{m.value}</p>
+                  <p className="text-sm mt-1" style={{ color: '#64748b' }}>{m.label}</p>
                 </div>
               ))}
             </div>
 
             {/* Filtros */}
-            <div className="rounded-xl p-4 mb-5 flex flex-wrap gap-3" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+            <div className="rounded-xl p-4 mb-5 flex flex-wrap gap-3" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
               <div className="relative flex-1 min-w-48">
                 <Search size={16} className="absolute left-3 top-3" style={{ color: '#9ca3af' }} />
                 <input
@@ -112,14 +112,14 @@ export default function AdminDashboardPage() {
                   onChange={e => setSearch(e.target.value)}
                   placeholder="Pesquisar por cliente ou NIF..."
                   className="w-full pl-9 pr-4 py-2.5 rounded-lg text-sm outline-none"
-                  style={{ border: '1px solid #d1d5db', color: '#111827' }}
+                  style={{ border: '1px solid #d1d5db', color: '#1e293b' }}
                 />
               </div>
               <select
                 value={filterParceiro}
                 onChange={e => setFilterParceiro(e.target.value)}
                 className="rounded-lg px-3 py-2.5 text-sm outline-none"
-                style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}
+                style={{ border: '1px solid #d1d5db', color: '#1e293b', background: '#fff' }}
               >
                 <option value="">Todos os parceiros</option>
                 {parceirosUnicos.map(p => <option key={p} value={p}>{p}</option>)}
@@ -128,7 +128,7 @@ export default function AdminDashboardPage() {
                 value={filterStatus}
                 onChange={e => setFilterStatus(e.target.value)}
                 className="rounded-lg px-3 py-2.5 text-sm outline-none"
-                style={{ border: '1px solid #d1d5db', color: '#111827', background: '#fff' }}
+                style={{ border: '1px solid #d1d5db', color: '#1e293b', background: '#fff' }}
               >
                 <option value="">Todos os estados</option>
                 {Object.entries(ST).map(([k, s]) => <option key={k} value={k}>{s.label}</option>)}
@@ -145,9 +145,9 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Tabela */}
-            <div className="rounded-xl shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-              <div className="flex items-center justify-between px-5 py-3" style={{ borderBottom: '1px solid #e5e7eb' }}>
-                <p className="text-sm font-medium" style={{ color: '#374151' }}>{filtered.length} resultado{filtered.length !== 1 ? 's' : ''}</p>
+            <div className="rounded-xl shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+              <div className="flex items-center justify-between px-5 py-3" style={{ borderBottom: '1px solid #e2e8f0' }}>
+                <p className="text-sm font-medium" style={{ color: '#475569' }}>{filtered.length} resultado{filtered.length !== 1 ? 's' : ''}</p>
                 <p className="text-sm font-semibold" style={{ color: '#4f46e5' }}>
                   Total filtrado: €{filtered.reduce((s, v) => s + (v.amount || 0), 0).toFixed(2)}
                 </p>
@@ -157,7 +157,7 @@ export default function AdminDashboardPage() {
                   <thead style={{ background: '#f9fafb' }}>
                     <tr>
                       {['Cliente / NIF', 'Parceiro', 'Valor', 'Estado', 'Data'].map(h => (
-                        <th key={h} className="px-4 py-3 text-left font-medium" style={{ color: '#374151' }}>{h}</th>
+                        <th key={h} className="px-4 py-3 text-left font-medium" style={{ color: '#475569' }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -172,11 +172,11 @@ export default function AdminDashboardPage() {
                       filtered.map(v => (
                         <tr key={v.id} style={{ borderTop: '1px solid #e5e7eb' }}>
                           <td className="px-4 py-3">
-                            <p className="font-medium" style={{ color: '#111827' }}>{v.client_name}</p>
-                            {v.client_nif && <p className="text-xs font-mono mt-0.5" style={{ color: '#6b7280' }}>NIF: {v.client_nif}</p>}
+                            <p className="font-medium" style={{ color: '#1e293b' }}>{v.client_name}</p>
+                            {v.client_nif && <p className="text-xs font-mono mt-0.5" style={{ color: '#64748b' }}>NIF: {v.client_nif}</p>}
                           </td>
-                          <td className="px-4 py-3" style={{ color: '#6b7280' }}>{v.parceiro_name}</td>
-                          <td className="px-4 py-3 font-semibold" style={{ color: '#111827' }}>€{(v.amount || 0).toFixed(2)}</td>
+                          <td className="px-4 py-3" style={{ color: '#64748b' }}>{v.parceiro_name}</td>
+                          <td className="px-4 py-3 font-semibold" style={{ color: '#1e293b' }}>€{(v.amount || 0).toFixed(2)}</td>
                           <td className="px-4 py-3">
                             <select
                               onChange={e => changeStatus(v.id, e.target.value)}
@@ -191,7 +191,7 @@ export default function AdminDashboardPage() {
                               {Object.entries(ST).map(([k, s]) => <option key={k} value={k}>{s.label}</option>)}
                             </select>
                           </td>
-                          <td className="px-4 py-3" style={{ color: '#6b7280' }}>
+                          <td className="px-4 py-3" style={{ color: '#64748b' }}>
                             {new Date(v.created_at).toLocaleDateString('pt-PT')}
                           </td>
                         </tr>

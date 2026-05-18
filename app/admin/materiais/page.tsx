@@ -23,7 +23,7 @@ const TIPOS = [
 ]
 
 const TIPO_META: Record<string, { label: string; color: string; bg: string; icon: React.ElementType }> = {
-  fa:           { label: 'FA',            color: '#4338ca', bg: '#eef2ff', icon: ClipboardList },
+  fa:           { label: 'FA',            color: '#0ea5e9', bg: '#eef2ff', icon: ClipboardList },
   portabilidade:{ label: 'Portabilidade', color: '#2563eb', bg: '#eff6ff', icon: Wifi },
   apoio:        { label: 'Apoio',         color: '#16a34a', bg: '#f0fdf4', icon: FolderOpen },
   energia:      { label: 'Energia',       color: '#d97706', bg: '#fef3c7', icon: Zap },
@@ -131,7 +131,7 @@ export default function MateriaisAdminPage() {
     setCategorias(prev => prev.map(c => c.id === categoriaId ? { ...c, file_count: Math.max(0, (c.file_count ?? 1) - 1) } : c))
   }
 
-  const inputStyle = { background: '#fff', border: '1px solid #d1d5db', color: '#111827' }
+  const inputStyle = { background: '#fff', border: '1px solid #d1d5db', color: '#1e293b' }
 
   if (authLoading || loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8f9fb' }}>
@@ -158,16 +158,16 @@ export default function MateriaisAdminPage() {
             <div className="flex justify-between items-center mb-8">
               <div className="flex items-center gap-3">
                 <div className="rounded-xl p-2.5" style={{ background: '#eef2ff' }}>
-                  <FolderOpen size={24} style={{ color: '#4338ca' }} />
+                  <FolderOpen size={24} style={{ color: '#0ea5e9' }} />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold" style={{ color: '#111827' }}>{"FA's e Material de Apoio"}</h1>
-                  <p className="text-sm" style={{ color: '#6b7280' }}>Gerir formulários, portabilidade e materiais</p>
+                  <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>{"FA's e Material de Apoio"}</h1>
+                  <p className="text-sm" style={{ color: '#64748b' }}>Gerir formulários, portabilidade e materiais</p>
                 </div>
               </div>
               <button onClick={() => setShowForm(!showForm)}
                 className="flex items-center gap-2 rounded-lg px-4 py-2.5 font-medium text-white text-sm"
-                style={{ background: '#4338ca' }}>
+                style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                 {showForm ? <X size={16} /> : <Plus size={16} />}
                 {showForm ? 'Cancelar' : 'Nova Categoria'}
               </button>
@@ -175,16 +175,16 @@ export default function MateriaisAdminPage() {
 
             {/* Formulário criar categoria */}
             {showForm && (
-              <form onSubmit={handleCreate} className="rounded-xl p-6 shadow-sm mb-6" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
-                <h2 className="font-semibold mb-5" style={{ color: '#111827' }}>Nova Categoria de Material</h2>
+              <form onSubmit={handleCreate} className="rounded-xl p-6 shadow-sm mb-6" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                <h2 className="font-semibold mb-5" style={{ color: '#1e293b' }}>Nova Categoria de Material</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                   <div className="lg:col-span-2">
-                    <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Título *</label>
+                    <label className="mb-1 block text-sm font-medium" style={{ color: '#475569' }}>Título *</label>
                     <input type="text" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} required
                       className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={inputStyle} placeholder="Ex: FA MEO Fibra, Portabilidade Móvel..." />
                   </div>
                   <div>
-                    <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Tipo *</label>
+                    <label className="mb-1 block text-sm font-medium" style={{ color: '#475569' }}>Tipo *</label>
                     <select value={form.tipo} onChange={e => setForm(f => ({ ...f, tipo: e.target.value }))}
                       className="w-full rounded-lg px-4 py-2.5 text-sm outline-none" style={inputStyle}>
                       {TIPOS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
@@ -192,21 +192,21 @@ export default function MateriaisAdminPage() {
                   </div>
                 </div>
                 <div className="mb-5">
-                  <label className="mb-1 block text-sm font-medium" style={{ color: '#374151' }}>Descrição</label>
+                  <label className="mb-1 block text-sm font-medium" style={{ color: '#475569' }}>Descrição</label>
                   <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2}
                     className="w-full rounded-lg px-4 py-2.5 text-sm outline-none resize-none" style={inputStyle} placeholder="Detalhes sobre os materiais desta categoria..." />
                 </div>
-                <button type="submit" disabled={saving} className="rounded-lg px-6 py-2.5 text-sm font-medium text-white disabled:opacity-50" style={{ background: '#4338ca' }}>
+                <button type="submit" disabled={saving} className="rounded-lg px-6 py-2.5 text-sm font-medium text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                   {saving ? 'A criar...' : 'Criar Categoria'}
                 </button>
               </form>
             )}
 
             {categorias.length === 0 && !showForm ? (
-              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <FolderOpen size={48} style={{ color: '#d1d5db' }} className="mx-auto mb-4" />
-                <p className="text-lg font-medium" style={{ color: '#374151' }}>Nenhuma categoria criada</p>
-                <p className="text-sm" style={{ color: '#6b7280' }}>Crie a primeira categoria para organizar os materiais de apoio.</p>
+                <p className="text-lg font-medium" style={{ color: '#475569' }}>Nenhuma categoria criada</p>
+                <p className="text-sm" style={{ color: '#64748b' }}>Crie a primeira categoria para organizar os materiais de apoio.</p>
               </div>
             ) : (
               <div className="flex flex-col gap-4">
@@ -216,7 +216,7 @@ export default function MateriaisAdminPage() {
                   const tipoMeta = TIPO_META[c.tipo] ?? TIPO_META['apoio']
                   const TipoIcon = tipoMeta.icon
                   return (
-                    <div key={c.id} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e5e7eb' }}>
+                    <div key={c.id} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                       {/* Cabeçalho */}
                       <div className="p-5 flex items-center gap-4">
                         <div className="h-14 w-14 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0"
@@ -227,10 +227,10 @@ export default function MateriaisAdminPage() {
                         {/* Info */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <h3 className="font-bold text-sm" style={{ color: '#111827' }}>{c.title}</h3>
+                            <h3 className="font-bold text-sm" style={{ color: '#1e293b' }}>{c.title}</h3>
                             <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: tipoMeta.bg, color: tipoMeta.color }}>{tipoMeta.label}</span>
                           </div>
-                          {c.description && <p className="text-xs line-clamp-1" style={{ color: '#6b7280' }}>{c.description}</p>}
+                          {c.description && <p className="text-xs line-clamp-1" style={{ color: '#64748b' }}>{c.description}</p>}
                           <p className="text-xs mt-0.5" style={{ color: '#9ca3af' }}>{c.file_count ?? 0} ficheiro{(c.file_count ?? 0) !== 1 ? 's' : ''} &middot; {new Date(c.created_at).toLocaleDateString('pt-PT')}</p>
                         </div>
 
@@ -244,7 +244,7 @@ export default function MateriaisAdminPage() {
                           </button>
 
                           <button onClick={() => toggleExpand(c.id)}
-                            className="rounded-lg p-1.5" style={{ background: '#f3f4f6', color: '#374151' }}>
+                            className="rounded-lg p-1.5" style={{ background: '#f8fafc', color: '#475569' }}>
                             {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                           </button>
 
@@ -259,10 +259,10 @@ export default function MateriaisAdminPage() {
                       {/* Ficheiros expandidos */}
                       {isOpen && (
                         <div className="px-5 pb-5" style={{ borderTop: '1px solid #f3f4f6' }}>
-                          {c.description && <p className="text-sm py-3" style={{ color: '#6b7280' }}>{c.description}</p>}
+                          {c.description && <p className="text-sm py-3" style={{ color: '#64748b' }}>{c.description}</p>}
 
                           <div className="flex items-center justify-between mb-3 pt-2">
-                            <h4 className="text-sm font-semibold" style={{ color: '#374151' }}>
+                            <h4 className="text-sm font-semibold" style={{ color: '#475569' }}>
                               Ficheiros <span style={{ color: '#9ca3af' }}>({catFiles.length})</span>
                             </h4>
                             <label className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer text-white"
@@ -278,17 +278,17 @@ export default function MateriaisAdminPage() {
                           {catFiles.length === 0 ? (
                             <div className="rounded-lg p-6 text-center" style={{ background: '#f9fafb', border: '1px dashed #d1d5db' }}>
                               <FileText size={28} style={{ color: '#d1d5db' }} className="mx-auto mb-2" />
-                              <p className="text-sm" style={{ color: '#6b7280' }}>Nenhum ficheiro — PDF, Word, Excel, CSV, imagens</p>
+                              <p className="text-sm" style={{ color: '#64748b' }}>Nenhum ficheiro — PDF, Word, Excel, CSV, imagens</p>
                             </div>
                           ) : (
                             <div className="flex flex-col gap-2">
                               {catFiles.map(f => (
                                 <div key={f.id} className="flex items-center justify-between rounded-lg p-3 gap-3"
-                                  style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                                  style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
                                   <div className="flex items-center gap-2.5 min-w-0">
                                     <FileText size={16} style={{ color: f.file_type === 'image' ? '#0891b2' : f.file_type === 'pdf' ? '#dc2626' : '#6b7280' }} />
                                     <div className="min-w-0">
-                                      <p className="text-sm font-medium truncate" style={{ color: '#111827' }}>{f.file_name}</p>
+                                      <p className="text-sm font-medium truncate" style={{ color: '#1e293b' }}>{f.file_name}</p>
                                       <p className="text-xs" style={{ color: '#9ca3af' }}>{f.file_type.toUpperCase()} &middot; {formatSize(f.file_size)} &middot; {new Date(f.created_at).toLocaleDateString('pt-PT')}</p>
                                     </div>
                                   </div>
