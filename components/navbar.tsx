@@ -74,7 +74,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
             {open ? <X size={22} className="text-white" /> : <Menu size={22} className="text-white" />}
           </button>
           <Image src="/logo.jpg" alt="Logo" width={32} height={32} className="rounded-lg" />
-          <span className="font-semibold text-white text-sm">Solucoes Diferentes</span>
+          <span className="font-semibold text-white text-sm">Soluções Diferentes</span>
         </div>
         {user && (
           <button onClick={handleLogout} className="p-2 rounded-lg" style={{ background: 'rgba(239,68,68,0.2)' }}>
