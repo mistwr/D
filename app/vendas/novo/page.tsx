@@ -49,6 +49,7 @@ export default function NovaVendaPage() {
     client_email: '',
     client_iban: '',
     client_address: '',
+    client_birthdate: '',
     amount: '',
     description: '',
     notes: '',
@@ -126,6 +127,9 @@ export default function NovaVendaPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.client_nif.trim()) { setError('O NIF do cliente e obrigatorio'); return }
+    if (form.service_type === 'energia' && form.operator === 'Iberdrola' && !form.client_birthdate) {
+      setError('A data de nascimento e obrigatoria para Iberdrola'); return
+    }
     setError('')
     setLoading(true)
     try {
@@ -544,6 +548,19 @@ export default function NovaVendaPage() {
                     <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Telefone</label>
                     <input type="tel" value={form.client_phone} onChange={e => update('client_phone', e.target.value)}
                       className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp} placeholder="9XX XXX XXX" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>
+                      Data de Nascimento {form.service_type === 'energia' && form.operator === 'Iberdrola' ? '*' : ''}
+                      {!(form.service_type === 'energia' && form.operator === 'Iberdrola') && (
+                        <span className="font-normal text-xs" style={{ color: '#9ca3af' }}>(opcional)</span>
+                      )}
+                    </label>
+                    <input type="date" value={form.client_birthdate} onChange={e => update('client_birthdate', e.target.value)}
+                      className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp} />
+                    {form.service_type === 'energia' && form.operator === 'Iberdrola' && !form.client_birthdate && (
+                      <p className="mt-1 text-xs" style={{ color: '#d97706' }}>Campo obrigatório para Iberdrola</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>

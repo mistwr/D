@@ -44,9 +44,9 @@ export function Sidebar({ userRole }: SidebarProps) {
     <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 flex-col overflow-y-auto shadow-lg" style={{ background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)' }}>
       {/* Logo */}
       <div className="p-5 flex items-center gap-3 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-        <Image src="/logo.jpg" alt="Solucoes Diferentes" width={48} height={48} className="rounded-lg" />
+        <Image src="/logo.jpg" alt="Soluções Diferentes" width={48} height={48} className="rounded-lg" />
         <div>
-          <p className="font-bold text-white text-sm leading-tight">Solucoes</p>
+          <p className="font-bold text-white text-sm leading-tight">Soluções</p>
           <p className="font-bold text-sm leading-tight" style={{ color: '#22c55e' }}>Diferentes</p>
         </div>
       </div>
@@ -87,7 +87,7 @@ export function Sidebar({ userRole }: SidebarProps) {
 
       {/* Footer */}
       <div className="p-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-        <p className="text-xs text-center" style={{ color: '#64748b' }}>Telecomunicacoes & Energia</p>
+        <p className="text-xs text-center" style={{ color: '#64748b' }}>Telecomunicações & Energia</p>
       </div>
     </aside>
   )
