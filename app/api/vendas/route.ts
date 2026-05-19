@@ -15,13 +15,30 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
   const service = svc()
-  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
+  const { data: profile } = await service.from('profiles').select('role, is_superadmin').eq('id', user.id).single()
+  const isSuperAdmin = profile?.is_superadmin === true
   const isAdmin = profile?.role === 'admin'
+  const isAdminVIP = isAdmin && !isSuperAdmin
   const sp = req.nextUrl.searchParams
+
+  // Obter IDs dos parceiros que este admin pode ver
+  let allowedParceiroIds: string[] = []
+  if (isAdminVIP) {
+    // Admin VIP só vê parceiros que ele criou
+    const { data: meusParceiros } = await service.from('profiles').select('id').eq('created_by', user.id)
+    allowedParceiroIds = meusParceiros?.map(p => p.id) || []
+  }
 
   // Listar parceiros
   if (sp.get('parceiros') === '1' && isAdmin) {
-    const { data } = await service.from('profiles').select('id, full_name, company_name').eq('role', 'parceiro').order('full_name')
+    let query = service.from('profiles').select('id, full_name, company_name').eq('role', 'parceiro')
+    
+    // Admin VIP só vê parceiros que criou
+    if (isAdminVIP) {
+      query = query.eq('created_by', user.id)
+    }
+    
+    const { data } = await query.order('full_name')
     const { data: authUsers } = await service.auth.admin.listUsers()
     const emailMap: Record<string, string> = {}
     authUsers?.users?.forEach(u => { emailMap[u.id] = u.email ?? '' })
@@ -32,7 +49,15 @@ export async function GET(req: NextRequest) {
   // Métricas
   if (sp.get('metrics') === '1') {
     let query = service.from('vendas').select('amount, status, service_type')
-    if (!isAdmin) query = query.eq('user_id', user.id)
+    if (!isAdmin) {
+      query = query.eq('user_id', user.id)
+    } else if (isAdminVIP && allowedParceiroIds.length > 0) {
+      // Admin VIP só vê métricas dos seus parceiros
+      query = query.in('user_id', allowedParceiroIds)
+    } else if (isAdminVIP && allowedParceiroIds.length === 0) {
+      // Admin VIP sem parceiros - retorna zeros
+      return NextResponse.json({ total: 0, count: 0, pendentes: 0, pagas: 0 })
+    }
     const { data: vendas } = await query
     const total = vendas?.reduce((s, v) => s + (v.amount || 0), 0) ?? 0
     const count = vendas?.length ?? 0
@@ -46,14 +71,23 @@ export async function GET(req: NextRequest) {
   if (vendaId) {
     const { data: venda } = await service.from('vendas').select('*').eq('id', vendaId).single()
     if (!venda) return NextResponse.json({ error: 'Nao encontrada' }, { status: 404 })
+    // Verificar permissão
     if (!isAdmin && venda.user_id !== user.id) return NextResponse.json({ error: 'Sem permissao' }, { status: 403 })
+    if (isAdminVIP && !allowedParceiroIds.includes(venda.user_id)) return NextResponse.json({ error: 'Sem permissao' }, { status: 403 })
+    
     const { data: parceiro } = await service.from('profiles').select('full_name').eq('id', venda.user_id).single()
     return NextResponse.json({ venda, parceiro })
   }
 
   // Todas as vendas
   let query = service.from('vendas').select('*').order('created_at', { ascending: false })
-  if (!isAdmin) query = query.eq('user_id', user.id)
+  if (!isAdmin) {
+    query = query.eq('user_id', user.id)
+  } else if (isAdminVIP && allowedParceiroIds.length > 0) {
+    query = query.in('user_id', allowedParceiroIds)
+  } else if (isAdminVIP && allowedParceiroIds.length === 0) {
+    return NextResponse.json({ vendas: [] })
+  }
   const { data: vendas, error: vendasError } = await query
   if (vendasError) return NextResponse.json({ error: vendasError.message }, { status: 500 })
 
@@ -122,11 +156,26 @@ export async function DELETE(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
   const service = svc()
-  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Sem permissao' }, { status: 403 })
+  const { data: profile } = await service.from('profiles').select('role, is_superadmin').eq('id', user.id).single()
+  const isSuperAdmin = profile?.is_superadmin === true
+  const isAdmin = profile?.role === 'admin'
+  const isAdminVIP = isAdmin && !isSuperAdmin
+  
+  if (!isAdmin) return NextResponse.json({ error: 'Sem permissao' }, { status: 403 })
 
   const { id } = await req.json()
   if (!id) return NextResponse.json({ error: 'id obrigatorio' }, { status: 400 })
+
+  // Admin VIP só pode apagar vendas dos seus parceiros
+  if (isAdminVIP) {
+    const { data: venda } = await service.from('vendas').select('user_id').eq('id', id).single()
+    if (venda) {
+      const { data: parceiro } = await service.from('profiles').select('created_by').eq('id', venda.user_id).single()
+      if (parceiro?.created_by !== user.id) {
+        return NextResponse.json({ error: 'Sem permissao para apagar esta venda' }, { status: 403 })
+      }
+    }
+  }
 
   const { data: docs } = await service.from('documentos').select('id, file_path').eq('venda_id', id)
   if (docs && docs.length > 0) {
@@ -147,12 +196,24 @@ export async function PATCH(req: NextRequest) {
 
   const service = svc()
   const { id, status, ...rest } = await req.json()
-  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
+  const { data: profile } = await service.from('profiles').select('role, is_superadmin').eq('id', user.id).single()
+  const isSuperAdmin = profile?.is_superadmin === true
   const isAdmin = profile?.role === 'admin'
+  const isAdminVIP = isAdmin && !isSuperAdmin
 
   const { data: venda } = await service.from('vendas').select('user_id').eq('id', id).single()
   if (!venda) return NextResponse.json({ error: 'Nao encontrada' }, { status: 404 })
+  
+  // Verificar permissões
   if (!isAdmin && venda.user_id !== user.id) return NextResponse.json({ error: 'Sem permissao' }, { status: 403 })
+  
+  // Admin VIP só pode editar vendas dos seus parceiros
+  if (isAdminVIP) {
+    const { data: parceiro } = await service.from('profiles').select('created_by').eq('id', venda.user_id).single()
+    if (parceiro?.created_by !== user.id) {
+      return NextResponse.json({ error: 'Sem permissao para editar esta venda' }, { status: 403 })
+    }
+  }
 
   const updates: any = { updated_at: new Date().toISOString() }
   if (status) updates.status = status

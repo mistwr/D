@@ -10,6 +10,7 @@ export interface AuthUser {
   role: 'admin' | 'parceiro'
   full_name: string
   company_name: string | null
+  is_superadmin: boolean
 }
 
 export function useAuth(requiredRole?: 'admin' | 'parceiro') {
@@ -32,7 +33,7 @@ export function useAuth(requiredRole?: 'admin' | 'parceiro') {
 
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role, full_name, company_name, phone')
+          .select('role, full_name, company_name, phone, is_superadmin')
           .eq('id', session.user.id)
           .single()
 
@@ -44,6 +45,7 @@ export function useAuth(requiredRole?: 'admin' | 'parceiro') {
           role: (profile?.role ?? 'parceiro') as 'admin' | 'parceiro',
           full_name: profile?.full_name ?? '',
           company_name: profile?.company_name ?? null,
+          is_superadmin: profile?.is_superadmin ?? false,
         }
 
         if (requiredRole && authUser.role !== requiredRole) {

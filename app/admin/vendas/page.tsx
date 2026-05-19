@@ -447,7 +447,7 @@ export default function AdminVendasPage() {
     <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
-        <Sidebar userRole="admin" />
+        <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
         <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-6">
             <div className="flex items-center gap-3 mb-5">

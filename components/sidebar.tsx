@@ -5,9 +5,9 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2, Target, Crown } from 'lucide-react'
 
-interface SidebarProps { userRole: string }
+interface SidebarProps { userRole: string; isSuperAdmin?: boolean }
 
-export function Sidebar({ userRole }: SidebarProps) {
+export function Sidebar({ userRole, isSuperAdmin = false }: SidebarProps) {
   const pathname = usePathname()
 
   const parceiroLinks = [
@@ -23,10 +23,10 @@ export function Sidebar({ userRole }: SidebarProps) {
     { href: '/simulador', label: 'Simulador', icon: Calculator },
   ]
 
-  const adminLinks = [
+  // Links basicos para todos os admins (incluindo VIP)
+  const adminBaseLinks = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/parceiros', label: 'Parceiros', icon: Users },
-    { href: '/admin/admins-vip', label: 'Admins VIP', icon: Crown },
     { href: '/admin/vendas', label: 'Vendas', icon: ShoppingCart },
     { href: '/admin/chargebacks', label: 'Chargebacks', icon: AlertTriangle },
     { href: '/admin/campanhas', label: 'Campanhas', icon: Megaphone },
@@ -34,6 +34,11 @@ export function Sidebar({ userRole }: SidebarProps) {
     { href: '/admin/publicacoes', label: 'Publicacoes', icon: Newspaper },
     { href: '/admin/comissoes', label: 'Comissoes', icon: Percent },
     { href: '/admin/contratos', label: 'Contratos', icon: FileCheck },
+  ]
+
+  // Links exclusivos para SuperAdmin
+  const superAdminLinks = [
+    { href: '/admin/admins-vip', label: 'Admins VIP', icon: Crown },
     { href: '/admin/documentos', label: 'Documentos', icon: Upload },
     { href: '/admin/import', label: 'Import / Export', icon: FileSpreadsheet },
     { href: '/admin/passwords', label: 'Passwords', icon: KeyRound },
@@ -44,6 +49,11 @@ export function Sidebar({ userRole }: SidebarProps) {
     { href: '/admin/permissoes', label: 'Permissoes', icon: Shield },
     { href: '/admin/unidades', label: 'Unidades/Franquias', icon: Building2 },
   ]
+
+  // Admin VIP só vê links básicos, SuperAdmin vê todos
+  const adminLinks = isSuperAdmin 
+    ? [...adminBaseLinks, ...superAdminLinks]
+    : adminBaseLinks
 
   const links = userRole === 'admin' ? adminLinks : parceiroLinks
 
