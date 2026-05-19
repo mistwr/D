@@ -25,8 +25,9 @@ export async function PUT(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
   const service = svc()
-  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
+  const { data: profile } = await service.from('profiles').select('role, is_superadmin').eq('id', user.id).single()
+  const isAdmin = profile?.role === 'admin' || profile?.is_superadmin === true
+  if (!isAdmin) return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const body = await req.json()
   const { cargo_id, permissao, valor } = body
@@ -45,8 +46,9 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
   const service = svc()
-  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
+  const { data: profile } = await service.from('profiles').select('role, is_superadmin').eq('id', user.id).single()
+  const isAdmin = profile?.role === 'admin' || profile?.is_superadmin === true
+  if (!isAdmin) return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const body = await req.json()
   

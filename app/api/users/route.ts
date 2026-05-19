@@ -17,8 +17,9 @@ export async function GET(req: NextRequest) {
   const service = svc()
   
   // Verificar se e admin
-  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
+  const { data: profile } = await service.from('profiles').select('role, is_superadmin').eq('id', user.id).single()
+  const isAdmin = profile?.role === 'admin' || profile?.is_superadmin === true
+  if (!isAdmin) return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   // Buscar todos os utilizadores com os seus perfis
   const { data, error } = await service
@@ -37,8 +38,9 @@ export async function PUT(req: NextRequest) {
   const service = svc()
   
   // Verificar se e admin
-  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
+  const { data: profile } = await service.from('profiles').select('role, is_superadmin').eq('id', user.id).single()
+  const isAdmin = profile?.role === 'admin' || profile?.is_superadmin === true
+  if (!isAdmin) return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const body = await req.json()
   const { id, ...updates } = body
