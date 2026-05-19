@@ -3,7 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { Sidebar } from '@/components/sidebar'
-import { Menu, Plus, Trash2, Search, Crown, Shield, Users, Calendar } from 'lucide-react'
+import { Navbar } from '@/components/navbar'
+import { Plus, Trash2, Search, Crown, Shield, Users, Calendar } from 'lucide-react'
+
+import { useRouter } from 'next/navigation'
 
 interface AdminVIP {
   id: string
@@ -17,8 +20,8 @@ interface AdminVIP {
 }
 
 export default function AdminsVIPPage() {
+  const router = useRouter()
   const { user, authFetch } = useAuth()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [admins, setAdmins] = useState<AdminVIP[]>([])
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
@@ -28,8 +31,15 @@ export default function AdminsVIPPage() {
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    if (user) loadAdmins()
-  }, [user])
+    if (user) {
+      // Apenas superadmins podem ver esta página
+      if (!user.is_superadmin) {
+        router.replace('/admin/dashboard')
+        return
+      }
+      loadAdmins()
+    }
+  }, [user, router])
 
   async function loadAdmins() {
     setLoading(true)
@@ -91,32 +101,24 @@ export default function AdminsVIPPage() {
   )
 
   return (
-    <div className="flex min-h-screen" style={{ background: '#f1f5f9' }}>
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <main className="flex-1 md:ml-72">
-        <header className="sticky top-0 z-30 flex items-center justify-between px-4 py-3 shadow-sm md:px-8" style={{ background: 'white', borderBottom: '1px solid #e2e8f0' }}>
-          <div className="flex items-center gap-3">
-            <button onClick={() => setSidebarOpen(true)} className="md:hidden rounded-lg p-2" style={{ color: '#64748b' }}>
-              <Menu size={24} />
-            </button>
-            <span className="text-sm font-medium" style={{ color: '#64748b' }}>Painel de Administracao</span>
-          </div>
-        </header>
-
-        <div className="p-4 md:p-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3" style={{ color: '#1e293b' }}>
-                <Crown className="text-amber-500" size={28} />
-                Admins VIP
-              </h1>
-              <p className="mt-1" style={{ color: '#64748b' }}>Gerir administradores com poderes independentes</p>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+      <Navbar user={user} />
+      <div className="flex">
+        <Sidebar userRole="admin" isSuperAdmin={true} />
+        <main className="flex-1 md:ml-64 pt-14 md:pt-16" style={{ minHeight: '100vh' }}>
+          <div className="p-4 md:p-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3" style={{ color: '#1e293b' }}>
+                  <Crown className="text-amber-500" size={28} />
+                  Admins VIP
+                </h1>
+                <p className="mt-1" style={{ color: '#64748b' }}>Gerir administradores com poderes independentes</p>
+              </div>
+              <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 rounded-xl px-5 py-2.5 font-semibold text-white shadow-lg" style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' }}>
+                <Plus size={18} /> Novo Admin VIP
+              </button>
             </div>
-            <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 rounded-xl px-5 py-2.5 font-semibold text-white shadow-lg" style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' }}>
-              <Plus size={18} /> Novo Admin VIP
-            </button>
-          </div>
 
           {/* Mensagens */}
           {error && (
@@ -307,6 +309,7 @@ export default function AdminsVIPPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }

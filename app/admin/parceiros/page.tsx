@@ -68,7 +68,7 @@ export default function ParceirosPage() {
     if (!user) return
     async function load() {
       const [p, v] = await Promise.all([
-        authFetch('/api/vendas?parceiros=1').then(r => r.json()),
+        authFetch('/api/parceiros').then(r => r.json()),
         authFetch('/api/vendas').then(r => r.json()),
       ])
       setParceiros(p.parceiros || [])
@@ -127,13 +127,17 @@ export default function ParceirosPage() {
 
   async function apagarParceiro(parceiro: Parceiro) {
     setDeleting(true); setDeleteError('')
-    const res = await authFetch(`/api/parceiros/${parceiro.id}`, { method: 'DELETE' })
+    const res = await authFetch('/api/parceiros', { 
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: parceiro.id })
+    })
     const data = await res.json()
     setDeleting(false)
     if (!res.ok) { setDeleteError(data.error || 'Erro ao apagar'); return }
     setConfirmDelete(null)
     if (selected === parceiro.id) setSelected(null)
-    const p = await authFetch('/api/vendas?parceiros=1').then(r => r.json())
+    const p = await authFetch('/api/parceiros').then(r => r.json())
     setParceiros(p.parceiros || [])
   }
 
@@ -146,14 +150,14 @@ export default function ParceirosPage() {
     const res = await authFetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(novoForm),
+      body: JSON.stringify({ ...novoForm, role: 'parceiro' }),
     })
     const data = await res.json()
     setNovoLoading(false)
     if (!res.ok) { setNovoError(data.error || 'Erro ao criar parceiro'); return }
     setNovoSuccess(`Parceiro ${data.user.full_name} criado!`)
     setNovoForm({ email: '', password: '', full_name: '', company_name: '', phone: '' })
-    const p = await authFetch('/api/vendas?parceiros=1').then(r => r.json())
+    const p = await authFetch('/api/parceiros').then(r => r.json())
     setParceiros(p.parceiros || [])
     setTimeout(() => { setShowNovo(false); setNovoSuccess('') }, 2000)
   }
@@ -198,7 +202,7 @@ export default function ParceirosPage() {
     <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
       <div className="flex">
-        <Sidebar userRole="admin" />
+        <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
         <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-8">
 
