@@ -23,35 +23,24 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const { user } = await getAuthUser(req)
   if (!user) {
-    console.log('[v0] POST /api/unidades - NO USER')
     return NextResponse.json({ error: 'Nao autorizado - sessao expirada' }, { status: 401 })
   }
 
-  console.log('[v0] POST /api/unidades - user:', user.id, user.email)
-  
   const service = svc()
-  const { data: profile, error: profileError } = await service.from('profiles').select('role').eq('id', user.id).single()
-  
-  console.log('[v0] POST /api/unidades - profile:', JSON.stringify({ profile, error: profileError?.message }))
+  const { data: profile, error: profileError } = await service.from('profiles').select('role, is_superadmin').eq('id', user.id).single()
   
   if (profileError || !profile) {
-    return NextResponse.json({ error: 'Perfil nao encontrado: ' + (profileError?.message || 'sem profile') }, { status: 403 })
+    return NextResponse.json({ error: 'Perfil nao encontrado' }, { status: 403 })
   }
   
-  if (profile.role !== 'admin') {
+  const isAdmin = profile.role === 'admin' || profile.is_superadmin === true
+  if (!isAdmin) {
     return NextResponse.json({ error: `Apenas admin. Role atual: "${profile.role}"` }, { status: 403 })
   }
 
   const body = await req.json()
-  console.log('[v0] POST /api/unidades - body:', JSON.stringify(body))
-  
   const { data, error } = await service.from('unidades').insert(body).select().single()
-  if (error) {
-    console.log('[v0] POST /api/unidades - error:', error.message)
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-  
-  console.log('[v0] POST /api/unidades - SUCCESS')
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }
 
@@ -60,8 +49,9 @@ export async function PUT(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
   const service = svc()
-  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
+  const { data: profile } = await service.from('profiles').select('role, is_superadmin').eq('id', user.id).single()
+  const isAdmin = profile?.role === 'admin' || profile?.is_superadmin === true
+  if (!isAdmin) return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const body = await req.json()
   const { id, ...rest } = body
@@ -75,8 +65,9 @@ export async function DELETE(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
 
   const service = svc()
-  const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
+  const { data: profile } = await service.from('profiles').select('role, is_superadmin').eq('id', user.id).single()
+  const isAdmin = profile?.role === 'admin' || profile?.is_superadmin === true
+  if (!isAdmin) return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
 
   const { searchParams } = new URL(req.url)
   const id = searchParams.get('id')
