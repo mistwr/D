@@ -13,13 +13,26 @@ export default function Home() {
     const checkAuth = async () => {
       try {
         const supabase = createClient()
-        const { data: { session } } = await supabase.auth.getSession()
-        if (!session) { setLoading(false); return }
-        const { data: profile } = await supabase
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        
+        if (sessionError || !session) { 
+          setLoading(false)
+          return 
+        }
+        
+        const { data: profile, error: profileError } = await supabase
           .from('profiles').select('role').eq('id', session.user.id).single()
+        
+        if (profileError) {
+          console.error('Profile error:', profileError)
+          setLoading(false)
+          return
+        }
+        
         const role = profile?.role ?? 'parceiro'
         router.replace(role === 'admin' ? '/admin/dashboard' : '/dashboard')
-      } catch {
+      } catch (err) {
+        console.error('Auth check error:', err)
         setLoading(false)
       }
     }
