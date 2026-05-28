@@ -10,33 +10,55 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let isMounted = true
+    
+    // Timeout de segurança - se demorar mais de 5 segundos, mostrar página
+    const timeout = setTimeout(() => {
+      if (isMounted) {
+        console.log('[v0] Auth check timeout - showing landing page')
+        setLoading(false)
+      }
+    }, 5000)
+    
     const checkAuth = async () => {
       try {
+        console.log('[v0] Checking auth...')
         const supabase = createClient()
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
+        console.log('[v0] Session result:', session ? 'has session' : 'no session', sessionError?.message)
+        
         if (sessionError || !session) { 
-          setLoading(false)
+          if (isMounted) setLoading(false)
           return 
         }
         
         const { data: profile, error: profileError } = await supabase
           .from('profiles').select('role').eq('id', session.user.id).single()
         
-        if (profileError) {
-          console.error('Profile error:', profileError)
-          setLoading(false)
+        console.log('[v0] Profile result:', profile, profileError?.message)
+        
+        if (profileError || !profile) {
+          console.error('[v0] Profile error:', profileError)
+          if (isMounted) setLoading(false)
           return
         }
         
         const role = profile?.role ?? 'parceiro'
+        console.log('[v0] Redirecting to:', role === 'admin' ? '/admin/dashboard' : '/dashboard')
         router.replace(role === 'admin' ? '/admin/dashboard' : '/dashboard')
       } catch (err) {
-        console.error('Auth check error:', err)
-        setLoading(false)
+        console.error('[v0] Auth check error:', err)
+        if (isMounted) setLoading(false)
       }
     }
+    
     checkAuth()
+    
+    return () => {
+      isMounted = false
+      clearTimeout(timeout)
+    }
   }, [router])
 
   if (loading) {
