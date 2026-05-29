@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -14,7 +13,6 @@ const SLIDES = [
 ]
 
 export default function LoginPage() {
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -53,7 +51,10 @@ export default function LoginPage() {
         .select('role')
         .eq('id', data.user.id)
         .single()
-      router.replace(profile?.role === 'admin' ? '/admin/dashboard' : '/dashboard')
+      
+      // Usar window.location para garantir full page reload e cookies sincronizados
+      const targetUrl = profile?.role === 'admin' ? '/admin/dashboard' : '/dashboard'
+      window.location.href = targetUrl
     } catch {
       setError('Erro de ligacao')
       setLoading(false)
