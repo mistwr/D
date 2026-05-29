@@ -17,9 +17,13 @@ export async function GET(req: NextRequest) {
   const service = svc()
   const { data: profile } = await service.from('profiles').select('role, is_superadmin').eq('id', user.id).single()
   
+  console.log('[v0] GET /api/parceiros - user:', user.id, 'profile:', JSON.stringify(profile))
+  
   const isSuperAdmin = profile?.is_superadmin === true
   const isAdmin = profile?.role === 'admin'
   const isAdminVIP = isAdmin && !isSuperAdmin
+  
+  console.log('[v0] GET /api/parceiros - isSuperAdmin:', isSuperAdmin, 'isAdmin:', isAdmin, 'isAdminVIP:', isAdminVIP)
   
   if (!isAdmin) {
     return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })

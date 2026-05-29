@@ -24,20 +24,36 @@ export function useAuth(requiredRole?: 'admin' | 'parceiro') {
 
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        console.log('[v0] useAuth: checking session...')
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+
+        if (sessionError) {
+          console.log('[v0] useAuth: session error', sessionError.message)
+        }
 
         if (!session) {
+          console.log('[v0] useAuth: no session, redirecting to login')
           if (isMounted) router.replace('/login')
           return
         }
 
-        const { data: profile } = await supabase
+        console.log('[v0] useAuth: session found for', session.user.email)
+
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('role, full_name, company_name, phone, is_superadmin')
           .eq('id', session.user.id)
           .single()
 
+        console.log('[v0] useAuth: profile result', profile, profileError?.message)
+
         if (!isMounted) return
+
+        if (profileError || !profile) {
+          console.log('[v0] useAuth: no profile found, redirecting to login')
+          if (isMounted) router.replace('/login')
+          return
+        }
 
         const authUser: AuthUser = {
           id: session.user.id,
@@ -48,13 +64,18 @@ export function useAuth(requiredRole?: 'admin' | 'parceiro') {
           is_superadmin: profile?.is_superadmin ?? false,
         }
 
+        console.log('[v0] useAuth: authUser created', authUser.email, authUser.role)
+
         if (requiredRole && authUser.role !== requiredRole) {
+          console.log('[v0] useAuth: role mismatch, redirecting')
           router.replace(authUser.role === 'admin' ? '/admin/dashboard' : '/dashboard')
           return
         }
 
+        console.log('[v0] useAuth: setting user')
         setUser(authUser)
-      } catch {
+      } catch (err) {
+        console.log('[v0] useAuth: catch error', err)
         if (isMounted) router.replace('/login')
       } finally {
         if (isMounted) setLoading(false)
