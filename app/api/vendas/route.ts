@@ -148,6 +148,28 @@ export async function POST(req: NextRequest) {
   }).select().single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  
+  // Criar notificação para todos os admins quando um parceiro regista uma venda
+  if (!isAdmin && venda) {
+    const { data: parceiro } = await service.from('profiles').select('full_name').eq('id', user.id).single()
+    const parceiroName = parceiro?.full_name || 'Parceiro'
+    
+    // Buscar todos os admins para notificar
+    const { data: admins } = await service.from('profiles').select('id').eq('role', 'admin')
+    
+    if (admins && admins.length > 0) {
+      const notifications = admins.map(admin => ({
+        user_id: admin.id,
+        type: 'nova_venda',
+        title: 'Nova Venda Registada',
+        message: `${parceiroName} registou uma nova venda de ${body.service_type === 'energia' ? 'Energia' : 'Telecomunicacoes'} - ${body.client_name}`,
+        data: { venda_id: venda.id, parceiro_id: user.id, service_type: body.service_type }
+      }))
+      
+      await service.from('notifications').insert(notifications)
+    }
+  }
+  
   return NextResponse.json({ venda })
 }
 
