@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2, Target, Crown } from 'lucide-react'
+import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2, Target, Crown, Circle, User } from 'lucide-react'
 
 interface SidebarProps { userRole: string; isSuperAdmin?: boolean }
 
@@ -21,6 +21,7 @@ export function Sidebar({ userRole, isSuperAdmin = false }: SidebarProps) {
     { href: '/materiais', label: 'Materiais de Apoio', icon: FolderOpen },
     { href: '/publicacoes', label: 'Publicacoes', icon: Newspaper },
     { href: '/simulador', label: 'Simulador', icon: Calculator },
+    { href: '/perfil', label: 'Meu Perfil', icon: User },
   ]
 
   // Links basicos para todos os admins (incluindo VIP)
@@ -39,6 +40,7 @@ export function Sidebar({ userRole, isSuperAdmin = false }: SidebarProps) {
   // Links exclusivos para SuperAdmin
   const superAdminLinks = [
     { href: '/admin/admins-vip', label: 'Admins VIP', icon: Crown },
+    { href: '/admin/online', label: 'Utilizadores Online', icon: Circle },
     { href: '/admin/documentos', label: 'Documentos', icon: Upload },
     { href: '/admin/import', label: 'Import / Export', icon: FileSpreadsheet },
     { href: '/admin/passwords', label: 'Passwords', icon: KeyRound },
@@ -48,6 +50,7 @@ export function Sidebar({ userRole, isSuperAdmin = false }: SidebarProps) {
     { href: '/admin/pipelines', label: 'Pipelines', icon: GitBranch },
     { href: '/admin/permissoes', label: 'Permissoes', icon: Shield },
     { href: '/admin/unidades', label: 'Unidades/Franquias', icon: Building2 },
+    { href: '/admin/perfil', label: 'Meu Perfil', icon: User },
   ]
 
   // Admin VIP só vê links básicos, SuperAdmin vê todos

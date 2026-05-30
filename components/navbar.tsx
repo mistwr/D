@@ -1,19 +1,45 @@
 'use client'
 
-import { Bell, LogOut, Menu, X, User, LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, FolderOpen, Calculator, Percent, FileCheck, Newspaper, AlertTriangle, Users, Upload, FileSpreadsheet, KeyRound, Target, Network, GitBranch, Shield, Building2 } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { LogOut, Menu, X, User, LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, FolderOpen, Calculator, Percent, FileCheck, Newspaper, AlertTriangle, Users, Upload, FileSpreadsheet, KeyRound, Target, Network, GitBranch, Shield, Building2, Circle } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import { NotificationsDropdown, NotificationsDropdownMobile } from './notifications-dropdown'
+import { createClient } from '@/lib/supabase/client'
 
 interface NavbarProps {
-  user: { full_name: string; role: string; email: string } | null
+  user: { full_name: string; role: string; email: string; id?: string; avatar_url?: string } | null
   onLogout?: () => void
 }
 
 export function Navbar({ user, onLogout }: NavbarProps) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatar_url || null)
+
+  // Auth fetch helper
+  const authFetch = useCallback(async (url: string, options: RequestInit = {}) => {
+    const supabase = createClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token
+    const headers: Record<string, string> = { ...(options.headers as Record<string, string> ?? {}) }
+    if (token) headers['Authorization'] = `Bearer ${token}`
+    return fetch(url, { ...options, credentials: 'include', headers })
+  }, [])
+
+  // Update presence heartbeat
+  useEffect(() => {
+    if (!user?.id) return
+    const updatePresence = async () => {
+      try {
+        await authFetch('/api/presence', { method: 'POST' })
+      } catch (e) { /* ignore */ }
+    }
+    updatePresence()
+    const interval = setInterval(updatePresence, 30000) // Every 30s
+    return () => clearInterval(interval)
+  }, [user?.id, authFetch])
   
   // Close menu on route change
   useEffect(() => {
@@ -61,6 +87,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
     { href: '/admin/pipelines', label: 'Pipelines', icon: GitBranch },
     { href: '/admin/permissoes', label: 'Permissoes', icon: Shield },
     { href: '/admin/unidades', label: 'Unidades', icon: Building2 },
+    { href: '/admin/online', label: 'Online', icon: Circle },
   ]
 
   const mobileLinks = user?.role === 'admin' ? adminLinks : parceiroLinks
@@ -83,15 +110,18 @@ export function Navbar({ user, onLogout }: NavbarProps) {
         <div className="flex items-center gap-2 lg:gap-4">
           {user && (
             <>
-              <button className="relative p-2 rounded-full transition-colors hover:bg-slate-100" aria-label="Notificacoes">
-                <Bell size={20} style={{ color: '#64748b' }} />
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: '#f97316' }}></span>
-              </button>
+              <NotificationsDropdown authFetch={authFetch} />
               <div className="flex items-center gap-2 lg:gap-3 pl-2 lg:pl-4" style={{ borderLeft: '1px solid #e2e8f0' }}>
-                <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
-                  <User size={16} className="text-white lg:hidden" />
-                  <User size={18} className="text-white hidden lg:block" />
-                </div>
+                <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="w-8 h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden hover:ring-2 hover:ring-sky-500 transition-all" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
+                  {avatarUrl ? (
+                    <Image src={avatarUrl} alt="Avatar" width={36} height={36} className="w-full h-full object-cover" />
+                  ) : (
+                    <>
+                      <User size={16} className="text-white lg:hidden" />
+                      <User size={18} className="text-white hidden lg:block" />
+                    </>
+                  )}
+                </Link>
                 <div className="hidden xl:block">
                   <p className="text-sm font-semibold truncate max-w-[150px]" style={{ color: '#1e293b' }}>{user.full_name}</p>
                   <p className="text-xs" style={{ color: '#64748b' }}>{user.role === 'admin' ? 'Administrador' : 'Parceiro'}</p>
@@ -123,10 +153,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
         <div className="flex items-center gap-2">
           {user && (
             <>
-              <button className="relative p-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.1)' }} aria-label="Notificacoes">
-                <Bell size={18} className="text-white" />
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: '#f97316' }}></span>
-              </button>
+              <NotificationsDropdownMobile authFetch={authFetch} />
               <button onClick={handleLogout} className="p-2 rounded-lg active:scale-95 transition-transform" style={{ background: 'rgba(239,68,68,0.2)' }} aria-label="Sair">
                 <LogOut size={18} style={{ color: '#fca5a5' }} />
               </button>
@@ -150,15 +177,19 @@ export function Navbar({ user, onLogout }: NavbarProps) {
             {/* User info on mobile */}
             {user && (
               <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
-                    <User size={20} className="text-white" />
+                <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
+                    {avatarUrl ? (
+                      <Image src={avatarUrl} alt="Avatar" width={40} height={40} className="w-full h-full object-cover" />
+                    ) : (
+                      <User size={20} className="text-white" />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-white truncate">{user.full_name}</p>
                     <p className="text-xs truncate" style={{ color: '#94a3b8' }}>{user.email}</p>
                   </div>
-                </div>
+                </Link>
               </div>
             )}
 
