@@ -32,15 +32,23 @@ export default function EstruturaComericalPage() {
 
   async function loadData() {
     try {
+      const safeJson = async (res: Response) => {
+        if (!res.ok) return null
+        const text = await res.text()
+        if (!text) return null
+        try { return JSON.parse(text) } catch { return null }
+      }
       const [c, u, un] = await Promise.all([
-        authFetch('/api/cargos').then(r => r.json()),
-        authFetch('/api/users').then(r => r.json()),
-        authFetch('/api/unidades').then(r => r.json())
+        authFetch('/api/cargos').then(safeJson),
+        authFetch('/api/users').then(safeJson),
+        authFetch('/api/unidades').then(safeJson)
       ])
       setCargos(c || [])
-      setUsers(u.users || u || [])
+      setUsers(u?.users || u || [])
       setUnidades(un || [])
-    } catch { }
+    } catch (e) {
+      console.log('[v0] Error loading data:', e)
+    }
     setLoading(false)
   }
 
@@ -48,7 +56,8 @@ export default function EstruturaComericalPage() {
     setError(null)
     try {
       const res = await authFetch('/api/cargos', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cargo) })
-      const data = await res.json()
+      const text = await res.text()
+      const data = text ? JSON.parse(text) : {}
       if (!res.ok) throw new Error(data.error || 'Erro ao guardar cargo')
       setSuccess('Cargo guardado com sucesso!')
       setTimeout(() => setSuccess(null), 3000)
@@ -64,7 +73,8 @@ export default function EstruturaComericalPage() {
     setError(null)
     try {
       const res = await authFetch('/api/cargos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newCargo) })
-      const data = await res.json()
+      const text = await res.text()
+      const data = text ? JSON.parse(text) : {}
       if (!res.ok) throw new Error(data.error || 'Erro ao criar cargo')
       setSuccess('Cargo criado com sucesso!')
       setTimeout(() => setSuccess(null), 3000)
@@ -81,7 +91,8 @@ export default function EstruturaComericalPage() {
     setError(null)
     try {
       const res = await authFetch(`/api/cargos?id=${id}`, { method: 'DELETE' })
-      const data = await res.json()
+      const text = await res.text()
+      const data = text ? JSON.parse(text) : {}
       if (!res.ok) throw new Error(data.error || 'Erro ao eliminar cargo')
       setSuccess('Cargo eliminado com sucesso!')
       setTimeout(() => setSuccess(null), 3000)
@@ -99,7 +110,8 @@ export default function EstruturaComericalPage() {
         headers: { 'Content-Type': 'application/json' }, 
         body: JSON.stringify({ id: userId, ...userChanges }) 
       })
-      const data = await res.json()
+      const text = await res.text()
+      const data = text ? JSON.parse(text) : {}
       if (!res.ok) throw new Error(data.error || 'Erro ao guardar hierarquia')
       setSuccess('Hierarquia guardada com sucesso!')
       setTimeout(() => setSuccess(null), 3000)

@@ -31,16 +31,22 @@ export default function MinhaEstruturaPage() {
   useEffect(() => {
     if (!user) return
     async function load() {
+      const safeJson = async (res: Response) => {
+        if (!res.ok) return null
+        const text = await res.text()
+        if (!text) return null
+        try { return JSON.parse(text) } catch { return null }
+      }
       // Buscar permissoes do utilizador
-      const perfil = await authFetch('/api/profile').then(r => r.json())
+      const perfil = await authFetch('/api/profile').then(safeJson)
       setPermissoes({
-        pode_criar_estrutura: perfil.profile?.pode_criar_estrutura || false,
-        pode_criar_parceiros: perfil.profile?.pode_criar_parceiros || false,
+        pode_criar_estrutura: perfil?.profile?.pode_criar_estrutura || false,
+        pode_criar_parceiros: perfil?.profile?.pode_criar_parceiros || false,
       })
       
       // Buscar membros da estrutura (parceiros criados por este utilizador)
-      const res = await authFetch('/api/estrutura/membros').then(r => r.json())
-      setMembros(res.membros || [])
+      const res = await authFetch('/api/estrutura/membros').then(safeJson)
+      setMembros(res?.membros || [])
       setLoading(false)
     }
     load()
@@ -52,20 +58,28 @@ export default function MinhaEstruturaPage() {
       setNovoError('Email, password e nome sao obrigatorios'); return
     }
     setNovoLoading(true)
-    const res = await authFetch('/api/estrutura/membros', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...novoForm, role: 'parceiro' }),
-    })
-    const data = await res.json()
+    try {
+      const res = await authFetch('/api/estrutura/membros', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...novoForm, role: 'parceiro' }),
+      })
+      const text = await res.text()
+      const data = text ? JSON.parse(text) : null
     setNovoLoading(false)
-    if (!res.ok) { setNovoError(data.error || 'Erro ao criar membro'); return }
-    setNovoSuccess(`Membro ${data.user?.full_name || novoForm.full_name} criado com sucesso!`)
+    if (!res.ok) { setNovoError(data?.error || 'Erro ao criar membro'); return }
+    setNovoSuccess(`Membro ${data?.user?.full_name || novoForm.full_name} criado com sucesso!`)
     setNovoForm({ email: '', password: '', full_name: '', company_name: '', phone: '' })
     // Recarregar membros
-    const m = await authFetch('/api/estrutura/membros').then(r => r.json())
-    setMembros(m.membros || [])
+    const mRes = await authFetch('/api/estrutura/membros')
+    const mText = await mRes.text()
+    const m = mText ? JSON.parse(mText) : null
+    setMembros(m?.membros || [])
     setTimeout(() => { setShowNovo(false); setNovoSuccess('') }, 2000)
+  } catch (e) {
+    setNovoLoading(false)
+    setNovoError('Erro ao criar membro')
+  }
   }
 
   async function apagarMembro(membro: Membro) {
