@@ -30,11 +30,19 @@ export async function GET(req: NextRequest) {
   }
 
   // Construir query baseado no tipo de admin
-  let query = service.from('profiles').select('*').eq('role', 'parceiro')
-  
+  // SuperAdmin vê todos os parceiros (incluindo admin VIP que não são superadmin)
   // Admin VIP só vê parceiros que ele criou
-  if (isAdminVIP) {
+  let query = service.from('profiles').select('*')
+  
+  if (isSuperAdmin) {
+    // SuperAdmin vê todos exceto outros superadmins
+    query = query.eq('is_superadmin', false)
+  } else if (isAdminVIP) {
+    // Admin VIP só vê parceiros que ele criou
     query = query.eq('created_by', user.id)
+  } else {
+    // Outro admin sem permissões especiais - só parceiros normais
+    query = query.eq('role', 'parceiro')
   }
   
   const { data: parceiros, error } = await query.order('created_at', { ascending: false })
