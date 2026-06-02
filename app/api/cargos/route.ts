@@ -72,6 +72,10 @@ export async function DELETE(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const id = searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'ID obrigatorio' }, { status: 400 })
+
+  // Remover cargo de todos os utilizadores que o têm antes de o eliminar
+  await service.from('profiles').update({ cargo_id: null }).eq('cargo_id', id)
+
   const { error } = await service.from('cargos').delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ success: true })
