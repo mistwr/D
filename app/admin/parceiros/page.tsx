@@ -6,7 +6,7 @@ import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import {
   Users, ShoppingCart, Mail, Building2, Percent, Save, Zap, Flame,
-  Plus, X, Eye, EyeOff, Trash2, AlertTriangle, KeyRound, Shield, Pencil,
+  Plus, X, Eye, EyeOff, Trash2, AlertTriangle, KeyRound, Shield, Pencil, Crown, Network, UserPlus,
 } from 'lucide-react'
 
 const SERVICOS = ['energia', 'gas', 'seguros', 'telecom'] as const
@@ -21,7 +21,7 @@ const SERVICO_LABEL: Record<string, string> = {
   energia: 'Energia', gas: 'Gas', seguros: 'Seguros', telecom: 'Telecom',
 }
 
-interface Parceiro { id: string; full_name: string; email: string; company_name: string }
+interface Parceiro { id: string; full_name: string; email: string; company_name: string; is_admin_vip?: boolean; pode_criar_estrutura?: boolean; pode_criar_parceiros?: boolean }
 interface Venda { id: string; user_id: string; client_name: string; amount: number; status: string; service_type: string; operator: string; plano?: string }
 interface ComissaoOp { servico: string; operadora: string; plano: string; valor_comissao: number; modelo?: string; num_mensalidades?: number; valor_mensal?: number; percentagem?: number }
 interface NovoForm { email: string; password: string; full_name: string; company_name: string; phone: string }
@@ -32,7 +32,12 @@ export default function ParceirosPage() {
   const [vendas, setVendas] = useState<Venda[]>([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<string | null>(null)
-  const [tab, setTab] = useState<'vendas' | 'comissoes' | 'password'>('vendas')
+  const [tab, setTab] = useState<'vendas' | 'comissoes' | 'password' | 'permissoes'>('vendas')
+
+  // Permissoes VIP
+  const [permLoading, setPermLoading] = useState(false)
+  const [permMsg, setPermMsg] = useState('')
+  const [permError, setPermError] = useState('')
 
   // Comissoes por operadora
   const [comOps, setComOps] = useState<ComissaoOp[]>([])
@@ -88,7 +93,25 @@ export default function ParceirosPage() {
     setTab('vendas')
     setPassMsg(''); setPassError(''); setNewPass('')
     setComError(''); setComSaved(false)
+    setPermMsg(''); setPermError('')
     await loadComissoes(pid)
+  }
+
+  async function updatePermissao(field: 'is_admin_vip' | 'pode_criar_estrutura' | 'pode_criar_parceiros', value: boolean) {
+    if (!selected) return
+    setPermLoading(true); setPermMsg(''); setPermError('')
+    const res = await authFetch('/api/parceiros/permissoes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ parceiro_id: selected, [field]: value }),
+    })
+    const data = await res.json()
+    setPermLoading(false)
+    if (!res.ok) { setPermError(data.error || 'Erro ao guardar'); return }
+    setPermMsg('Permissao atualizada!')
+    // Atualizar parceiro localmente
+    setParceiros(prev => prev.map(p => p.id === selected ? { ...p, [field]: value } : p))
+    setTimeout(() => setPermMsg(''), 3000)
   }
 
   async function saveComissaoOp() {
@@ -368,6 +391,7 @@ export default function ParceirosPage() {
                           { key: 'vendas', label: `Vendas (${selectedVendas.length})`, icon: ShoppingCart },
                           { key: 'comissoes', label: 'Comissoes', icon: Percent },
                           { key: 'password', label: 'Password', icon: KeyRound },
+                          { key: 'permissoes', label: 'Permissoes', icon: Crown },
                         ] as const).map(t => (
                           <button key={t.key} onClick={() => setTab(t.key)}
                             className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -574,6 +598,92 @@ export default function ParceirosPage() {
                               style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                               <KeyRound size={15} />{passLoading ? 'A alterar...' : 'Alterar Password'}
                             </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Tab: Permissoes VIP */}
+                      {tab === 'permissoes' && (
+                        <div className="rounded-xl shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                          <div className="p-5" style={{ borderBottom: '1px solid #e2e8f0', background: '#f9fafb' }}>
+                            <h2 className="font-bold" style={{ color: '#1e293b' }}>Permissoes VIP — {selectedParceiro?.full_name}</h2>
+                            <p className="text-xs mt-1" style={{ color: '#64748b' }}>Defina os acessos especiais para este parceiro</p>
+                          </div>
+                          <div className="p-5 space-y-4">
+                            {permMsg && <div className="rounded-lg p-3 text-sm" style={{ background: '#f0fdf4', border: '1px solid #86efac', color: '#166534' }}>{permMsg}</div>}
+                            {permError && <div className="rounded-lg p-3 text-sm" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>{permError}</div>}
+                            
+                            {/* Admin VIP */}
+                            <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: selectedParceiro?.is_admin_vip ? '#fef3c7' : '#f9fafb', border: '1px solid #e2e8f0' }}>
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: selectedParceiro?.is_admin_vip ? '#fbbf24' : '#e2e8f0' }}>
+                                  <Crown size={20} style={{ color: selectedParceiro?.is_admin_vip ? '#fff' : '#64748b' }} />
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-sm" style={{ color: '#1e293b' }}>Admin VIP</p>
+                                  <p className="text-xs" style={{ color: '#64748b' }}>Acesso ao painel admin e pode gerir a sua equipa</p>
+                                </div>
+                              </div>
+                              <button 
+                                onClick={() => updatePermissao('is_admin_vip', !selectedParceiro?.is_admin_vip)}
+                                disabled={permLoading}
+                                className="relative w-14 h-7 rounded-full transition-colors disabled:opacity-50"
+                                style={{ background: selectedParceiro?.is_admin_vip ? '#0ea5e9' : '#d1d5db' }}>
+                                <span className="absolute top-1 left-1 w-5 h-5 rounded-full bg-white shadow transition-transform"
+                                  style={{ transform: selectedParceiro?.is_admin_vip ? 'translateX(28px)' : 'translateX(0)' }} />
+                              </button>
+                            </div>
+
+                            {/* Pode Criar Parceiros */}
+                            <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: selectedParceiro?.pode_criar_parceiros ? '#dbeafe' : '#f9fafb', border: '1px solid #e2e8f0' }}>
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: selectedParceiro?.pode_criar_parceiros ? '#3b82f6' : '#e2e8f0' }}>
+                                  <UserPlus size={20} style={{ color: selectedParceiro?.pode_criar_parceiros ? '#fff' : '#64748b' }} />
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-sm" style={{ color: '#1e293b' }}>Pode Criar Parceiros</p>
+                                  <p className="text-xs" style={{ color: '#64748b' }}>Autorizado a registar novos parceiros na plataforma</p>
+                                </div>
+                              </div>
+                              <button 
+                                onClick={() => updatePermissao('pode_criar_parceiros', !selectedParceiro?.pode_criar_parceiros)}
+                                disabled={permLoading}
+                                className="relative w-14 h-7 rounded-full transition-colors disabled:opacity-50"
+                                style={{ background: selectedParceiro?.pode_criar_parceiros ? '#0ea5e9' : '#d1d5db' }}>
+                                <span className="absolute top-1 left-1 w-5 h-5 rounded-full bg-white shadow transition-transform"
+                                  style={{ transform: selectedParceiro?.pode_criar_parceiros ? 'translateX(28px)' : 'translateX(0)' }} />
+                              </button>
+                            </div>
+
+                            {/* Pode Criar Estrutura */}
+                            <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: selectedParceiro?.pode_criar_estrutura ? '#dcfce7' : '#f9fafb', border: '1px solid #e2e8f0' }}>
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: selectedParceiro?.pode_criar_estrutura ? '#22c55e' : '#e2e8f0' }}>
+                                  <Network size={20} style={{ color: selectedParceiro?.pode_criar_estrutura ? '#fff' : '#64748b' }} />
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-sm" style={{ color: '#1e293b' }}>Pode Criar Estrutura Comercial</p>
+                                  <p className="text-xs" style={{ color: '#64748b' }}>Autorizado a criar e gerir a sua propria estrutura comercial</p>
+                                </div>
+                              </div>
+                              <button 
+                                onClick={() => updatePermissao('pode_criar_estrutura', !selectedParceiro?.pode_criar_estrutura)}
+                                disabled={permLoading}
+                                className="relative w-14 h-7 rounded-full transition-colors disabled:opacity-50"
+                                style={{ background: selectedParceiro?.pode_criar_estrutura ? '#0ea5e9' : '#d1d5db' }}>
+                                <span className="absolute top-1 left-1 w-5 h-5 rounded-full bg-white shadow transition-transform"
+                                  style={{ transform: selectedParceiro?.pode_criar_estrutura ? 'translateX(28px)' : 'translateX(0)' }} />
+                              </button>
+                            </div>
+
+                            {/* Info */}
+                            <div className="p-4 rounded-lg" style={{ background: '#f1f5f9' }}>
+                              <p className="text-xs" style={{ color: '#64748b' }}>
+                                <strong>Admin VIP:</strong> O parceiro tera acesso ao painel de administracao e podera ver a sua equipa e vendas.<br/>
+                                <strong>Criar Parceiros:</strong> Podera registar novos parceiros que ficarao sob a sua responsabilidade.<br/>
+                                <strong>Criar Estrutura:</strong> Podera definir hierarquias e gerir a sua estrutura comercial.
+                              </p>
+                            </div>
                           </div>
                         </div>
                       )}

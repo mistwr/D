@@ -3,14 +3,33 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2, Target, Crown, Circle, User } from 'lucide-react'
+import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2, Target, Crown, Circle, User, UserPlus } from 'lucide-react'
 
-interface SidebarProps { userRole: string; isSuperAdmin?: boolean }
+interface SidebarUser {
+  role: string
+  is_superadmin?: boolean
+  pode_criar_estrutura?: boolean
+  pode_criar_parceiros?: boolean
+}
 
-export function Sidebar({ userRole, isSuperAdmin = false }: SidebarProps) {
+interface SidebarProps { 
+  user?: SidebarUser | null
+  // Legacy props for backwards compatibility
+  userRole?: string
+  isSuperAdmin?: boolean
+  podeGerir?: boolean 
+}
+
+export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = false }: SidebarProps) {
   const pathname = usePathname()
+  
+  // Use new user object or fall back to legacy props
+  const role = user?.role ?? userRole ?? 'parceiro'
+  const superAdmin = user?.is_superadmin ?? isSuperAdmin
+  const canManage = user?.pode_criar_estrutura || user?.pode_criar_parceiros || podeGerir
 
-  const parceiroLinks = [
+  // Links base para parceiro
+  const parceiroBaseLinks = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/vendas', label: 'As Minhas Vendas', icon: ShoppingCart },
     { href: '/vendas/novo', label: 'Registar Nova Venda', icon: PlusCircle },
@@ -21,8 +40,16 @@ export function Sidebar({ userRole, isSuperAdmin = false }: SidebarProps) {
     { href: '/materiais', label: 'Materiais de Apoio', icon: FolderOpen },
     { href: '/publicacoes', label: 'Publicacoes', icon: Newspaper },
     { href: '/simulador', label: 'Simulador', icon: Calculator },
-    { href: '/perfil', label: 'Meu Perfil', icon: User },
   ]
+
+  // Links adicionais se tem permissao de gerir estrutura
+  const parceiroGestorLinks = [
+    { href: '/estrutura', label: 'Minha Estrutura', icon: Network },
+  ]
+
+  const parceiroLinks = canManage 
+    ? [...parceiroBaseLinks, ...parceiroGestorLinks, { href: '/perfil', label: 'Meu Perfil', icon: User }]
+    : [...parceiroBaseLinks, { href: '/perfil', label: 'Meu Perfil', icon: User }]
 
   // Links basicos para todos os admins (incluindo VIP)
   const adminBaseLinks = [
@@ -54,11 +81,11 @@ export function Sidebar({ userRole, isSuperAdmin = false }: SidebarProps) {
   ]
 
   // Admin VIP só vê links básicos, SuperAdmin vê todos
-  const adminLinks = isSuperAdmin 
+  const adminLinks = superAdmin 
     ? [...adminBaseLinks, ...superAdminLinks]
     : adminBaseLinks
 
-  const links = userRole === 'admin' ? adminLinks : parceiroLinks
+  const links = role === 'admin' ? adminLinks : parceiroLinks
 
   return (
     <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 flex-col overflow-y-auto shadow-lg" style={{ background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)' }}>
@@ -87,7 +114,7 @@ export function Sidebar({ userRole, isSuperAdmin = false }: SidebarProps) {
 
       <nav className="flex-1 flex flex-col gap-1 p-4 overflow-y-auto">
         <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>
-          {userRole === 'admin' ? 'Administracao' : 'Menu'}
+          {role === 'admin' ? 'Administracao' : 'Menu'}
         </p>
         {links.map(l => {
           const active = pathname === l.href
