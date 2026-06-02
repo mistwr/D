@@ -11,6 +11,9 @@ export interface AuthUser {
   full_name: string
   company_name: string | null
   is_superadmin: boolean
+  pode_criar_estrutura?: boolean
+  pode_criar_parceiros?: boolean
+  avatar_url?: string
 }
 
 export function useAuth(requiredRole?: 'admin' | 'parceiro') {
@@ -41,7 +44,7 @@ export function useAuth(requiredRole?: 'admin' | 'parceiro') {
 
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('role, full_name, company_name, phone, is_superadmin')
+          .select('role, full_name, company_name, phone, is_superadmin, pode_criar_estrutura, pode_criar_parceiros, avatar_url')
           .eq('id', session.user.id)
           .single()
 
@@ -62,6 +65,9 @@ export function useAuth(requiredRole?: 'admin' | 'parceiro') {
           full_name: profile?.full_name ?? '',
           company_name: profile?.company_name ?? null,
           is_superadmin: profile?.is_superadmin ?? false,
+          pode_criar_estrutura: profile?.pode_criar_estrutura ?? false,
+          pode_criar_parceiros: profile?.pode_criar_parceiros ?? false,
+          avatar_url: profile?.avatar_url ?? undefined,
         }
 
         console.log('[v0] useAuth: authUser created', authUser.email, authUser.role)
