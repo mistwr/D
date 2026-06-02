@@ -115,13 +115,18 @@ export default function EstruturaComericalPage() {
     setExpandedUsers(prev => prev.includes(cargoId) ? prev.filter(id => id !== cargoId) : [...prev, cargoId])
   }
 
-  function getUsersByCargo(cargoId: string) {
+  function getUsersByCargo(cargoId: string | null) {
+    if (cargoId === null) {
+      return users.filter(u => !u.cargo_id)
+    }
     return users.filter(u => u.cargo_id === cargoId)
   }
 
   function getUserName(id: string) {
     return users.find(u => u.id === id)?.full_name || '-'
   }
+
+  const usersWithoutCargo = users.filter(u => !u.cargo_id)
 
   if (authLoading || loading) {
     return <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}><div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} /></div>
@@ -283,13 +288,18 @@ export default function EstruturaComericalPage() {
                               </div>
                             </div>
                             {editingUser === u.id ? (
-                              <div className="flex items-center gap-2">
-                                <select value={userChanges.responsavel_id || u.responsavel_id || ''} onChange={e => setUserChanges({ ...userChanges, responsavel_id: e.target.value })}
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <select value={userChanges.cargo_id ?? u.cargo_id ?? ''} onChange={e => setUserChanges({ ...userChanges, cargo_id: e.target.value })}
+                                  className="text-sm rounded-lg px-2 py-1.5" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                                  <option value="">Sem Cargo</option>
+                                  {cargos.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                                </select>
+                                <select value={userChanges.responsavel_id ?? u.responsavel_id ?? ''} onChange={e => setUserChanges({ ...userChanges, responsavel_id: e.target.value })}
                                   className="text-sm rounded-lg px-2 py-1.5" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
                                   <option value="">Sem Responsavel</option>
                                   {users.filter(x => x.id !== u.id).map(x => <option key={x.id} value={x.id}>{x.full_name}</option>)}
                                 </select>
-                                <select value={userChanges.unidade_id || u.unidade_id || ''} onChange={e => setUserChanges({ ...userChanges, unidade_id: e.target.value })}
+                                <select value={userChanges.unidade_id ?? u.unidade_id ?? ''} onChange={e => setUserChanges({ ...userChanges, unidade_id: e.target.value })}
                                   className="text-sm rounded-lg px-2 py-1.5" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
                                   <option value="">Sem Unidade</option>
                                   {unidades.map(x => <option key={x.id} value={x.id}>{x.nome}</option>)}
@@ -319,7 +329,68 @@ export default function EstruturaComericalPage() {
                     )}
                   </div>
                 )
-              })}
+                      })}
+
+              {/* Utilizadores sem Cargo Atribuído */}
+              {usersWithoutCargo.length > 0 && (
+                <div className="rounded-2xl shadow-sm overflow-hidden" style={{ background: '#ffffff', border: '1px solid #f59e0b' }}>
+                  <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => toggleUserExpand('sem-cargo')}
+                    style={{ background: '#fef3c7', borderBottom: expandedUsers.includes('sem-cargo') ? '1px solid #fcd34d' : 'none' }}>
+                    <div className="flex items-center gap-3">
+                      {expandedUsers.includes('sem-cargo') ? <ChevronDown size={20} style={{ color: '#92400e' }} /> : <ChevronRight size={20} style={{ color: '#92400e' }} />}
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg font-bold text-sm text-white" style={{ background: '#f59e0b' }}>
+                        ?
+                      </div>
+                      <div>
+                        <p className="font-semibold" style={{ color: '#92400e' }}>Sem Cargo Atribuido</p>
+                        <p className="text-xs" style={{ color: '#b45309' }}>Atribua um cargo a estes utilizadores</p>
+                      </div>
+                    </div>
+                    <span className="px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: '#fde68a', color: '#92400e' }}>
+                      {usersWithoutCargo.length} utilizadores
+                    </span>
+                  </div>
+
+                  {expandedUsers.includes('sem-cargo') && (
+                    <div className="divide-y" style={{ borderColor: '#fef3c7' }}>
+                      {usersWithoutCargo.map(u => (
+                        <div key={u.id} className="p-4 flex items-center justify-between hover:bg-amber-50">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)' }}>
+                              <span className="text-white font-semibold text-sm">{u.full_name?.charAt(0) || '?'}</span>
+                            </div>
+                            <div>
+                              <p className="font-medium" style={{ color: '#1e293b' }}>{u.full_name}</p>
+                              <p className="text-xs" style={{ color: '#64748b' }}>{u.email}</p>
+                            </div>
+                          </div>
+                          {editingUser === u.id ? (
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <select value={userChanges.cargo_id || ''} onChange={e => setUserChanges({ ...userChanges, cargo_id: e.target.value })}
+                                className="text-sm rounded-lg px-2 py-1.5" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                                <option value="">Selecionar Cargo</option>
+                                {cargos.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                              </select>
+                              <select value={userChanges.responsavel_id || u.responsavel_id || ''} onChange={e => setUserChanges({ ...userChanges, responsavel_id: e.target.value })}
+                                className="text-sm rounded-lg px-2 py-1.5" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                                <option value="">Sem Responsavel</option>
+                                {users.filter(x => x.id !== u.id).map(x => <option key={x.id} value={x.id}>{x.full_name}</option>)}
+                              </select>
+                              <button onClick={() => saveUserHierarchy(u.id)} className="p-1.5 rounded-lg" style={{ background: '#dcfce7' }}><Save size={16} style={{ color: '#22c55e' }} /></button>
+                              <button onClick={() => { setEditingUser(null); setUserChanges({}) }} className="p-1.5 rounded-lg" style={{ background: '#fee2e2' }}><X size={16} style={{ color: '#ef4444' }} /></button>
+                            </div>
+                          ) : (
+                            <button onClick={() => setEditingUser(u.id)} className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium" 
+                              style={{ background: '#0ea5e9', color: '#fff' }}>
+                              <Plus size={14} /> Atribuir Cargo
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </main>
