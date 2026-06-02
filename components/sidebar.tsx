@@ -35,22 +35,22 @@ export function Sidebar({ userRole, isSuperAdmin = false }: SidebarProps) {
     { href: '/admin/publicacoes', label: 'Publicacoes', icon: Newspaper },
     { href: '/admin/comissoes', label: 'Comissoes', icon: Percent },
     { href: '/admin/contratos', label: 'Contratos', icon: FileCheck },
+    { href: '/admin/estrutura', label: 'Minha Equipa', icon: Network },
+    { href: '/admin/online', label: 'Online', icon: Circle },
+    { href: '/admin/perfil', label: 'Meu Perfil', icon: User },
   ]
 
   // Links exclusivos para SuperAdmin
   const superAdminLinks = [
     { href: '/admin/admins-vip', label: 'Admins VIP', icon: Crown },
-    { href: '/admin/online', label: 'Utilizadores Online', icon: Circle },
     { href: '/admin/documentos', label: 'Documentos', icon: Upload },
     { href: '/admin/import', label: 'Import / Export', icon: FileSpreadsheet },
     { href: '/admin/passwords', label: 'Passwords', icon: KeyRound },
     // Enterprise
     { href: '/admin/leads', label: 'Leads', icon: Target },
-    { href: '/admin/estrutura', label: 'Estrutura Comercial', icon: Network },
     { href: '/admin/pipelines', label: 'Pipelines', icon: GitBranch },
     { href: '/admin/permissoes', label: 'Permissoes', icon: Shield },
     { href: '/admin/unidades', label: 'Unidades/Franquias', icon: Building2 },
-    { href: '/admin/perfil', label: 'Meu Perfil', icon: User },
   ]
 
   // Admin VIP só vê links básicos, SuperAdmin vê todos
