@@ -6,7 +6,7 @@ import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import {
   Users, ShoppingCart, Mail, Building2, Percent, Save, Zap, Flame,
-  Plus, X, Eye, EyeOff, Trash2, AlertTriangle, KeyRound, Shield, Pencil,
+  Plus, X, Eye, EyeOff, Trash2, AlertTriangle, KeyRound, Shield, Pencil, Crown, Network, UserPlus,
 } from 'lucide-react'
 
 const SERVICOS = ['energia', 'gas', 'seguros', 'telecom'] as const
@@ -21,7 +21,7 @@ const SERVICO_LABEL: Record<string, string> = {
   energia: 'Energia', gas: 'Gas', seguros: 'Seguros', telecom: 'Telecom',
 }
 
-interface Parceiro { id: string; full_name: string; email: string; company_name: string }
+interface Parceiro { id: string; full_name: string; email: string; company_name: string; is_admin_vip?: boolean; pode_criar_estrutura?: boolean; pode_criar_parceiros?: boolean }
 interface Venda { id: string; user_id: string; client_name: string; amount: number; status: string; service_type: string; operator: string; plano?: string }
 interface ComissaoOp { servico: string; operadora: string; plano: string; valor_comissao: number; modelo?: string; num_mensalidades?: number; valor_mensal?: number; percentagem?: number }
 interface NovoForm { email: string; password: string; full_name: string; company_name: string; phone: string }
@@ -32,7 +32,12 @@ export default function ParceirosPage() {
   const [vendas, setVendas] = useState<Venda[]>([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<string | null>(null)
-  const [tab, setTab] = useState<'vendas' | 'comissoes' | 'password'>('vendas')
+  const [tab, setTab] = useState<'vendas' | 'comissoes' | 'password' | 'permissoes'>('vendas')
+
+  // Permissoes VIP
+  const [permLoading, setPermLoading] = useState(false)
+  const [permMsg, setPermMsg] = useState('')
+  const [permError, setPermError] = useState('')
 
   // Comissoes por operadora
   const [comOps, setComOps] = useState<ComissaoOp[]>([])
@@ -88,7 +93,25 @@ export default function ParceirosPage() {
     setTab('vendas')
     setPassMsg(''); setPassError(''); setNewPass('')
     setComError(''); setComSaved(false)
+    setPermMsg(''); setPermError('')
     await loadComissoes(pid)
+  }
+
+  async function updatePermissao(field: 'is_admin_vip' | 'pode_criar_estrutura' | 'pode_criar_parceiros', value: boolean) {
+    if (!selected) return
+    setPermLoading(true); setPermMsg(''); setPermError('')
+    const res = await authFetch('/api/parceiros/permissoes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ parceiro_id: selected, [field]: value }),
+    })
+    const data = await res.json()
+    setPermLoading(false)
+    if (!res.ok) { setPermError(data.error || 'Erro ao guardar'); return }
+    setPermMsg('Permissao atualizada!')
+    // Atualizar parceiro localmente
+    setParceiros(prev => prev.map(p => p.id === selected ? { ...p, [field]: value } : p))
+    setTimeout(() => setPermMsg(''), 3000)
   }
 
   async function saveComissaoOp() {
@@ -368,6 +391,7 @@ export default function ParceirosPage() {
                           { key: 'vendas', label: `Vendas (${selectedVendas.length})`, icon: ShoppingCart },
                           { key: 'comissoes', label: 'Comissoes', icon: Percent },
                           { key: 'password', label: 'Password', icon: KeyRound },
+                          { key: 'permissoes', label: 'Permissoes', icon: Crown },
                         ] as const).map(t => (
                           <button key={t.key} onClick={() => setTab(t.key)}
                             className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
