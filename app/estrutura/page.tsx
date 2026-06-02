@@ -84,17 +84,25 @@ export default function MinhaEstruturaPage() {
 
   async function apagarMembro(membro: Membro) {
     setDeleting(true); setDeleteError('')
-    const res = await authFetch('/api/estrutura/membros', { 
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: membro.id })
-    })
-    const data = await res.json()
-    setDeleting(false)
-    if (!res.ok) { setDeleteError(data.error || 'Erro ao apagar'); return }
-    setConfirmDelete(null)
-    const m = await authFetch('/api/estrutura/membros').then(r => r.json())
-    setMembros(m.membros || [])
+    try {
+      const res = await authFetch('/api/estrutura/membros', { 
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: membro.id })
+      })
+      const text = await res.text()
+      const data = text ? JSON.parse(text) : null
+      setDeleting(false)
+      if (!res.ok) { setDeleteError(data?.error || 'Erro ao apagar'); return }
+      setConfirmDelete(null)
+      const mRes = await authFetch('/api/estrutura/membros')
+      const mText = await mRes.text()
+      const m = mText ? JSON.parse(mText) : null
+      setMembros(m?.membros || [])
+    } catch {
+      setDeleting(false)
+      setDeleteError('Erro ao apagar membro')
+    }
   }
 
   if (authLoading || loading) {
