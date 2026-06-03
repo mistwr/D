@@ -40,21 +40,49 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'Não é possível apagar um admin' }, { status: 403 })
   }
 
-  // Obter email antes de apagar
-  const { data: authUser } = await svc.auth.admin.getUserById(parceiro_id)
-  const emailToBlock = authUser?.user?.email
+  try {
+    // 1. Limpar referências em todas as tabelas com foreign keys
+    await Promise.all([
+      svc.from('campaign_materials').delete().eq('uploaded_by', parceiro_id),
+      svc.from('campaigns').delete().eq('created_by', parceiro_id),
+      svc.from('chargebacks').delete().or(`parceiro_id.eq.${parceiro_id},criado_por.eq.${parceiro_id}`),
+      svc.from('comissoes_operadora').delete().eq('parceiro_id', parceiro_id),
+      svc.from('goals').delete().eq('user_id', parceiro_id),
+      svc.from('leaderboard_points').delete().eq('user_id', parceiro_id),
+      svc.from('notifications').delete().eq('user_id', parceiro_id),
+      svc.from('sales_results').delete().or(`created_by.eq.${parceiro_id},seller_id.eq.${parceiro_id}`),
+      svc.from('user_badges').delete().eq('user_id', parceiro_id),
+      svc.from('user_presence').delete().eq('user_id', parceiro_id),
+    ])
 
-  // Apagar utilizador do Supabase Auth (cascade apaga profiles, vendas, etc.)
-  const { error } = await svc.auth.admin.deleteUser(parceiro_id)
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    // 2. Limpar auto-referências em profiles (created_by, responsavel_id)
+    await Promise.all([
+      svc.from('profiles').update({ created_by: null }).eq('created_by', parceiro_id),
+      svc.from('profiles').update({ responsavel_id: null }).eq('responsavel_id', parceiro_id),
+    ])
 
-  // Registar email na lista de bloqueio para impedir re-registo
-  if (emailToBlock) {
-    await svc.from('deleted_emails').upsert(
-      { email: emailToBlock.toLowerCase(), deleted_by: 'admin', reason: 'Parceiro removido pelo admin' },
-      { onConflict: 'email' }
-    )
+    // 3. Deletar o profile
+    await svc.from('profiles').delete().eq('id', parceiro_id)
+
+    // 4. Obter email antes de apagar
+    const { data: authUser } = await svc.auth.admin.getUserById(parceiro_id)
+    const emailToBlock = authUser?.user?.email
+
+    // 5. Deletar o utilizador do Supabase Auth
+    const { error } = await svc.auth.admin.deleteUser(parceiro_id)
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+    // 6. Registar email na lista de bloqueio para impedir re-registo
+    if (emailToBlock) {
+      await svc.from('deleted_emails').upsert(
+        { email: emailToBlock.toLowerCase(), deleted_by: 'admin', reason: 'Parceiro removido pelo admin' },
+        { onConflict: 'email' }
+      )
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.log('[v0] Error deleting user:', error)
+    return NextResponse.json({ error: 'Erro ao deletar utilizador' }, { status: 500 })
   }
-
-  return NextResponse.json({ success: true })
 }
