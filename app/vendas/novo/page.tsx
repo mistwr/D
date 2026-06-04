@@ -14,6 +14,7 @@ const OPERADORAS: Record<string, string[]> = {
   energia: ['EDP', 'Endesa', 'Galp', 'Iberdrola', 'Gold Energy', 'Luzboa', 'Yes Energy', 'Repsol', 'Outro'],
   gas:     ['Galp', 'EDP', 'Endesa', 'Iberdrola', 'Gold Energy', 'Outro'],
   seguros: ['Fidelidade', 'Tranquilidade', 'Allianz', 'Generali', 'AXA', 'Zurich', 'Outro'],
+  paineis_solares: ['EDP', 'Enel X', 'Sunwoda', 'Elgin', 'Galp', 'Outro'],
 }
 
 interface FileItem { file: File; name: string; type: string; size: number }

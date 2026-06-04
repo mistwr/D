@@ -128,3 +128,42 @@ export async function GET(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ documents: documents || [] })
 }
+
+export async function PUT(req: NextRequest) {
+  const { user } = await getAuthUser(req)
+  if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+
+  const service = svc()
+  const body = await req.json()
+  const { id, document_html, status } = body
+
+  if (!id) {
+    return NextResponse.json({ error: 'id obrigatório' }, { status: 400 })
+  }
+
+  // Buscar documento existente para verificar permissões
+  const { data: existingDoc } = await service.from('generated_documents').select('sale_id, created_by').eq('id', id).single()
+  if (!existingDoc) return NextResponse.json({ error: 'Documento não encontrado' }, { status: 404 })
+
+  // Verificar permissões
+  const { data: profile } = await service.from('profiles').select('role, is_superadmin').eq('id', user.id).single()
+  const isAdmin = profile?.role === 'admin' || profile?.is_superadmin
+  
+  if (!isAdmin && existingDoc.created_by !== user.id) {
+    return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
+  }
+
+  // Atualizar documento
+  const { data: updated, error } = await service.from('generated_documents')
+    .update({
+      document_html: document_html || undefined,
+      status: status || 'draft',
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(updated)
+}
