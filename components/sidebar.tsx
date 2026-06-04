@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2, Target, Crown, Circle, User, UserPlus } from 'lucide-react'
+import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2, Target, Crown, Circle, User, UserPlus, FileText } from 'lucide-react'
 
 interface SidebarUser {
   role: string
@@ -71,6 +71,7 @@ export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = fals
   const superAdminLinks = [
     { href: '/admin/admins-vip', label: 'Admins VIP', icon: Crown },
     { href: '/admin/documentos', label: 'Documentos', icon: Upload },
+    { href: '/admin/document-templates', label: 'Templates de Documentos', icon: FileText },
     { href: '/admin/import', label: 'Import / Export', icon: FileSpreadsheet },
     { href: '/admin/passwords', label: 'Passwords', icon: KeyRound },
     // Enterprise
