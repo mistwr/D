@@ -297,6 +297,43 @@ export default function NovaVendaPage() {
           return
         }
       }
+
+      // Gerar e guardar PDF para telecom
+      if (form.service_type === 'telecom' && pdfTemplate) {
+        try {
+          // Preencher template com dados da venda
+          let filledPdf = pdfTemplate
+            .replace(/{{nome_cliente}}/g, form.client_name || '')
+            .replace(/{{nif}}/g, form.client_nif || '')
+            .replace(/{{email}}/g, form.client_email || '')
+            .replace(/{{telefone}}/g, form.client_phone || '')
+            .replace(/{{morada}}/g, form.client_address || '')
+            .replace(/{{operadora}}/g, form.operator)
+            .replace(/{{data_venda}}/g, new Date().toLocaleDateString('pt-PT'))
+            .replace(/{{servico}}/g, form.plano || '')
+            .replace(/{{vendedor}}/g, user?.email || '')
+          
+          // Guardar documento gerado
+          const docRes = await authFetch('/api/generated-documents', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sale_id: data.venda.id,
+              document_html: filledPdf,
+              document_type: 'FA',
+              operator: form.operator,
+              status: 'finalized'
+            })
+          })
+          
+          if (!docRes.ok) {
+            console.log('[v0] Warning: PDF não foi guardado mas venda foi criada com sucesso')
+          }
+        } catch (e) {
+          console.log('[v0] Warning: Erro ao gerar PDF:', e)
+        }
+      }
+
       setSuccess(true)
       setTimeout(() => router.push('/vendas'), 2000)
     } catch { setError('Erro de conexao'); setLoading(false) }
