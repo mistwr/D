@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
   const service = svc()
   const body = await req.json()
-  const { sale_id, document_type } = body
+  const { sale_id, document_type, document_html, operator, status } = body
 
   if (!sale_id || !document_type) {
     return NextResponse.json({ error: 'sale_id e document_type obrigatórios' }, { status: 400 })
@@ -41,50 +41,54 @@ export async function POST(req: NextRequest) {
   const { data: profile } = await service.from('profiles').select('role, is_superadmin').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin' || profile?.is_superadmin
   
-  if (!isAdmin && sale.created_by !== user.id) {
+  if (!isAdmin && sale.user_id !== user.id) {
     return NextResponse.json({ error: 'Sem permissão para gerar documento desta venda' }, { status: 403 })
   }
 
-  // Buscar template para a operadora
-  const { data: template } = await service.from('document_templates')
-    .select('*')
-    .eq('operator_name', sale.operadora)
-    .eq('template_type', document_type)
-    .single()
-
-  if (!template) {
-    return NextResponse.json({ 
-      error: `Template ${document_type} para operadora ${sale.operadora} não existe` 
-    }, { status: 404 })
-  }
-
-  // Preparar dados para substituição
-  const clientName = sale.cliente_nome || 'Cliente'
-  const vendorName = sale.vendedor_nome || 'Vendedor'
+  let htmlContent = document_html
   
-  const data = {
-    nome_cliente: clientName,
-    nif: sale.nif || '',
-    morada: sale.morada || '',
-    telefone: sale.telefone || '',
-    email: sale.email || '',
-    operadora: sale.operadora || '',
-    servico: sale.servico || '',
-    data_venda: new Date(sale.created_at).toLocaleDateString('pt-PT'),
-    vendedor: vendorName,
-    parceiro: sale.parceiro_nome || '',
-  }
+  // Se o HTML já foi pré-preenchido (vindo do formulário), usar diretamente
+  if (!htmlContent) {
+    // Buscar template para a operadora
+    const { data: template } = await service.from('document_templates')
+      .select('*')
+      .eq('operator_name', operator || sale.operator)
+      .eq('template_type', document_type)
+      .single()
 
-  // Substituir placeholders
-  const htmlContent = replacePlaceholders(template.template_content, data)
+    if (!template) {
+      return NextResponse.json({ 
+        error: `Template ${document_type} para operadora ${operator || sale.operator} não existe` 
+      }, { status: 404 })
+    }
+
+    // Preparar dados para substituição
+    const clientName = sale.client_name || 'Cliente'
+    const vendorName = sale.vendor_name || 'Vendedor'
+    
+    const data = {
+      nome_cliente: clientName,
+      nif: sale.client_nif || '',
+      morada: sale.client_address || '',
+      telefone: sale.client_phone || '',
+      email: sale.client_email || '',
+      operadora: sale.operator || '',
+      servico: sale.plano || '',
+      data_venda: new Date(sale.created_at).toLocaleDateString('pt-PT'),
+      vendedor: vendorName,
+      parceiro: sale.parceiro_name || '',
+    }
+
+    // Substituir placeholders
+    htmlContent = replacePlaceholders(template.template_content, data)
+  }
 
   // Criar documento
   const { data: generatedDoc, error: insertError } = await service.from('generated_documents').insert({
     sale_id,
-    template_id: template.id,
     document_type,
     document_html: htmlContent,
-    status: 'draft',
+    status: status || 'finalized',
     created_by: user.id
   }).select().single()
 
