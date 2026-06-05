@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { FileText, Download, Edit2, Loader } from 'lucide-react'
 import { DocumentEditor } from './document-editor'
+import { PdfDocumentsSection } from './pdf-documents-section'
 
 interface GeneratedDocument {
   id: string
@@ -64,6 +65,9 @@ export function SaleDocumentsTab({ saleId, canEdit, onGenerateDocument, isGenera
 
   return (
     <div className="space-y-6">
+      {/* Secção de PDFs (novo sistema) */}
+      <PdfDocumentsSection saleId={saleId} canEdit={canEdit} />
+
       {/* Botões para gerar documentos */}
       {canEdit && (
         <div>
