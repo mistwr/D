@@ -40,6 +40,7 @@ export default function NovaVendaPage() {
   
   // Estados para PDF template
   const [pdfTemplate, setPdfTemplate] = useState<string>('')
+  const [pdfUrl, setPdfUrl] = useState<string>('') // URL do PDF de materiais
   const [showPdfEditor, setShowPdfEditor] = useState(false)
   const [pdfContent, setPdfContent] = useState<string>('')
   const [pdfLoading, setPdfLoading] = useState(false)
@@ -89,17 +90,29 @@ export default function NovaVendaPage() {
 
   // Carregar template PDF ao mudar operadora (apenas telecom)
   useEffect(() => {
-    if (form.service_type !== 'telecom') { setPdfTemplate(''); return }
+    if (form.service_type !== 'telecom') { setPdfTemplate(''); setPdfUrl(''); return }
     
     setPdfLoading(true)
     fetch(`/api/document-templates/get?operator=${form.operator}&type=FA`)
       .then(r => r.json())
       .then(d => {
-        if (d.template?.template_content) {
+        if (d.template?.file_url) {
+          // É um PDF de materiais
+          setPdfUrl(d.template.file_url)
+          setPdfTemplate('') // Limpar template HTML
+        } else if (d.template?.template_content) {
+          // É um template HTML customizado
           setPdfTemplate(d.template.template_content)
+          setPdfUrl('') // Limpar URL
+        } else {
+          setPdfTemplate('')
+          setPdfUrl('')
         }
       })
-      .catch(() => setPdfTemplate(''))
+      .catch(() => {
+        setPdfTemplate('')
+        setPdfUrl('')
+      })
       .finally(() => setPdfLoading(false))
   }, [form.service_type, form.operator])
 
@@ -148,6 +161,12 @@ export default function NovaVendaPage() {
   function removeFile(idx: number) { setFiles(prev => prev.filter((_, i) => i !== idx)) }
 
   function openPdfEditor() {
+    if (pdfUrl) {
+      // Se for URL de PDF, abrir em nova aba ou carregar
+      window.open(pdfUrl, '_blank')
+      return
+    }
+    
     if (!pdfTemplate) return
     
     // Preencher PDF com dados do formulário
@@ -749,7 +768,7 @@ export default function NovaVendaPage() {
               </div>
 
               {/* SECÇÃO PDF CONTRATO (Telecom) */}
-              {form.service_type === 'telecom' && pdfTemplate && (
+              {form.service_type === 'telecom' && (pdfTemplate || pdfUrl) && (
                 <div className="mb-6 p-4 rounded-lg border" style={{ borderColor: '#e2e8f0', background: '#f8fafc' }}>
                   <div className="flex items-center justify-between mb-4">
                     <div>
@@ -758,23 +777,23 @@ export default function NovaVendaPage() {
                         Contrato FA - {form.operator}
                       </h3>
                       <p className="text-sm mt-1" style={{ color: '#64748b' }}>
-                        {pdfLoading ? 'A carregar template...' : 'Clique em "Editar" para visualizar e editar o contrato'}
+                        {pdfLoading ? 'A carregar template...' : pdfUrl ? 'PDF de materiais carregado' : 'Clique em "Editar" para visualizar e editar o contrato'}
                       </p>
                     </div>
                     <div className="flex gap-2">
                       <button
                         type="button"
                         onClick={openPdfEditor}
-                        disabled={!pdfTemplate || pdfLoading}
+                        disabled={(!pdfTemplate && !pdfUrl) || pdfLoading}
                         className="p-2 rounded-lg hover:bg-slate-200 transition disabled:opacity-50"
-                        title="Editar contrato"
+                        title={pdfUrl ? 'Abrir PDF' : 'Editar contrato'}
                       >
                         <Edit2 size={16} style={{ color: '#0ea5e9' }} />
                       </button>
                       <button
                         type="button"
                         onClick={downloadPdf}
-                        disabled={!pdfContent}
+                        disabled={!pdfContent && !pdfUrl}
                         className="p-2 rounded-lg hover:bg-slate-200 transition disabled:opacity-50"
                         title="Descarregar PDF"
                       >
