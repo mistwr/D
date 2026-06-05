@@ -39,14 +39,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Campos obrigatórios ausentes' }, { status: 400 })
     }
 
-    // Upload para storage
-    const fileName = `${operator}_${documentType}_${Date.now()}.pdf`
+    // Upload para storage (usar bucket 'documentos' que já existe)
+    const fileName = `pdf_templates/${operator}/${documentType}/${Date.now()}.pdf`
     const buffer = await file.arrayBuffer()
 
     console.log('[v0] Upload PDF template:', fileName)
 
     const { data: uploadData, error: uploadError } = await service.storage
-      .from('pdf-templates')
+      .from('documentos')
       .upload(fileName, buffer, {
         contentType: 'application/pdf',
         upsert: false,
@@ -54,12 +54,12 @@ export async function POST(req: NextRequest) {
 
     if (uploadError) {
       console.log('[v0] Erro no upload:', uploadError)
-      return NextResponse.json({ error: 'Erro ao fazer upload' }, { status: 500 })
+      return NextResponse.json({ error: `Erro ao fazer upload: ${uploadError.message}` }, { status: 500 })
     }
 
     // Gerar signed URL
     const { data: { signedUrl } } = await service.storage
-      .from('pdf-templates')
+      .from('documentos')
       .createSignedUrl(fileName, 86400 * 30) // 30 dias
 
     // Guardar na BD

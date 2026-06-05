@@ -77,11 +77,11 @@ export default function PdfTemplatesPage() {
         setFormData({ name: '', operator: '', documentType: '' })
         loadTemplates()
       } else {
-        alert('Erro ao carregar PDF')
+        alert('Erro ao carregar PDF: ' + res.status)
       }
     } catch (e) {
       console.log('[v0] Erro:', e)
-      alert('Erro ao fazer upload')
+      alert('Erro ao fazer upload: ' + (e as Error).message)
     }
     setUploading(false)
   }
