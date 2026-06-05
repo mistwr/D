@@ -48,10 +48,12 @@ export default function LeadsUploadPage() {
       if (search) query.append('search', search)
       if (statusFilter) query.append('status', statusFilter)
       
-      const res = await fetch(`/api/leads?${query}`)
+      const res = await fetch(`/api/leads-database?${query}`)
       if (res.ok) {
         const data = await res.json()
         setLeads(data.leads || [])
+      } else {
+        console.log('[v0] Error loading leads:', res.status)
       }
     } catch (e) {
       console.log('[v0] Error loading leads:', e)
