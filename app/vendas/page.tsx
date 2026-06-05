@@ -51,6 +51,7 @@ const STATUS_COLORS: Record<string, { bg: string; color: string; label: string }
   pendente:   { bg: '#fef3c7', color: '#92400e', label: 'Pendente' },
   em_revisao: { bg: '#dbeafe', color: '#1e40af', label: 'Em Revisão' },
   ativa:      { bg: '#d1fae5', color: '#065f46', label: 'Ativa' },
+  em_ativacao: { bg: '#fecaca', color: '#7f1d1d', label: 'Em Ativação' },
   em_ativacao_depois_revisao: { bg: '#e9d5ff', color: '#6d28d9', label: 'Em Ativação Depois Revisão' },
   processado: { bg: '#ede9fe', color: '#6d28d9', label: 'Processado' },
   pago:       { bg: '#d1fae5', color: '#065f46', label: 'Pago' },
