@@ -72,10 +72,11 @@ export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = fals
     { href: '/admin/admins-vip', label: 'Admins VIP', icon: Crown },
     { href: '/admin/documentos', label: 'Documentos', icon: Upload },
     { href: '/admin/document-templates', label: 'Templates de Documentos', icon: FileText },
+    { href: '/admin/leads-upload', label: 'Base de Dados de Leads', icon: Target },
     { href: '/admin/import', label: 'Import / Export', icon: FileSpreadsheet },
     { href: '/admin/passwords', label: 'Passwords', icon: KeyRound },
     // Enterprise
-    { href: '/admin/leads', label: 'Leads', icon: Target },
+    { href: '/admin/leads', label: 'Leads (Pipelines)', icon: Target },
     { href: '/admin/pipelines', label: 'Pipelines', icon: GitBranch },
     { href: '/admin/permissoes', label: 'Permissoes', icon: Shield },
     { href: '/admin/unidades', label: 'Unidades/Franquias', icon: Building2 },
