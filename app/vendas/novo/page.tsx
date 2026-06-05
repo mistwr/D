@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { ArrowLeft, Upload, X, FileText, CheckCircle } from 'lucide-react'
+import { ArrowLeft, Upload, X, FileText, CheckCircle, Edit2, Download } from 'lucide-react'
 import Link from 'next/link'
 
 
@@ -37,6 +37,12 @@ export default function NovaVendaPage() {
 
   const [comissoes, setComissoes] = useState<any[]>([])
   const [comissaoEstimada, setComissaoEstimada] = useState<string | null>(null)
+  
+  // Estados para PDF template
+  const [pdfTemplate, setPdfTemplate] = useState<string>('')
+  const [showPdfEditor, setShowPdfEditor] = useState(false)
+  const [pdfContent, setPdfContent] = useState<string>('')
+  const [pdfLoading, setPdfLoading] = useState(false)
 
   const [form, setForm] = useState({
     service_type: 'telecom',
@@ -81,6 +87,22 @@ export default function NovaVendaPage() {
       .catch(() => {})
   }, [user, authFetch])
 
+  // Carregar template PDF ao mudar operadora (apenas telecom)
+  useEffect(() => {
+    if (form.service_type !== 'telecom') { setPdfTemplate(''); return }
+    
+    setPdfLoading(true)
+    fetch(`/api/document-templates/get?operator=${form.operator}&type=FA`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.template?.template_content) {
+          setPdfTemplate(d.template.template_content)
+        }
+      })
+      .catch(() => setPdfTemplate(''))
+      .finally(() => setPdfLoading(false))
+  }, [form.service_type, form.operator])
+
   // Calcular comissao estimada ao mudar operadora/plano (apenas telecom)
   useEffect(() => {
     if (form.service_type !== 'telecom') { setComissaoEstimada(null); return }
@@ -124,6 +146,76 @@ export default function NovaVendaPage() {
   }
 
   function removeFile(idx: number) { setFiles(prev => prev.filter((_, i) => i !== idx)) }
+
+  function openPdfEditor() {
+    if (!pdfTemplate) return
+    
+    // Preencher PDF com dados do formulário
+    let filledPdf = pdfTemplate
+      .replace(/{{nome_cliente}}/g, form.client_name || '')
+      .replace(/{{nif}}/g, form.client_nif || '')
+      .replace(/{{email}}/g, form.client_email || '')
+      .replace(/{{telefone}}/g, form.client_phone || '')
+      .replace(/{{morada}}/g, form.client_address || '')
+      .replace(/{{operadora}}/g, form.operator)
+      .replace(/{{data_venda}}/g, new Date().toLocaleDateString('pt-PT'))
+      .replace(/{{servico}}/g, form.plano || '')
+      .replace(/{{vendedor}}/g, user?.email || '')
+    
+    setPdfContent(filledPdf)
+    setShowPdfEditor(true)
+  }
+
+  async function savePdfDocument() {
+    try {
+      // Guardar documento preenchido na BD
+      const res = await authFetch('/api/generated-documents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          document_html: pdfContent,
+          document_type: 'FA',
+          operator: form.operator,
+          status: 'finalized'
+        })
+      })
+      
+      if (res.ok) {
+        setShowPdfEditor(false)
+      }
+    } catch (e) {
+      console.log('[v0] Error saving PDF:', e)
+    }
+  }
+
+  async function downloadPdf() {
+    if (!pdfContent) return
+    
+    try {
+      const response = await fetch('/api/pdf/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          html: pdfContent,
+          filename: `FA_${form.operator}_${form.client_nif}_${Date.now()}.pdf`
+        })
+      })
+      
+      if (response.ok) {
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `FA_${form.operator}_${form.client_nif}.pdf`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      }
+    } catch (e) {
+      console.log('[v0] Error downloading PDF:', e)
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -656,6 +748,48 @@ export default function NovaVendaPage() {
                 )}
               </div>
 
+              {/* SECÇÃO PDF CONTRATO (Telecom) */}
+              {form.service_type === 'telecom' && pdfTemplate && (
+                <div className="mb-6 p-4 rounded-lg border" style={{ borderColor: '#e2e8f0', background: '#f8fafc' }}>
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="font-semibold flex items-center gap-2" style={{ color: '#1e293b' }}>
+                        <FileText size={18} style={{ color: '#0ea5e9' }} />
+                        Contrato FA - {form.operator}
+                      </h3>
+                      <p className="text-sm mt-1" style={{ color: '#64748b' }}>
+                        {pdfLoading ? 'A carregar template...' : 'Clique em "Editar" para visualizar e editar o contrato'}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={openPdfEditor}
+                        disabled={!pdfTemplate || pdfLoading}
+                        className="p-2 rounded-lg hover:bg-slate-200 transition disabled:opacity-50"
+                        title="Editar contrato"
+                      >
+                        <Edit2 size={16} style={{ color: '#0ea5e9' }} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={downloadPdf}
+                        disabled={!pdfContent}
+                        className="p-2 rounded-lg hover:bg-slate-200 transition disabled:opacity-50"
+                        title="Descarregar PDF"
+                      >
+                        <Download size={16} style={{ color: '#22c55e' }} />
+                      </button>
+                    </div>
+                  </div>
+                  {pdfContent && (
+                    <div className="text-xs" style={{ color: '#64748b' }}>
+                      ✓ Contrato preenchido com os dados do formulário
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* ACOES */}
               <div className="flex gap-3 pb-8">
                 <Link href="/vendas" className="flex-1">
@@ -675,6 +809,63 @@ export default function NovaVendaPage() {
           </div>
         </main>
       </div>
+
+      {/* Modal Editor PDF */}
+      {showPdfEditor && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: '#e2e8f0' }}>
+              <h3 className="font-semibold text-lg" style={{ color: '#1e293b' }}>Editar Contrato FA - {form.operator}</h3>
+              <button
+                type="button"
+                onClick={() => setShowPdfEditor(false)}
+                className="rounded-lg p-1 hover:bg-slate-100"
+              >
+                <X size={20} style={{ color: '#64748b' }} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-auto p-4 bg-slate-50">
+              <textarea
+                value={pdfContent}
+                onChange={(e) => setPdfContent(e.target.value)}
+                className="w-full h-full p-4 border rounded-lg font-mono text-sm resize-none"
+                style={{ borderColor: '#e2e8f0', background: '#ffffff' }}
+                placeholder="Conteúdo do contrato..."
+              />
+            </div>
+
+            <div className="flex gap-3 p-4 border-t" style={{ borderColor: '#e2e8f0' }}>
+              <button
+                type="button"
+                onClick={downloadPdf}
+                className="flex-1 px-4 py-2 rounded-lg font-medium text-white flex items-center justify-center gap-2 transition hover:opacity-90"
+                style={{ background: '#22c55e' }}
+              >
+                <Download size={16} />
+                Descarregar PDF
+              </button>
+              <button
+                type="button"
+                onClick={savePdfDocument}
+                className="flex-1 px-4 py-2 rounded-lg font-medium text-white flex items-center justify-center gap-2 transition hover:opacity-90"
+                style={{ background: '#0ea5e9' }}
+              >
+                <CheckCircle size={16} />
+                Guardar Documento
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowPdfEditor(false)}
+                className="flex-1 px-4 py-2 rounded-lg font-medium border"
+                style={{ borderColor: '#e2e8f0', color: '#64748b' }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
