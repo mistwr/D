@@ -113,7 +113,7 @@ export default function LeadsUploadPage() {
 
   async function updateLeadStatus(leadId: string, newStatus: string) {
     try {
-      const res = await fetch('/api/leads', {
+      const res = await fetch('/api/leads-database', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: leadId, status: newStatus })
@@ -131,7 +131,7 @@ export default function LeadsUploadPage() {
     if (!confirm('Tem a certeza que quer apagar este lead?')) return
     
     try {
-      const res = await fetch(`/api/leads?id=${leadId}`, { method: 'DELETE' })
+      const res = await fetch(`/api/leads-database?id=${leadId}`, { method: 'DELETE' })
       if (res.ok) {
         loadLeads()
       }
