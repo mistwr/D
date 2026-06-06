@@ -44,6 +44,8 @@ export default function NovaVendaPage() {
   const [showPdfEditor, setShowPdfEditor] = useState(false)
   const [pdfContent, setPdfContent] = useState<string>('')
   const [pdfLoading, setPdfLoading] = useState(false)
+  const [pdfTemplates, setPdfTemplates] = useState<any[]>([]) // Lista de templates disponíveis
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('') // Template selecionado pelo parceiro
 
   const [form, setForm] = useState({
     service_type: 'telecom',
@@ -88,36 +90,47 @@ export default function NovaVendaPage() {
       .catch(() => {})
   }, [user, authFetch])
 
-  // Carregar template PDF ao mudar operadora (apenas telecom)
+  // Carregar template PDF e lista de templates ao mudar operadora (apenas telecom)
   useEffect(() => {
-    if (form.service_type !== 'telecom') { setPdfTemplate(''); setPdfUrl(''); return }
+    if (form.service_type !== 'telecom') { 
+      setPdfTemplate(''); setPdfUrl(''); setPdfTemplates([]); setSelectedTemplateId('')
+      return 
+    }
     
     setPdfLoading(true)
+    
+    // Buscar lista de templates disponíveis da operadora
+    authFetch(`/api/pdf/templates?operadora=${encodeURIComponent(form.operator)}`)
+      .then(r => r.json())
+      .then(d => {
+        const templates = Array.isArray(d) ? d : d.templates || []
+        setPdfTemplates(templates)
+        if (templates.length > 0) {
+          setSelectedTemplateId(templates[0].id) // Selecionar primeiro por padrão
+        }
+        console.log('[v0] Templates carregados:', templates.length)
+      })
+      .catch((err) => {
+        console.log('[v0] Erro ao carregar templates:', err)
+        setPdfTemplates([])
+        setSelectedTemplateId('')
+      })
+    
+    // Tentar carregar template antiga forma (fallback)
     fetch(`/api/document-templates/get?operator=${form.operator}&type=FA`)
       .then(r => r.json())
       .then(d => {
         if (d.template?.file_url) {
-          // É um PDF de materiais
           setPdfUrl(d.template.file_url)
-          setPdfTemplate('') // Limpar template HTML
-        } else if (d.template?.template_content) {
-          // É um template HTML customizado
-          setPdfTemplate(d.template.template_content)
-          setPdfUrl('') // Limpar URL
-        } else {
-          // Fallback: avisar que não há template mas ainda assim permitir criar venda
           setPdfTemplate('')
+        } else if (d.template?.template_content) {
+          setPdfTemplate(d.template.template_content)
           setPdfUrl('')
-          console.log('[v0] Sem template para', form.operator, '- usar PDF genérico após criar venda')
         }
       })
-      .catch((err) => {
-        console.log('[v0] Erro ao carregar template:', err)
-        setPdfTemplate('')
-        setPdfUrl('')
-      })
+      .catch(() => {})
       .finally(() => setPdfLoading(false))
-  }, [form.service_type, form.operator])
+  }, [form.service_type, form.operator, authFetch])
 
   // Calcular comissao estimada ao mudar operadora/plano (apenas telecom)
   useEffect(() => {
@@ -349,42 +362,46 @@ export default function NovaVendaPage() {
         }
       }
 
-      // NOVO: Tentar gerar PDF automático com pdf-lib se houver template
+      // NOVO: Tentar gerar PDF automático com pdf-lib se houver template selecionado
       let pdfBlobUrl = null
       try {
-        // Buscar templates disponíveis para esta operadora
-        const templatesRes = await authFetch(`/api/pdf/templates?operadora=${encodeURIComponent(form.operator)}`)
-        if (templatesRes.ok) {
-          const templatesData = await templatesRes.json()
-          const templates = Array.isArray(templatesData) ? templatesData : templatesData.templates || []
+        if (selectedTemplateId && form.service_type === 'telecom') {
+          console.log('[v0] Template selecionado, gerando PDF preenchido...', selectedTemplateId)
           
-          if (templates.length > 0) {
-            const template = templates[0] // Usar primeiro template disponível
-            console.log('[v0] Template encontrado, gerando PDF preenchido...')
-            
-            // Chamar API para gerar PDF preenchido
-            const fillRes = await authFetch('/api/pdf/fill', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                sale_id: data.venda.id,
-                template_id: template.id,
-                document_type: 'FA'
-              })
+          // Chamar API para gerar PDF preenchido com dados da venda
+          const fillRes = await authFetch('/api/pdf/fill', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sale_id: data.venda.id,
+              template_id: selectedTemplateId,
+              document_type: 'FA',
+              fill_data: {
+                client_name: form.client_name,
+                client_nif: form.client_nif,
+                client_email: form.client_email,
+                client_phone: form.client_phone,
+                client_address: form.client_address,
+                operator: form.operator,
+                plano: form.plano,
+                amount: form.amount,
+              }
             })
-            
-            if (fillRes.ok) {
-              const pdfBuffer = await fillRes.arrayBuffer()
-              const blob = new Blob([pdfBuffer], { type: 'application/pdf' })
-              pdfBlobUrl = URL.createObjectURL(blob)
-              console.log('[v0] PDF gerado com sucesso! Iniciando download...')
-            } else {
-              console.log('[v0] Erro ao gerar PDF via API')
-            }
+          })
+          
+          if (fillRes.ok) {
+            const pdfBuffer = await fillRes.arrayBuffer()
+            const blob = new Blob([pdfBuffer], { type: 'application/pdf' })
+            pdfBlobUrl = URL.createObjectURL(blob)
+            console.log('[v0] PDF gerado com sucesso! Tamanho:', blob.size)
+          } else {
+            console.log('[v0] Erro ao gerar PDF via API. Status:', fillRes.status)
           }
+        } else if (form.service_type === 'telecom' && pdfTemplates.length === 0) {
+          console.log('[v0] Sem templates disponíveis para gerar PDF automático')
         }
       } catch (e) {
-        console.log('[v0] Erro ao buscar templates ou gerar PDF:', e)
+        console.log('[v0] Erro ao gerar PDF:', e)
       }
 
       setSuccess(true)
@@ -830,6 +847,38 @@ export default function NovaVendaPage() {
                   </div>
                 </div>
               </div>
+
+              {/* TEMPLATE PDF (apenas telecom) */}
+              {form.service_type === 'telecom' && pdfTemplates.length > 0 && (
+                <div className="rounded-xl p-5 shadow-sm" style={{ background: '#f0fdf4', border: '1px solid #86efac' }}>
+                  <h2 className="text-xs font-semibold mb-3 uppercase tracking-wider" style={{ color: '#166534' }}>
+                    <FileText size={14} className="inline mr-2" />
+                    Material de Apoio PDF
+                  </h2>
+                  <p className="text-xs mb-3" style={{ color: '#4d7c0f' }}>
+                    Selecione o material que pretende incluir e ser preenchido automaticamente
+                  </p>
+                  <select 
+                    value={selectedTemplateId}
+                    onChange={(e) => setSelectedTemplateId(e.target.value)}
+                    className="w-full rounded-lg px-3 py-2.5 text-sm font-medium"
+                    style={{ background: '#fff', border: '1px solid #86efac', color: '#166534' }}
+                  >
+                    <option value="">-- Selecione um template --</option>
+                    {pdfTemplates.map(t => (
+                      <option key={t.id} value={t.id}>
+                        {t.nome} ({t.tipo})
+                      </option>
+                    ))}
+                  </select>
+                  {selectedTemplateId && (
+                    <div className="mt-2 flex items-center gap-2 text-xs font-medium" style={{ color: '#166534' }}>
+                      <CheckCircle size={14} />
+                      Template selecionado: será preenchido automaticamente ao registar
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* DOCUMENTOS */}
               <div className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
