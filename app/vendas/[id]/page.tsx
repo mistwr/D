@@ -173,14 +173,16 @@ export default function SaleDetailPage() {
             )}
 
             {tab === 'documents' && (
-              <SaleDocumentsTab
-                saleId={saleId}
-                canEdit={canEdit}
-                onGenerateDocument={generateDocument}
-                isGenerating={isGenerating}
-                sale={sale}
-                authFetch={authFetch}
-              />
+              <div className="bg-white rounded-lg p-6 shadow-sm">
+                <SaleDocumentsTab
+                  saleId={saleId}
+                  canEdit={canEdit}
+                  onGenerateDocument={generateDocument}
+                  isGenerating={isGenerating}
+                  sale={sale}
+                  authFetch={authFetch}
+                />
+              </div>
             )}
 
             {tab === 'history' && (
