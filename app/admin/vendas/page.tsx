@@ -10,13 +10,14 @@ import {
 } from 'lucide-react'
 
 const STATUS_LABELS: Record<string, { label: string; color: string; bg: string }> = {
-  pendente:   { label: 'Pendente',    color: '#92400e', bg: '#fef3c7' },
-  em_revisao: { label: 'Em Revisao',  color: '#1e40af', bg: '#dbeafe' },
-  ativa:      { label: 'Ativa',       color: '#065f46', bg: '#d1fae5' },
-  pago:       { label: 'Pago',        color: '#065f46', bg: '#bbf7d0' },
-  cancelado:  { label: 'Cancelado',   color: '#991b1b', bg: '#fee2e2' },
-  rejeitado:  { label: 'Rejeitado',   color: '#7f1d1d', bg: '#fecaca' },
-  chargeback: { label: 'Chargeback',  color: '#7c2d12', bg: '#ffedd5' },
+  pendente:      { label: 'Pendente',       color: '#92400e', bg: '#fef3c7' },
+  em_revisao:    { label: 'Em Revisão',     color: '#1e40af', bg: '#dbeafe' },
+  em_ativacao:   { label: 'Em Ativação',    color: '#7c2d12', bg: '#fed7aa' },
+  ativa:         { label: 'Ativa',          color: '#065f46', bg: '#d1fae5' },
+  pago:          { label: 'Pago',           color: '#065f46', bg: '#bbf7d0' },
+  cancelado:     { label: 'Cancelado',      color: '#991b1b', bg: '#fee2e2' },
+  rejeitado:     { label: 'Rejeitado',      color: '#7f1d1d', bg: '#fecaca' },
+  chargeback:    { label: 'Chargeback',     color: '#7c2d12', bg: '#ffedd5' },
 }
 
 const STATUSES = Object.keys(STATUS_LABELS)
@@ -491,7 +492,7 @@ export default function AdminVendasPage() {
 
                 {/* Stats */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-                  {['pendente', 'em_revisao', 'ativa', 'pago'].map(s => {
+                  {['pendente', 'em_revisao', 'em_ativacao', 'ativa', 'pago'].map(s => {
                     const count = vendas.filter(v => v.status === s).length
                     const st = STATUS_LABELS[s]
                     return (
