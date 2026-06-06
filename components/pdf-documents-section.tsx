@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Download, Loader } from 'lucide-react'
+import { Download, Loader, Eye } from 'lucide-react'
+import { PdfViewer } from './pdf-viewer'
 
 interface PdfTemplate {
   id: string
@@ -42,6 +43,7 @@ export function PdfDocumentsSection({
   const [generatedPdfs, setGeneratedPdfs] = useState<GeneratedPdf[]>([])
   const [loading, setLoading] = useState(false)
   const [generating, setGenerating] = useState<string | null>(null)
+  const [viewingPdf, setViewingPdf] = useState<string | null>(null)
 
   useEffect(() => {
     loadTemplates()
@@ -163,20 +165,54 @@ export function PdfDocumentsSection({
                       {new Date(pdf.created_at).toLocaleDateString('pt-PT')}
                     </p>
                   </div>
-                  <a
-                    href={pdf.file_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-lg hover:bg-blue-100 transition"
-                  >
-                    <Download size={16} style={{ color: '#0ea5e9' }} />
-                  </a>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setViewingPdf(pdf.file_url)}
+                      className="p-2 rounded-lg hover:bg-blue-100 transition"
+                      title="Visualizar e assinar"
+                    >
+                      <Eye size={16} style={{ color: '#0ea5e9' }} />
+                    </button>
+                    <a
+                      href={pdf.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg hover:bg-blue-100 transition"
+                      title="Descarregar"
+                    >
+                      <Download size={16} style={{ color: '#0ea5e9' }} />
+                    </a>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         )}
       </div>
+
+      {/* PDF Viewer Modal */}
+      {viewingPdf && (
+        <PdfViewer
+          pdfUrl={viewingPdf}
+          fileName="Documento de Venda"
+          saleData={{
+            clientName,
+            clientEmail,
+            clientPhone,
+            clientAddress,
+          }}
+          onClose={() => setViewingPdf(null)}
+          onSave={async (pdfBlob) => {
+            // Aqui seria a lógica para guardar o PDF assinado
+            const url = URL.createObjectURL(pdfBlob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = 'documento-assinado.pdf'
+            a.click()
+            URL.revokeObjectURL(url)
+          }}
+        />
+      )}
     </div>
   )
 }
