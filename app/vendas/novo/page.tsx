@@ -447,17 +447,29 @@ export default function NovaVendaPage() {
 
   return (
     <div className="flex h-screen bg-background">
-      <Sidebar />
-      <div className="flex-1 overflow-auto">
+      {/* Sidebar - Hidden on mobile, visible on desktop */}
+      <div className="hidden md:block w-56 border-r" style={{ borderColor: '#e5e7eb', background: '#1a2847' }}>
+        <Sidebar />
+      </div>
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar />
-        <main className="p-2 sm:p-3 md:p-4 lg:p-6 max-w-5xl mx-auto">
-          {/* Header */}
-          <div className="mb-4 flex items-center gap-3">
-            <Link href="/vendas" className="p-2 hover:bg-muted rounded-lg transition">
-              <ArrowLeft size={20} className="text-foreground" />
-            </Link>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Nova Venda</h1>
-          </div>
+        
+        <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-6 lg:p-8">
+          <div className="max-w-4xl mx-auto">
+            {/* Header */}
+            <div className="mb-6 md:mb-8">
+              <div className="flex items-center gap-3 mb-4">
+                <Link href="/vendas" className="p-2 hover:bg-muted rounded-lg transition">
+                  <ArrowLeft size={20} className="text-foreground" />
+                </Link>
+                <div>
+                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">Nova Venda</h1>
+                  <p className="text-xs md:text-sm text-muted-foreground mt-1">Preencha o formulário para registar uma nova venda</p>
+                </div>
+              </div>
+            </div>
 
           {error && (
             <div className="rounded-lg px-4 py-3 mb-4 text-sm font-medium" style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca' }}>
@@ -468,40 +480,49 @@ export default function NovaVendaPage() {
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
 
               {/* TIPO DE SERVICO */}
-              <div className="rounded-xl p-4 sm:p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
-                <h2 className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#64748b' }}>1. Tipo de Servico</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 pb-2">
+              <div className="rounded-xl p-4 sm:p-5 md:p-6 shadow-md transition-shadow hover:shadow-lg" style={{ background: '#fff', border: '1px solid #e0e7ff' }}>
+                <h2 className="text-xs font-bold mb-4 uppercase tracking-widest" style={{ color: '#0066cc', letterSpacing: '0.05em' }}>Tipo de Serviço</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
                   {(['telecom', 'energia', 'gas', 'seguros'] as const).map(s => (
                     <button key={s} type="button"
                       onClick={() => { update('service_type', s); update('operator', OPERADORAS[s][0]); update('plano', '') }}
-                      className="rounded-lg py-3 text-sm font-semibold border transition"
+                      className="rounded-lg py-3 px-3 text-xs sm:text-sm font-semibold border-2 transition-all duration-200 hover:scale-105"
                       style={{
-                        background: form.service_type === s ? '#4f46e5' : '#f9fafb',
-                        color: form.service_type === s ? '#fff' : '#374151',
-                        border: form.service_type === s ? '1px solid #4f46e5' : '1px solid #e5e7eb',
+                        background: form.service_type === s ? '#0066cc' : '#f8fafc',
+                        color: form.service_type === s ? '#fff' : '#475569',
+                        border: form.service_type === s ? '2px solid #0066cc' : '2px solid #e2e8f0',
+                        boxShadow: form.service_type === s ? '0 4px 12px rgba(0, 102, 204, 0.2)' : 'none',
                       }}>
-                      {s === 'telecom' ? 'Telecom' : s === 'energia' ? 'Energia' : s === 'gas' ? 'Gas' : 'Seguros'}
+                      {s === 'telecom' ? 'Telecom' : s === 'energia' ? 'Energia' : s === 'gas' ? 'Gás' : 'Seguros'}
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* OPERADORA */}
-              <div className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
-                <h2 className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#64748b' }}>2. Operadora e Plano</h2>
+              <div className="rounded-xl p-4 sm:p-5 md:p-6 shadow-md transition-shadow hover:shadow-lg" style={{ background: '#fff', border: '1px solid #e0e7ff' }}>
+                <h2 className="text-xs font-bold mb-4 uppercase tracking-widest" style={{ color: '#0066cc', letterSpacing: '0.05em' }}>Operadora e Plano</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Operadora *</label>
+                    <label className="block text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: '#0066cc' }}>Operadora *</label>
                     <select value={form.operator} onChange={e => update('operator', e.target.value)}
-                      className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp} required>
+                      className="w-full rounded-lg px-3.5 py-2.5 text-sm font-medium border-2 transition focus:outline-none" 
+                      style={{ borderColor: '#e0e7ff', background: '#f8fafc', color: '#1a2847' }}
+                      onFocus={(e) => e.target.style.borderColor = '#0066cc'}
+                      onBlur={(e) => e.target.style.borderColor = '#e0e7ff'}
+                      required>
                       {ops.map(op => <option key={op} value={op}>{op}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Plano / Pacote</label>
+                    <label className="block text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: '#0066cc' }}>Plano / Pacote</label>
                     <input type="text" value={form.plano} onChange={e => update('plano', e.target.value)}
-                      className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp}
-                      placeholder={form.service_type === 'telecom' ? 'Ex: 3P, 4P, Pack Familia' : 'Ex: Simples, Bi-horario'} />
+                      placeholder="Ex: 39,95€ Pack Família"
+                      className="w-full rounded-lg px-3.5 py-2.5 text-sm font-medium border-2 transition focus:outline-none"
+                      style={{ borderColor: '#e0e7ff', background: '#f8fafc', color: '#1a2847' }}
+                      onFocus={(e) => e.target.style.borderColor = '#0066cc'}
+                      onBlur={(e) => e.target.style.borderColor = '#e0e7ff'}
+                    />
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Tipo de Contrato</label>
