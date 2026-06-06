@@ -178,6 +178,8 @@ export default function SaleDetailPage() {
                 canEdit={canEdit}
                 onGenerateDocument={generateDocument}
                 isGenerating={isGenerating}
+                sale={sale}
+                authFetch={authFetch}
               />
             )}
 

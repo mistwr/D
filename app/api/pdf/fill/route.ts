@@ -144,11 +144,11 @@ export async function POST(req: NextRequest) {
     const filledPdfBytes = await pdfDoc.save()
     const pdfBuffer = Buffer.from(filledPdfBytes)
 
-    // Upload para Supabase Storage
+    // Upload para Supabase Storage (usar bucket 'documentos')
     const fileName = `FA_${sale.operator}_${sale.client_nif}_${Date.now()}.pdf`
     const { data: uploadData, error: uploadError } = await service.storage
-      .from('vendas-pdfs')
-      .upload(`${sale_id}/${fileName}`, pdfBuffer, {
+      .from('documentos')
+      .upload(`vendas/${sale_id}/${fileName}`, pdfBuffer, {
         contentType: 'application/pdf',
         upsert: false,
       })
@@ -160,8 +160,8 @@ export async function POST(req: NextRequest) {
 
     // Gerar signed URL
     const { data: { signedUrl } } = await service.storage
-      .from('vendas-pdfs')
-      .createSignedUrl(`${sale_id}/${fileName}`, 3600)
+      .from('documentos')
+      .createSignedUrl(`vendas/${sale_id}/${fileName}`, 86400 * 30)
 
     // Guardar registro em generated_pdfs
     const { data: generatedPdf, error: insertError } = await service

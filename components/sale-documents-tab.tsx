@@ -19,9 +19,11 @@ interface SaleDocumentsTabProps {
   canEdit: boolean
   onGenerateDocument: (type: 'FA' | 'Portabilidade' | 'Rescisao') => void
   isGenerating: boolean
+  sale?: any
+  authFetch?: (url: string, options?: any) => Promise<Response>
 }
 
-export function SaleDocumentsTab({ saleId, canEdit, onGenerateDocument, isGenerating }: SaleDocumentsTabProps) {
+export function SaleDocumentsTab({ saleId, canEdit, onGenerateDocument, isGenerating, sale, authFetch }: SaleDocumentsTabProps) {
   const [documents, setDocuments] = useState<GeneratedDocument[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedDoc, setSelectedDoc] = useState<GeneratedDocument | null>(null)
@@ -66,7 +68,18 @@ export function SaleDocumentsTab({ saleId, canEdit, onGenerateDocument, isGenera
   return (
     <div className="space-y-6">
       {/* Secção de PDFs (novo sistema) */}
-      <PdfDocumentsSection saleId={saleId} canEdit={canEdit} />
+      {sale && authFetch && (
+        <PdfDocumentsSection 
+          saleId={saleId}
+          operator={sale.operator || ''}
+          clientName={sale.client_name || ''}
+          clientEmail={sale.client_email || ''}
+          clientPhone={sale.client_phone || ''}
+          clientAddress={sale.client_address || ''}
+          plano={sale.plano || ''}
+          authFetch={authFetch}
+        />
+      )}
 
       {/* Botões para gerar documentos */}
       {canEdit && (
