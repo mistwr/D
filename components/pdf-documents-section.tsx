@@ -5,9 +5,9 @@ import { Download, Loader } from 'lucide-react'
 
 interface PdfTemplate {
   id: string
-  name: string
-  operator: string
-  document_type: string
+  nome: string
+  operadora: string
+  tipo: string
 }
 
 interface GeneratedPdf {
@@ -50,7 +50,7 @@ export function PdfDocumentsSection({
 
   async function loadTemplates() {
     try {
-      const res = await fetch(`/api/pdf/templates?operator=${encodeURIComponent(operator)}`)
+      const res = await fetch(`/api/pdf/templates?operadora=${encodeURIComponent(operator)}`)
       if (res.ok) {
         const data = await res.json()
         setTemplates(data.templates || [])
@@ -124,7 +124,7 @@ export function PdfDocumentsSection({
           {templates.map(template => (
             <button
               key={template.id}
-              onClick={() => generatePdf(template.id, template.document_type)}
+              onClick={() => generatePdf(template.id, template.tipo)}
               disabled={generating === template.id}
               className="px-4 py-2 rounded-lg font-medium text-white flex items-center justify-center gap-2 transition hover:opacity-90 disabled:opacity-50"
               style={{ background: '#0ea5e9' }}
@@ -137,7 +137,7 @@ export function PdfDocumentsSection({
               ) : (
                 <>
                   <Download size={16} />
-                  Gerar {template.document_type}
+                  Gerar {template.tipo}
                 </>
               )}
             </button>
