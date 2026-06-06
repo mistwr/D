@@ -27,14 +27,14 @@ export const viewport: Viewport = {
   userScalable: true,
   viewportFit: 'cover',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#0f172a' },
-    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+    { media: '(prefers-color-scheme: light)', color: '#0066cc' },
+    { media: '(prefers-color-scheme: dark)', color: '#0066cc' },
   ],
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-PT" className="dark">
+    <html lang="pt-PT">
       <body className="font-sans antialiased bg-background text-foreground">
         {children}
         <CookieBanner />

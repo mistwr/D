@@ -4,103 +4,103 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Tema Premium VIP - Luxuoso e Motivacional */
-  /* Cores: Preto profundo, Ouro, Branco, Navy escuro */
+  /* Tema Premium Claro - Luxuoso e Moderno */
+  /* Cores: Branco, Azul claro, Ouro, Navy profundo */
   
   /* Background e Foreground */
-  --background: #0a0e27;
-  --foreground: #f5f1ed;
+  --background: #f8f9fc;
+  --foreground: #1a2847;
   
   /* Cards e Containers */
-  --card: #1a1f3a;
-  --card-foreground: #f5f1ed;
+  --card: #ffffff;
+  --card-foreground: #1a2847;
   
   /* Popover */
-  --popover: #1a1f3a;
-  --popover-foreground: #f5f1ed;
+  --popover: #ffffff;
+  --popover-foreground: #1a2847;
   
-  /* Primary - Ouro (cor principal premium) */
-  --primary: #d4af37;
-  --primary-foreground: #0a0e27;
+  /* Primary - Azul Premium (cor principal) */
+  --primary: #0066cc;
+  --primary-foreground: #ffffff;
   
-  /* Secondary - Navy elegante */
-  --secondary: #1e3a5f;
-  --secondary-foreground: #f5f1ed;
+  /* Secondary - Azul suave */
+  --secondary: #e0ebff;
+  --secondary-foreground: #0047a3;
   
   /* Muted */
-  --muted: #2a3050;
-  --muted-foreground: #b0a89f;
+  --muted: #f0f2f7;
+  --muted-foreground: #6b7280;
   
-  /* Accent - Cobre/Rose Gold */
-  --accent: #c68b5b;
-  --accent-foreground: #0a0e27;
+  /* Accent - Ouro elegante */
+  --accent: #d4a574;
+  --accent-foreground: #1a2847;
   
   /* Status Colors */
-  --success: #6bbe8f;
-  --success-foreground: #0a0e27;
-  --destructive: #e07856;
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   
   /* Borders e Inputs */
-  --border: #2a3050;
-  --input: #0f1429;
-  --ring: #d4af37;
+  --border: #e5e7eb;
+  --input: #f3f4f6;
+  --ring: #0066cc;
   
   /* Charts */
-  --chart-1: #d4af37;
-  --chart-2: #c68b5b;
-  --chart-3: #6bbe8f;
-  --chart-4: #5b8fbf;
-  --chart-5: #b08b8b;
+  --chart-1: #0066cc;
+  --chart-2: #d4a574;
+  --chart-3: #10b981;
+  --chart-4: #f59e0b;
+  --chart-5: #8b5cf6;
   
   /* Border Radius */
   --radius: 0.5rem;
   
   /* Sidebar Premium */
-  --sidebar: #050810;
-  --sidebar-foreground: #f5f1ed;
-  --sidebar-primary: #d4af37;
-  --sidebar-primary-foreground: #0a0e27;
-  --sidebar-accent: #1a1f3a;
-  --sidebar-accent-foreground: #f5f1ed;
-  --sidebar-border: #1a1f3a;
-  --sidebar-ring: #d4af37;
+  --sidebar: #1a2847;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #0066cc;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e0ebff;
+  --sidebar-accent-foreground: #0047a3;
+  --sidebar-border: #2a3a5f;
+  --sidebar-ring: #0066cc;
 }
 
 .dark {
-  /* Modo escuro Premium - Mesmo tema luxuoso */
-  --background: #0a0e27;
-  --foreground: #f5f1ed;
-  --card: #1a1f3a;
-  --card-foreground: #f5f1ed;
-  --popover: #1a1f3a;
-  --popover-foreground: #f5f1ed;
-  --primary: #d4af37;
-  --primary-foreground: #0a0e27;
-  --secondary: #1e3a5f;
-  --secondary-foreground: #f5f1ed;
-  --muted: #2a3050;
-  --muted-foreground: #b0a89f;
-  --accent: #c68b5b;
-  --accent-foreground: #0a0e27;
-  --destructive: #e07856;
+  /* Mesmo tema claro premium */
+  --background: #f8f9fc;
+  --foreground: #1a2847;
+  --card: #ffffff;
+  --card-foreground: #1a2847;
+  --popover: #ffffff;
+  --popover-foreground: #1a2847;
+  --primary: #0066cc;
+  --primary-foreground: #ffffff;
+  --secondary: #e0ebff;
+  --secondary-foreground: #0047a3;
+  --muted: #f0f2f7;
+  --muted-foreground: #6b7280;
+  --accent: #d4a574;
+  --accent-foreground: #1a2847;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #2a3050;
-  --input: #0f1429;
-  --ring: #d4af37;
-  --chart-1: #d4af37;
-  --chart-2: #c68b5b;
-  --chart-3: #6bbe8f;
-  --chart-4: #5b8fbf;
-  --chart-5: #b08b8b;
-  --sidebar: #050810;
-  --sidebar-foreground: #f5f1ed;
-  --sidebar-primary: #d4af37;
-  --sidebar-primary-foreground: #0a0e27;
-  --sidebar-accent: #1a1f3a;
-  --sidebar-accent-foreground: #f5f1ed;
-  --sidebar-border: #1a1f3a;
-  --sidebar-ring: #d4af37;
+  --border: #e5e7eb;
+  --input: #f3f4f6;
+  --ring: #0066cc;
+  --chart-1: #0066cc;
+  --chart-2: #d4a574;
+  --chart-3: #10b981;
+  --chart-4: #f59e0b;
+  --chart-5: #8b5cf6;
+  --sidebar: #1a2847;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #0066cc;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e0ebff;
+  --sidebar-accent-foreground: #0047a3;
+  --sidebar-border: #2a3a5f;
+  --sidebar-ring: #0066cc;
 }
 
 @theme inline {
@@ -151,15 +151,13 @@
   
   body {
     @apply bg-background text-foreground;
-    /* Efeito de luxo com background subtil */
-    background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
-    background-attachment: fixed;
   }
   
   /* Tipografia Premium */
   h1, h2, h3, h4, h5, h6 {
     letter-spacing: 0.5px;
     font-weight: 600;
+    color: #1a2847;
   }
   
   h1 {
@@ -251,7 +249,7 @@
    EFEITOS PREMIUM E LUXUOSOS
    ============================================= */
 
-/* Buttons Premium */
+/* Buttons Premium - Claro */
 button {
   transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
   position: relative;
@@ -260,31 +258,32 @@ button {
 
 button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(212, 175, 55, 0.25);
+  box-shadow: 0 8px 16px rgba(0, 102, 204, 0.15);
 }
 
 button:active:not(:disabled) {
   transform: translateY(0);
 }
 
-/* Cards Premium */
+/* Cards Premium - Claro */
 .card, [class*="card"] {
   transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
-  border: 1px solid rgba(212, 175, 55, 0.1);
-  background: linear-gradient(135deg, rgba(26, 31, 58, 0.8) 0%, rgba(26, 31, 58, 0.6) 100%);
-  backdrop-filter: blur(10px);
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .card:hover, [class*="card"]:hover {
-  border-color: rgba(212, 175, 55, 0.3);
-  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.15);
-  transform: translateY(-4px);
+  border-color: #d4a574;
+  box-shadow: 0 8px 24px rgba(212, 165, 116, 0.12);
+  transform: translateY(-2px);
 }
 
-/* Links Elegantes */
+/* Links Elegantes - Claro */
 a {
   position: relative;
   transition: color 0.3s ease;
+  color: #0066cc;
 }
 
 a::after {
@@ -294,7 +293,7 @@ a::after {
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, #d4af37, #c68b5b);
+  background: linear-gradient(90deg, #0066cc, #d4a574);
   transition: width 0.3s cubic-bezier(0.23, 1, 0.320, 1);
 }
 
@@ -302,61 +301,61 @@ a:hover::after {
   width: 100%;
 }
 
-/* Input Fields Premium */
+/* Input Fields Premium - Claro */
 input, textarea, select {
   transition: all 0.3s ease;
-  border-color: rgba(212, 175, 55, 0.2) !important;
-  background: rgba(15, 20, 41, 0.8) !important;
+  border-color: #e5e7eb !important;
+  background: #f8f9fc !important;
 }
 
 input:focus, textarea:focus, select:focus {
-  border-color: #d4af37 !important;
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1) !important;
-  background: rgba(15, 20, 41, 1) !important;
+  border-color: #0066cc !important;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1) !important;
+  background: #ffffff !important;
 }
 
-/* Badges Premium */
+/* Badges Premium - Claro */
 .badge, [class*="badge"] {
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(198, 139, 91, 0.2) 100%);
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  color: #d4af37;
+  background: linear-gradient(135deg, rgba(0, 102, 204, 0.1) 0%, rgba(212, 165, 116, 0.1) 100%);
+  border: 1px solid rgba(0, 102, 204, 0.2);
+  color: #0047a3;
   letter-spacing: 0.5px;
   font-size: 0.75rem;
   font-weight: 600;
 }
 
-/* Scroll Bar Styling */
+/* Scroll Bar Styling - Claro */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(42, 48, 80, 0.3);
+  background: #f0f2f7;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #d4af37, #c68b5b);
+  background: linear-gradient(180deg, #0066cc, #d4a574);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #e5c158, #d89b6b);
+  background: linear-gradient(180deg, #0052a3, #c68b5b);
 }
 
-/* Selection Premium */
+/* Selection Premium - Claro */
 ::selection {
-  background: #d4af37;
-  color: #0a0e27;
+  background: #0066cc;
+  color: #ffffff;
 }
 
-/* Shadows Premium */
+/* Shadows Premium - Claro */
 .shadow-premium {
-  box-shadow: 0 10px 40px rgba(212, 175, 55, 0.1), 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .shadow-lg-premium {
-  box-shadow: 0 20px 60px rgba(212, 175, 55, 0.15), 0 1px 3px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 102, 204, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 /* Mobile-friendly forms */
