@@ -44,6 +44,8 @@ export default function NovaVendaPage() {
   const [showPdfEditor, setShowPdfEditor] = useState(false)
   const [pdfContent, setPdfContent] = useState<string>('')
   const [pdfLoading, setPdfLoading] = useState(false)
+  const [pdfTemplates, setPdfTemplates] = useState<any[]>([]) // Lista de templates disponíveis
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('') // Template selecionado pelo parceiro
 
   const [form, setForm] = useState({
     service_type: 'telecom',
@@ -88,36 +90,47 @@ export default function NovaVendaPage() {
       .catch(() => {})
   }, [user, authFetch])
 
-  // Carregar template PDF ao mudar operadora (apenas telecom)
+  // Carregar template PDF e lista de templates ao mudar operadora (apenas telecom)
   useEffect(() => {
-    if (form.service_type !== 'telecom') { setPdfTemplate(''); setPdfUrl(''); return }
+    if (form.service_type !== 'telecom') { 
+      setPdfTemplate(''); setPdfUrl(''); setPdfTemplates([]); setSelectedTemplateId('')
+      return 
+    }
     
     setPdfLoading(true)
+    
+    // Buscar lista de templates disponíveis da operadora
+    authFetch(`/api/pdf/templates?operadora=${encodeURIComponent(form.operator)}`)
+      .then(r => r.json())
+      .then(d => {
+        const templates = Array.isArray(d) ? d : d.templates || []
+        setPdfTemplates(templates)
+        if (templates.length > 0) {
+          setSelectedTemplateId(templates[0].id) // Selecionar primeiro por padrão
+        }
+        console.log('[v0] Templates carregados:', templates.length)
+      })
+      .catch((err) => {
+        console.log('[v0] Erro ao carregar templates:', err)
+        setPdfTemplates([])
+        setSelectedTemplateId('')
+      })
+    
+    // Tentar carregar template antiga forma (fallback)
     fetch(`/api/document-templates/get?operator=${form.operator}&type=FA`)
       .then(r => r.json())
       .then(d => {
         if (d.template?.file_url) {
-          // É um PDF de materiais
           setPdfUrl(d.template.file_url)
-          setPdfTemplate('') // Limpar template HTML
-        } else if (d.template?.template_content) {
-          // É um template HTML customizado
-          setPdfTemplate(d.template.template_content)
-          setPdfUrl('') // Limpar URL
-        } else {
-          // Fallback: avisar que não há template mas ainda assim permitir criar venda
           setPdfTemplate('')
+        } else if (d.template?.template_content) {
+          setPdfTemplate(d.template.template_content)
           setPdfUrl('')
-          console.log('[v0] Sem template para', form.operator, '- usar PDF genérico após criar venda')
         }
       })
-      .catch((err) => {
-        console.log('[v0] Erro ao carregar template:', err)
-        setPdfTemplate('')
-        setPdfUrl('')
-      })
+      .catch(() => {})
       .finally(() => setPdfLoading(false))
-  }, [form.service_type, form.operator])
+  }, [form.service_type, form.operator, authFetch])
 
   // Calcular comissao estimada ao mudar operadora/plano (apenas telecom)
   useEffect(() => {
@@ -349,8 +362,66 @@ export default function NovaVendaPage() {
         }
       }
 
+      // NOVO: Tentar gerar PDF automático com pdf-lib se houver template selecionado
+      let pdfBlobUrl = null
+      try {
+        if (selectedTemplateId && form.service_type === 'telecom') {
+          console.log('[v0] Template selecionado, gerando PDF preenchido...', selectedTemplateId)
+          
+          // Chamar API para gerar PDF preenchido com dados da venda
+          const fillRes = await authFetch('/api/pdf/fill', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sale_id: data.venda.id,
+              template_id: selectedTemplateId,
+              document_type: 'FA',
+              fill_data: {
+                client_name: form.client_name,
+                client_nif: form.client_nif,
+                client_email: form.client_email,
+                client_phone: form.client_phone,
+                client_address: form.client_address,
+                operator: form.operator,
+                plano: form.plano,
+                amount: form.amount,
+              }
+            })
+          })
+          
+          if (fillRes.ok) {
+            const pdfBuffer = await fillRes.arrayBuffer()
+            const blob = new Blob([pdfBuffer], { type: 'application/pdf' })
+            pdfBlobUrl = URL.createObjectURL(blob)
+            console.log('[v0] PDF gerado com sucesso! Tamanho:', blob.size)
+          } else {
+            console.log('[v0] Erro ao gerar PDF via API. Status:', fillRes.status)
+          }
+        } else if (form.service_type === 'telecom' && pdfTemplates.length === 0) {
+          console.log('[v0] Sem templates disponíveis para gerar PDF automático')
+        }
+      } catch (e) {
+        console.log('[v0] Erro ao gerar PDF:', e)
+      }
+
       setSuccess(true)
-      setTimeout(() => router.push('/vendas'), 2000)
+      
+      // Se conseguiu gerar PDF, fazer download automático
+      if (pdfBlobUrl) {
+        setTimeout(() => {
+          const a = document.createElement('a')
+          a.href = pdfBlobUrl
+          a.download = `venda-${form.operator}-${new Date().getTime()}.pdf`
+          a.click()
+          URL.revokeObjectURL(pdfBlobUrl)
+          
+          // Redirecionar após download
+          setTimeout(() => router.push('/vendas'), 1000)
+        }, 500)
+      } else {
+        // Redirecionar normalmente sem download
+        setTimeout(() => router.push('/vendas'), 2000)
+      }
     } catch { setError('Erro de conexao'); setLoading(false) }
   }
 
@@ -375,29 +446,26 @@ export default function NovaVendaPage() {
   const isEnergia = form.service_type === 'energia'
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
-      <Navbar user={user} />
-      <div className="flex">
-        <Sidebar userRole={user?.role || 'parceiro'} />
-        <main className="flex-1 md:ml-64 pt-14 md:pt-16 pb-20 md:pb-8">
-          <div className="p-3 sm:p-4 md:p-8 max-w-3xl mx-auto">
-            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-              <Link href="/vendas" className="rounded-lg p-2 transition hover:bg-gray-200 flex-shrink-0" style={{ color: '#64748b' }}>
-                <ArrowLeft size={20} />
-              </Link>
-              <div className="min-w-0">
-                <h1 className="text-xl sm:text-2xl font-bold truncate" style={{ color: '#1e293b' }}>Registar Nova Venda</h1>
-                <p className="text-xs sm:text-sm hidden sm:block" style={{ color: '#64748b' }}>Preencha os dados do contrato e do cliente</p>
-              </div>
+    <div className="flex h-screen bg-background">
+      <Sidebar />
+      <div className="flex-1 overflow-auto">
+        <Navbar />
+        <main className="p-2 sm:p-3 md:p-4 lg:p-6 max-w-5xl mx-auto">
+          {/* Header */}
+          <div className="mb-4 flex items-center gap-3">
+            <Link href="/vendas" className="p-2 hover:bg-muted rounded-lg transition">
+              <ArrowLeft size={20} className="text-foreground" />
+            </Link>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Nova Venda</h1>
+          </div>
+
+          {error && (
+            <div className="rounded-lg px-4 py-3 mb-4 text-sm font-medium" style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca' }}>
+              {error}
             </div>
+          )}
 
-            {error && (
-              <div className="rounded-lg px-4 py-3 mb-4 text-sm font-medium" style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca' }}>
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
 
               {/* TIPO DE SERVICO */}
               <div className="rounded-xl p-4 sm:p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
@@ -777,6 +845,38 @@ export default function NovaVendaPage() {
                 </div>
               </div>
 
+              {/* TEMPLATE PDF (apenas telecom) */}
+              {form.service_type === 'telecom' && pdfTemplates.length > 0 && (
+                <div className="rounded-xl p-5 shadow-sm" style={{ background: '#f0fdf4', border: '1px solid #86efac' }}>
+                  <h2 className="text-xs font-semibold mb-3 uppercase tracking-wider" style={{ color: '#166534' }}>
+                    <FileText size={14} className="inline mr-2" />
+                    Material de Apoio PDF
+                  </h2>
+                  <p className="text-xs mb-3" style={{ color: '#4d7c0f' }}>
+                    Selecione o material que pretende incluir e ser preenchido automaticamente
+                  </p>
+                  <select 
+                    value={selectedTemplateId}
+                    onChange={(e) => setSelectedTemplateId(e.target.value)}
+                    className="w-full rounded-lg px-3 py-2.5 text-sm font-medium"
+                    style={{ background: '#fff', border: '1px solid #86efac', color: '#166534' }}
+                  >
+                    <option value="">-- Selecione um template --</option>
+                    {pdfTemplates.map(t => (
+                      <option key={t.id} value={t.id}>
+                        {t.nome} ({t.tipo})
+                      </option>
+                    ))}
+                  </select>
+                  {selectedTemplateId && (
+                    <div className="mt-2 flex items-center gap-2 text-xs font-medium" style={{ color: '#166534' }}>
+                      <CheckCircle size={14} />
+                      Template selecionado: será preenchido automaticamente ao registar
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* DOCUMENTOS */}
               <div className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <h2 className="text-xs font-semibold mb-1 uppercase tracking-wider" style={{ color: '#64748b' }}>5. Documentos Anexos</h2>
@@ -877,7 +977,6 @@ export default function NovaVendaPage() {
               </div>
 
             </form>
-          </div>
         </main>
       </div>
 
