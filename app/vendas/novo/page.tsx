@@ -446,29 +446,26 @@ export default function NovaVendaPage() {
   const isEnergia = form.service_type === 'energia'
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
-      <Navbar user={user} />
-      <div className="flex">
-        <Sidebar userRole={user?.role || 'parceiro'} />
-        <main className="flex-1 md:ml-64 pt-14 md:pt-16 pb-20 md:pb-8">
-          <div className="p-3 sm:p-4 md:p-8 max-w-3xl mx-auto">
-            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-              <Link href="/vendas" className="rounded-lg p-2 transition hover:bg-gray-200 flex-shrink-0" style={{ color: '#64748b' }}>
-                <ArrowLeft size={20} />
-              </Link>
-              <div className="min-w-0">
-                <h1 className="text-xl sm:text-2xl font-bold truncate" style={{ color: '#1e293b' }}>Registar Nova Venda</h1>
-                <p className="text-xs sm:text-sm hidden sm:block" style={{ color: '#64748b' }}>Preencha os dados do contrato e do cliente</p>
-              </div>
+    <div className="flex h-screen bg-background">
+      <Sidebar />
+      <div className="flex-1 overflow-auto">
+        <Navbar />
+        <main className="p-2 sm:p-3 md:p-4 lg:p-6 max-w-5xl mx-auto">
+          {/* Header */}
+          <div className="mb-4 flex items-center gap-3">
+            <Link href="/vendas" className="p-2 hover:bg-muted rounded-lg transition">
+              <ArrowLeft size={20} className="text-foreground" />
+            </Link>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Nova Venda</h1>
+          </div>
+
+          {error && (
+            <div className="rounded-lg px-4 py-3 mb-4 text-sm font-medium" style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca' }}>
+              {error}
             </div>
+          )}
 
-            {error && (
-              <div className="rounded-lg px-4 py-3 mb-4 text-sm font-medium" style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca' }}>
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
 
               {/* TIPO DE SERVICO */}
               <div className="rounded-xl p-4 sm:p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
@@ -980,7 +977,6 @@ export default function NovaVendaPage() {
               </div>
 
             </form>
-          </div>
         </main>
       </div>
 
