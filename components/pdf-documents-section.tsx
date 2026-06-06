@@ -117,29 +117,29 @@ export function PdfDocumentsSection({
   }
 
   return (
-    <div className="mt-8 p-6 rounded-lg border" style={{ borderColor: '#e2e8f0', background: '#f8fafc' }}>
-      <h2 className="font-semibold mb-4" style={{ color: '#1e293b' }}>Documentos PDF</h2>
+    <div className="mt-4 p-3 rounded-lg border" style={{ borderColor: '#e2e8f0', background: '#f8fafc' }}>
+      <h2 className="font-semibold mb-3 text-sm" style={{ color: '#1a2847' }}>Documentos PDF</h2>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {/* Botões para gerar PDFs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
           {templates.map(template => (
             <button
               key={template.id}
               onClick={() => generatePdf(template.id, template.tipo)}
               disabled={generating === template.id}
-              className="px-4 py-2 rounded-lg font-medium text-white flex items-center justify-center gap-2 transition hover:opacity-90 disabled:opacity-50"
-              style={{ background: '#0ea5e9' }}
+              className="px-3 py-1.5 rounded-lg font-medium text-white text-xs flex items-center justify-center gap-2 transition hover:opacity-90 disabled:opacity-50"
+              style={{ background: '#0066cc' }}
             >
               {generating === template.id ? (
                 <>
-                  <Loader size={16} className="animate-spin" />
+                  <Loader size={14} className="animate-spin" />
                   Gerando...
                 </>
               ) : (
                 <>
-                  <Download size={16} />
-                  Gerar {template.tipo}
+                  <Download size={14} />
+                  {template.tipo}
                 </>
               )}
             </button>

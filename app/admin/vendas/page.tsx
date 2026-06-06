@@ -491,7 +491,7 @@ export default function AdminVendasPage() {
 
                 {/* Stats */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-                  {['pendente', 'ativa', 'pago', 'cancelado'].map(s => {
+                  {['pendente', 'em_revisao', 'ativa', 'pago'].map(s => {
                     const count = vendas.filter(v => v.status === s).length
                     const st = STATUS_LABELS[s]
                     return (
