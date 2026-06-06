@@ -62,18 +62,18 @@ export async function POST(req: NextRequest) {
       .from('documentos')
       .createSignedUrl(fileName, 86400 * 30) // 30 dias
 
-    // Guardar na BD
+    // Guardar na BD (usar nomes em português conforme a tabela)
     const { data: template, error: insertError } = await service
       .from('pdf_templates')
       .insert({
-        name,
-        operator,
-        document_type: documentType,
-        file_url: signedUrl,
-        file_name: fileName,
-        has_form_fields: false,
-        active: true,
-        created_by: user.id,
+        nome: name,
+        operadora: operator,
+        tipo: documentType,
+        file_path: fileName,
+        file_name: file.name,
+        campos_mapeados: null,
+        ativo: true,
+        criado_por: user.id,
       })
       .select()
       .single()
@@ -98,13 +98,13 @@ export async function GET(req: NextRequest) {
   try {
     const service = svc()
     const { searchParams } = new URL(req.url)
-    const operator = searchParams.get('operator')
-    const documentType = searchParams.get('documentType')
+    const operadora = searchParams.get('operadora')
+    const tipo = searchParams.get('tipo')
 
-    let query = service.from('pdf_templates').select('*').eq('active', true)
+    let query = service.from('pdf_templates').select('*').eq('ativo', true)
 
-    if (operator) query = query.eq('operator', operator)
-    if (documentType) query = query.eq('document_type', documentType)
+    if (operadora) query = query.eq('operadora', operadora)
+    if (tipo) query = query.eq('tipo', tipo)
 
     const { data: templates, error } = await query
 

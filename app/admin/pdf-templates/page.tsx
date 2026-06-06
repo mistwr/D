@@ -9,12 +9,11 @@ import Link from 'next/link'
 
 interface PdfTemplate {
   id: string
-  name: string
-  operator: string
-  document_type: string
+  nome: string
+  operadora: string
+  tipo: string
   file_name: string
-  has_form_fields: boolean
-  active: boolean
+  ativo: boolean
   created_at: string
 }
 
@@ -197,13 +196,13 @@ export default function PdfTemplatesPage() {
                     style={{ borderColor: '#e2e8f0', background: template.active ? '#f0f9ff' : '#f5f5f5' }}
                   >
                     <div className="flex-1">
-                      <h3 className="font-medium" style={{ color: '#1e293b' }}>{template.name}</h3>
+                      <h3 className="font-medium" style={{ color: '#1e293b' }}>{template.nome}</h3>
                       <p className="text-sm" style={{ color: '#64748b' }}>
-                        {template.operator} • {template.document_type} • {template.file_name}
+                        {template.operadora} • {template.tipo} • {template.file_name}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      {template.active ? (
+                      {template.ativo ? (
                         <span className="text-xs px-2 py-1 rounded-full flex items-center gap-1" style={{ background: '#d1fae5', color: '#065f46' }}>
                           <Check size={14} /> Ativo
                         </span>

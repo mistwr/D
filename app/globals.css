@@ -4,78 +4,103 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Tema Claro - Solucoes Diferentes */
-  --background: #f8fafc;
-  --foreground: #1e293b;
+  /* Tema Premium Claro - Luxuoso e Moderno */
+  /* Cores: Branco, Azul claro, Ouro, Navy profundo */
+  
+  /* Background e Foreground */
+  --background: #f8f9fc;
+  --foreground: #1a2847;
+  
+  /* Cards e Containers */
   --card: #ffffff;
-  --card-foreground: #1e293b;
+  --card-foreground: #1a2847;
+  
+  /* Popover */
   --popover: #ffffff;
-  --popover-foreground: #1e293b;
-  --primary: #0ea5e9;
+  --popover-foreground: #1a2847;
+  
+  /* Primary - Azul Premium (cor principal) */
+  --primary: #0066cc;
   --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #1e293b;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #f97316;
-  --accent-foreground: #ffffff;
-  --success: #22c55e;
+  
+  /* Secondary - Azul suave */
+  --secondary: #e0ebff;
+  --secondary-foreground: #0047a3;
+  
+  /* Muted */
+  --muted: #f0f2f7;
+  --muted-foreground: #6b7280;
+  
+  /* Accent - Ouro elegante */
+  --accent: #d4a574;
+  --accent-foreground: #1a2847;
+  
+  /* Status Colors */
+  --success: #10b981;
   --success-foreground: #ffffff;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #0ea5e9;
-  --chart-1: #0ea5e9;
-  --chart-2: #f97316;
-  --chart-3: #22c55e;
-  --chart-4: #8b5cf6;
-  --chart-5: #ec4899;
-  --radius: 0.75rem;
-  --sidebar: #0f172a;
-  --sidebar-foreground: #f1f5f9;
-  --sidebar-primary: #0ea5e9;
+  
+  /* Borders e Inputs */
+  --border: #e5e7eb;
+  --input: #f3f4f6;
+  --ring: #0066cc;
+  
+  /* Charts */
+  --chart-1: #0066cc;
+  --chart-2: #d4a574;
+  --chart-3: #10b981;
+  --chart-4: #f59e0b;
+  --chart-5: #8b5cf6;
+  
+  /* Border Radius */
+  --radius: 0.5rem;
+  
+  /* Sidebar Premium */
+  --sidebar: #1a2847;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #0066cc;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1e293b;
-  --sidebar-accent-foreground: #f1f5f9;
-  --sidebar-border: #334155;
-  --sidebar-ring: #0ea5e9;
+  --sidebar-accent: #e0ebff;
+  --sidebar-accent-foreground: #0047a3;
+  --sidebar-border: #2a3a5f;
+  --sidebar-ring: #0066cc;
 }
 
 .dark {
-  /* Modo escuro - mantido para compatibilidade */
-  --background: #0f172a;
-  --foreground: #f1f5f9;
-  --card: #1e293b;
-  --card-foreground: #f1f5f9;
-  --popover: #1e293b;
-  --popover-foreground: #f1f5f9;
-  --primary: #38bdf8;
-  --primary-foreground: #0f172a;
-  --secondary: #334155;
-  --secondary-foreground: #f1f5f9;
-  --muted: #334155;
-  --muted-foreground: #94a3b8;
-  --accent: #fb923c;
-  --accent-foreground: #0f172a;
-  --destructive: #f87171;
-  --destructive-foreground: #0f172a;
-  --border: #334155;
-  --input: #334155;
-  --ring: #38bdf8;
-  --chart-1: #38bdf8;
-  --chart-2: #fb923c;
-  --chart-3: #4ade80;
-  --chart-4: #a78bfa;
-  --chart-5: #f472b6;
-  --sidebar: #020617;
-  --sidebar-foreground: #f1f5f9;
-  --sidebar-primary: #38bdf8;
-  --sidebar-primary-foreground: #0f172a;
-  --sidebar-accent: #1e293b;
-  --sidebar-accent-foreground: #f1f5f9;
-  --sidebar-border: #1e293b;
-  --sidebar-ring: #38bdf8;
+  /* Mesmo tema claro premium */
+  --background: #f8f9fc;
+  --foreground: #1a2847;
+  --card: #ffffff;
+  --card-foreground: #1a2847;
+  --popover: #ffffff;
+  --popover-foreground: #1a2847;
+  --primary: #0066cc;
+  --primary-foreground: #ffffff;
+  --secondary: #e0ebff;
+  --secondary-foreground: #0047a3;
+  --muted: #f0f2f7;
+  --muted-foreground: #6b7280;
+  --accent: #d4a574;
+  --accent-foreground: #1a2847;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e5e7eb;
+  --input: #f3f4f6;
+  --ring: #0066cc;
+  --chart-1: #0066cc;
+  --chart-2: #d4a574;
+  --chart-3: #10b981;
+  --chart-4: #f59e0b;
+  --chart-5: #8b5cf6;
+  --sidebar: #1a2847;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #0066cc;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e0ebff;
+  --sidebar-accent-foreground: #0047a3;
+  --sidebar-border: #2a3a5f;
+  --sidebar-ring: #0066cc;
 }
 
 @theme inline {
@@ -123,8 +148,26 @@
   * {
     @apply border-border outline-ring/50;
   }
+  
   body {
     @apply bg-background text-foreground;
+  }
+  
+  /* Tipografia Premium */
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: #1a2847;
+  }
+  
+  h1 {
+    @apply text-3xl;
+    letter-spacing: 1px;
+  }
+  
+  h2 {
+    @apply text-2xl;
+    letter-spacing: 0.8px;
   }
 }
 
@@ -200,6 +243,119 @@
   .table-responsive table {
     min-width: 600px;
   }
+}
+
+/* =============================================
+   EFEITOS PREMIUM E LUXUOSOS
+   ============================================= */
+
+/* Buttons Premium - Claro */
+button {
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 102, 204, 0.15);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Cards Premium - Claro */
+.card, [class*="card"] {
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.card:hover, [class*="card"]:hover {
+  border-color: #d4a574;
+  box-shadow: 0 8px 24px rgba(212, 165, 116, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Links Elegantes - Claro */
+a {
+  position: relative;
+  transition: color 0.3s ease;
+  color: #0066cc;
+}
+
+a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #0066cc, #d4a574);
+  transition: width 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+a:hover::after {
+  width: 100%;
+}
+
+/* Input Fields Premium - Claro */
+input, textarea, select {
+  transition: all 0.3s ease;
+  border-color: #e5e7eb !important;
+  background: #f8f9fc !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #0066cc !important;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1) !important;
+  background: #ffffff !important;
+}
+
+/* Badges Premium - Claro */
+.badge, [class*="badge"] {
+  background: linear-gradient(135deg, rgba(0, 102, 204, 0.1) 0%, rgba(212, 165, 116, 0.1) 100%);
+  border: 1px solid rgba(0, 102, 204, 0.2);
+  color: #0047a3;
+  letter-spacing: 0.5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Scroll Bar Styling - Claro */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0f2f7;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #0066cc, #d4a574);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #0052a3, #c68b5b);
+}
+
+/* Selection Premium - Claro */
+::selection {
+  background: #0066cc;
+  color: #ffffff;
+}
+
+/* Shadows Premium - Claro */
+.shadow-premium {
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-lg-premium {
+  box-shadow: 0 12px 32px rgba(0, 102, 204, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 /* Mobile-friendly forms */
