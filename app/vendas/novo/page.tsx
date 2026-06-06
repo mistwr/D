@@ -105,11 +105,14 @@ export default function NovaVendaPage() {
           setPdfTemplate(d.template.template_content)
           setPdfUrl('') // Limpar URL
         } else {
+          // Fallback: avisar que não há template mas ainda assim permitir criar venda
           setPdfTemplate('')
           setPdfUrl('')
+          console.log('[v0] Sem template para', form.operator, '- usar PDF genérico após criar venda')
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log('[v0] Erro ao carregar template:', err)
         setPdfTemplate('')
         setPdfUrl('')
       })

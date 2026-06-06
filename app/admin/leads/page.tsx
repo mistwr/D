@@ -55,20 +55,42 @@ export default function LeadsPage() {
 
   async function fetchAll() {
     setLoading(true)
-    const params = new URLSearchParams()
-    if (filterPipeline) params.append('pipeline_id', filterPipeline)
-    if (filterUnidade) params.append('unidade_id', filterUnidade)
-    
-    const [leadsRes, pipelinesRes, usersRes, unidadesRes] = await Promise.all([
-      fetch(`/api/leads?${params}`),
-      fetch('/api/pipelines'),
-      fetch('/api/cargos'),
-      fetch('/api/unidades')
-    ])
-    
-    if (leadsRes.ok) setLeads(await leadsRes.json())
-    if (pipelinesRes.ok) setPipelines(await pipelinesRes.json())
-    if (unidadesRes.ok) setUnidades(await unidadesRes.json())
+    try {
+      const params = new URLSearchParams()
+      if (filterPipeline) params.append('pipeline_id', filterPipeline)
+      if (filterUnidade) params.append('unidade_id', filterUnidade)
+      
+      const [leadsRes, pipelinesRes, usersRes, unidadesRes] = await Promise.all([
+        fetch(`/api/leads?${params}`),
+        fetch('/api/pipelines'),
+        fetch('/api/users'),
+        fetch('/api/unidades')
+      ])
+      
+      if (leadsRes.ok) {
+        const data = await leadsRes.json()
+        setLeads(Array.isArray(data) ? data : data.leads || [])
+      } else {
+        console.error('[v0] Erro ao carregar leads:', leadsRes.status)
+      }
+      
+      if (pipelinesRes.ok) {
+        const data = await pipelinesRes.json()
+        setPipelines(Array.isArray(data) ? data : data.pipelines || [])
+      }
+      
+      if (usersRes.ok) {
+        const data = await usersRes.json()
+        setUsers(Array.isArray(data) ? data : data.users || [])
+      }
+      
+      if (unidadesRes.ok) {
+        const data = await unidadesRes.json()
+        setUnidades(Array.isArray(data) ? data : data.unidades || [])
+      }
+    } catch (error) {
+      console.error('[v0] Erro ao buscar dados:', error)
+    }
     setLoading(false)
   }
 
