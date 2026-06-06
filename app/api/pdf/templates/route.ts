@@ -112,9 +112,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ templates })
+    return NextResponse.json({ templates: templates || [] })
   } catch (error) {
-    console.log('[v0] Erro na API GET:', error)
+    console.log('[v0] Erro na API GET templates:', error)
     return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 })
   }
 }

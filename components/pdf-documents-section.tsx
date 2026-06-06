@@ -50,7 +50,7 @@ export function PdfDocumentsSection({
 
   async function loadTemplates() {
     try {
-      const res = await fetch(`/api/pdf/templates?operator=${operator}`)
+      const res = await fetch(`/api/pdf/templates?operator=${encodeURIComponent(operator)}`)
       if (res.ok) {
         const data = await res.json()
         setTemplates(data.templates || [])
@@ -104,7 +104,14 @@ export function PdfDocumentsSection({
   }
 
   if (templates.length === 0) {
-    return null
+    return (
+      <div className="mt-6 p-4 rounded-lg border" style={{ borderColor: '#fca5a5', background: '#fef2f2' }}>
+        <p style={{ color: '#991b1b' }} className="text-sm">
+          Não existem templates PDF disponíveis para a operadora <strong>{operator}</strong>. 
+          Peça ao administrador para carregar um template em <strong>/admin/pdf-templates</strong>.
+        </p>
+      </div>
+    )
   }
 
   return (
