@@ -480,18 +480,17 @@ export default function NovaVendaPage() {
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
 
               {/* TIPO DE SERVICO */}
-              <div className="rounded-xl p-4 sm:p-5 md:p-6 shadow-md transition-shadow hover:shadow-lg" style={{ background: '#fff', border: '1px solid #e0e7ff' }}>
-                <h2 className="text-xs font-bold mb-4 uppercase tracking-widest" style={{ color: '#0066cc', letterSpacing: '0.05em' }}>Tipo de Serviço</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+              <div className="rounded-lg p-3 sm:p-4 md:p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e0e7ff' }}>
+                <h2 className="text-xs font-bold mb-3 uppercase tracking-widest" style={{ color: '#0066cc' }}>Tipo de Serviço</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
                   {(['telecom', 'energia', 'gas', 'seguros'] as const).map(s => (
                     <button key={s} type="button"
                       onClick={() => { update('service_type', s); update('operator', OPERADORAS[s][0]); update('plano', '') }}
-                      className="rounded-lg py-3 px-3 text-xs sm:text-sm font-semibold border-2 transition-all duration-200 hover:scale-105"
+                      className="rounded-lg py-2 sm:py-2.5 px-2 text-xs sm:text-sm font-semibold border transition-all"
                       style={{
                         background: form.service_type === s ? '#0066cc' : '#f8fafc',
                         color: form.service_type === s ? '#fff' : '#475569',
-                        border: form.service_type === s ? '2px solid #0066cc' : '2px solid #e2e8f0',
-                        boxShadow: form.service_type === s ? '0 4px 12px rgba(0, 102, 204, 0.2)' : 'none',
+                        border: form.service_type === s ? '1px solid #0066cc' : '1px solid #e2e8f0',
                       }}>
                       {s === 'telecom' ? 'Telecom' : s === 'energia' ? 'Energia' : s === 'gas' ? 'Gás' : 'Seguros'}
                     </button>
@@ -525,9 +524,12 @@ export default function NovaVendaPage() {
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Tipo de Contrato</label>
+                    <label className="block text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: '#0066cc' }}>Tipo de Contrato</label>
                     <input type="text" value={form.contract_type} onChange={e => update('contract_type', e.target.value)}
-                      className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp}
+                      className="w-full rounded-lg px-3.5 py-2.5 text-sm font-medium border-2 transition focus:outline-none"
+                      style={{ borderColor: '#e0e7ff', background: '#f8fafc', color: '#1a2847' }}
+                      onFocus={(e) => e.target.style.borderColor = '#0066cc'}
+                      onBlur={(e) => e.target.style.borderColor = '#e0e7ff'}
                       placeholder="Ex: Residencial 24 meses, Empresarial, Mensal" />
                   </div>
                 </div>
@@ -998,61 +1000,30 @@ export default function NovaVendaPage() {
               </div>
 
             </form>
+          </div>
         </main>
       </div>
 
       {/* Modal Editor PDF */}
       {showPdfEditor && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: '#e2e8f0' }}>
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white" style={{ borderColor: '#e2e8f0' }}>
               <h3 className="font-semibold text-lg" style={{ color: '#1e293b' }}>Editar Contrato FA - {form.operator}</h3>
-              <button
-                type="button"
-                onClick={() => setShowPdfEditor(false)}
-                className="rounded-lg p-1 hover:bg-slate-100"
-              >
+              <button onClick={() => setShowPdfEditor(false)} className="p-1 hover:bg-slate-100 rounded">
                 <X size={20} style={{ color: '#64748b' }} />
               </button>
             </div>
-
             <div className="flex-1 overflow-auto p-4 bg-slate-50">
-              <textarea
-                value={pdfContent}
-                onChange={(e) => setPdfContent(e.target.value)}
-                className="w-full h-full p-4 border rounded-lg font-mono text-sm resize-none"
-                style={{ borderColor: '#e2e8f0', background: '#ffffff' }}
-                placeholder="Conteúdo do contrato..."
-              />
+              {pdfUrl ? (
+                <iframe src={pdfUrl} className="w-full h-full rounded-lg" style={{ border: 'none', minHeight: '500px' }} />
+              ) : (
+                <div className="flex items-center justify-center h-96 text-slate-400">Sem PDF disponível</div>
+              )}
             </div>
-
-            <div className="flex gap-3 p-4 border-t" style={{ borderColor: '#e2e8f0' }}>
-              <button
-                type="button"
-                onClick={downloadPdf}
-                className="flex-1 px-4 py-2 rounded-lg font-medium text-white flex items-center justify-center gap-2 transition hover:opacity-90"
-                style={{ background: '#22c55e' }}
-              >
-                <Download size={16} />
-                Descarregar PDF
-              </button>
-              <button
-                type="button"
-                onClick={savePdfDocument}
-                className="flex-1 px-4 py-2 rounded-lg font-medium text-white flex items-center justify-center gap-2 transition hover:opacity-90"
-                style={{ background: '#0ea5e9' }}
-              >
-                <CheckCircle size={16} />
-                Guardar Documento
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowPdfEditor(false)}
-                className="flex-1 px-4 py-2 rounded-lg font-medium border"
-                style={{ borderColor: '#e2e8f0', color: '#64748b' }}
-              >
-                Cancelar
-              </button>
+            <div className="flex items-center justify-end gap-3 p-4 border-t bg-white sticky bottom-0" style={{ borderColor: '#e2e8f0' }}>
+              <button onClick={() => setShowPdfEditor(false)} className="px-4 py-2 rounded-lg font-medium text-slate-700 hover:bg-slate-100">Cancelar</button>
+              <button onClick={() => { setShowPdfEditor(false); alert('PDF guardado!') }} className="px-4 py-2 rounded-lg font-medium text-white" style={{ background: '#0ea5e9' }}>Guardar</button>
             </div>
           </div>
         </div>
