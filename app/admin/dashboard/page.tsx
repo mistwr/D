@@ -147,7 +147,7 @@ export default function AdminDashboardPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 md:mb-10">
               <div>
-                <h1 className="text-2xl md:text-3xl lg:text-3xl font-bold" style={{ color: '#003d99' }}>Dashboard Enterprise</h1>
+                <h1 className="text-2xl md:text-3xl font-bold" style={{ color: '#003d99' }}>Dashboard Enterprise</h1>
                 <p style={{ color: '#6b7280' }} className="text-xs md:text-sm lg:text-sm mt-2">Visão completa do desempenho comercial</p>
               </div>
               <div className="flex gap-3">
@@ -186,21 +186,21 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Métricas Principais */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 md:mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6 md:mb-8">
               {[
                 { label: 'Volume Total', value: `€${metrics.total.toFixed(2)}`, icon: DollarSign, color: '#0066cc', bg: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)' },
                 { label: 'Vendas', value: filtered.length, icon: BarChart3, color: '#8b5cf6', bg: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)' },
                 { label: 'Taxa Conversão', value: `${metrics.taxaConversao}%`, icon: Target, color: '#10b981', bg: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)' },
                 { label: 'Parceiros Ativos', value: metrics.parceiros, icon: Users, color: '#f59e0b', bg: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' },
               ].map(m => (
-                <div key={m.label} className="rounded-lg p-4 shadow-md hover:shadow-lg transition-all" style={{ background: '#ffffff', border: '1px solid #d0e8ff' }}>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg" style={{ background: m.bg }}>
-                      <m.icon size={20} style={{ color: m.color }} />
+                <div key={m.label} className="rounded-lg p-3 shadow-md hover:shadow-lg transition-all" style={{ background: '#ffffff', border: '1px solid #d0e8ff' }}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ background: m.bg }}>
+                      <m.icon size={18} style={{ color: m.color }} />
                     </div>
                   </div>
-                  <p className="text-xl lg:text-2xl font-bold" style={{ color: '#003d99' }}>{m.value}</p>
-                  <p className="text-xs lg:text-sm mt-1.5 font-medium" style={{ color: '#6b7280' }}>{m.label}</p>
+                  <p className="text-lg lg:text-xl font-bold" style={{ color: '#003d99' }}>{m.value}</p>
+                  <p className="text-xs lg:text-xs mt-1 font-medium" style={{ color: '#6b7280' }}>{m.label}</p>
                 </div>
               ))}
             </div>
