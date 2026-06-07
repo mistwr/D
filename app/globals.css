@@ -171,8 +171,35 @@
 }
 
 /* =============================================
-   RESPONSIVE UTILITIES & MOBILE-FIRST DESIGN
+   OVERFLOW & LAYOUT GUARDS (FIX DOUBLE-OFFSET BUG)
    ============================================= */
+
+/* Ensure main content respects viewport */
+main {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* On desktop (md+), main has md:ml-64 offset for fixed sidebar */
+@media (min-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+  
+  main {
+    /* Sidebar is now fixed, so ml-64 offset is correct */
+    margin-left: 0; /* Will be overridden by page-level md:ml-64 */
+  }
+}
+
+/* Prevent overflow on all children */
+* {
+  max-width: 100vw;
+}
+
+html {
+  overflow-x: hidden;
+}
 
 /* Touch-friendly targets for mobile */
 @media (max-width: 768px) {

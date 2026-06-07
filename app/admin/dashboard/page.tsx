@@ -142,8 +142,8 @@ export default function AdminDashboardPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
-        <main className="flex-1 overflow-auto pt-20 md:pt-20">
-          <div className="p-4 md:p-5 max-w-5xl mx-auto">
+        <main className="flex-1 overflow-auto pt-20 md:pt-20 md:ml-64 w-full">
+          <div className="p-4 md:p-5 max-w-5xl mx-auto w-full">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 md:mb-10">
               <div>
