@@ -454,8 +454,8 @@ export default function NovaVendaPage() {
       <div className="flex-1 flex flex-col overflow-hidden w-full">
         <Navbar />
         
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 xs:p-3 sm:p-4 md:p-6 lg:p-8" style={{ background: '#fff' }}>
-          <div className="max-w-5xl mx-auto w-full">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 xs:p-3 sm:p-4 md:p-6 lg:p-12" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
+          <div className="max-w-7xl mx-auto w-full">
             {/* Header */}
             <div className="mb-4 sm:mb-6 md:mb-8">
               <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
@@ -478,18 +478,18 @@ export default function NovaVendaPage() {
           <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 md:space-y-5">
 
               {/* TIPO DE SERVICO */}
-              <div className="rounded-lg p-2.5 sm:p-3 md:p-4 shadow-sm" style={{ background: '#fff', border: '1px solid #e0e7ff' }}>
-                <h2 className="text-xs font-bold mb-2.5 sm:mb-3 uppercase tracking-widest" style={{ color: '#0066cc' }}>Tipo de Serviço</h2>
-                <div className="grid grid-cols-2 gap-1 sm:gap-2">
+              <div className="rounded-2xl p-2.5 sm:p-3 md:p-5 lg:p-6 shadow-lg hover:shadow-xl transition-all" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%)', border: '1px solid #d0e8ff', borderTop: '2px solid #0066cc' }}>
+                <h2 className="text-xs font-bold mb-3 sm:mb-4 uppercase tracking-widest" style={{ color: '#003d99', fontSize: '10px', letterSpacing: '0.08em' }}>Tipo de Serviço</h2>
+                <div className="grid grid-cols-2 gap-1 sm:gap-2 md:gap-3">
                   {(['telecom', 'energia', 'gas', 'seguros'] as const).map(s => (
                     <button key={s} type="button"
                       onClick={() => { update('service_type', s); update('operator', OPERADORAS[s][0]); update('plano', '') }}
-                      className="rounded-lg py-1.5 sm:py-2 px-1.5 sm:px-2 text-xs font-semibold border transition-all whitespace-nowrap"
+                      className="rounded-xl py-2 sm:py-2.5 md:py-3 px-2 sm:px-3 text-xs sm:text-sm font-bold border-2 transition-all whitespace-nowrap shadow-sm hover:shadow-md"
                       style={{
-                        background: form.service_type === s ? '#0066cc' : '#f8fafc',
-                        color: form.service_type === s ? '#fff' : '#475569',
-                        border: form.service_type === s ? '1px solid #0066cc' : '1px solid #e2e8f0',
-                        fontSize: window.innerWidth < 640 ? '11px' : '13px',
+                        background: form.service_type === s ? 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)' : 'linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%)',
+                        color: form.service_type === s ? '#fff' : '#334155',
+                        border: form.service_type === s ? '2px solid #003d99' : '2px solid #cbd5e1',
+                        boxShadow: form.service_type === s ? '0 4px 12px rgba(0, 82, 163, 0.2)' : 'none',
                       }}>
                       {s === 'telecom' ? 'Telecom' : s === 'energia' ? 'Energia' : s === 'gas' ? 'Gás' : 'Seguros'}
                     </button>
@@ -498,35 +498,37 @@ export default function NovaVendaPage() {
               </div>
 
               {/* OPERADORA */}
-              <div className="rounded-xl p-4 sm:p-5 md:p-6 shadow-md transition-shadow hover:shadow-lg" style={{ background: '#fff', border: '1px solid #e0e7ff' }}>
-                <h2 className="text-xs font-bold mb-4 uppercase tracking-widest" style={{ color: '#0066cc', letterSpacing: '0.05em' }}>Operadora e Plano</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="rounded-2xl p-5 sm:p-6 md:p-7 lg:p-8 shadow-lg hover:shadow-xl transition-all" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%)', border: '1px solid #d0e8ff', borderTop: '2px solid #0066cc' }}>
+                <h2 className="text-xs font-bold mb-5 uppercase tracking-widest" style={{ color: '#003d99', fontSize: '10px', letterSpacing: '0.08em' }}>Operadora e Plano</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                   <div>
-                    <label className="block text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: '#0066cc' }}>Operadora *</label>
+                    <label className="block text-xs font-bold mb-2 uppercase tracking-wide" style={{ color: '#003d99' }}>Operadora *</label>
                     <select value={form.operator} onChange={e => update('operator', e.target.value)}
-                      className="w-full rounded-lg px-3.5 py-2.5 text-sm font-medium border-2 transition focus:outline-none" 
-                      style={{ borderColor: '#e0e7ff', background: '#f8fafc', color: '#1a2847' }}
-                      onFocus={(e) => e.target.style.borderColor = '#0066cc'}
-                      onBlur={(e) => e.target.style.borderColor = '#e0e7ff'}
+                      className="w-full rounded-lg px-4 py-3 text-sm font-medium border-2 transition focus:outline-none" 
+                      style={{ borderColor: '#d0e8ff', background: 'linear-gradient(135deg, #f9fbfd 0%, #f0f7ff 100%)', color: '#003d99' }}
+                      onFocus={(e) => { e.target.style.borderColor = '#0066cc'; e.target.style.boxShadow = '0 0 0 3px rgba(0, 102, 204, 0.1)'; }}
+                      onBlur={(e) => { e.target.style.borderColor = '#d0e8ff'; e.target.style.boxShadow = 'none'; }}
                       required>
                       {ops.map(op => <option key={op} value={op}>{op}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: '#0066cc' }}>Plano / Pacote</label>
+                    <label className="block text-xs font-bold mb-2 uppercase tracking-wide" style={{ color: '#003d99' }}>Plano / Pacote</label>
                     <input type="text" value={form.plano} onChange={e => update('plano', e.target.value)}
                       placeholder="Ex: 39,95€ Pack Família"
-                      className="w-full rounded-lg px-3.5 py-2.5 text-sm font-medium border-2 transition focus:outline-none"
-                      style={{ borderColor: '#e0e7ff', background: '#f8fafc', color: '#1a2847' }}
-                      onFocus={(e) => e.target.style.borderColor = '#0066cc'}
-                      onBlur={(e) => e.target.style.borderColor = '#e0e7ff'}
+                      className="w-full rounded-lg px-4 py-3 text-sm font-medium border-2 transition focus:outline-none"
+                      style={{ borderColor: '#d0e8ff', background: 'linear-gradient(135deg, #f9fbfd 0%, #f0f7ff 100%)', color: '#003d99' }}
+                      onFocus={(e) => { e.target.style.borderColor = '#0066cc'; e.target.style.boxShadow = '0 0 0 3px rgba(0, 102, 204, 0.1)'; }}
+                      onBlur={(e) => { e.target.style.borderColor = '#d0e8ff'; e.target.style.boxShadow = 'none'; }}
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: '#0066cc' }}>Tipo de Contrato</label>
+                    <label className="block text-xs font-bold mb-2 uppercase tracking-wide" style={{ color: '#003d99' }}>Tipo de Contrato</label>
                     <input type="text" value={form.contract_type} onChange={e => update('contract_type', e.target.value)}
-                      className="w-full rounded-lg px-3.5 py-2.5 text-sm font-medium border-2 transition focus:outline-none"
-                      style={{ borderColor: '#e0e7ff', background: '#f8fafc', color: '#1a2847' }}
+                      className="w-full rounded-lg px-4 py-3 text-sm font-medium border-2 transition focus:outline-none"
+                      style={{ borderColor: '#d0e8ff', background: 'linear-gradient(135deg, #f9fbfd 0%, #f0f7ff 100%)', color: '#003d99' }}
+                      onFocus={(e) => { e.target.style.borderColor = '#0066cc'; e.target.style.boxShadow = '0 0 0 3px rgba(0, 102, 204, 0.1)'; }}
+                      onBlur={(e) => { e.target.style.borderColor = '#d0e8ff'; e.target.style.boxShadow = 'none'; }}
                       onFocus={(e) => e.target.style.borderColor = '#0066cc'}
                       onBlur={(e) => e.target.style.borderColor = '#e0e7ff'}
                       placeholder="Ex: Residencial 24 meses, Empresarial, Mensal" />
