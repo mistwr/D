@@ -69,7 +69,7 @@ export default function OnlinePage() {
       <Sidebar user={user} />
       <Navbar user={user} />
       
-      <main className="pt-20 md:pt-20 md:pl-64 p-4 md:p-6">
+      <main className="pt-20 lg:pt-20 lg:pl-64 p-4 md:p-6">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
