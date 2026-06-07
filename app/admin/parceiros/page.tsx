@@ -226,7 +226,7 @@ export default function ParceirosPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
-        <main className="flex-1 md:ml-64 pt-20 md:pt-20">
+        <main className="flex-1 lg:ml-64 pt-20 md:pt-20">
           <div className="p-4 md:p-5 max-w-5xl mx-auto">
 
             {/* Header */}

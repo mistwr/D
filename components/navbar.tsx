@@ -101,7 +101,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
   return (
     <>
       {/* Desktop Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-40 hidden md:flex md:left-64 h-16 items-center justify-between px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%)', borderBottom: '2px solid #0066cc', boxShadow: '0 4px 12px rgba(0, 102, 204, 0.1)' }}>
+      <nav className="fixed top-0 left-0 right-0 z-40 hidden lg:flex lg:left-64 h-16 items-center justify-between px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%)', borderBottom: '2px solid #0066cc', boxShadow: '0 4px 12px rgba(0, 102, 204, 0.1)' }}>
         <div className="flex items-center gap-4">
           <h1 className="text-lg lg:text-xl font-bold truncate" style={{ color: '#003d99' }}>
             {user?.role === 'admin' ? 'Painel de Administração' : 'Portal do Parceiro'}
@@ -133,7 +133,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
       </nav>
 
       {/* Mobile Navbar - with safe area */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex md:hidden h-16 items-center justify-between px-4 safe-area-top" style={{ background: 'linear-gradient(135deg, #0a1628 0%, #0f172a 100%)', borderBottom: '2px solid #0066cc', boxShadow: '0 4px 12px rgba(0, 102, 204, 0.2)' }}>
+      <nav className="fixed top-0 left-0 right-0 z-50 flex lg:hidden h-16 items-center justify-between px-4 safe-area-top" style={{ background: 'linear-gradient(135deg, #0a1628 0%, #0f172a 100%)', borderBottom: '2px solid #0066cc', boxShadow: '0 4px 12px rgba(0, 102, 204, 0.2)' }}>
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setOpen(!open)} 
@@ -161,7 +161,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
 
       {/* Mobile Menu Drawer - Full height with safe areas */}
       {open && (
-        <div className="fixed inset-0 z-40 md:hidden">
+        <div className="fixed inset-0 z-40 lg:hidden">
           <div 
             className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
             onClick={() => setOpen(false)} 

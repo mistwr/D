@@ -103,7 +103,7 @@ export default function PdfTemplatesPage() {
   return (
     <div style={{ display: 'flex' }}>
       <Sidebar />
-      <div className="flex-1 md:ml-64">
+      <div className="flex-1 lg:ml-64">
         <Navbar />
         <main className="pt-20 md:pt-16 p-4 md:p-6">
           <div className="mb-6 flex items-center gap-3">
