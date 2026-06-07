@@ -447,11 +447,11 @@ export default function NovaVendaPage() {
 
   return (
     <div className="flex h-screen bg-background">
-      {/* Sidebar - Sidebar component handles hidden/visible */}
+      {/* Sidebar - Flex layout handles visible/hidden */}
       <Sidebar />
       
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden w-full">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar />
         
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 xs:p-3 sm:p-4 md:p-6 lg:p-12" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
