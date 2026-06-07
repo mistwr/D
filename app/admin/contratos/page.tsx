@@ -173,7 +173,7 @@ export default function AdminContratosPage() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5 mb-5">
               {[
                 { label: 'Total',      value: vendas.length,                                              bg: '#e0e7ff', color: '#0ea5e9' },
                 { label: 'Pendente',   value: vendas.filter(v => v.status === 'pendente').length,         bg: '#fef3c7', color: '#92400e' },
@@ -181,15 +181,15 @@ export default function AdminContratosPage() {
                 { label: 'Processado', value: vendas.filter(v => v.status === 'processado').length,       bg: '#ede9fe', color: '#6d28d9' },
                 { label: 'Pago',       value: vendas.filter(v => v.status === 'pago').length,             bg: '#d1fae5', color: '#065f46' },
               ].map(s => (
-                <div key={s.label} className="rounded-xl p-4 shadow-sm" >
-                  <p className="text-xl font-bold" style={{ color: s.color }}>{s.value}</p>
+                <div key={s.label} className="rounded-lg p-3 shadow-sm" >
+                  <p className="text-lg font-bold" style={{ color: s.color }}>{s.value}</p>
                   <p className="text-xs mt-1" style={{ color: '#64748b' }}>{s.label}</p>
                 </div>
               ))}
             </div>
 
             {/* Filtros */}
-            <div className="mb-5 rounded-xl p-4 flex flex-col md:flex-row gap-3" >
+            <div className="mb-4 rounded-lg p-3 flex flex-col md:flex-row gap-2.5" >
               <div className="relative flex-1">
                 <Search size={16} className="absolute left-3 top-2.5" style={{ color: '#9ca3af' }} />
                 <input value={search} onChange={e => setSearch(e.target.value)}
@@ -213,14 +213,14 @@ export default function AdminContratosPage() {
 
             {/* Lista */}
             {filtered.length === 0 ? (
-              <div className="rounded-xl p-12 text-center" >
+              <div className="rounded-lg p-10 text-center" >
                 <FileText size={48} className="mx-auto mb-4" style={{ color: '#d1d5db' }} />
                 <p className="text-base font-medium" style={{ color: '#475569' }}>
                   {vendas.length === 0 ? 'Nenhuma venda registada ainda' : 'Nenhum resultado'}
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {filtered.map(v => {
                   const st = STATUS[v.status] || { bg: '#f3f4f6', color: '#64748b', label: v.status }
                   const isOpen = expanded === v.id
@@ -228,14 +228,14 @@ export default function AdminContratosPage() {
                   const isLoadingDocs = docsLoading === v.id
 
                   return (
-                    <div key={v.id} className="rounded-xl shadow-sm overflow-hidden" >
+                    <div key={v.id} className="rounded-lg shadow-sm overflow-hidden" >
                       {/* Linha principal */}
                       <button
                         onClick={() => toggleVenda(v)}
-                        className="flex items-center justify-between w-full p-5 text-left"
+                        className="flex items-center justify-between w-full p-4 text-left"
                         style={{ borderBottom: isOpen ? '1px solid #e5e7eb' : 'none' }}
                       >
-                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
                           <div className="flex h-10 w-10 items-center justify-center rounded-full flex-shrink-0" >
                             <User size={18} style={{ color: '#4f46e5' }} />
                           </div>

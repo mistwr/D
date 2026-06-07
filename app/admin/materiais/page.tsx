@@ -155,10 +155,10 @@ export default function MateriaisAdminPage() {
               </div>
             )}
 
-            <div className="flex justify-between items-center mb-8">
-              <div className="flex items-center gap-3">
-                <div className="rounded-xl p-2.5" style={{ background: '#eef2ff' }}>
-                  <FolderOpen size={24} style={{ color: '#0ea5e9' }} />
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center gap-2">
+                <div className="rounded-lg p-2" style={{ background: '#eef2ff' }}>
+                  <FolderOpen size={20} style={{ color: '#0ea5e9' }} />
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>{"FA's e Material de Apoio"}</h1>
@@ -175,9 +175,9 @@ export default function MateriaisAdminPage() {
 
             {/* Formulário criar categoria */}
             {showForm && (
-              <form onSubmit={handleCreate} className="rounded-xl p-6 shadow-sm mb-6" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
-                <h2 className="font-semibold mb-5" style={{ color: '#1e293b' }}>Nova Categoria de Material</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+              <form onSubmit={handleCreate} className="rounded-lg p-5 shadow-sm mb-5" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                <h2 className="font-semibold mb-4" style={{ color: '#1e293b' }}>Nova Categoria de Material</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
                   <div className="lg:col-span-2">
                     <label className="mb-1 block text-sm font-medium" style={{ color: '#475569' }}>Título *</label>
                     <input type="text" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} required
@@ -191,7 +191,7 @@ export default function MateriaisAdminPage() {
                     </select>
                   </div>
                 </div>
-                <div className="mb-5">
+                <div className="mb-4">
                   <label className="mb-1 block text-sm font-medium" style={{ color: '#475569' }}>Descrição</label>
                   <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2}
                     className="w-full rounded-lg px-4 py-2.5 text-sm outline-none resize-none" style={inputStyle} placeholder="Detalhes sobre os materiais desta categoria..." />
@@ -209,24 +209,24 @@ export default function MateriaisAdminPage() {
                 <p className="text-sm" style={{ color: '#64748b' }}>Crie a primeira categoria para organizar os materiais de apoio.</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
                 {categorias.map(c => {
                   const isOpen = expandedId === c.id
                   const catFiles = files[c.id] || []
                   const tipoMeta = TIPO_META[c.tipo] ?? TIPO_META['apoio']
                   const TipoIcon = tipoMeta.icon
                   return (
-                    <div key={c.id} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                    <div key={c.id} className="rounded-lg shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                       {/* Cabeçalho */}
-                      <div className="p-5 flex items-center gap-4">
-                        <div className="h-14 w-14 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0"
+                      <div className="p-4 flex items-center gap-3">
+                        <div className="h-12 w-12 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0"
                           style={{ background: tipoMeta.bg, border: `1px solid ${tipoMeta.color}33` }}>
-                          <TipoIcon size={24} style={{ color: tipoMeta.color }} />
+                          <TipoIcon size={20} style={{ color: tipoMeta.color }} />
                         </div>
 
                         {/* Info */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <div className="flex items-center gap-2 flex-wrap mb-0.5">
                             <h3 className="font-bold text-sm" style={{ color: '#1e293b' }}>{c.title}</h3>
                             <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: tipoMeta.bg, color: tipoMeta.color }}>{tipoMeta.label}</span>
                           </div>
@@ -235,7 +235,7 @@ export default function MateriaisAdminPage() {
                         </div>
 
                         {/* Acoes */}
-                        <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
                           <button onClick={() => toggleStatus(c)}
                             className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium"
                             style={{ background: c.status === 'ativa' ? '#f0fdf4' : '#f9fafb', color: c.status === 'ativa' ? '#16a34a' : '#6b7280', border: `1px solid ${c.status === 'ativa' ? '#bbf7d0' : '#e5e7eb'}` }}>
@@ -258,10 +258,10 @@ export default function MateriaisAdminPage() {
 
                       {/* Ficheiros expandidos */}
                       {isOpen && (
-                        <div className="px-5 pb-5" style={{ borderTop: '1px solid #f3f4f6' }}>
-                          {c.description && <p className="text-sm py-3" style={{ color: '#64748b' }}>{c.description}</p>}
+                        <div className="px-4 pb-4" style={{ borderTop: '1px solid #f3f4f6' }}>
+                          {c.description && <p className="text-sm py-2" style={{ color: '#64748b' }}>{c.description}</p>}
 
-                          <div className="flex items-center justify-between mb-3 pt-2">
+                          <div className="flex items-center justify-between mb-2 pt-1">
                             <h4 className="text-sm font-semibold" style={{ color: '#475569' }}>
                               Ficheiros <span style={{ color: '#9ca3af' }}>({catFiles.length})</span>
                             </h4>
@@ -276,14 +276,14 @@ export default function MateriaisAdminPage() {
                           </div>
 
                           {catFiles.length === 0 ? (
-                            <div className="rounded-lg p-6 text-center" style={{ background: '#f9fafb', border: '1px dashed #d1d5db' }}>
+                            <div className="rounded-lg p-5 text-center" style={{ background: '#f9fafb', border: '1px dashed #d1d5db' }}>
                               <FileText size={28} style={{ color: '#d1d5db' }} className="mx-auto mb-2" />
                               <p className="text-sm" style={{ color: '#64748b' }}>Nenhum ficheiro — PDF, Word, Excel, CSV, imagens</p>
                             </div>
-                          ) : (
-                            <div className="flex flex-col gap-2">
+                            ) : (
+                              <div className="flex flex-col gap-1.5">
                               {catFiles.map(f => (
-                                <div key={f.id} className="flex items-center justify-between rounded-lg p-3 gap-3"
+                                <div key={f.id} className="flex items-center justify-between rounded-lg p-2.5 gap-2"
                                   style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
                                   <div className="flex items-center gap-2.5 min-w-0">
                                     <FileText size={16} style={{ color: f.file_type === 'image' ? '#0891b2' : f.file_type === 'pdf' ? '#dc2626' : '#6b7280' }} />
@@ -292,7 +292,7 @@ export default function MateriaisAdminPage() {
                                       <p className="text-xs" style={{ color: '#9ca3af' }}>{f.file_type.toUpperCase()} &middot; {formatSize(f.file_size)} &middot; {new Date(f.created_at).toLocaleDateString('pt-PT')}</p>
                                     </div>
                                   </div>
-                                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                                  <div className="flex items-center gap-2 flex-shrink-0">
                                     {f.signed_url && (
                                       <a href={f.signed_url} download={f.file_name} target="_blank" rel="noreferrer"
                                         className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium"

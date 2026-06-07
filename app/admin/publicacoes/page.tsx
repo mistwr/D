@@ -106,9 +106,9 @@ export default function AdminPublicacoesPage() {
         <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-5 max-w-5xl">
 
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <Newspaper size={28} style={{ color: '#0ea5e9' }} />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Newspaper size={20} style={{ color: '#0ea5e9' }} />
                 <div>
                   <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Publicacoes</h1>
                   <p className="text-sm" style={{ color: '#64748b' }}>{pubs.length} publicacao{pubs.length !== 1 ? 'es' : ''}</p>
@@ -128,9 +128,9 @@ export default function AdminPublicacoesPage() {
                 <p className="text-base font-medium" style={{ color: '#475569' }}>Nenhuma publicacao</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
                 {pubs.map(p => (
-                  <div key={p.id} className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                  <div key={p.id} className="rounded-lg p-4 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
