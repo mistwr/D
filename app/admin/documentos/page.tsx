@@ -115,7 +115,7 @@ export default function AdminDocumentosPage() {
   })
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+    <div className="flex items-center justify-center min-h-screen" >
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
     </div>
   )
@@ -143,7 +143,7 @@ export default function AdminDocumentosPage() {
                 { label: 'Imagens',     value: docs.filter(d => ['jpg','jpeg','png','webp'].includes(getExt(d.file_name))).length, bg: '#d1fae5', color: '#065f46' },
                 { label: 'Word/Excel',  value: docs.filter(d => ['doc','docx','xls','xlsx'].includes(getExt(d.file_name))).length, bg: '#fef3c7', color: '#92400e' },
               ].map(s => (
-                <div key={s.label} className="rounded-xl p-4 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                <div key={s.label} className="rounded-xl p-4 shadow-sm" >
                   <p className="text-xl font-bold" style={{ color: s.color }}>{s.value}</p>
                   <p className="text-xs mt-1" style={{ color: '#64748b' }}>{s.label}</p>
                 </div>
@@ -151,7 +151,7 @@ export default function AdminDocumentosPage() {
             </div>
 
             {/* Filtros */}
-            <div className="mb-5 rounded-xl p-4 flex flex-col md:flex-row gap-3" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+            <div className="mb-5 rounded-xl p-4 flex flex-col md:flex-row gap-3" >
               <div className="relative flex-1">
                 <Search size={16} className="absolute left-3 top-2.5" style={{ color: '#9ca3af' }} />
                 <input value={search} onChange={e => setSearch(e.target.value)}
@@ -172,7 +172,7 @@ export default function AdminDocumentosPage() {
 
             {/* Lista agrupada por parceiro */}
             {parceirosMap.size === 0 ? (
-              <div className="rounded-xl p-12 text-center" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+              <div className="rounded-xl p-12 text-center" >
                 <FileText size={48} className="mx-auto mb-4" style={{ color: '#d1d5db' }} />
                 <p className="text-base font-medium" style={{ color: '#475569' }}>
                   {docs.length === 0 ? 'Nenhum documento carregado ainda' : 'Nenhum resultado'}
@@ -183,7 +183,7 @@ export default function AdminDocumentosPage() {
                 {Array.from(parceirosMap.entries()).map(([parceiroId, parceiro]) => {
                   const isOpen = expandedParceiro === parceiroId
                   return (
-                    <div key={parceiroId} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                    <div key={parceiroId} className="rounded-xl shadow-sm overflow-hidden" >
                       {/* Header parceiro */}
                       <button
                         onClick={() => setExpandedParceiro(isOpen ? null : parceiroId)}
@@ -191,7 +191,7 @@ export default function AdminDocumentosPage() {
                         style={{ borderBottom: isOpen ? '1px solid #e5e7eb' : 'none' }}
                       >
                         <div className="flex items-center gap-4">
-                          <div className="flex h-11 w-11 items-center justify-center rounded-full" style={{ background: '#eef2ff' }}>
+                          <div className="flex h-11 w-11 items-center justify-center rounded-full" >
                             <User size={20} style={{ color: '#4f46e5' }} />
                           </div>
                           <div>
@@ -231,10 +231,10 @@ export default function AdminDocumentosPage() {
                               return (
                                 <div key={d.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0' }}>
                                   {/* Linha do documento */}
-                                  <div className="flex flex-wrap items-center gap-3 px-4 py-3" style={{ background: '#f9fafb' }}>
+                                  <div className="flex flex-wrap items-center gap-3 px-4 py-3" >
                                     {/* Badge tipo */}
                                     <span className="flex h-7 w-10 items-center justify-center rounded text-[10px] font-bold uppercase flex-shrink-0"
-                                      style={{ background: '#e0e7ff', color: '#0ea5e9' }}>
+                                      >
                                       {ext || 'DOC'}
                                     </span>
 
@@ -271,7 +271,7 @@ export default function AdminDocumentosPage() {
                                         <button
                                           onClick={() => setViewer(d)}
                                           className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition"
-                                          style={{ background: '#eef2ff', color: '#0ea5e9' }}
+                                          
                                         >
                                           <Eye size={13} /> Ver
                                         </button>
@@ -281,13 +281,13 @@ export default function AdminDocumentosPage() {
                                           href={d.signed_url}
                                           download={d.file_name}
                                           className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition"
-                                          style={{ background: '#d1fae5', color: '#065f46' }}
+                                          
                                         >
                                           <Download size={13} /> Download
                                         </a>
                                       )}
                                       {!d.signed_url && (
-                                        <span className="text-xs px-3 py-1.5 rounded-lg" style={{ background: '#fee2e2', color: '#991b1b' }}>
+                                        <span className="text-xs px-3 py-1.5 rounded-lg" >
                                           URL expirada
                                         </span>
                                       )}
@@ -295,19 +295,19 @@ export default function AdminDocumentosPage() {
                                         <div className="flex items-center gap-1">
                                           <button onClick={() => deleteDoc(d.id)} disabled={deleting === d.id}
                                             className="rounded-lg px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
-                                            style={{ background: '#dc2626' }}>
+                                            >
                                             {deleting === d.id ? '...' : 'Confirmar'}
                                           </button>
                                           <button onClick={() => setConfirmDelete(null)}
                                             className="rounded-lg px-2 py-1 text-xs"
-                                            style={{ background: '#f8fafc', color: '#475569' }}>
+                                            >
                                             Cancelar
                                           </button>
                                         </div>
                                       ) : (
                                         <button onClick={() => setConfirmDelete(d.id)}
                                           className="rounded-lg p-1.5 transition hover:opacity-80"
-                                          style={{ background: '#fef2f2' }}
+                                          
                                           title="Apagar documento">
                                           <Trash2 size={14} style={{ color: '#dc2626' }} />
                                         </button>
@@ -317,11 +317,11 @@ export default function AdminDocumentosPage() {
 
                                   {/* Preview inline para imagens */}
                                   {d.signed_url && isImage && (
-                                    <div className="p-3" style={{ background: '#fff' }}>
+                                    <div className="p-3" >
                                       {/* eslint-disable-next-line @next/next/no-img-element */}
                                       <img src={d.signed_url} alt={d.file_name}
                                         className="w-full rounded-lg object-contain max-h-64"
-                                        style={{ background: '#f8fafc' }} />
+                                         />
                                     </div>
                                   )}
                                 </div>
@@ -348,7 +348,7 @@ export default function AdminDocumentosPage() {
         >
           <div
             className="relative w-full max-w-4xl rounded-2xl overflow-hidden shadow-2xl"
-            style={{ background: '#fff', maxHeight: '90vh' }}
+            
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
@@ -363,7 +363,7 @@ export default function AdminDocumentosPage() {
                 {viewer.signed_url && (
                   <a href={viewer.signed_url} download={viewer.file_name}
                     className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
-                    style={{ background: '#d1fae5', color: '#065f46' }}>
+                    >
                     <Download size={13} /> Download
                   </a>
                 )}

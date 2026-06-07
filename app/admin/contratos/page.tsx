@@ -145,7 +145,7 @@ export default function AdminContratosPage() {
   })
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+    <div className="flex items-center justify-center min-h-screen" >
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
     </div>
   )
@@ -167,7 +167,7 @@ export default function AdminContratosPage() {
               </div>
               <button onClick={loadVendas}
                 className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition hover:opacity-80"
-                style={{ background: '#eef2ff', color: '#0ea5e9' }}>
+                >
                 <RefreshCw size={14} /> Actualizar
               </button>
             </div>
@@ -181,7 +181,7 @@ export default function AdminContratosPage() {
                 { label: 'Processado', value: vendas.filter(v => v.status === 'processado').length,       bg: '#ede9fe', color: '#6d28d9' },
                 { label: 'Pago',       value: vendas.filter(v => v.status === 'pago').length,             bg: '#d1fae5', color: '#065f46' },
               ].map(s => (
-                <div key={s.label} className="rounded-xl p-4 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                <div key={s.label} className="rounded-xl p-4 shadow-sm" >
                   <p className="text-xl font-bold" style={{ color: s.color }}>{s.value}</p>
                   <p className="text-xs mt-1" style={{ color: '#64748b' }}>{s.label}</p>
                 </div>
@@ -189,7 +189,7 @@ export default function AdminContratosPage() {
             </div>
 
             {/* Filtros */}
-            <div className="mb-5 rounded-xl p-4 flex flex-col md:flex-row gap-3" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+            <div className="mb-5 rounded-xl p-4 flex flex-col md:flex-row gap-3" >
               <div className="relative flex-1">
                 <Search size={16} className="absolute left-3 top-2.5" style={{ color: '#9ca3af' }} />
                 <input value={search} onChange={e => setSearch(e.target.value)}
@@ -213,7 +213,7 @@ export default function AdminContratosPage() {
 
             {/* Lista */}
             {filtered.length === 0 ? (
-              <div className="rounded-xl p-12 text-center" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+              <div className="rounded-xl p-12 text-center" >
                 <FileText size={48} className="mx-auto mb-4" style={{ color: '#d1d5db' }} />
                 <p className="text-base font-medium" style={{ color: '#475569' }}>
                   {vendas.length === 0 ? 'Nenhuma venda registada ainda' : 'Nenhum resultado'}
@@ -228,7 +228,7 @@ export default function AdminContratosPage() {
                   const isLoadingDocs = docsLoading === v.id
 
                   return (
-                    <div key={v.id} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                    <div key={v.id} className="rounded-xl shadow-sm overflow-hidden" >
                       {/* Linha principal */}
                       <button
                         onClick={() => toggleVenda(v)}
@@ -236,14 +236,14 @@ export default function AdminContratosPage() {
                         style={{ borderBottom: isOpen ? '1px solid #e5e7eb' : 'none' }}
                       >
                         <div className="flex items-center gap-4 flex-1 min-w-0">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full flex-shrink-0" style={{ background: '#eef2ff' }}>
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full flex-shrink-0" >
                             <User size={18} style={{ color: '#4f46e5' }} />
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2">
                               <p className="font-bold text-sm" style={{ color: '#1e293b' }}>{v.client_name}</p>
                               {v.client_nif && (
-                                <span className="text-xs font-mono px-1.5 py-0.5 rounded" style={{ background: '#f8fafc', color: '#64748b' }}>
+                                <span className="text-xs font-mono px-1.5 py-0.5 rounded" >
                                   NIF {v.client_nif}
                                 </span>
                               )}
@@ -295,7 +295,7 @@ export default function AdminContratosPage() {
 
                           {/* Notas do parceiro */}
                           {v.notes && (
-                            <div className="rounded-lg px-4 py-3" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
+                            <div className="rounded-lg px-4 py-3" >
                               <p className="text-xs font-semibold mb-1 uppercase tracking-wide" style={{ color: '#92400e' }}>Notas do Parceiro</p>
                               <p className="text-sm whitespace-pre-wrap" style={{ color: '#78350f' }}>{v.notes}</p>
                             </div>
@@ -309,7 +309,7 @@ export default function AdminContratosPage() {
                               { label: 'Contrato', value: v.contract_type },
                               { label: 'Descricao', value: v.description },
                             ].filter(f => f.value).map(f => (
-                              <div key={f.label} className="rounded-lg px-3 py-2" style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
+                              <div key={f.label} className="rounded-lg px-3 py-2" >
                                 <p className="text-xs font-medium" style={{ color: '#9ca3af' }}>{f.label}</p>
                                 <p className="text-sm font-medium mt-0.5 break-all" style={{ color: '#1e293b' }}>{f.value}</p>
                               </div>
@@ -325,7 +325,7 @@ export default function AdminContratosPage() {
                               </p>
                               <button onClick={() => reloadDocs(v.id)}
                                 className="flex items-center gap-1 text-xs rounded-lg px-2 py-1 transition hover:opacity-80"
-                                style={{ background: '#eef2ff', color: '#0ea5e9' }}>
+                                >
                                 <RefreshCw size={11} /> Actualizar
                               </button>
                             </div>
@@ -335,7 +335,7 @@ export default function AdminContratosPage() {
                                 <div className="animate-spin rounded-full h-6 w-6 border-b-2" style={{ borderColor: '#0ea5e9' }} />
                               </div>
                             ) : !docs || docs.length === 0 ? (
-                              <div className="rounded-xl p-6 text-center" style={{ background: '#f9fafb', border: '1px dashed #d1d5db' }}>
+                              <div className="rounded-xl p-6 text-center" >
                                 <FileText size={28} className="mx-auto mb-2" style={{ color: '#d1d5db' }} />
                                 <p className="text-sm" style={{ color: '#9ca3af' }}>Nenhum documento carregado nesta venda</p>
                               </div>
@@ -351,7 +351,7 @@ export default function AdminContratosPage() {
                                       <div className="flex flex-wrap items-center gap-3 px-4 py-3"
                                         style={{ background: d._orphan ? '#fffbeb' : '#f9fafb' }}>
                                         <span className="flex h-7 w-10 items-center justify-center rounded text-[10px] font-bold uppercase flex-shrink-0"
-                                          style={{ background: '#e0e7ff', color: '#0ea5e9' }}>
+                                          >
                                           {ext || 'DOC'}
                                         </span>
                                         <div className="flex-1 min-w-0">
@@ -365,18 +365,18 @@ export default function AdminContratosPage() {
                                           {d.signed_url && (isImage || isPdf) && (
                                             <button onClick={() => setViewer(d)}
                                               className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
-                                              style={{ background: '#eef2ff', color: '#0ea5e9' }}>
+                                              >
                                               <Eye size={13} /> Ver
                                             </button>
                                           )}
                                           {d.signed_url ? (
                                             <a href={d.signed_url} download={d.file_name} target="_blank" rel="noreferrer"
                                               className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
-                                              style={{ background: '#d1fae5', color: '#065f46' }}>
+                                              >
                                               <Download size={13} /> Download
                                             </a>
                                           ) : (
-                                            <span className="text-xs px-3 py-1.5 rounded-lg" style={{ background: '#fee2e2', color: '#991b1b' }}>
+                                            <span className="text-xs px-3 py-1.5 rounded-lg" >
                                               URL expirada
                                             </span>
                                           )}
@@ -385,19 +385,19 @@ export default function AdminContratosPage() {
                                               <div className="flex items-center gap-1">
                                                 <button onClick={() => deleteDoc(d.id, v.id)} disabled={deletingDoc === d.id}
                                                   className="rounded-lg px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
-                                                  style={{ background: '#dc2626' }}>
+                                                  >
                                                   {deletingDoc === d.id ? '...' : 'Confirmar'}
                                                 </button>
                                                 <button onClick={() => setConfirmDeleteDoc(null)}
                                                   className="rounded-lg px-2 py-1 text-xs"
-                                                  style={{ background: '#f8fafc', color: '#475569' }}>
+                                                  >
                                                   Cancelar
                                                 </button>
                                               </div>
                                             ) : (
                                               <button onClick={() => setConfirmDeleteDoc(d.id)}
                                                 className="rounded-lg p-1.5 transition hover:opacity-80"
-                                                style={{ background: '#fef2f2' }}
+                                                
                                                 title="Apagar documento">
                                                 <Trash2 size={14} style={{ color: '#dc2626' }} />
                                               </button>
@@ -407,11 +407,11 @@ export default function AdminContratosPage() {
                                       </div>
                                       {/* Preview imagem inline */}
                                       {d.signed_url && isImage && (
-                                        <div className="p-3" style={{ background: '#fff' }}>
+                                        <div className="p-3" >
                                           {/* eslint-disable-next-line @next/next/no-img-element */}
                                           <img src={d.signed_url} alt={d.file_name}
                                             className="w-full rounded-lg object-contain max-h-48"
-                                            style={{ background: '#f8fafc' }} />
+                                             />
                                         </div>
                                       )}
                                     </div>
@@ -440,7 +440,7 @@ export default function AdminContratosPage() {
         >
           <div
             className="relative w-full max-w-4xl rounded-2xl overflow-hidden shadow-2xl"
-            style={{ background: '#fff', maxHeight: '90vh' }}
+            
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #e2e8f0' }}>
@@ -449,13 +449,13 @@ export default function AdminContratosPage() {
                 {viewer.signed_url && (
                   <a href={viewer.signed_url} download={viewer.file_name}
                     className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
-                    style={{ background: '#d1fae5', color: '#065f46' }}>
+                    >
                     <Download size={13} /> Download
                   </a>
                 )}
                 <button onClick={() => setViewer(null)}
                   className="rounded-lg p-1.5 transition hover:opacity-80"
-                  style={{ background: '#f8fafc' }}>
+                  >
                   <X size={16} style={{ color: '#64748b' }} />
                 </button>
               </div>

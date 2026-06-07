@@ -127,7 +127,7 @@ export default function AdminDashboardPage() {
   }
 
   if (authLoading || dataLoading) {
-    return <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}><div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} /></div>
+    return <div className="flex items-center justify-center min-h-screen" ><div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} /></div>
   }
 
   if (!user) return <div>Erro de autenticacao</div>
@@ -142,7 +142,7 @@ export default function AdminDashboardPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
-        <main className="flex-1 md:ml-64 pt-14 md:pt-16 pb-8" style={{ minHeight: '100vh' }}>
+        <main className="flex-1 overflow-auto" style={{ minHeight: "calc(100vh - 4rem)" }}>
           <div className="px-2 xs:px-3 sm:px-4 md:px-6 lg:px-12 py-4 md:py-6 lg:py-8 max-w-7xl mx-auto">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 md:mb-10">
@@ -193,7 +193,7 @@ export default function AdminDashboardPage() {
                 { label: 'Taxa Conversão', value: `${metrics.taxaConversao}%`, icon: Target, color: '#10b981', bg: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)' },
                 { label: 'Parceiros Ativos', value: metrics.parceiros, icon: Users, color: '#f59e0b', bg: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' },
               ].map(m => (
-                <div key={m.label} className="rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all transform hover:scale-105" style={{ background: '#ffffff', border: '2px solid #d0e8ff', borderTop: '3px solid ' + m.color }}>
+                <div key={m.label} className="rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all transform hover:scale-105" >
                   <div className="flex items-center gap-4 mb-4">
                     <div className="flex h-14 w-14 items-center justify-center rounded-xl" style={{ background: m.bg }}>
                       <m.icon size={28} style={{ color: m.color }} />
@@ -233,7 +233,7 @@ export default function AdminDashboardPage() {
 
             {/* Filtros Expandidos */}
             {showFilters && (
-              <div className="rounded-xl p-4 mb-5 flex flex-wrap gap-3" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
+              <div className="rounded-xl p-4 mb-5 flex flex-wrap gap-3" >
                 <div className="relative flex-1 min-w-48">
                   <Search size={16} className="absolute left-3 top-3" style={{ color: '#9ca3af' }} />
                   <input value={search} onChange={e => setSearch(e.target.value)}
@@ -271,13 +271,13 @@ export default function AdminDashboardPage() {
                 {(search || filterParceiro || filterStatus || filterTipo || filterUnidade) && (
                   <button onClick={() => { setSearch(''); setFilterParceiro(''); setFilterStatus(''); setFilterTipo(''); setFilterUnidade('') }}
                     className="rounded-lg px-3 py-2.5 text-sm font-medium"
-                    style={{ background: '#fee2e2', color: '#991b1b' }}>Limpar</button>
+                    >Limpar</button>
                 )}
               </div>
             )}
 
             {/* Tabela */}
-            <div className="rounded-2xl shadow-sm" style={{ background: '#ffffff', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+            <div className="rounded-2xl shadow-sm" >
               <div className="flex items-center justify-between px-5 py-3" style={{ borderBottom: '1px solid #e2e8f0' }}>
                 <p className="text-sm font-medium" style={{ color: '#64748b' }}>{filtered.length} venda{filtered.length !== 1 ? 's' : ''}</p>
                 <p className="text-sm font-semibold" style={{ color: '#0ea5e9' }}>
@@ -286,7 +286,7 @@ export default function AdminDashboardPage() {
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead style={{ background: '#f8fafc' }}>
+                  <thead >
                     <tr>
                       {['Cliente', 'Parceiro', 'Valor', 'Tipo', 'Estado', 'Data'].map(h => (
                         <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>{h}</th>
