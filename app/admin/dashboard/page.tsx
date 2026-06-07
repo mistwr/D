@@ -138,69 +138,69 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
-        <main className="flex-1 md:ml-64 pt-14 md:pt-16" style={{ minHeight: '100vh' }}>
-          <div className="p-4 md:p-8">
+        <main className="flex-1 md:ml-64 pt-14 md:pt-16 pb-8" style={{ minHeight: '100vh' }}>
+          <div className="px-2 xs:px-3 sm:px-4 md:px-6 lg:px-12 py-4 md:py-6 lg:py-8 max-w-7xl mx-auto">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 md:mb-10">
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold" style={{ color: '#1e293b' }}>Dashboard Enterprise</h1>
-                <p style={{ color: '#64748b' }}>Visao completa do desempenho comercial</p>
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold" style={{ color: '#003d99' }}>Dashboard Enterprise</h1>
+                <p style={{ color: '#6b7280' }} className="text-sm md:text-base mt-2">Visão completa do desempenho comercial</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <button onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center gap-2 rounded-xl px-4 py-2.5 font-medium transition-all"
-                  style={{ background: showFilters ? '#0ea5e9' : '#ffffff', color: showFilters ? '#ffffff' : '#64748b', border: '1px solid #e2e8f0' }}>
-                  <Filter size={18} /> Filtros
+                  className="flex items-center gap-2 rounded-lg px-4 py-3 font-bold transition-all shadow-lg hover:shadow-xl"
+                  style={{ background: showFilters ? 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)' : 'linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%)', color: showFilters ? '#ffffff' : '#003d99', border: '2px solid #d0e8ff' }}>
+                  <Filter size={20} /> Filtros
                 </button>
                 <button onClick={exportCSV}
-                  className="flex items-center gap-2 rounded-xl px-4 py-2.5 font-medium text-white shadow-lg"
-                  style={{ background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' }}>
-                  <Download size={18} /> Exportar
+                  className="flex items-center gap-2 rounded-lg px-4 py-3 font-bold text-white shadow-lg hover:shadow-xl transition-all"
+                  style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
+                  <Download size={20} /> Exportar
                 </button>
               </div>
             </div>
 
             {/* Período */}
-            <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+            <div className="flex gap-2 mb-8 md:mb-10 overflow-x-auto pb-3">
               {[
                 { key: 'hoje', label: 'Hoje' },
                 { key: 'semana', label: 'Esta Semana' },
-                { key: 'mes', label: 'Este Mes' },
+                { key: 'mes', label: 'Este Mês' },
                 { key: 'ano', label: 'Este Ano' },
                 { key: 'todos', label: 'Todos' },
               ].map(p => (
                 <button key={p.key} onClick={() => setFilterPeriodo(p.key)}
-                  className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium whitespace-nowrap transition-all"
+                  className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-bold whitespace-nowrap transition-all shadow-md hover:shadow-lg"
                   style={{ 
-                    background: filterPeriodo === p.key ? 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' : '#ffffff',
-                    color: filterPeriodo === p.key ? '#ffffff' : '#64748b',
-                    border: '1px solid #e2e8f0'
+                    background: filterPeriodo === p.key ? 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)' : 'linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%)',
+                    color: filterPeriodo === p.key ? '#ffffff' : '#003d99',
+                    border: '2px solid ' + (filterPeriodo === p.key ? '#003d99' : '#d0e8ff')
                   }}>
-                  <Calendar size={14} /> {p.label}
+                  <Calendar size={16} /> {p.label}
                 </button>
               ))}
             </div>
 
             {/* Métricas Principais */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8 md:mb-10">
               {[
-                { label: 'Volume Total', value: `€${metrics.total.toFixed(2)}`, icon: DollarSign, color: '#0ea5e9', bg: '#e0f2fe' },
-                { label: 'Vendas', value: filtered.length, icon: BarChart3, color: '#8b5cf6', bg: '#ede9fe' },
-                { label: 'Taxa Conversao', value: `${metrics.taxaConversao}%`, icon: Target, color: '#22c55e', bg: '#dcfce7' },
-                { label: 'Parceiros Ativos', value: metrics.parceiros, icon: Users, color: '#f97316', bg: '#ffedd5' },
+                { label: 'Volume Total', value: `€${metrics.total.toFixed(2)}`, icon: DollarSign, color: '#0066cc', bg: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)' },
+                { label: 'Vendas', value: filtered.length, icon: BarChart3, color: '#8b5cf6', bg: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)' },
+                { label: 'Taxa Conversão', value: `${metrics.taxaConversao}%`, icon: Target, color: '#10b981', bg: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)' },
+                { label: 'Parceiros Ativos', value: metrics.parceiros, icon: Users, color: '#f59e0b', bg: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' },
               ].map(m => (
-                <div key={m.label} className="rounded-2xl p-5 shadow-sm transition-all hover:shadow-md" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl" style={{ background: m.bg }}>
-                      <m.icon size={22} style={{ color: m.color }} />
+                <div key={m.label} className="rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all transform hover:scale-105" style={{ background: '#ffffff', border: '2px solid #d0e8ff', borderTop: '3px solid ' + m.color }}>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-xl" style={{ background: m.bg }}>
+                      <m.icon size={28} style={{ color: m.color }} />
                     </div>
                   </div>
-                  <p className="text-2xl font-bold" style={{ color: '#1e293b' }}>{m.value}</p>
-                  <p className="text-sm mt-1" style={{ color: '#64748b' }}>{m.label}</p>
+                  <p className="text-3xl font-bold" style={{ color: '#003d99' }}>{m.value}</p>
+                  <p className="text-sm mt-2 font-medium" style={{ color: '#6b7280' }}>{m.label}</p>
                 </div>
               ))}
             </div>
