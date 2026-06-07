@@ -226,16 +226,16 @@ export default function ParceirosPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
-        <main className="flex-1 md:ml-64 pt-16">
-          <div className="p-4 md:p-8">
+        <main className="flex-1 md:ml-64 pt-20 md:pt-20">
+          <div className="p-4 md:p-5 max-w-5xl mx-auto">
 
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
                 <Users size={28} style={{ color: '#0ea5e9' }} />
                 <div>
-                  <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Parceiros</h1>
-                  <p className="text-sm" style={{ color: '#64748b' }}>{parceiros.length} parceiros registados</p>
+                  <h1 className="text-xl md:text-2xl font-bold" style={{ color: '#1e293b' }}>Parceiros</h1>
+                  <p className="text-xs md:text-sm" style={{ color: '#64748b' }}>{parceiros.length} parceiros registados</p>
                 </div>
               </div>
               <button onClick={() => { setShowNovo(true); setNovoError(''); setNovoSuccess('') }}
