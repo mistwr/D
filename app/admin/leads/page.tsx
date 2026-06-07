@@ -167,7 +167,7 @@ export default function LeadsPage() {
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
         <main className="flex-1 overflow-auto" className="pt-20 md:pt-20">
-          <div className="p-4 md:p-8">
+          <div className="p-4 md:p-5 max-w-5xl">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <div>

@@ -126,7 +126,7 @@ export default function AdminDocumentosPage() {
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
         <main className="flex-1 md:ml-64 pt-16">
-          <div className="p-4 md:p-8">
+          <div className="p-4 md:p-5 max-w-5xl">
             <div className="mb-6">
               <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Documentos dos Parceiros</h1>
               <p className="mt-1 text-sm" style={{ color: '#64748b' }}>
