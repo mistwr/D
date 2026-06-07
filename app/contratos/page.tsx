@@ -510,7 +510,7 @@ export default function ContratosPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.8)' }}
           onClick={() => setViewer(null)}>
-          <div className="w-full max-w-6xl bg-white rounded-xl overflow-hidden" onClick={e => e.stopPropagation()}>
+          <div className="w-full max-w-5xl bg-white rounded-xl overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <p className="text-sm font-medium truncate">{viewer.file_name}</p>
               <div className="flex items-center gap-2">
