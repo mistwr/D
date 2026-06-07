@@ -133,7 +133,7 @@ export default function VendasPage() {
   })
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+    <div className="flex items-center justify-center min-h-screen" >
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
     </div>
   )
@@ -143,7 +143,7 @@ export default function VendasPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="parceiro" />
-        <main className="flex-1 md:ml-64 pt-14 md:pt-16 pb-20 md:pb-8" style={{ minHeight: '100vh' }}>
+        <main className="flex-1 overflow-auto" style={{ minHeight: "calc(100vh - 4rem)" }}>
           <div className="p-3 sm:p-4 md:p-8">
 
             {/* Cabeçalho - responsivo */}
@@ -165,18 +165,18 @@ export default function VendasPage() {
                 <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#9ca3af' }} />
                 <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Procurar por nome, NIF ou operadora..."
                   className="w-full pl-9 pr-4 py-3 sm:py-2.5 rounded-lg text-sm outline-none"
-                  style={{ background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b' }} />
+                   />
               </div>
               <select value={filter} onChange={e => setFilter(e.target.value)}
                 className="w-full sm:w-auto px-4 py-3 sm:py-2.5 rounded-lg text-sm outline-none"
-                style={{ background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b' }}>
+                >
                 <option value="todos">Todos os estados</option>
                 {Object.entries(STATUS_COLORS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
               </select>
             </div>
 
             {/* Cards para Mobile / Tabela para Desktop */}
-            <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+            <div className="rounded-xl shadow-sm overflow-hidden" >
               {filtered.length === 0 ? (
                 <div className="p-8 sm:p-16 text-center">
                   <p className="text-base font-medium mb-1" style={{ color: '#475569' }}>Nenhuma venda encontrada</p>
@@ -208,7 +208,7 @@ export default function VendasPage() {
                             <span className="text-xs" style={{ color: '#9ca3af' }}>{new Date(v.created_at).toLocaleDateString('pt-PT')}</span>
                             <button onClick={() => openDocs(v)}
                               className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium"
-                              style={{ background: '#f1f5f9', color: '#64748b' }}>
+                              >
                               <FileText size={14} /> Docs
                             </button>
                           </div>
@@ -221,7 +221,7 @@ export default function VendasPage() {
                   <div className="hidden md:block overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e2e8f0' }}>
+                        <tr >
                           {['Cliente', 'Serviço', 'Operadora / Plano', 'Valor', 'Estado', 'Data', 'Docs'].map(h => (
                             <th key={h} className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#64748b' }}>{h}</th>
                           ))}
@@ -248,7 +248,7 @@ export default function VendasPage() {
                               </td>
                               <td className="px-5 py-4 text-sm" style={{ color: '#475569' }}>
                                 <span className="font-medium">{v.operator || '-'}</span>
-                                {v.plano && <span className="ml-1 text-xs px-1.5 py-0.5 rounded" style={{ background: '#f8fafc', color: '#64748b' }}>{v.plano}</span>}
+                                {v.plano && <span className="ml-1 text-xs px-1.5 py-0.5 rounded" >{v.plano}</span>}
                               </td>
                               <td className="px-5 py-4 font-semibold text-sm" style={{ color: '#1e293b' }}>
                                 {'\u20AC'}{(v.amount || 0).toFixed(2)}
@@ -264,7 +264,7 @@ export default function VendasPage() {
                               <td className="px-5 py-4">
                                 <button onClick={() => openDocs(v)}
                                   className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition hover:opacity-80"
-                                style={{ background: '#eef2ff', color: '#4f46e5' }}>
+                                >
                                 <FileText size={13} /> Ver
                               </button>
                             </td>
@@ -284,7 +284,7 @@ export default function VendasPage() {
       {/* Modal Documentos da Venda */}
       {selectedVenda && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
-          <div className="w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden" style={{ background: '#fff' }}>
+          <div className="w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden" >
             <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #e2e8f0' }}>
               <div>
                 <h2 className="font-bold text-base" style={{ color: '#1e293b' }}>Documentos da Venda</h2>
@@ -299,7 +299,7 @@ export default function VendasPage() {
               {/* Detalhes da venda */}
               <div className="mb-5 rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0' }}>
                 {/* Linha serviço + valor */}
-                <div className="flex items-center justify-between px-4 py-3" style={{ background: '#f9fafb', borderBottom: '1px solid #e2e8f0' }}>
+                <div className="flex items-center justify-between px-4 py-3" >
                   <div className="flex items-center gap-2 flex-wrap">
                     {(() => {
                       const svcBg = selectedVenda.service_type === 'telecom' ? '#e0e7ff' : selectedVenda.service_type === 'energia' ? '#fef3c7' : '#dbeafe'
@@ -308,16 +308,16 @@ export default function VendasPage() {
                       return <span className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{ background: svcBg, color: svcColor }}>{svcLabel}</span>
                     })()}
                     {selectedVenda.operator && <span className="text-sm font-semibold" style={{ color: '#1e293b' }}>{selectedVenda.operator}</span>}
-                    {selectedVenda.plano && <span className="text-xs px-2 py-0.5 rounded" style={{ background: '#f8fafc', color: '#64748b' }}>{selectedVenda.plano}</span>}
+                    {selectedVenda.plano && <span className="text-xs px-2 py-0.5 rounded" >{selectedVenda.plano}</span>}
                     {selectedVenda.is_dual && (
-                      <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: '#fef3c7', color: '#92400e' }}>Dual</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full font-medium" >Dual</span>
                     )}
                   </div>
                   <span className="text-base font-bold ml-4" style={{ color: '#059669' }}>€{(selectedVenda.amount || 0).toFixed(2)}</span>
                 </div>
 
                 {/* Grid de campos do cliente */}
-                <div className="px-4 py-3 grid grid-cols-2 gap-x-6 gap-y-2.5 text-xs" style={{ background: '#fff' }}>
+                <div className="px-4 py-3 grid grid-cols-2 gap-x-6 gap-y-2.5 text-xs" >
                   {selectedVenda.client_nif && (
                     <div>
                       <p className="uppercase tracking-wide font-semibold mb-0.5" style={{ color: '#9ca3af', fontSize: 10 }}>NIF</p>
@@ -415,7 +415,7 @@ export default function VendasPage() {
                 </span>
               </button>
               {uploadError && (
-                <p className="text-xs mb-2 px-3 py-2 rounded-lg" style={{ background: '#fee2e2', color: '#991b1b' }}>{uploadError}</p>
+                <p className="text-xs mb-2 px-3 py-2 rounded-lg" >{uploadError}</p>
               )}
               <p className="text-xs mb-4" style={{ color: '#9ca3af' }}>PDF, Word, Excel, imagens — max. 10MB</p>
 
@@ -433,7 +433,7 @@ export default function VendasPage() {
                     return (
                       <li key={doc.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid #e2e8f0' }}>
                         {/* Cabeçalho do doc */}
-                        <div className="flex items-center justify-between px-4 py-3" style={{ background: '#f9fafb' }}>
+                        <div className="flex items-center justify-between px-4 py-3" >
                           <div className="flex items-center gap-3 min-w-0">
                             <FileText size={16} style={{ color: '#64748b', flexShrink: 0 }} />
                             <div className="min-w-0">
@@ -448,7 +448,7 @@ export default function VendasPage() {
                             {doc.signed_url && (
                               <a href={doc.signed_url} download={doc.file_name}
                                 className="text-xs font-medium px-2.5 py-1 rounded-md transition"
-                                style={{ background: '#eef2ff', color: '#4f46e5' }}>
+                                >
                                 Download
                               </a>
                             )}
@@ -459,15 +459,15 @@ export default function VendasPage() {
                         </div>
                         {/* Viewer inline */}
                         {doc.signed_url && isImage && (
-                          <div className="p-3" style={{ background: '#fff' }}>
+                          <div className="p-3" >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={doc.signed_url} alt={doc.file_name}
                               className="w-full rounded-lg object-contain max-h-72"
-                              style={{ background: '#f8fafc' }} />
+                               />
                           </div>
                         )}
                         {doc.signed_url && isPdf && (
-                          <div style={{ background: '#fff' }}>
+                          <div >
                             <iframe src={doc.signed_url} title={doc.file_name}
                               className="w-full" style={{ height: 320, border: 'none' }} />
                           </div>

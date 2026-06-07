@@ -138,7 +138,7 @@ export default function AdminComissoesPage() {
   const parceiroSelecionado = parceiros.find(p => p.id === selectedParceiro)
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+    <div className="flex items-center justify-center min-h-screen" >
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4338ca' }} />
     </div>
   )
@@ -149,7 +149,7 @@ export default function AdminComissoesPage() {
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
         <main className="flex-1 md:ml-64 pt-16">
-          <div className="p-4 md:p-8 max-w-5xl">
+          <div className="p-4 md:p-8 max-w-7xl">
 
             <Link href="/admin/dashboard" className="inline-flex items-center gap-2 mb-6 text-sm font-medium" style={{ color: '#0ea5e9' }}>
               <ArrowLeft size={16} /> Voltar
@@ -172,7 +172,7 @@ export default function AdminComissoesPage() {
             )}
 
             {/* Seletor de Parceiro */}
-            <div className="rounded-xl p-6 mb-6 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+            <div className="rounded-xl p-6 mb-6 shadow-sm" >
               <div className="flex items-center gap-2 mb-4">
                 <Users size={18} style={{ color: '#0ea5e9' }} />
                 <h2 className="font-semibold" style={{ color: '#1e293b' }}>Selecionar Parceiro</h2>
@@ -236,7 +236,7 @@ export default function AdminComissoesPage() {
                 </div>
 
                 {/* Tabela */}
-                <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                <div className="rounded-xl shadow-sm overflow-hidden" >
                   <div className="px-5 py-4 flex items-center justify-between" style={{ background: tc.bg, borderBottom: `1px solid ${tc.border}` }}>
                     <h3 className="font-bold text-sm" style={{ color: tc.text }}>
                       {tab.charAt(0).toUpperCase() + tab.slice(1)} — {tabData.length} {tabData.length === 1 ? 'comissao' : 'comissoes'}
@@ -257,7 +257,7 @@ export default function AdminComissoesPage() {
                     <div className="overflow-x-auto">
                       <table className="w-full">
                         <thead>
-                          <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e2e8f0' }}>
+                          <tr >
                             <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>Operadora</th>
                             {tab === 'telecom' && <>
                               <th className="px-5 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>Plano</th>
@@ -282,19 +282,19 @@ export default function AdminComissoesPage() {
                               </td>
                               {tab === 'telecom' && <>
                                 <td className="px-5 py-4">
-                                  <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: '#e0e7ff', color: '#0ea5e9' }}>
+                                  <span className="px-2 py-0.5 rounded-full text-xs font-bold" >
                                     {c.plano || '-'}
                                   </span>
                                 </td>
                                 <td className="px-5 py-4">
                                   {c.modelo === 'mensalidade' && (
-                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: '#fef3c7', color: '#92400e' }}>Mensalidades</span>
+                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium" >Mensalidades</span>
                                   )}
                                   {c.modelo === 'percentagem' && (
-                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: '#f0f9ff', color: '#0369a1' }}>Percentagem</span>
+                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium" >Percentagem</span>
                                   )}
                                   {(!c.modelo || c.modelo === 'fixo') && (
-                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: '#f0fdf4', color: '#166534' }}>Fixo</span>
+                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium" >Fixo</span>
                                   )}
                                 </td>
                               </>}
@@ -323,7 +323,7 @@ export default function AdminComissoesPage() {
                                       setShowForm(true)
                                     }}
                                     className="rounded-lg p-1.5 transition hover:opacity-70"
-                                    style={{ background: '#eef2ff' }}
+                                    
                                     title="Editar comissao">
                                     <Pencil size={15} style={{ color: '#0ea5e9' }} />
                                   </button>
@@ -334,7 +334,7 @@ export default function AdminComissoesPage() {
                                       }
                                     }}
                                     className="rounded-lg p-1.5 transition hover:opacity-70"
-                                    style={{ background: '#fef2f2' }}
+                                    
                                     title="Apagar comissao">
                                     <Trash2 size={15} style={{ color: '#dc2626' }} />
                                   </button>
@@ -351,7 +351,7 @@ export default function AdminComissoesPage() {
             )}
 
             {!selectedParceiro && !loading && parceiros.length > 0 && (
-              <div className="rounded-xl p-10 text-center" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+              <div className="rounded-xl p-10 text-center" >
                 <Percent size={36} className="mx-auto mb-3" style={{ color: '#d1d5db' }} />
                 <p className="text-sm font-medium" style={{ color: '#64748b' }}>Selecione um parceiro para ver e editar as suas comissoes</p>
               </div>
@@ -364,7 +364,7 @@ export default function AdminComissoesPage() {
       {/* Modal Adicionar Comissao */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
-          <div className="w-full max-w-md rounded-2xl shadow-2xl" style={{ background: '#fff' }}>
+          <div className="w-full max-w-md rounded-2xl shadow-2xl" >
             <div className="flex items-center justify-between p-5" style={{ borderBottom: '1px solid #e2e8f0' }}>
               <h2 className="font-bold" style={{ color: '#1e293b' }}>Adicionar Comissao</h2>
               <button onClick={() => setShowForm(false)} className="rounded-lg p-1.5 hover:bg-gray-100">
@@ -444,7 +444,7 @@ export default function AdminComissoesPage() {
                       })}
                     </div>
                   </div>
-                  <div className="rounded-lg p-3 text-xs" style={{ background: '#eef2ff', color: '#0ea5e9', border: '1px solid #c7d2fe' }}>
+                  <div className="rounded-lg p-3 text-xs" >
                     {(() => {
                       const mens = parseFloat(form.num_mensalidades) || 0
                       const label = mens === 1 ? '1 mensalidade' : `${mens} mensalidades`
