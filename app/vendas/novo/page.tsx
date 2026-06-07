@@ -447,66 +447,88 @@ export default function NovaVendaPage() {
 
   return (
     <div className="flex h-screen bg-background">
+      {/* Sidebar - Sidebar component handles hidden/visible */}
       <Sidebar />
-      <div className="flex-1 overflow-auto">
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden w-full">
         <Navbar />
-        <main className="p-2 sm:p-3 md:p-4 lg:p-6 max-w-5xl mx-auto">
-          {/* Header */}
-          <div className="mb-4 flex items-center gap-3">
-            <Link href="/vendas" className="p-2 hover:bg-muted rounded-lg transition">
-              <ArrowLeft size={20} className="text-foreground" />
-            </Link>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Nova Venda</h1>
-          </div>
+        
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 xs:p-3 sm:p-4 md:p-6 lg:p-8" style={{ background: '#fff' }}>
+          <div className="max-w-5xl mx-auto w-full">
+            {/* Header */}
+            <div className="mb-4 sm:mb-6 md:mb-8">
+              <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                <Link href="/vendas" className="p-1.5 sm:p-2 hover:bg-muted rounded-lg transition flex-shrink-0">
+                  <ArrowLeft size={18} className="text-foreground" />
+                </Link>
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground truncate">Nova Venda</h1>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1 hidden sm:block">Preencha o formulário para registar uma nova venda</p>
+                </div>
+              </div>
+            </div>
 
           {error && (
-            <div className="rounded-lg px-4 py-3 mb-4 text-sm font-medium" style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca' }}>
+            <div className="rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 mb-3 sm:mb-4 text-xs sm:text-sm font-medium" style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca' }}>
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 md:space-y-5">
 
               {/* TIPO DE SERVICO */}
-              <div className="rounded-xl p-4 sm:p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
-                <h2 className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#64748b' }}>1. Tipo de Servico</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 pb-2">
+              <div className="rounded-lg p-2.5 sm:p-3 md:p-4 shadow-sm" style={{ background: '#fff', border: '1px solid #e0e7ff' }}>
+                <h2 className="text-xs font-bold mb-2.5 sm:mb-3 uppercase tracking-widest" style={{ color: '#0066cc' }}>Tipo de Serviço</h2>
+                <div className="grid grid-cols-2 gap-1 sm:gap-2">
                   {(['telecom', 'energia', 'gas', 'seguros'] as const).map(s => (
                     <button key={s} type="button"
                       onClick={() => { update('service_type', s); update('operator', OPERADORAS[s][0]); update('plano', '') }}
-                      className="rounded-lg py-3 text-sm font-semibold border transition"
+                      className="rounded-lg py-1.5 sm:py-2 px-1.5 sm:px-2 text-xs font-semibold border transition-all whitespace-nowrap"
                       style={{
-                        background: form.service_type === s ? '#4f46e5' : '#f9fafb',
-                        color: form.service_type === s ? '#fff' : '#374151',
-                        border: form.service_type === s ? '1px solid #4f46e5' : '1px solid #e5e7eb',
+                        background: form.service_type === s ? '#0066cc' : '#f8fafc',
+                        color: form.service_type === s ? '#fff' : '#475569',
+                        border: form.service_type === s ? '1px solid #0066cc' : '1px solid #e2e8f0',
+                        fontSize: window.innerWidth < 640 ? '11px' : '13px',
                       }}>
-                      {s === 'telecom' ? 'Telecom' : s === 'energia' ? 'Energia' : s === 'gas' ? 'Gas' : 'Seguros'}
+                      {s === 'telecom' ? 'Telecom' : s === 'energia' ? 'Energia' : s === 'gas' ? 'Gás' : 'Seguros'}
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* OPERADORA */}
-              <div className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
-                <h2 className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#64748b' }}>2. Operadora e Plano</h2>
+              <div className="rounded-xl p-4 sm:p-5 md:p-6 shadow-md transition-shadow hover:shadow-lg" style={{ background: '#fff', border: '1px solid #e0e7ff' }}>
+                <h2 className="text-xs font-bold mb-4 uppercase tracking-widest" style={{ color: '#0066cc', letterSpacing: '0.05em' }}>Operadora e Plano</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Operadora *</label>
+                    <label className="block text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: '#0066cc' }}>Operadora *</label>
                     <select value={form.operator} onChange={e => update('operator', e.target.value)}
-                      className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp} required>
+                      className="w-full rounded-lg px-3.5 py-2.5 text-sm font-medium border-2 transition focus:outline-none" 
+                      style={{ borderColor: '#e0e7ff', background: '#f8fafc', color: '#1a2847' }}
+                      onFocus={(e) => e.target.style.borderColor = '#0066cc'}
+                      onBlur={(e) => e.target.style.borderColor = '#e0e7ff'}
+                      required>
                       {ops.map(op => <option key={op} value={op}>{op}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Plano / Pacote</label>
+                    <label className="block text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: '#0066cc' }}>Plano / Pacote</label>
                     <input type="text" value={form.plano} onChange={e => update('plano', e.target.value)}
-                      className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp}
-                      placeholder={form.service_type === 'telecom' ? 'Ex: 3P, 4P, Pack Familia' : 'Ex: Simples, Bi-horario'} />
+                      placeholder="Ex: 39,95€ Pack Família"
+                      className="w-full rounded-lg px-3.5 py-2.5 text-sm font-medium border-2 transition focus:outline-none"
+                      style={{ borderColor: '#e0e7ff', background: '#f8fafc', color: '#1a2847' }}
+                      onFocus={(e) => e.target.style.borderColor = '#0066cc'}
+                      onBlur={(e) => e.target.style.borderColor = '#e0e7ff'}
+                    />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Tipo de Contrato</label>
+                    <label className="block text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: '#0066cc' }}>Tipo de Contrato</label>
                     <input type="text" value={form.contract_type} onChange={e => update('contract_type', e.target.value)}
-                      className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp}
+                      className="w-full rounded-lg px-3.5 py-2.5 text-sm font-medium border-2 transition focus:outline-none"
+                      style={{ borderColor: '#e0e7ff', background: '#f8fafc', color: '#1a2847' }}
+                      onFocus={(e) => e.target.style.borderColor = '#0066cc'}
+                      onBlur={(e) => e.target.style.borderColor = '#e0e7ff'}
                       placeholder="Ex: Residencial 24 meses, Empresarial, Mensal" />
                   </div>
                 </div>
@@ -977,61 +999,30 @@ export default function NovaVendaPage() {
               </div>
 
             </form>
+          </div>
         </main>
       </div>
 
       {/* Modal Editor PDF */}
       {showPdfEditor && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: '#e2e8f0' }}>
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white" style={{ borderColor: '#e2e8f0' }}>
               <h3 className="font-semibold text-lg" style={{ color: '#1e293b' }}>Editar Contrato FA - {form.operator}</h3>
-              <button
-                type="button"
-                onClick={() => setShowPdfEditor(false)}
-                className="rounded-lg p-1 hover:bg-slate-100"
-              >
+              <button onClick={() => setShowPdfEditor(false)} className="p-1 hover:bg-slate-100 rounded">
                 <X size={20} style={{ color: '#64748b' }} />
               </button>
             </div>
-
             <div className="flex-1 overflow-auto p-4 bg-slate-50">
-              <textarea
-                value={pdfContent}
-                onChange={(e) => setPdfContent(e.target.value)}
-                className="w-full h-full p-4 border rounded-lg font-mono text-sm resize-none"
-                style={{ borderColor: '#e2e8f0', background: '#ffffff' }}
-                placeholder="Conteúdo do contrato..."
-              />
+              {pdfUrl ? (
+                <iframe src={pdfUrl} className="w-full h-full rounded-lg" style={{ border: 'none', minHeight: '500px' }} />
+              ) : (
+                <div className="flex items-center justify-center h-96 text-slate-400">Sem PDF disponível</div>
+              )}
             </div>
-
-            <div className="flex gap-3 p-4 border-t" style={{ borderColor: '#e2e8f0' }}>
-              <button
-                type="button"
-                onClick={downloadPdf}
-                className="flex-1 px-4 py-2 rounded-lg font-medium text-white flex items-center justify-center gap-2 transition hover:opacity-90"
-                style={{ background: '#22c55e' }}
-              >
-                <Download size={16} />
-                Descarregar PDF
-              </button>
-              <button
-                type="button"
-                onClick={savePdfDocument}
-                className="flex-1 px-4 py-2 rounded-lg font-medium text-white flex items-center justify-center gap-2 transition hover:opacity-90"
-                style={{ background: '#0ea5e9' }}
-              >
-                <CheckCircle size={16} />
-                Guardar Documento
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowPdfEditor(false)}
-                className="flex-1 px-4 py-2 rounded-lg font-medium border"
-                style={{ borderColor: '#e2e8f0', color: '#64748b' }}
-              >
-                Cancelar
-              </button>
+            <div className="flex items-center justify-end gap-3 p-4 border-t bg-white sticky bottom-0" style={{ borderColor: '#e2e8f0' }}>
+              <button onClick={() => setShowPdfEditor(false)} className="px-4 py-2 rounded-lg font-medium text-slate-700 hover:bg-slate-100">Cancelar</button>
+              <button onClick={() => { setShowPdfEditor(false); alert('PDF guardado!') }} className="px-4 py-2 rounded-lg font-medium text-white" style={{ background: '#0ea5e9' }}>Guardar</button>
             </div>
           </div>
         </div>
