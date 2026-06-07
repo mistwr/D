@@ -446,51 +446,52 @@ export default function NovaVendaPage() {
   const isEnergia = form.service_type === 'energia'
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Sidebar - Hidden on mobile, visible on desktop */}
-      <div className="hidden md:block w-56 border-r" style={{ borderColor: '#e5e7eb', background: '#1a2847' }}>
+    <div className="flex h-screen bg-background w-screen overflow-hidden">
+      {/* Sidebar - Only show on md and above */}
+      <aside className="w-0 md:w-56 overflow-hidden transition-all" style={{ background: '#1a2847', borderRight: '1px solid #e5e7eb' }}>
         <Sidebar />
-      </div>
+      </aside>
       
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Main Content - Takes full width on mobile */}
+      <div className="flex-1 flex flex-col overflow-hidden w-full">
         <Navbar />
         
-        <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-6 lg:p-8">
-          <div className="max-w-4xl mx-auto">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 xs:p-3 sm:p-4 md:p-6 lg:p-8" style={{ background: '#fff' }}>
+          <div className="max-w-5xl mx-auto w-full">
             {/* Header */}
-            <div className="mb-6 md:mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <Link href="/vendas" className="p-2 hover:bg-muted rounded-lg transition">
-                  <ArrowLeft size={20} className="text-foreground" />
+            <div className="mb-4 sm:mb-6 md:mb-8">
+              <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                <Link href="/vendas" className="p-1.5 sm:p-2 hover:bg-muted rounded-lg transition flex-shrink-0">
+                  <ArrowLeft size={18} className="text-foreground" />
                 </Link>
-                <div>
-                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">Nova Venda</h1>
-                  <p className="text-xs md:text-sm text-muted-foreground mt-1">Preencha o formulário para registar uma nova venda</p>
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground truncate">Nova Venda</h1>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1 hidden sm:block">Preencha o formulário para registar uma nova venda</p>
                 </div>
               </div>
             </div>
 
           {error && (
-            <div className="rounded-lg px-4 py-3 mb-4 text-sm font-medium" style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca' }}>
+            <div className="rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 mb-3 sm:mb-4 text-xs sm:text-sm font-medium" style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca' }}>
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 md:space-y-5">
 
               {/* TIPO DE SERVICO */}
-              <div className="rounded-lg p-3 sm:p-4 md:p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e0e7ff' }}>
-                <h2 className="text-xs font-bold mb-3 uppercase tracking-widest" style={{ color: '#0066cc' }}>Tipo de Serviço</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
+              <div className="rounded-lg p-2.5 sm:p-3 md:p-4 shadow-sm" style={{ background: '#fff', border: '1px solid #e0e7ff' }}>
+                <h2 className="text-xs font-bold mb-2.5 sm:mb-3 uppercase tracking-widest" style={{ color: '#0066cc' }}>Tipo de Serviço</h2>
+                <div className="grid grid-cols-2 gap-1 sm:gap-2">
                   {(['telecom', 'energia', 'gas', 'seguros'] as const).map(s => (
                     <button key={s} type="button"
                       onClick={() => { update('service_type', s); update('operator', OPERADORAS[s][0]); update('plano', '') }}
-                      className="rounded-lg py-2 sm:py-2.5 px-2 text-xs sm:text-sm font-semibold border transition-all"
+                      className="rounded-lg py-1.5 sm:py-2 px-1.5 sm:px-2 text-xs font-semibold border transition-all whitespace-nowrap"
                       style={{
                         background: form.service_type === s ? '#0066cc' : '#f8fafc',
                         color: form.service_type === s ? '#fff' : '#475569',
                         border: form.service_type === s ? '1px solid #0066cc' : '1px solid #e2e8f0',
+                        fontSize: window.innerWidth < 640 ? '11px' : '13px',
                       }}>
                       {s === 'telecom' ? 'Telecom' : s === 'energia' ? 'Energia' : s === 'gas' ? 'Gás' : 'Seguros'}
                     </button>
