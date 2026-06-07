@@ -115,7 +115,7 @@ export default function MinhaEstruturaPage() {
         <Navbar user={user} />
         <Sidebar user={user} />
         <main className="pt-16 lg:pl-64 min-h-screen">
-          <div className="p-4 md:p-6 lg:p-8 max-w-4xl mx-auto">
+          <div className="p-4 md:p-5 lg:p-8 max-w-4xl mx-auto">
             <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
               <AlertTriangle size={48} style={{ color: '#f59e0b' }} className="mx-auto mb-4" />
               <h2 className="text-xl font-bold mb-2" style={{ color: '#1e293b' }}>Sem Permissao</h2>
@@ -135,7 +135,7 @@ export default function MinhaEstruturaPage() {
       <Navbar user={user} />
       <Sidebar user={user} />
       <main className="pt-16 lg:pl-64 min-h-screen">
-        <div className="p-4 md:p-6 lg:p-8 max-w-5xl mx-auto">
+        <div className="p-4 md:p-5 lg:p-8 max-w-5xl mx-auto">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div>

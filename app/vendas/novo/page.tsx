@@ -454,7 +454,7 @@ export default function NovaVendaPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar />
         
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 xs:p-3 sm:p-4 md:p-6 lg:p-8" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-5" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
           <div className="max-w-5xl mx-auto w-full">
             {/* Header */}
             <div className="mb-4 sm:mb-6 md:mb-8">
@@ -498,7 +498,7 @@ export default function NovaVendaPage() {
               </div>
 
               {/* OPERADORA */}
-              <div className="rounded-2xl p-5 sm:p-6 md:p-7 lg:p-8 shadow-lg hover:shadow-xl transition-all" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%)', border: '1px solid #d0e8ff', borderTop: '2px solid #0066cc' }}>
+              <div className="rounded-2xl p-5 sm:p-6 md:p-5 lg:p-8 shadow-lg hover:shadow-xl transition-all" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%)', border: '1px solid #d0e8ff', borderTop: '2px solid #0066cc' }}>
                 <h2 className="text-xs font-bold mb-5 uppercase tracking-widest" style={{ color: '#003d99', fontSize: '10px', letterSpacing: '0.08em' }}>Operadora e Plano</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                   <div>
