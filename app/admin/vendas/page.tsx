@@ -445,17 +445,17 @@ export default function AdminVendasPage() {
   const totalFiltrado = filtered.reduce((s, v) => s + (v.amount || 0), 0)
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
         <main className="flex-1 md:ml-64 pt-16">
-          <div className="p-4 md:p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <ShoppingCart size={26} style={{ color: '#0ea5e9' }} />
+          <div className="p-4 sm:p-6 md:p-8 lg:p-12 max-w-7xl mx-auto">
+            <div className="flex items-center gap-3 mb-6 md:mb-8">
+              <ShoppingCart size={32} style={{ color: '#0066cc' }} />
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Gestao de Vendas</h1>
-                <p className="text-sm" style={{ color: '#64748b' }}>{vendas.length} vendas registadas</p>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold" style={{ color: '#003d99' }}>Gestão de Vendas</h1>
+                <p className="text-xs sm:text-sm mt-1" style={{ color: '#475569' }}>{vendas.length} vendas registadas</p>
               </div>
             </div>
 
@@ -463,54 +463,66 @@ export default function AdminVendasPage() {
               {/* Lista */}
               <div className="flex-1 min-w-0">
                 {/* Filtros */}
-                <div className="rounded-xl p-3 mb-4 flex flex-wrap gap-2" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                <div className="rounded-2xl p-4 sm:p-5 md:p-6 mb-6 flex flex-wrap gap-3 shadow-lg" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%)', border: '1px solid #d0e8ff', borderTop: '2px solid #0066cc' }}>
                   <div className="relative flex-1 min-w-44">
-                    <Search size={15} className="absolute left-3 top-2.5" style={{ color: '#9ca3af' }} />
+                    <Search size={16} className="absolute left-3 top-3" style={{ color: '#0066cc' }} />
                     <input value={search} onChange={e => setSearch(e.target.value)}
-                      placeholder="Cliente, NIF, operadora, parceiro..." className="w-full pl-8 pr-3 py-2 rounded-lg text-sm outline-none"
-                      style={{ border: '1px solid #d1d5db', color: '#1e293b' }} />
+                      placeholder="Cliente, NIF, operadora, parceiro..." className="w-full pl-9 pr-4 py-2.5 rounded-lg text-sm outline-none transition"
+                      style={{ border: '2px solid #d0e8ff', color: '#003d99', background: 'rgba(255,255,255,0.9)' }}
+                      onFocus={(e) => e.target.style.borderColor = '#0066cc'}
+                      onBlur={(e) => e.target.style.borderColor = '#d0e8ff'} />
                   </div>
                   <select value={filterParceiro} onChange={e => setFilterParceiro(e.target.value)}
-                    className="rounded-lg px-3 py-2 text-sm outline-none" style={{ border: '1px solid #d1d5db', color: '#1e293b', background: '#fff' }}>
+                    className="rounded-lg px-4 py-2.5 text-sm outline-none transition font-medium" style={{ border: '2px solid #d0e8ff', color: '#003d99', background: 'rgba(255,255,255,0.9)' }}
+                    onFocus={(e) => e.target.style.borderColor = '#0066cc'}
+                    onBlur={(e) => e.target.style.borderColor = '#d0e8ff'}>
                     <option value="todos">Todos os parceiros</option>
                     {parceirosUnicos.map(p => <option key={p} value={p}>{p}</option>)}
                   </select>
                   <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-                    className="rounded-lg px-3 py-2 text-sm outline-none" style={{ border: '1px solid #d1d5db', color: '#1e293b', background: '#fff' }}>
+                    className="rounded-lg px-4 py-2.5 text-sm outline-none transition font-medium" style={{ border: '2px solid #d0e8ff', color: '#003d99', background: 'rgba(255,255,255,0.9)' }}
+                    onFocus={(e) => e.target.style.borderColor = '#0066cc'}
+                    onBlur={(e) => e.target.style.borderColor = '#d0e8ff'}>
                     <option value="todas">Todos os estados</option>
                     {STATUSES.map(s => <option key={s} value={s}>{STATUS_LABELS[s].label}</option>)}
                   </select>
                   <select value={filterServico} onChange={e => setFilterServico(e.target.value)}
-                    className="rounded-lg px-3 py-2 text-sm outline-none" style={{ border: '1px solid #d1d5db', color: '#1e293b', background: '#fff' }}>
-                    <option value="todos">Todos os servicos</option>
+                    className="rounded-lg px-4 py-2.5 text-sm outline-none transition font-medium" style={{ border: '2px solid #d0e8ff', color: '#003d99', background: 'rgba(255,255,255,0.9)' }}
+                    onFocus={(e) => e.target.style.borderColor = '#0066cc'}
+                    onBlur={(e) => e.target.style.borderColor = '#d0e8ff'}>
+                    <option value="todos">Todos os serviços</option>
                     <option value="telecom">Telecom</option>
                     <option value="energia">Energia</option>
-                    <option value="gas">Gas</option>
+                    <option value="gas">Gás</option>
                     <option value="seguros">Seguros</option>
                   </select>
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-6">
                   {['pendente', 'em_revisao', 'em_ativacao', 'ativa', 'pago'].map(s => {
                     const count = vendas.filter(v => v.status === s).length
                     const st = STATUS_LABELS[s]
                     return (
                       <button key={s} onClick={() => setFilterStatus(filterStatus === s ? 'todas' : s)}
-                        className="rounded-xl p-3 text-left transition-all"
-                        style={{ background: filterStatus === s ? st.bg : '#fff', border: `1px solid ${filterStatus === s ? 'transparent' : '#e5e7eb'}` }}>
-                        <p className="text-xl font-bold" style={{ color: st.color }}>{count}</p>
-                        <p className="text-xs font-medium mt-0.5" style={{ color: '#64748b' }}>{st.label}</p>
+                        className="rounded-2xl p-4 text-left transition-all shadow-lg hover:shadow-xl"
+                        style={{ 
+                          background: filterStatus === s ? st.bg : 'linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%)',
+                          border: `2px solid ${filterStatus === s ? st.color : '#d0e8ff'}`,
+                          borderTop: '3px solid ' + st.color
+                        }}>
+                        <p className="text-2xl font-bold" style={{ color: st.color }}>{count}</p>
+                        <p className="text-xs font-bold mt-1 uppercase tracking-wide" style={{ color: filterStatus === s ? st.color : '#475569' }}>{st.label}</p>
                       </button>
                     )
                   })}
                 </div>
 
                 {/* Tabela */}
-                <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
-                  <div className="flex items-center justify-between px-5 py-3" style={{ borderBottom: '1px solid #e2e8f0' }}>
-                    <p className="text-sm font-medium" style={{ color: '#475569' }}>{filtered.length} resultados</p>
-                    <p className="text-sm font-semibold" style={{ color: '#0ea5e9' }}>
+                <div className="rounded-2xl shadow-lg overflow-hidden" style={{ background: '#fff', border: '1px solid #d0e8ff', borderTop: '2px solid #0066cc' }}>
+                  <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #e2e8f0', background: 'linear-gradient(135deg, #f9fbfd 0%, #f0f7ff 100%)' }}>
+                    <p className="text-sm font-semibold" style={{ color: '#003d99' }}>{filtered.length} resultados</p>
+                    <p className="text-sm font-bold" style={{ color: '#0066cc' }}>
                       Total: {totalFiltrado.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} EUR
                     </p>
                   </div>
