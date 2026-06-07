@@ -132,7 +132,7 @@ export default function AdminsVIPPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={true} />
-        <main className="flex-1 md:ml-64 pt-14 md:pt-16" style={{ minHeight: '100vh' }}>
+        <main className="flex-1 md:ml-64 pt-16 md:pt-20" style={{ minHeight: '100vh' }}>
           <div className="p-4 md:p-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
               <div>

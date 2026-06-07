@@ -166,7 +166,7 @@ export default function LeadsPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
-        <main className="flex-1 overflow-auto" style={{ minHeight: "calc(100vh - 4rem)" }}>
+        <main className="flex-1 overflow-auto" className="pt-16 md:pt-20">
           <div className="p-4 md:p-8">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
