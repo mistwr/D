@@ -158,22 +158,22 @@ export default function AdminContratosPage() {
         <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-5 max-w-5xl">
 
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Contratos / Vendas</h1>
-                <p className="mt-1 text-sm" style={{ color: '#64748b' }}>
+                <h1 className="text-xl font-bold" style={{ color: '#1e293b' }}>Contratos / Vendas</h1>
+                <p className="mt-0.5 text-xs" style={{ color: '#64748b' }}>
                   Todas as vendas registadas pelos parceiros com documentos associados
                 </p>
               </div>
               <button onClick={loadVendas}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition hover:opacity-80"
+                className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium transition hover:opacity-80"
                 >
-                <RefreshCw size={14} /> Actualizar
+                <RefreshCw size={12} /> Actualizar
               </button>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5 mb-5">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4">
               {[
                 { label: 'Total',      value: vendas.length,                                              bg: '#e0e7ff', color: '#0ea5e9' },
                 { label: 'Pendente',   value: vendas.filter(v => v.status === 'pendente').length,         bg: '#fef3c7', color: '#92400e' },
@@ -181,24 +181,24 @@ export default function AdminContratosPage() {
                 { label: 'Processado', value: vendas.filter(v => v.status === 'processado').length,       bg: '#ede9fe', color: '#6d28d9' },
                 { label: 'Pago',       value: vendas.filter(v => v.status === 'pago').length,             bg: '#d1fae5', color: '#065f46' },
               ].map(s => (
-                <div key={s.label} className="rounded-lg p-3 shadow-sm" >
-                  <p className="text-lg font-bold" style={{ color: s.color }}>{s.value}</p>
-                  <p className="text-xs mt-1" style={{ color: '#64748b' }}>{s.label}</p>
+                <div key={s.label} className="rounded-lg p-2.5 shadow-sm" >
+                  <p className="text-base font-bold" style={{ color: s.color }}>{s.value}</p>
+                  <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>{s.label}</p>
                 </div>
               ))}
             </div>
 
             {/* Filtros */}
-            <div className="mb-4 rounded-lg p-3 flex flex-col md:flex-row gap-2.5" >
+            <div className="mb-3 rounded-lg p-2.5 flex flex-col md:flex-row gap-2" >
               <div className="relative flex-1">
-                <Search size={16} className="absolute left-3 top-2.5" style={{ color: '#9ca3af' }} />
+                <Search size={14} className="absolute left-3 top-2" style={{ color: '#9ca3af' }} />
                 <input value={search} onChange={e => setSearch(e.target.value)}
-                  placeholder="Pesquisar por cliente, NIF, parceiro, operadora ou plano..."
-                  className="w-full pl-9 pr-4 py-2 rounded-lg text-sm outline-none"
+                  placeholder="Pesquisar por cliente, NIF, parceiro..."
+                  className="w-full pl-8 pr-3 py-1.5 rounded-lg text-xs outline-none"
                   style={{ border: '1px solid #d1d5db', color: '#1e293b' }} />
               </div>
               <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-                className="rounded-lg px-3 py-2 text-sm outline-none"
+                className="rounded-lg px-2.5 py-1.5 text-xs outline-none"
                 style={{ border: '1px solid #d1d5db', color: '#1e293b', background: '#fff' }}>
                 <option value="todos">Todos os estados</option>
                 <option value="pendente">Pendente</option>
@@ -213,9 +213,9 @@ export default function AdminContratosPage() {
 
             {/* Lista */}
             {filtered.length === 0 ? (
-              <div className="rounded-lg p-10 text-center" >
-                <FileText size={48} className="mx-auto mb-4" style={{ color: '#d1d5db' }} />
-                <p className="text-base font-medium" style={{ color: '#475569' }}>
+              <div className="rounded-lg p-6 text-center" >
+                <FileText size={40} className="mx-auto mb-3" style={{ color: '#d1d5db' }} />
+                <p className="text-sm font-medium" style={{ color: '#475569' }}>
                   {vendas.length === 0 ? 'Nenhuma venda registada ainda' : 'Nenhum resultado'}
                 </p>
               </div>
@@ -232,27 +232,27 @@ export default function AdminContratosPage() {
                       {/* Linha principal */}
                       <button
                         onClick={() => toggleVenda(v)}
-                        className="flex items-center justify-between w-full p-4 text-left"
+                        className="flex items-center justify-between w-full p-3 text-left"
                         style={{ borderBottom: isOpen ? '1px solid #e5e7eb' : 'none' }}
                       >
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full flex-shrink-0" >
-                            <User size={18} style={{ color: '#4f46e5' }} />
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full flex-shrink-0" >
+                            <User size={16} style={{ color: '#4f46e5' }} />
                           </div>
                           <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p className="font-bold text-sm" style={{ color: '#1e293b' }}>{v.client_name}</p>
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <p className="font-bold text-xs" style={{ color: '#1e293b' }}>{v.client_name}</p>
                               {v.client_nif && (
-                                <span className="text-xs font-mono px-1.5 py-0.5 rounded" >
+                                <span className="text-xs font-mono px-1 py-0.5 rounded" >
                                   NIF {v.client_nif}
                                 </span>
                               )}
-                              <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: st.bg, color: st.color }}>
+                              <span className="text-xs px-1.5 py-0.5 rounded-full font-medium" style={{ background: st.bg, color: st.color }}>
                                 {st.label}
                               </span>
-                              <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium"
+                              <span className="flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full font-medium"
                                 style={{ background: v.service_type === 'energia' ? '#fef3c7' : '#e0e7ff', color: v.service_type === 'energia' ? '#92400e' : '#4338ca' }}>
-                                {v.service_type === 'energia' ? <Zap size={10} /> : <Wifi size={10} />}
+                                {v.service_type === 'energia' ? <Zap size={9} /> : <Wifi size={9} />}
                                 {v.operator || v.service_type}
                                 {v.plano ? ` · ${v.plano}` : ''}
                               </span>
@@ -262,20 +262,20 @@ export default function AdminContratosPage() {
                                 </span>
                               )}
                             </div>
-                            <div className="flex flex-wrap gap-3 mt-1">
+                            <div className="flex flex-wrap gap-2 mt-0.5">
                               {v.parceiro_name && (
-                                <span className="flex items-center gap-1 text-xs" style={{ color: '#64748b' }}>
-                                  <Building2 size={11} /> {v.parceiro_name}
+                                <span className="flex items-center gap-0.5 text-xs" style={{ color: '#64748b' }}>
+                                  <Building2 size={10} /> {v.parceiro_name}
                                 </span>
                               )}
                               {v.client_phone && (
-                                <span className="flex items-center gap-1 text-xs" style={{ color: '#64748b' }}>
-                                  <Phone size={11} /> {v.client_phone}
+                                <span className="flex items-center gap-0.5 text-xs" style={{ color: '#64748b' }}>
+                                  <Phone size={10} /> {v.client_phone}
                                 </span>
                               )}
                               {v.client_email && (
-                                <span className="flex items-center gap-1 text-xs" style={{ color: '#64748b' }}>
-                                  <Mail size={11} /> {v.client_email}
+                                <span className="flex items-center gap-0.5 text-xs" style={{ color: '#64748b' }}>
+                                  <Mail size={10} /> {v.client_email}
                                 </span>
                               )}
                               <span className="text-xs" style={{ color: '#9ca3af' }}>
@@ -284,14 +284,14 @@ export default function AdminContratosPage() {
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-3 ml-4 flex-shrink-0">
-                          {isOpen ? <ChevronUp size={18} style={{ color: '#9ca3af' }} /> : <ChevronDown size={18} style={{ color: '#9ca3af' }} />}
+                        <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+                          {isOpen ? <ChevronUp size={16} style={{ color: '#9ca3af' }} /> : <ChevronDown size={16} style={{ color: '#9ca3af' }} />}
                         </div>
                       </button>
 
                       {/* Detalhe expandido */}
                       {isOpen && (
-                        <div className="p-4 space-y-4">
+                        <div className="p-3 space-y-3">
 
                           {/* Notas do parceiro */}
                           {v.notes && (

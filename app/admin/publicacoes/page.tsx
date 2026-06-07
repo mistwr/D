@@ -106,45 +106,45 @@ export default function AdminPublicacoesPage() {
         <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-5 max-w-5xl">
 
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Newspaper size={20} style={{ color: '#0ea5e9' }} />
+                <Newspaper size={18} style={{ color: '#0ea5e9' }} />
                 <div>
-                  <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Publicacoes</h1>
-                  <p className="text-sm" style={{ color: '#64748b' }}>{pubs.length} publicacao{pubs.length !== 1 ? 'es' : ''}</p>
+                  <h1 className="text-xl font-bold" style={{ color: '#1e293b' }}>Publicacoes</h1>
+                  <p className="text-xs" style={{ color: '#64748b' }}>{pubs.length} publicacao{pubs.length !== 1 ? 'es' : ''}</p>
                 </div>
               </div>
               <button onClick={() => setShowForm(true)}
-                className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-white hover:opacity-90 transition"
                 style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
-                <Plus size={16} /> Nova Publicacao
+                <Plus size={14} /> Nova Publicacao
               </button>
             </div>
 
             {/* Lista */}
             {pubs.length === 0 ? (
-              <div className="rounded-xl p-16 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
-                <Newspaper size={48} style={{ color: '#d1d5db' }} className="mx-auto mb-4" />
-                <p className="text-base font-medium" style={{ color: '#475569' }}>Nenhuma publicacao</p>
+              <div className="rounded-lg p-8 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                <Newspaper size={40} style={{ color: '#d1d5db' }} className="mx-auto mb-3" />
+                <p className="text-sm font-medium" style={{ color: '#475569' }}>Nenhuma publicacao</p>
               </div>
             ) : (
               <div className="flex flex-col gap-2">
                 {pubs.map(p => (
-                  <div key={p.id} className="rounded-lg p-4 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
-                    <div className="flex items-start justify-between gap-4">
+                  <div key={p.id} className="rounded-lg p-3 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                    <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-bold text-sm" style={{ color: '#1e293b' }}>{p.title}</h3>
-                          <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: p.parceiro_id ? '#eef2ff' : '#f0fdf4', color: p.parceiro_id ? '#4338ca' : '#166534' }}>
+                          <h3 className="font-bold text-xs" style={{ color: '#1e293b' }}>{p.title}</h3>
+                          <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{ background: p.parceiro_id ? '#eef2ff' : '#f0fdf4', color: p.parceiro_id ? '#4338ca' : '#166534' }}>
                             {p.parceiro_id ? 'Especifico' : 'Todos'}
                           </span>
                         </div>
                         {(p.content || p.message) && (
-                          <p className="text-sm" style={{ color: '#64748b' }}>{p.content || p.message}</p>
+                          <p className="text-xs" style={{ color: '#64748b' }}>{p.content || p.message}</p>
                         )}
                         {(p.file_name || p.file_path) && (
-                          <div className="mt-2 flex items-center gap-2">
-                            <FileText size={13} style={{ color: '#64748b' }} />
+                          <div className="mt-1 flex items-center gap-1">
+                            <FileText size={11} style={{ color: '#64748b' }} />
                             {p.signed_url ? (
                               <a href={p.signed_url} target="_blank" rel="noreferrer"
                                 className="text-xs font-medium hover:underline" style={{ color: '#0ea5e9' }}>
@@ -155,14 +155,14 @@ export default function AdminPublicacoesPage() {
                             )}
                           </div>
                         )}
-                        <p className="text-xs mt-2" style={{ color: '#9ca3af' }}>
+                        <p className="text-xs mt-1" style={{ color: '#9ca3af' }}>
                           {p.author_name && `por ${p.author_name} · `}
                           {new Date(p.created_at).toLocaleDateString('pt-PT')}
                         </p>
                       </div>
                       <button onClick={() => deletePub(p.id)}
-                        className="rounded-lg p-2 transition hover:bg-red-50 flex-shrink-0">
-                        <Trash2 size={16} style={{ color: '#dc2626' }} />
+                        className="rounded-lg p-1.5 transition hover:bg-red-50 flex-shrink-0">
+                        <Trash2 size={14} style={{ color: '#dc2626' }} />
                       </button>
                     </div>
                   </div>
