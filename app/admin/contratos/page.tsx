@@ -156,7 +156,7 @@ export default function AdminContratosPage() {
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
         <main className="flex-1 md:ml-64 pt-16">
-          <div className="p-4 md:p-5 max-w-5xl">
+          <div className="p-4 md:p-5 max-w-5xl mx-auto w-full mx-auto w-full">
 
             <div className="flex items-center justify-between mb-4">
               <div>

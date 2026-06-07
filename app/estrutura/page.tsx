@@ -114,7 +114,7 @@ export default function MinhaEstruturaPage() {
       <div className="min-h-screen" style={{ background: '#f8fafc' }}>
         <Navbar user={user} />
         <Sidebar user={user} />
-        <main className="pt-16 lg:pl-64 min-h-screen">
+        <main className="pt-16 md:ml-64 min-h-screen">
           <div className="p-4 md:p-5 lg:p-8 max-w-4xl mx-auto">
             <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
               <AlertTriangle size={48} style={{ color: '#f59e0b' }} className="mx-auto mb-4" />
@@ -134,8 +134,8 @@ export default function MinhaEstruturaPage() {
     <div className="min-h-screen" style={{ background: '#f8fafc' }}>
       <Navbar user={user} />
       <Sidebar user={user} />
-      <main className="pt-16 lg:pl-64 min-h-screen">
-        <div className="p-4 md:p-5 lg:p-8 max-w-5xl mx-auto">
+      <main className="pt-16 md:ml-64 min-h-screen">
+        <div className="p-4 md:p-5 lg:p-8 max-w-5xl mx-auto w-full mx-auto">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div>
