@@ -83,7 +83,7 @@ export default function MateriaisParceiroPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="parceiro" />
-        <main className="flex-1 md:ml-64 pt-16">
+        <main className="flex-1 md:relative md:z-10 md:ml-64 pt-16">
           <div className="p-4 md:p-5 max-w-5xl mx-auto w-full mx-auto w-full">
             <div className="flex items-center gap-3 mb-8">
               <div className="rounded-xl p-2.5" >

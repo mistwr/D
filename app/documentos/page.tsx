@@ -98,7 +98,7 @@ export default function DocumentosPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="parceiro" />
-        <main className="flex-1 md:ml-64 pt-16" style={{ minHeight: '100vh' }}>
+        <main className="flex-1 md:relative md:z-10 md:ml-64 pt-16 md:relative md:z-10" style={{ minHeight: '100vh' }}>
           <div className="p-4 md:p-5 max-w-5xl mx-auto w-full mx-auto w-full">
             <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Documentos e Contratos</h1>
             <p className="mt-1 mb-6 text-sm" style={{ color: '#64748b' }}>Carregue e consulte documentos por venda</p>
