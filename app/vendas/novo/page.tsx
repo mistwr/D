@@ -454,8 +454,8 @@ export default function NovaVendaPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar />
         
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 xs:p-3 sm:p-4 md:p-6 lg:p-12" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
-          <div className="max-w-7xl mx-auto w-full">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 xs:p-3 sm:p-4 md:p-6 lg:p-8" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
+          <div className="max-w-6xl mx-auto w-full">
             {/* Header */}
             <div className="mb-4 sm:mb-6 md:mb-8">
               <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">

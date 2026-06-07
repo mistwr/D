@@ -149,7 +149,7 @@ export default function AdminComissoesPage() {
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
         <main className="flex-1 md:ml-64 pt-16">
-          <div className="p-4 md:p-8 max-w-7xl">
+          <div className="p-4 md:p-8 max-w-6xl">
 
             <Link href="/admin/dashboard" className="inline-flex items-center gap-2 mb-6 text-sm font-medium" style={{ color: '#0ea5e9' }}>
               <ArrowLeft size={16} /> Voltar

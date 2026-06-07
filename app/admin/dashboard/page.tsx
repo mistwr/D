@@ -143,7 +143,7 @@ export default function AdminDashboardPage() {
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
         <main className="flex-1 overflow-auto" style={{ minHeight: "calc(100vh - 4rem)" }}>
-          <div className="px-2 xs:px-3 sm:px-4 md:px-6 lg:px-12 py-4 md:py-6 lg:py-8 max-w-7xl mx-auto">
+          <div className="px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8 max-w-6xl mx-auto">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 md:mb-10">
               <div>

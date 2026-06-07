@@ -450,7 +450,7 @@ export default function AdminVendasPage() {
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
         <main className="flex-1 md:ml-64 pt-16">
-          <div className="p-4 sm:p-6 md:p-8 lg:p-12 max-w-7xl mx-auto">
+          <div className="p-4 sm:p-6 md:p-8 lg:p-8 max-w-6xl mx-auto">
             <div className="flex items-center gap-3 mb-6 md:mb-8">
               <ShoppingCart size={32} style={{ color: '#0066cc' }} />
               <div>
