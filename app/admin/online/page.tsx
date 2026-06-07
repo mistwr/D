@@ -70,7 +70,7 @@ export default function OnlinePage() {
       <Navbar user={user} />
       
       <main className="pt-20 md:pt-20 md:pl-64 p-4 md:p-6">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
