@@ -143,7 +143,7 @@ export default function VendasPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="parceiro" />
-        <main className="flex-1 overflow-auto pt-20 md:pt-16 md:ml-64 w-full" style={{ minHeight: "calc(100vh - 4rem)" }}>
+        <main className="flex-1 md:relative md:z-10 overflow-auto pt-20 md:pt-16 md:ml-64 w-full" style={{ minHeight: "calc(100vh - 4rem)" }}>
           <div className="p-3 sm:p-4 md:p-5 max-w-5xl mx-auto w-full mx-auto w-full">
 
             {/* Cabeçalho - responsivo */}
