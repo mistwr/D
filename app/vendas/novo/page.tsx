@@ -446,13 +446,11 @@ export default function NovaVendaPage() {
   const isEnergia = form.service_type === 'energia'
 
   return (
-    <div className="flex h-screen bg-background w-screen overflow-hidden">
-      {/* Sidebar - Only show on md and above */}
-      <aside className="w-0 md:w-56 overflow-hidden transition-all" style={{ background: '#1a2847', borderRight: '1px solid #e5e7eb' }}>
-        <Sidebar />
-      </aside>
+    <div className="flex h-screen bg-background">
+      {/* Sidebar - Sidebar component handles hidden/visible */}
+      <Sidebar />
       
-      {/* Main Content - Takes full width on mobile */}
+      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden w-full">
         <Navbar />
         

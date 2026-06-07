@@ -91,7 +91,7 @@ export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = fals
   const links = role === 'admin' ? adminLinks : parceiroLinks
 
   return (
-    <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 flex-col overflow-y-auto shadow-lg" style={{ background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)' }}>
+    <aside className="hidden md:flex w-64 flex-col overflow-y-auto shadow-lg" style={{ background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
       {/* Logo */}
       <div className="p-5 flex items-center gap-3 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
         <Image src="/logo.jpg" alt="Soluções Diferentes" width={48} height={48} className="rounded-lg" />
