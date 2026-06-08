@@ -42,8 +42,8 @@ export default function PublicacoesPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="parceiro" />
-        <main className="flex-1 lg:relative lg:z-10 lg:ml-64 pt-16">
-          <div className="p-4 md:p-5 max-w-5xl mx-auto w-full mx-auto w-full">
+        <main className="w-full lg:ml-64 pt-16">
+          <div className="p-4 md:p-5 max-w-7xl mx-auto w-full">
             <div className="flex items-center gap-3 mb-8">
               <div className="rounded-xl p-2.5" >
                 <Newspaper size={24} style={{ color: '#0ea5e9' }} />

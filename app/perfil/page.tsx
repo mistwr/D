@@ -142,7 +142,7 @@ export default function PerfilPage() {
       <Sidebar user={user} />
       <Navbar user={user ? { ...user, avatar_url: profile?.avatar_url || undefined } : null} />
       
-      <main className="pt-20 lg:pt-20 lg:pl-64 p-4 md:p-5">
+      <main className="pt-16 lg:pt-16 lg:pl-64 p-4 md:p-5">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <h1 className="text-2xl font-bold text-slate-800 mb-6">Meu Perfil</h1>

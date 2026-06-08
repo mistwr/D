@@ -110,8 +110,8 @@ export default function SaleDetailPage() {
       <Sidebar user={user} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar user={user} />
-        <div className="flex-1 overflow-auto">
-          <div className="p-6 max-w-5xl mx-auto">
+        <div className="w-full overflow-auto">
+          <div className="p-6 max-w-7xl mx-auto">
             {/* Cabeçalho */}
             <div className="mb-6 flex items-center justify-between">
               <button onClick={() => router.back()} className="flex items-center gap-2 text-sm hover:underline" style={{ color: '#0ea5e9' }}>

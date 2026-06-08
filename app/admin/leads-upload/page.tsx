@@ -150,7 +150,7 @@ export default function LeadsUploadPage() {
 
   return (
     <div className="min-h-screen p-6" style={{ background: '#f8fafc' }}>
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2" style={{ color: '#1e293b' }}>Base de Dados de Leads</h1>

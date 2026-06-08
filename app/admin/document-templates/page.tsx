@@ -152,8 +152,8 @@ export default function DocumentTemplatesPage() {
       <Sidebar user={user} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar user={user} />
-        <div className="flex-1 overflow-auto p-6">
-          <div className="max-w-5xl mx-auto">
+        <div className="w-full overflow-auto p-6">
+          <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold" style={{ color: '#1e293b' }}>Templates de Documentos</h1>
               <button
