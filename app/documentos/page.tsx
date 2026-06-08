@@ -99,7 +99,7 @@ export default function DocumentosPage() {
       <div>
         <Sidebar userRole="parceiro" />
         <main className="pt-16 lg:ml-64 min-h-screen overflow-x-hidden" style={{ minHeight: '100vh' }}>
-          <div className="p-4 md:p-5 max-w-7xl mx-auto w-full">
+          <div className="p-4 md:p-5 max-w-6xl mx-auto">
             <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Documentos e Contratos</h1>
             <p className="mt-1 mb-6 text-sm" style={{ color: '#64748b' }}>Carregue e consulte documentos por venda</p>
 

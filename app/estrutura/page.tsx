@@ -135,7 +135,7 @@ export default function MinhaEstruturaPage() {
       <Navbar user={user} />
       <Sidebar user={user} />
       <main className="pt-16 lg:ml-64 min-h-screen overflow-x-hidden">
-        <div className="p-4 md:p-5 lg:p-8 max-w-7xl mx-auto w-full mx-auto">
+        <div className="p-4 md:p-5 lg:p-8 max-w-6xl mx-auto mx-auto">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div>

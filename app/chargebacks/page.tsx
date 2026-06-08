@@ -44,7 +44,7 @@ export default function ChargebacksParceiroPage() {
       <div>
         <Sidebar userRole="parceiro" />
         <main className="pt-16 lg:ml-64 min-h-screen overflow-x-hidden" style={{ minHeight: '100vh' }}>
-          <div className="p-4 md:p-5 max-w-7xl mx-auto w-full">
+          <div className="p-4 md:p-5 max-w-6xl mx-auto">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
               <div className="flex items-center gap-3">

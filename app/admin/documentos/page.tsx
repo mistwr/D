@@ -126,7 +126,7 @@ export default function AdminDocumentosPage() {
       <div>
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
         <main className="pt-16 lg:ml-64 min-h-screen overflow-x-hidden">
-          <div className="p-4 md:p-5 max-w-7xl mx-auto w-full">
+          <div className="p-4 md:p-5 max-w-6xl mx-auto">
             <div className="mb-6">
               <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Documentos dos Parceiros</h1>
               <p className="mt-1 text-sm" style={{ color: '#64748b' }}>

@@ -85,7 +85,7 @@ export default function PipelinesPage() {
       <div>
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
         <main className="pt-16 lg:ml-64 min-h-screen overflow-x-hidden" style={{ minHeight: '100vh' }}>
-          <div className="p-4 md:p-5 max-w-7xl mx-auto w-full">
+          <div className="p-4 md:p-5 max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold" style={{ color: '#1e293b' }}>Pipelines</h1>

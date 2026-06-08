@@ -144,7 +144,7 @@ export default function VendasPage() {
       <div>
         <Sidebar userRole="parceiro" />
         <main className="pt-16 lg:ml-64 min-h-screen overflow-x-hidden" style={{ minHeight: "calc(100vh - 4rem)" }}>
-          <div className="p-3 sm:p-4 md:p-5 max-w-7xl mx-auto w-full">
+          <div className="p-3 sm:p-4 md:p-5 max-w-6xl mx-auto">
 
             {/* Cabeçalho - responsivo */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">

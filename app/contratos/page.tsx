@@ -214,7 +214,7 @@ export default function ContratosPage() {
       <div>
         <Sidebar userRole="parceiro" />
         <main className="pt-16 lg:ml-64 min-h-screen overflow-x-hidden">
-          <div className="p-4 md:p-5 max-w-7xl mx-auto w-full">
+          <div className="p-4 md:p-5 max-w-6xl mx-auto">
 
             {/* Cabecalho */}
             <div className="flex items-center justify-between mb-6">
@@ -510,7 +510,7 @@ export default function ContratosPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.8)' }}
           onClick={() => setViewer(null)}>
-          <div className="w-full max-w-7xl mx-auto w-full mx-auto bg-white rounded-xl overflow-hidden" onClick={e => e.stopPropagation()}>
+          <div className="w-full max-w-6xl mx-auto mx-auto bg-white rounded-xl overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <p className="text-sm font-medium truncate">{viewer.file_name}</p>
               <div className="flex items-center gap-2">
