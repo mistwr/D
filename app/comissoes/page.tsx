@@ -77,9 +77,9 @@ export default function ComissoesPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+    <div className="flex min-h-screen w-full" style={{ background: '#f8fafc' }}>
       <Navbar user={user} />
-      <div>
+      <div className="flex flex-1 min-w-0">
         <Sidebar userRole="parceiro" />
         <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
           <div className="p-4 md:p-5 max-w-6xl mx-auto">
