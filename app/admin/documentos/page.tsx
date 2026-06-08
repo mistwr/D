@@ -125,7 +125,7 @@ export default function AdminDocumentosPage() {
       <Navbar user={user} />
       <div>
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
-        <main className="pt-16 lg:ml-64 min-h-screen overflow-x-hidden">
+        <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
           <div className="p-4 md:p-5 max-w-6xl mx-auto">
             <div className="mb-6">
               <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Documentos dos Parceiros</h1>

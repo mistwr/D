@@ -101,7 +101,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
   return (
     <>
       {/* Desktop Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-40 hidden lg:flex lg:left-64 h-16 items-center justify-between px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%)', borderBottom: '2px solid #0066cc', boxShadow: '0 4px 12px rgba(0, 102, 204, 0.1)' }}>
+      <nav className="sticky top-0 z-40 hidden lg:flex h-16 items-center justify-between px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%)', borderBottom: '2px solid #0066cc', boxShadow: '0 4px 12px rgba(0, 102, 204, 0.1)' }}>
         <div className="flex items-center gap-4">
           <h1 className="text-lg lg:text-xl font-bold truncate" style={{ color: '#003d99' }}>
             {user?.role === 'admin' ? 'Painel de Administração' : 'Portal do Parceiro'}

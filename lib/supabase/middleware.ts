@@ -25,7 +25,7 @@ export async function updateSession(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   const { pathname } = request.nextUrl
-  const publicRoutes = ['/', '/login', '/sobre']
+  const publicRoutes = ['/', '/login', '/sobre', '/test-layout']
   const isPublic = publicRoutes.includes(pathname) ||
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/api/auth/') ||
