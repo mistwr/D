@@ -81,7 +81,7 @@ export default function CampanhasParceiroPage() {
       <div>
         <Sidebar userRole="parceiro" />
         <main className="pt-16 lg:ml-64 min-h-screen overflow-x-hidden">
-          <div className="p-4 md:p-5 max-w-7xl mx-auto w-full">
+          <div className="p-4 md:p-5 max-w-6xl mx-auto">
             <div className="flex items-center gap-3 mb-8">
               <div className="rounded-xl p-2.5" style={{ background: '#eef2ff' }}>
                 <Megaphone size={24} style={{ color: '#0ea5e9' }} />
