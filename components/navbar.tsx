@@ -100,42 +100,39 @@ export function Navbar({ user, onLogout }: NavbarProps) {
 
   return (
     <>
-      {/* Desktop Navbar */}
-      <nav className="sticky top-0 z-40 hidden lg:flex h-20 items-center justify-between px-8 py-4" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' }}>
-        {/* Left: Logo + Title */}
-        <div className="flex items-center gap-6">
-          <Image src="/logo.jpg" alt="Logo" width={48} height={48} className="rounded-lg shadow-md flex-shrink-0" />
-          <div className="flex flex-col justify-center">
-            <h1 className="text-xl font-bold" style={{ color: '#003d99' }}>
-              {user?.role === 'admin' ? 'Painel de Administração' : 'Portal do Parceiro'}
-            </h1>
-            <p className="text-xs font-medium mt-0.5" style={{ color: '#0066cc' }}>Soluções Diferentes</p>
-          </div>
-        </div>
+      {/* Desktop Navbar — sem logo (já está na sidebar), apenas título + user */}
+      <nav className="sticky top-0 z-40 hidden lg:flex h-16 items-center justify-between px-6" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', minHeight: '4rem' }}>
+        {/* Left: Page title */}
+        <h1 className="text-lg font-bold" style={{ color: '#003d99' }}>
+          {user?.role === 'admin' ? 'Painel de Administração' : 'Portal do Parceiro'}
+        </h1>
 
         {/* Right: Notifications + User + Logout */}
         {user && (
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <NotificationsDropdown authFetch={authFetch} />
-            
-            {/* User Info */}
-            <div className="flex items-center gap-4 pl-6" style={{ borderLeft: '1px solid #e2e8f0' }}>
-              <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden hover:ring-2 hover:ring-offset-2 transition-all" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)', boxShadow: '0 2px 8px rgba(0, 102, 204, 0.15)' }}>
-                {avatarUrl ? (
-                  <Image src={avatarUrl} alt="Avatar" width={48} height={48} className="w-full h-full object-cover" />
-                ) : (
-                  <User size={20} className="text-white" />
-                )}
-              </Link>
-              <div className="flex flex-col justify-center">
-                <p className="text-sm font-semibold truncate max-w-[200px]" style={{ color: '#1e293b' }}>{user.full_name}</p>
-                <p className="text-xs font-medium mt-0.5" style={{ color: '#64748b' }}>{user.role === 'admin' ? 'Administrador' : 'Parceiro'}</p>
-              </div>
-            </div>
 
-            {/* Logout Button */}
-            <button onClick={handleLogout} className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all hover:scale-105 active:scale-95" style={{ background: '#fee2e2', color: '#b91c1c', boxShadow: '0 1px 3px rgba(220, 38, 38, 0.15)' }}>
-              <LogOut size={18} /> Sair
+            {/* Divider */}
+            <div className="h-8 w-px" style={{ background: '#e2e8f0' }} />
+            
+            {/* Avatar + Name */}
+            <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="flex items-center gap-3 rounded-lg px-2 py-1.5 transition-all hover:bg-slate-50">
+              <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)', boxShadow: '0 2px 6px rgba(0,102,204,0.2)' }}>
+                {avatarUrl ? (
+                  <Image src={avatarUrl} alt="Avatar" width={36} height={36} className="w-full h-full object-cover" />
+                ) : (
+                  <User size={18} className="text-white" />
+                )}
+              </div>
+              <div className="flex flex-col leading-tight">
+                <span className="text-sm font-semibold truncate max-w-[160px]" style={{ color: '#1e293b' }}>{user.full_name}</span>
+                <span className="text-xs" style={{ color: '#64748b' }}>{user.role === 'admin' ? 'Administrador' : 'Parceiro'}</span>
+              </div>
+            </Link>
+
+            {/* Logout */}
+            <button onClick={handleLogout} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:scale-105 active:scale-95" style={{ background: '#fee2e2', color: '#b91c1c' }}>
+              <LogOut size={16} /> Sair
             </button>
           </div>
         )}
