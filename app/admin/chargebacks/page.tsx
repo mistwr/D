@@ -60,11 +60,11 @@ export default function ChargebacksPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+    <div className="flex min-h-screen w-full" style={{ background: '#f8fafc' }}>
       <Navbar user={user} />
-      <div>
+      <div className="flex flex-1 min-w-0">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
-        <main className="pt-16 lg:ml-64 min-h-screen overflow-x-hidden" style={{ minHeight: '100vh' }}>
+        <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
           <div className="p-4 md:p-5 max-w-6xl mx-auto">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">

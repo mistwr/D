@@ -138,7 +138,7 @@ export default function PerfilPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#f1f5f9' }}>
+    <div className="flex min-h-screen w-full" style={{ background: '#f1f5f9' }}>
       <Sidebar user={user} />
       <div className="flex flex-1 flex-col min-w-0">
       <Navbar user={user ? { ...user, avatar_url: profile?.avatar_url || undefined } : null} />
