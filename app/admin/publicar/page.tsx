@@ -73,8 +73,8 @@ export default function PublicarPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
-        <main className="flex-1 lg:relative lg:z-10 lg:ml-64 pt-16">
-          <div className="p-4 md:p-5 max-w-5xl mx-auto w-full mx-auto w-full">
+        <main className="w-full lg:ml-64 pt-16">
+          <div className="p-4 md:p-5 max-w-7xl mx-auto w-full">
             <div className="flex items-center gap-3 mb-8">
               <Send size={28} style={{ color: '#0ea5e9' }} />
               <div>

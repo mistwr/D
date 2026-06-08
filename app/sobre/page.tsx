@@ -8,7 +8,7 @@ export default function SobrePage() {
     <div className="min-h-screen" style={{ background: '#ffffff' }}>
       {/* Navbar */}
       <nav className="border-b" style={{ borderColor: '#e5e7eb' }}>
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold" style={{ color: '#0ea5e9' }}>Soluções Diferentes</h1>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-sm font-medium px-4 py-2 rounded-lg" style={{ color: '#0ea5e9', background: '#f8fafc' }}>
@@ -22,7 +22,7 @@ export default function SobrePage() {
       </nav>
 
       {/* Hero */}
-      <section className="max-w-5xl mx-auto px-6 py-20 text-center">
+      <section className="max-w-7xl mx-auto px-6 py-20 text-center">
         <div className="mb-8 flex justify-center">
           <span className="inline-block px-4 py-1 rounded-full text-sm font-medium" style={{ background: '#ede9fe', color: '#0ea5e9' }}>
             Transformando a gestão de vendas
@@ -45,7 +45,7 @@ export default function SobrePage() {
       </section>
 
       {/* Features */}
-      <section id="features" className="max-w-5xl mx-auto px-6 py-20 border-t" style={{ borderColor: '#e5e7eb' }}>
+      <section id="features" className="max-w-7xl mx-auto px-6 py-20 border-t" style={{ borderColor: '#e5e7eb' }}>
         <h3 className="text-3xl font-bold text-center mb-16" style={{ color: '#1e293b' }}>Funcionalidades Principais</h3>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
@@ -70,7 +70,7 @@ export default function SobrePage() {
       </section>
 
       {/* Como Funciona */}
-      <section className="max-w-5xl mx-auto px-6 py-20 border-t" style={{ borderColor: '#e5e7eb' }}>
+      <section className="max-w-7xl mx-auto px-6 py-20 border-t" style={{ borderColor: '#e5e7eb' }}>
         <h3 className="text-3xl font-bold text-center mb-16" style={{ color: '#1e293b' }}>Como Funciona</h3>
         <div className="grid md:grid-cols-3 gap-8">
           {[
@@ -90,7 +90,7 @@ export default function SobrePage() {
       </section>
 
       {/* Servicos */}
-      <section className="max-w-5xl mx-auto px-6 py-20 border-t" style={{ borderColor: '#e5e7eb' }}>
+      <section className="max-w-7xl mx-auto px-6 py-20 border-t" style={{ borderColor: '#e5e7eb' }}>
         <h3 className="text-3xl font-bold text-center mb-16" style={{ color: '#1e293b' }}>Servicos Suportados</h3>
         <div className="grid md:grid-cols-2 gap-12">
           <div className="p-8 rounded-lg" style={{ background: '#fef3c7', borderColor: '#fcd34d', borderWidth: '2px' }}>
@@ -117,7 +117,7 @@ export default function SobrePage() {
       </section>
 
       {/* Stack Tecnológico */}
-      <section className="max-w-5xl mx-auto px-6 py-20 border-t" style={{ borderColor: '#e5e7eb' }}>
+      <section className="max-w-7xl mx-auto px-6 py-20 border-t" style={{ borderColor: '#e5e7eb' }}>
         <h3 className="text-3xl font-bold text-center mb-16" style={{ color: '#1e293b' }}>Stack Tecnológico</h3>
         <div className="grid md:grid-cols-5 gap-6 text-center">
           {[
@@ -148,7 +148,7 @@ export default function SobrePage() {
 
       {/* Footer */}
       <footer className="border-t" style={{ borderColor: '#e5e7eb', background: '#f9fafb' }}>
-        <div className="max-w-5xl mx-auto px-6 py-8 text-center">
+        <div className="max-w-7xl mx-auto px-6 py-8 text-center">
           <p style={{ color: '#64748b' }}>&copy; 2025 Soluções Diferentes. Todos os direitos reservados.</p>
         </div>
       </footer>

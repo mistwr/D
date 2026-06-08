@@ -149,8 +149,8 @@ export default function EstruturaComericalPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
-        <main className="flex-1 lg:relative lg:z-10 overflow-auto pt-20 lg:pt-20 lg:ml-64 w-full">
-          <div className="p-4 md:p-5 max-w-5xl mx-auto w-full mx-auto w-full">
+        <main className="w-full overflow-auto pt-16 lg:pt-16 lg:ml-64 w-full">
+          <div className="p-4 md:p-5 max-w-7xl mx-auto w-full">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold" style={{ color: '#1e293b' }}>Estrutura Comercial</h1>
