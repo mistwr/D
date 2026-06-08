@@ -44,8 +44,6 @@ export default function NovaVendaPage() {
   const [showPdfEditor, setShowPdfEditor] = useState(false)
   const [pdfContent, setPdfContent] = useState<string>('')
   const [pdfLoading, setPdfLoading] = useState(false)
-  const [pdfTemplates, setPdfTemplates] = useState<any[]>([]) // Lista de templates disponíveis
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('') // Template selecionado pelo parceiro
 
   const [form, setForm] = useState({
     service_type: 'telecom',
@@ -90,47 +88,36 @@ export default function NovaVendaPage() {
       .catch(() => {})
   }, [user, authFetch])
 
-  // Carregar template PDF e lista de templates ao mudar operadora (apenas telecom)
+  // Carregar template PDF ao mudar operadora (apenas telecom)
   useEffect(() => {
-    if (form.service_type !== 'telecom') { 
-      setPdfTemplate(''); setPdfUrl(''); setPdfTemplates([]); setSelectedTemplateId('')
-      return 
-    }
+    if (form.service_type !== 'telecom') { setPdfTemplate(''); setPdfUrl(''); return }
     
     setPdfLoading(true)
-    
-    // Buscar lista de templates disponíveis da operadora
-    authFetch(`/api/pdf/templates?operadora=${encodeURIComponent(form.operator)}`)
-      .then(r => r.json())
-      .then(d => {
-        const templates = Array.isArray(d) ? d : d.templates || []
-        setPdfTemplates(templates)
-        if (templates.length > 0) {
-          setSelectedTemplateId(templates[0].id) // Selecionar primeiro por padrão
-        }
-        console.log('[v0] Templates carregados:', templates.length)
-      })
-      .catch((err) => {
-        console.log('[v0] Erro ao carregar templates:', err)
-        setPdfTemplates([])
-        setSelectedTemplateId('')
-      })
-    
-    // Tentar carregar template antiga forma (fallback)
     fetch(`/api/document-templates/get?operator=${form.operator}&type=FA`)
       .then(r => r.json())
       .then(d => {
         if (d.template?.file_url) {
+          // É um PDF de materiais
           setPdfUrl(d.template.file_url)
-          setPdfTemplate('')
+          setPdfTemplate('') // Limpar template HTML
         } else if (d.template?.template_content) {
+          // É um template HTML customizado
           setPdfTemplate(d.template.template_content)
+          setPdfUrl('') // Limpar URL
+        } else {
+          // Fallback: avisar que não há template mas ainda assim permitir criar venda
+          setPdfTemplate('')
           setPdfUrl('')
+          console.log('[v0] Sem template para', form.operator, '- usar PDF genérico após criar venda')
         }
       })
-      .catch(() => {})
+      .catch((err) => {
+        console.log('[v0] Erro ao carregar template:', err)
+        setPdfTemplate('')
+        setPdfUrl('')
+      })
       .finally(() => setPdfLoading(false))
-  }, [form.service_type, form.operator, authFetch])
+  }, [form.service_type, form.operator])
 
   // Calcular comissao estimada ao mudar operadora/plano (apenas telecom)
   useEffect(() => {
@@ -362,46 +349,42 @@ export default function NovaVendaPage() {
         }
       }
 
-      // NOVO: Tentar gerar PDF automático com pdf-lib se houver template selecionado
+      // NOVO: Tentar gerar PDF automático com pdf-lib se houver template
       let pdfBlobUrl = null
       try {
-        if (selectedTemplateId && form.service_type === 'telecom') {
-          console.log('[v0] Template selecionado, gerando PDF preenchido...', selectedTemplateId)
+        // Buscar templates disponíveis para esta operadora
+        const templatesRes = await authFetch(`/api/pdf/templates?operadora=${encodeURIComponent(form.operator)}`)
+        if (templatesRes.ok) {
+          const templatesData = await templatesRes.json()
+          const templates = Array.isArray(templatesData) ? templatesData : templatesData.templates || []
           
-          // Chamar API para gerar PDF preenchido com dados da venda
-          const fillRes = await authFetch('/api/pdf/fill', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              sale_id: data.venda.id,
-              template_id: selectedTemplateId,
-              document_type: 'FA',
-              fill_data: {
-                client_name: form.client_name,
-                client_nif: form.client_nif,
-                client_email: form.client_email,
-                client_phone: form.client_phone,
-                client_address: form.client_address,
-                operator: form.operator,
-                plano: form.plano,
-                amount: form.amount,
-              }
+          if (templates.length > 0) {
+            const template = templates[0] // Usar primeiro template disponível
+            console.log('[v0] Template encontrado, gerando PDF preenchido...')
+            
+            // Chamar API para gerar PDF preenchido
+            const fillRes = await authFetch('/api/pdf/fill', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                sale_id: data.venda.id,
+                template_id: template.id,
+                document_type: 'FA'
+              })
             })
-          })
-          
-          if (fillRes.ok) {
-            const pdfBuffer = await fillRes.arrayBuffer()
-            const blob = new Blob([pdfBuffer], { type: 'application/pdf' })
-            pdfBlobUrl = URL.createObjectURL(blob)
-            console.log('[v0] PDF gerado com sucesso! Tamanho:', blob.size)
-          } else {
-            console.log('[v0] Erro ao gerar PDF via API. Status:', fillRes.status)
+            
+            if (fillRes.ok) {
+              const pdfBuffer = await fillRes.arrayBuffer()
+              const blob = new Blob([pdfBuffer], { type: 'application/pdf' })
+              pdfBlobUrl = URL.createObjectURL(blob)
+              console.log('[v0] PDF gerado com sucesso! Iniciando download...')
+            } else {
+              console.log('[v0] Erro ao gerar PDF via API')
+            }
           }
-        } else if (form.service_type === 'telecom' && pdfTemplates.length === 0) {
-          console.log('[v0] Sem templates disponíveis para gerar PDF automático')
         }
       } catch (e) {
-        console.log('[v0] Erro ao gerar PDF:', e)
+        console.log('[v0] Erro ao buscar templates ou gerar PDF:', e)
       }
 
       setSuccess(true)
@@ -446,91 +429,70 @@ export default function NovaVendaPage() {
   const isEnergia = form.service_type === 'energia'
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Sidebar - Sidebar component handles hidden/visible */}
-      <Sidebar />
-      
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden w-full">
-        <Navbar />
-        
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 xs:p-3 sm:p-4 md:p-6 lg:p-12" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
-          <div className="max-w-7xl mx-auto w-full">
-            {/* Header */}
-            <div className="mb-4 sm:mb-6 md:mb-8">
-              <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                <Link href="/vendas" className="p-1.5 sm:p-2 hover:bg-muted rounded-lg transition flex-shrink-0">
-                  <ArrowLeft size={18} className="text-foreground" />
-                </Link>
-                <div className="min-w-0 flex-1">
-                  <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground truncate">Nova Venda</h1>
-                  <p className="text-xs sm:text-sm text-muted-foreground mt-1 hidden sm:block">Preencha o formulário para registar uma nova venda</p>
-                </div>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+      <Navbar user={user} />
+      <div className="flex">
+        <Sidebar userRole={user?.role || 'parceiro'} />
+        <main className="flex-1 md:ml-64 pt-14 md:pt-16 pb-20 md:pb-8">
+          <div className="p-3 sm:p-4 md:p-8 max-w-3xl mx-auto">
+            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+              <Link href="/vendas" className="rounded-lg p-2 transition hover:bg-gray-200 flex-shrink-0" style={{ color: '#64748b' }}>
+                <ArrowLeft size={20} />
+              </Link>
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold truncate" style={{ color: '#1e293b' }}>Registar Nova Venda</h1>
+                <p className="text-xs sm:text-sm hidden sm:block" style={{ color: '#64748b' }}>Preencha os dados do contrato e do cliente</p>
               </div>
             </div>
 
-          {error && (
-            <div className="rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 mb-3 sm:mb-4 text-xs sm:text-sm font-medium" style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca' }}>
-              {error}
-            </div>
-          )}
+            {error && (
+              <div className="rounded-lg px-4 py-3 mb-4 text-sm font-medium" style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca' }}>
+                {error}
+              </div>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 md:space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
 
               {/* TIPO DE SERVICO */}
-              <div className="rounded-2xl p-2.5 sm:p-3 md:p-5 lg:p-6 shadow-lg hover:shadow-xl transition-all" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%)', border: '1px solid #d0e8ff', borderTop: '2px solid #0066cc' }}>
-                <h2 className="text-xs font-bold mb-3 sm:mb-4 uppercase tracking-widest" style={{ color: '#003d99', fontSize: '10px', letterSpacing: '0.08em' }}>Tipo de Serviço</h2>
-                <div className="grid grid-cols-2 gap-1 sm:gap-2 md:gap-3">
+              <div className="rounded-xl p-4 sm:p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                <h2 className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#64748b' }}>1. Tipo de Servico</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {(['telecom', 'energia', 'gas', 'seguros'] as const).map(s => (
                     <button key={s} type="button"
                       onClick={() => { update('service_type', s); update('operator', OPERADORAS[s][0]); update('plano', '') }}
-                      className="rounded-xl py-2 sm:py-2.5 md:py-3 px-2 sm:px-3 text-xs sm:text-sm font-bold border-2 transition-all whitespace-nowrap shadow-sm hover:shadow-md"
+                      className="rounded-lg py-3 text-sm font-semibold border transition"
                       style={{
-                        background: form.service_type === s ? 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)' : 'linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%)',
-                        color: form.service_type === s ? '#fff' : '#334155',
-                        border: form.service_type === s ? '2px solid #003d99' : '2px solid #cbd5e1',
-                        boxShadow: form.service_type === s ? '0 4px 12px rgba(0, 82, 163, 0.2)' : 'none',
+                        background: form.service_type === s ? '#4f46e5' : '#f9fafb',
+                        color: form.service_type === s ? '#fff' : '#374151',
+                        border: form.service_type === s ? '1px solid #4f46e5' : '1px solid #e5e7eb',
                       }}>
-                      {s === 'telecom' ? 'Telecom' : s === 'energia' ? 'Energia' : s === 'gas' ? 'Gás' : 'Seguros'}
+                      {s === 'telecom' ? 'Telecom' : s === 'energia' ? 'Energia' : s === 'gas' ? 'Gas' : 'Seguros'}
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* OPERADORA */}
-              <div className="rounded-2xl p-5 sm:p-6 md:p-7 lg:p-8 shadow-lg hover:shadow-xl transition-all" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%)', border: '1px solid #d0e8ff', borderTop: '2px solid #0066cc' }}>
-                <h2 className="text-xs font-bold mb-5 uppercase tracking-widest" style={{ color: '#003d99', fontSize: '10px', letterSpacing: '0.08em' }}>Operadora e Plano</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+              <div className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                <h2 className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#64748b' }}>2. Operadora e Plano</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold mb-2 uppercase tracking-wide" style={{ color: '#003d99' }}>Operadora *</label>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Operadora *</label>
                     <select value={form.operator} onChange={e => update('operator', e.target.value)}
-                      className="w-full rounded-lg px-4 py-3 text-sm font-medium border-2 transition focus:outline-none" 
-                      style={{ borderColor: '#d0e8ff', background: 'linear-gradient(135deg, #f9fbfd 0%, #f0f7ff 100%)', color: '#003d99' }}
-                      onFocus={(e) => { e.target.style.borderColor = '#0066cc'; e.target.style.boxShadow = '0 0 0 3px rgba(0, 102, 204, 0.1)'; }}
-                      onBlur={(e) => { e.target.style.borderColor = '#d0e8ff'; e.target.style.boxShadow = 'none'; }}
-                      required>
+                      className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp} required>
                       {ops.map(op => <option key={op} value={op}>{op}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold mb-2 uppercase tracking-wide" style={{ color: '#003d99' }}>Plano / Pacote</label>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Plano / Pacote</label>
                     <input type="text" value={form.plano} onChange={e => update('plano', e.target.value)}
-                      placeholder="Ex: 39,95€ Pack Família"
-                      className="w-full rounded-lg px-4 py-3 text-sm font-medium border-2 transition focus:outline-none"
-                      style={{ borderColor: '#d0e8ff', background: 'linear-gradient(135deg, #f9fbfd 0%, #f0f7ff 100%)', color: '#003d99' }}
-                      onFocus={(e) => { e.target.style.borderColor = '#0066cc'; e.target.style.boxShadow = '0 0 0 3px rgba(0, 102, 204, 0.1)'; }}
-                      onBlur={(e) => { e.target.style.borderColor = '#d0e8ff'; e.target.style.boxShadow = 'none'; }}
-                    />
+                      className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp}
+                      placeholder={form.service_type === 'telecom' ? 'Ex: 3P, 4P, Pack Familia' : 'Ex: Simples, Bi-horario'} />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-xs font-bold mb-2 uppercase tracking-wide" style={{ color: '#003d99' }}>Tipo de Contrato</label>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Tipo de Contrato</label>
                     <input type="text" value={form.contract_type} onChange={e => update('contract_type', e.target.value)}
-                      className="w-full rounded-lg px-4 py-3 text-sm font-medium border-2 transition focus:outline-none"
-                      style={{ borderColor: '#d0e8ff', background: 'linear-gradient(135deg, #f9fbfd 0%, #f0f7ff 100%)', color: '#003d99' }}
-                      onFocus={(e) => { e.target.style.borderColor = '#0066cc'; e.target.style.boxShadow = '0 0 0 3px rgba(0, 102, 204, 0.1)'; }}
-                      onBlur={(e) => { e.target.style.borderColor = '#d0e8ff'; e.target.style.boxShadow = 'none'; }}
-                      onFocus={(e) => e.target.style.borderColor = '#0066cc'}
-                      onBlur={(e) => e.target.style.borderColor = '#e0e7ff'}
+                      className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp}
                       placeholder="Ex: Residencial 24 meses, Empresarial, Mensal" />
                   </div>
                 </div>
@@ -869,38 +831,6 @@ export default function NovaVendaPage() {
                 </div>
               </div>
 
-              {/* TEMPLATE PDF (apenas telecom) */}
-              {form.service_type === 'telecom' && pdfTemplates.length > 0 && (
-                <div className="rounded-xl p-5 shadow-sm" style={{ background: '#f0fdf4', border: '1px solid #86efac' }}>
-                  <h2 className="text-xs font-semibold mb-3 uppercase tracking-wider" style={{ color: '#166534' }}>
-                    <FileText size={14} className="inline mr-2" />
-                    Material de Apoio PDF
-                  </h2>
-                  <p className="text-xs mb-3" style={{ color: '#4d7c0f' }}>
-                    Selecione o material que pretende incluir e ser preenchido automaticamente
-                  </p>
-                  <select 
-                    value={selectedTemplateId}
-                    onChange={(e) => setSelectedTemplateId(e.target.value)}
-                    className="w-full rounded-lg px-3 py-2.5 text-sm font-medium"
-                    style={{ background: '#fff', border: '1px solid #86efac', color: '#166534' }}
-                  >
-                    <option value="">-- Selecione um template --</option>
-                    {pdfTemplates.map(t => (
-                      <option key={t.id} value={t.id}>
-                        {t.nome} ({t.tipo})
-                      </option>
-                    ))}
-                  </select>
-                  {selectedTemplateId && (
-                    <div className="mt-2 flex items-center gap-2 text-xs font-medium" style={{ color: '#166534' }}>
-                      <CheckCircle size={14} />
-                      Template selecionado: será preenchido automaticamente ao registar
-                    </div>
-                  )}
-                </div>
-              )}
-
               {/* DOCUMENTOS */}
               <div className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <h2 className="text-xs font-semibold mb-1 uppercase tracking-wider" style={{ color: '#64748b' }}>5. Documentos Anexos</h2>
@@ -1008,23 +938,55 @@ export default function NovaVendaPage() {
       {/* Modal Editor PDF */}
       {showPdfEditor && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white" style={{ borderColor: '#e2e8f0' }}>
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: '#e2e8f0' }}>
               <h3 className="font-semibold text-lg" style={{ color: '#1e293b' }}>Editar Contrato FA - {form.operator}</h3>
-              <button onClick={() => setShowPdfEditor(false)} className="p-1 hover:bg-slate-100 rounded">
+              <button
+                type="button"
+                onClick={() => setShowPdfEditor(false)}
+                className="rounded-lg p-1 hover:bg-slate-100"
+              >
                 <X size={20} style={{ color: '#64748b' }} />
               </button>
             </div>
+
             <div className="flex-1 overflow-auto p-4 bg-slate-50">
-              {pdfUrl ? (
-                <iframe src={pdfUrl} className="w-full h-full rounded-lg" style={{ border: 'none', minHeight: '500px' }} />
-              ) : (
-                <div className="flex items-center justify-center h-96 text-slate-400">Sem PDF disponível</div>
-              )}
+              <textarea
+                value={pdfContent}
+                onChange={(e) => setPdfContent(e.target.value)}
+                className="w-full h-full p-4 border rounded-lg font-mono text-sm resize-none"
+                style={{ borderColor: '#e2e8f0', background: '#ffffff' }}
+                placeholder="Conteúdo do contrato..."
+              />
             </div>
-            <div className="flex items-center justify-end gap-3 p-4 border-t bg-white sticky bottom-0" style={{ borderColor: '#e2e8f0' }}>
-              <button onClick={() => setShowPdfEditor(false)} className="px-4 py-2 rounded-lg font-medium text-slate-700 hover:bg-slate-100">Cancelar</button>
-              <button onClick={() => { setShowPdfEditor(false); alert('PDF guardado!') }} className="px-4 py-2 rounded-lg font-medium text-white" style={{ background: '#0ea5e9' }}>Guardar</button>
+
+            <div className="flex gap-3 p-4 border-t" style={{ borderColor: '#e2e8f0' }}>
+              <button
+                type="button"
+                onClick={downloadPdf}
+                className="flex-1 px-4 py-2 rounded-lg font-medium text-white flex items-center justify-center gap-2 transition hover:opacity-90"
+                style={{ background: '#22c55e' }}
+              >
+                <Download size={16} />
+                Descarregar PDF
+              </button>
+              <button
+                type="button"
+                onClick={savePdfDocument}
+                className="flex-1 px-4 py-2 rounded-lg font-medium text-white flex items-center justify-center gap-2 transition hover:opacity-90"
+                style={{ background: '#0ea5e9' }}
+              >
+                <CheckCircle size={16} />
+                Guardar Documento
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowPdfEditor(false)}
+                className="flex-1 px-4 py-2 rounded-lg font-medium border"
+                style={{ borderColor: '#e2e8f0', color: '#64748b' }}
+              >
+                Cancelar
+              </button>
             </div>
           </div>
         </div>

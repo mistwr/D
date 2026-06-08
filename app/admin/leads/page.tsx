@@ -156,7 +156,7 @@ export default function LeadsPage() {
   const inp = { background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }
 
   if (!user || user.role !== 'admin') {
-    return <div className="min-h-screen flex items-center justify-center" >
+    return <div className="min-h-screen flex items-center justify-center" style={{ background: '#f8fafc' }}>
       <p style={{ color: '#64748b' }}>Acesso restrito</p>
     </div>
   }
@@ -166,7 +166,7 @@ export default function LeadsPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
-        <main className="flex-1 overflow-auto" style={{ minHeight: "calc(100vh - 4rem)" }}>
+        <main className="flex-1 md:ml-64 pt-14 md:pt-16" style={{ minHeight: '100vh' }}>
           <div className="p-4 md:p-8">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -237,7 +237,7 @@ export default function LeadsPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr >
+                      <tr style={{ background: '#f8fafc' }}>
                         <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>Lead</th>
                         <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>Contacto</th>
                         <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>Pipeline</th>
@@ -316,7 +316,7 @@ export default function LeadsPage() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
-          <div className="w-full max-w-lg rounded-2xl p-6 max-h-[90vh] overflow-y-auto" >
+          <div className="w-full max-w-lg rounded-2xl p-6 max-h-[90vh] overflow-y-auto" style={{ background: '#ffffff' }}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold" style={{ color: '#1e293b' }}>
                 {editLead ? 'Editar Lead' : 'Novo Lead'}
@@ -368,7 +368,7 @@ export default function LeadsPage() {
               </div>
               <div className="flex justify-end gap-3 pt-4">
                 <button type="button" onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded-lg text-sm font-medium" >
+                  className="px-4 py-2 rounded-lg text-sm font-medium" style={{ background: '#f1f5f9', color: '#475569' }}>
                   Cancelar
                 </button>
                 <button type="submit" className="px-4 py-2 rounded-lg text-sm font-medium text-white"

@@ -91,55 +91,53 @@ export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = fals
   const links = role === 'admin' ? adminLinks : parceiroLinks
 
   return (
-    <aside className="hidden md:flex w-64 flex-col overflow-y-auto shadow-xl" style={{ background: 'linear-gradient(180deg, #0a1628 0%, #0f172a 50%, #1a2847 100%)', borderRight: '2px solid #0066cc' }}>
+    <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 flex-col overflow-y-auto shadow-lg" style={{ background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)' }}>
       {/* Logo */}
-      <div className="p-6 flex items-center gap-3 border-b" style={{ borderColor: 'rgba(0, 102, 204, 0.2)' }}>
-        <Image src="/logo.jpg" alt="Soluções Diferentes" width={48} height={48} className="rounded-lg shadow-lg" />
+      <div className="p-5 flex items-center gap-3 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+        <Image src="/logo.jpg" alt="Soluções Diferentes" width={48} height={48} className="rounded-lg" />
         <div>
           <p className="font-bold text-white text-sm leading-tight">Soluções</p>
           <p className="font-bold text-sm leading-tight" style={{ color: '#22c55e' }}>Diferentes</p>
         </div>
       </div>
 
-      {/* Quick Stats - Premium */}
-      <div className="p-4 border-b mx-3 my-3 rounded-xl" style={{ borderColor: 'rgba(0, 102, 204, 0.3)', background: 'linear-gradient(135deg, rgba(0, 102, 204, 0.1) 0%, rgba(0, 82, 163, 0.05) 100%)' }}>
+      {/* Quick Stats */}
+      <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
         <div className="grid grid-cols-2 gap-2">
-          <div className="rounded-lg p-3 text-center transition-all hover:shadow-lg" style={{ background: 'linear-gradient(135deg, rgba(0, 102, 204, 0.2) 0%, rgba(14, 165, 233, 0.15) 100%)', border: '1px solid rgba(0, 102, 204, 0.3)' }}>
-            <Phone size={18} className="mx-auto mb-1" style={{ color: '#22c55e' }} />
-            <p className="text-xs font-bold" style={{ color: '#22c55e' }}>Telecom</p>
+          <div className="rounded-lg p-2.5 text-center" style={{ background: 'rgba(14,165,233,0.15)' }}>
+            <Phone size={16} className="mx-auto mb-1" style={{ color: '#38bdf8' }} />
+            <p className="text-xs font-medium" style={{ color: '#38bdf8' }}>Telecom</p>
           </div>
-          <div className="rounded-lg p-3 text-center transition-all hover:shadow-lg" style={{ background: 'linear-gradient(135deg, rgba(0, 102, 204, 0.2) 0%, rgba(14, 165, 233, 0.15) 100%)', border: '1px solid rgba(0, 102, 204, 0.3)' }}>
-            <Zap size={18} className="mx-auto mb-1" style={{ color: '#fbbf24' }} />
-            <p className="text-xs font-bold" style={{ color: '#fbbf24' }}>Energia</p>
+          <div className="rounded-lg p-2.5 text-center" style={{ background: 'rgba(249,115,22,0.15)' }}>
+            <Zap size={16} className="mx-auto mb-1" style={{ color: '#fb923c' }} />
+            <p className="text-xs font-medium" style={{ color: '#fb923c' }}>Energia</p>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 flex flex-col gap-1.5 p-4 overflow-y-auto">
-        <p className="mb-3 px-3 text-xs font-bold uppercase tracking-widest" style={{ color: '#0066cc', letterSpacing: '0.1em' }}>
-          {role === 'admin' ? 'Administração' : 'Menu'}
+      <nav className="flex-1 flex flex-col gap-1 p-4 overflow-y-auto">
+        <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>
+          {role === 'admin' ? 'Administracao' : 'Menu'}
         </p>
         {links.map(l => {
           const active = pathname === l.href
           return (
-            <Link key={l.href} href={l.href} className="flex items-center gap-3 rounded-lg px-3.5 py-3 text-sm font-semibold transition-all duration-300"
+            <Link key={l.href} href={l.href} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200"
               style={{ 
-                background: active ? 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)' : 'transparent', 
-                color: active ? '#ffffff' : '#cbd5e1',
-                boxShadow: active ? '0 8px 16px rgba(0, 102, 204, 0.25)' : 'none',
-                borderLeft: active ? '3px solid #22c55e' : '3px solid transparent',
-                paddingLeft: active ? 'calc(0.875rem - 3px)' : '0.875rem'
+                background: active ? 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' : 'transparent', 
+                color: active ? '#ffffff' : '#94a3b8',
+                boxShadow: active ? '0 4px 12px rgba(14,165,233,0.3)' : 'none'
               }}>
-              <l.icon size={20} />
-              <span>{l.label}</span>
+              <l.icon size={18} />
+              {l.label}
             </Link>
           )
         })}
       </nav>
 
-      {/* Footer - Premium */}
-      <div className="p-4 border-t" style={{ borderColor: 'rgba(0, 102, 204, 0.2)', background: 'linear-gradient(135deg, rgba(0, 102, 204, 0.05) 0%, rgba(0, 82, 163, 0.02) 100%)' }}>
-        <p className="text-xs text-center font-medium" style={{ color: '#0066cc' }}>Telecomunicações & Energia</p>
+      {/* Footer */}
+      <div className="p-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+        <p className="text-xs text-center" style={{ color: '#64748b' }}>Telecomunicações & Energia</p>
       </div>
     </aside>
   )

@@ -4,30 +4,31 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Tema Premium Luxuoso - Cores Refinadas */
+  /* Tema Premium Claro - Luxuoso e Moderno */
+  /* Cores: Branco, Azul claro, Ouro, Navy profundo */
   
-  /* Background - Gradiente Premium */
+  /* Background e Foreground */
   --background: #f8f9fc;
-  --foreground: #003d99;
+  --foreground: #1a2847;
   
   /* Cards e Containers */
   --card: #ffffff;
-  --card-foreground: #003d99;
+  --card-foreground: #1a2847;
   
   /* Popover */
   --popover: #ffffff;
-  --popover-foreground: #003d99;
+  --popover-foreground: #1a2847;
   
-  /* Primary - Azul Premium Profundo */
-  --primary: #0052a3;
+  /* Primary - Azul Premium (cor principal) */
+  --primary: #0066cc;
   --primary-foreground: #ffffff;
   
   /* Secondary - Azul suave */
-  --secondary: #d0e8ff;
-  --secondary-foreground: #003d99;
+  --secondary: #e0ebff;
+  --secondary-foreground: #0047a3;
   
   /* Muted */
-  --muted: #f0f4f8;
+  --muted: #f0f2f7;
   --muted-foreground: #6b7280;
   
   /* Accent - Ouro elegante */
@@ -41,8 +42,8 @@
   --destructive-foreground: #ffffff;
   
   /* Borders e Inputs */
-  --border: #d0e8ff;
-  --input: #f9fbfd;
+  --border: #e5e7eb;
+  --input: #f3f4f6;
   --ring: #0066cc;
   
   /* Charts */
@@ -56,12 +57,12 @@
   --radius: 0.5rem;
   
   /* Sidebar Premium */
-  --sidebar: #0f172a;
+  --sidebar: #1a2847;
   --sidebar-foreground: #ffffff;
   --sidebar-primary: #0066cc;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #d0e8ff;
-  --sidebar-accent-foreground: #003d99;
+  --sidebar-accent: #e0ebff;
+  --sidebar-accent-foreground: #0047a3;
   --sidebar-border: #2a3a5f;
   --sidebar-ring: #0066cc;
 }

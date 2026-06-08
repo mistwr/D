@@ -50,7 +50,7 @@ export default function DashboardPage() {
 
   if (authLoading || dataLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen" >
+      <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
         <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
       </div>
     )
@@ -86,7 +86,7 @@ export default function DashboardPage() {
       <Navbar user={user} />
       <div className="flex">
         <Sidebar userRole="parceiro" />
-        <main className="flex-1 overflow-auto" style={{ minHeight: "calc(100vh - 4rem)" }}>
+        <main className="flex-1 md:ml-64 pt-14 md:pt-16 pb-20 md:pb-8" style={{ minHeight: '100vh' }}>
           <div className="p-3 sm:p-4 md:p-8">
             {/* Mensagem Motivacional */}
             {mensagemDia && (
@@ -126,7 +126,7 @@ export default function DashboardPage() {
             {/* Metrics */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
               {metrics.map((m) => (
-                <div key={m.label} className="rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-sm transition-all hover:shadow-md" >
+                <div key={m.label} className="rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-sm transition-all hover:shadow-md" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
                   <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
                     <div className="flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-lg sm:rounded-xl" style={{ background: m.bg }}>
                       <m.icon size={18} className="sm:hidden" style={{ color: m.color }} />
@@ -140,14 +140,14 @@ export default function DashboardPage() {
             </div>
 
             {/* Vendas */}
-            <div className="rounded-xl sm:rounded-2xl shadow-sm" >
+            <div className="rounded-xl sm:rounded-2xl shadow-sm" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
               <div className="p-4 sm:p-5 flex items-center justify-between" style={{ borderBottom: '1px solid #e2e8f0' }}>
                 <h2 className="text-base sm:text-lg font-bold" style={{ color: '#1e293b' }}>Vendas Recentes</h2>
                 <Link href="/vendas" className="text-xs sm:text-sm font-medium transition-colors hover:opacity-80" style={{ color: '#0ea5e9' }}>Ver todas</Link>
               </div>
               {vendas.length === 0 ? (
                 <div className="p-8 sm:p-12 text-center">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full flex items-center justify-center" >
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full flex items-center justify-center" style={{ background: '#f1f5f9' }}>
                     <Clock size={24} className="sm:hidden" style={{ color: '#94a3b8' }} />
                     <Clock size={32} className="hidden sm:block" style={{ color: '#94a3b8' }} />
                   </div>
@@ -160,7 +160,7 @@ export default function DashboardPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[400px]">
                     <thead>
-                      <tr >
+                      <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
                         <th className="px-3 sm:px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>Cliente</th>
                         <th className="px-3 sm:px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>Valor</th>
                         <th className="px-3 sm:px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>Estado</th>

@@ -34,8 +34,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-PT" className="scroll-smooth">
-      <body className="font-sans antialiased bg-background text-foreground" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)', minHeight: '100vh' }}>
+    <html lang="pt-PT">
+      <body className="font-sans antialiased bg-background text-foreground">
         {children}
         <CookieBanner />
       </body>
