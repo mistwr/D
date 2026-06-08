@@ -101,58 +101,67 @@ export function Navbar({ user, onLogout }: NavbarProps) {
   return (
     <>
       {/* Desktop Navbar */}
-      <nav className="sticky top-0 z-40 hidden lg:flex h-16 items-center justify-between px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%)', borderBottom: '2px solid #0066cc', boxShadow: '0 4px 12px rgba(0, 102, 204, 0.1)' }}>
-        <div className="flex items-center gap-4">
-          <h1 className="text-lg lg:text-xl font-bold truncate" style={{ color: '#003d99' }}>
-            {user?.role === 'admin' ? 'Painel de Administração' : 'Portal do Parceiro'}
-          </h1>
+      <nav className="sticky top-0 z-40 hidden lg:flex h-20 items-center justify-between px-8 py-4" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' }}>
+        {/* Left: Logo + Title */}
+        <div className="flex items-center gap-6">
+          <Image src="/logo.jpg" alt="Logo" width={48} height={48} className="rounded-lg shadow-md flex-shrink-0" />
+          <div className="flex flex-col justify-center">
+            <h1 className="text-xl font-bold" style={{ color: '#003d99' }}>
+              {user?.role === 'admin' ? 'Painel de Administração' : 'Portal do Parceiro'}
+            </h1>
+            <p className="text-xs font-medium mt-0.5" style={{ color: '#0066cc' }}>Soluções Diferentes</p>
+          </div>
         </div>
-        <div className="flex items-center gap-2 lg:gap-4">
-          {user && (
-            <>
-              <NotificationsDropdown authFetch={authFetch} />
-              <div className="flex items-center gap-3 lg:gap-4 pl-4" style={{ borderLeft: '2px solid #d0e8ff' }}>
-                <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="w-9 h-9 lg:w-10 lg:h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden hover:ring-2 hover:ring-offset-2 transition-all" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)', boxShadow: '0 2px 8px rgba(0, 102, 204, 0.15)' }}>
-                  {avatarUrl ? (
-                    <Image src={avatarUrl} alt="Avatar" width={40} height={40} className="w-full h-full object-cover" />
-                  ) : (
-                    <User size={18} className="text-white" />
-                  )}
-                </Link>
-                <div className="hidden lg:block">
-                  <p className="text-sm font-bold truncate max-w-[150px]" style={{ color: '#003d99' }}>{user.full_name}</p>
-                  <p className="text-xs font-medium" style={{ color: '#0066cc' }}>{user.role === 'admin' ? 'Administrador' : 'Parceiro'}</p>
-                </div>
+
+        {/* Right: Notifications + User + Logout */}
+        {user && (
+          <div className="flex items-center gap-6">
+            <NotificationsDropdown authFetch={authFetch} />
+            
+            {/* User Info */}
+            <div className="flex items-center gap-4 pl-6" style={{ borderLeft: '1px solid #e2e8f0' }}>
+              <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden hover:ring-2 hover:ring-offset-2 transition-all" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)', boxShadow: '0 2px 8px rgba(0, 102, 204, 0.15)' }}>
+                {avatarUrl ? (
+                  <Image src={avatarUrl} alt="Avatar" width={48} height={48} className="w-full h-full object-cover" />
+                ) : (
+                  <User size={20} className="text-white" />
+                )}
+              </Link>
+              <div className="flex flex-col justify-center">
+                <p className="text-sm font-semibold truncate max-w-[200px]" style={{ color: '#1e293b' }}>{user.full_name}</p>
+                <p className="text-xs font-medium mt-0.5" style={{ color: '#64748b' }}>{user.role === 'admin' ? 'Administrador' : 'Parceiro'}</p>
               </div>
-              <button onClick={handleLogout} className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all" style={{ background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)', color: '#b91c1c', boxShadow: '0 2px 8px rgba(220, 38, 38, 0.15)' }}>
-                <LogOut size={16} /> <span className="hidden lg:inline">Sair</span>
-              </button>
-            </>
-          )}
-        </div>
+            </div>
+
+            {/* Logout Button */}
+            <button onClick={handleLogout} className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all hover:scale-105 active:scale-95" style={{ background: '#fee2e2', color: '#b91c1c', boxShadow: '0 1px 3px rgba(220, 38, 38, 0.15)' }}>
+              <LogOut size={18} /> Sair
+            </button>
+          </div>
+        )}
       </nav>
 
       {/* Mobile Navbar - with safe area */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex lg:hidden h-16 items-center justify-between px-4 safe-area-top" style={{ background: 'linear-gradient(135deg, #0a1628 0%, #0f172a 100%)', borderBottom: '2px solid #0066cc', boxShadow: '0 4px 12px rgba(0, 102, 204, 0.2)' }}>
+      <nav className="fixed top-0 left-0 right-0 z-50 flex lg:hidden h-16 items-center justify-between px-4 safe-area-top" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' }}>
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setOpen(!open)} 
             className="p-2.5 rounded-lg active:scale-95 transition-transform" 
-            style={{ background: 'rgba(0, 102, 204, 0.2)' }}
+            style={{ background: '#f0f4f8' }}
             aria-label={open ? 'Fechar menu' : 'Abrir menu'}
             aria-expanded={open}
           >
-            {open ? <X size={20} className="text-white" /> : <Menu size={20} className="text-white" />}
+            {open ? <X size={20} style={{ color: '#003d99' }} /> : <Menu size={20} style={{ color: '#003d99' }} />}
           </button>
-          <Image src="/logo.jpg" alt="Logo" width={32} height={32} className="rounded-lg shadow-lg" />
-          <span className="font-bold text-white text-sm truncate max-w-[120px]">Soluções</span>
+          <Image src="/logo.jpg" alt="Logo" width={40} height={40} className="rounded-lg shadow-md" />
+          <span className="font-bold text-sm truncate max-w-[140px]" style={{ color: '#003d99' }}>Soluções</span>
         </div>
         <div className="flex items-center gap-2">
           {user && (
             <>
               <NotificationsDropdownMobile authFetch={authFetch} />
-              <button onClick={handleLogout} className="p-2.5 rounded-lg active:scale-95 transition-all" style={{ background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%)', borderLeft: '2px solid rgba(220, 38, 38, 0.3)' }} aria-label="Sair">
-                <LogOut size={18} style={{ color: '#fca5a5' }} />
+              <button onClick={handleLogout} className="p-2.5 rounded-lg active:scale-95 transition-all" style={{ background: '#fee2e2' }} aria-label="Sair">
+                <LogOut size={18} style={{ color: '#b91c1c' }} />
               </button>
             </>
           )}
@@ -168,30 +177,30 @@ export function Navbar({ user, onLogout }: NavbarProps) {
             aria-hidden="true"
           />
           <div 
-            className="absolute top-14 left-0 bottom-0 w-[280px] max-w-[85vw] overflow-y-auto scrollbar-hide" 
-            style={{ background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)' }}
+            className="absolute top-16 left-0 bottom-0 w-[280px] max-w-[85vw] overflow-y-auto scrollbar-hide" 
+            style={{ background: '#ffffff' }}
           >
             {/* User info on mobile */}
             {user && (
-              <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+              <div className="p-4 border-b" style={{ borderColor: '#e2e8f0' }}>
                 <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)' }}>
                     {avatarUrl ? (
-                      <Image src={avatarUrl} alt="Avatar" width={40} height={40} className="w-full h-full object-cover" />
+                      <Image src={avatarUrl} alt="Avatar" width={48} height={48} className="w-full h-full object-cover" />
                     ) : (
                       <User size={20} className="text-white" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-white truncate">{user.full_name}</p>
-                    <p className="text-xs truncate" style={{ color: '#94a3b8' }}>{user.email}</p>
+                    <p className="text-sm font-semibold truncate" style={{ color: '#1e293b' }}>{user.full_name}</p>
+                    <p className="text-xs mt-0.5 truncate" style={{ color: '#64748b' }}>{user.email}</p>
                   </div>
                 </Link>
               </div>
             )}
 
-            <nav className="p-3 space-y-1 safe-area-inset">
-              <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>
+            <nav className="p-2 space-y-1 safe-area-inset">
+              <p className="px-4 py-2 text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>
                 {user?.role === 'admin' ? 'Administracao' : 'Menu'}
               </p>
               {mobileLinks.map(l => {
@@ -201,10 +210,10 @@ export function Navbar({ user, onLogout }: NavbarProps) {
                     key={l.href} 
                     href={l.href} 
                     onClick={() => setOpen(false)}
-                    className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium active:scale-[0.98] transition-all"
+                    className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium active:scale-[0.98] transition-all"
                     style={{ 
-                      background: active ? 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' : 'transparent', 
-                      color: active ? '#ffffff' : '#94a3b8'
+                      background: active ? '#f0f4f8' : 'transparent', 
+                      color: active ? '#003d99' : '#64748b'
                     }}
                   >
                     <l.icon size={20} />
@@ -215,7 +224,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
             </nav>
 
             {/* Footer */}
-            <div className="p-4 mt-auto border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+            <div className="p-4 mt-auto border-t" style={{ borderColor: '#e2e8f0' }}>
               <p className="text-xs text-center" style={{ color: '#64748b' }}>Telecomunicacoes & Energia</p>
             </div>
           </div>
