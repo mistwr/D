@@ -349,62 +349,8 @@ export default function NovaVendaPage() {
         }
       }
 
-      // NOVO: Tentar gerar PDF automático com pdf-lib se houver template
-      let pdfBlobUrl = null
-      try {
-        // Buscar templates disponíveis para esta operadora
-        const templatesRes = await authFetch(`/api/pdf/templates?operadora=${encodeURIComponent(form.operator)}`)
-        if (templatesRes.ok) {
-          const templatesData = await templatesRes.json()
-          const templates = Array.isArray(templatesData) ? templatesData : templatesData.templates || []
-          
-          if (templates.length > 0) {
-            const template = templates[0] // Usar primeiro template disponível
-            console.log('[v0] Template encontrado, gerando PDF preenchido...')
-            
-            // Chamar API para gerar PDF preenchido
-            const fillRes = await authFetch('/api/pdf/fill', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                sale_id: data.venda.id,
-                template_id: template.id,
-                document_type: 'FA'
-              })
-            })
-            
-            if (fillRes.ok) {
-              const pdfBuffer = await fillRes.arrayBuffer()
-              const blob = new Blob([pdfBuffer], { type: 'application/pdf' })
-              pdfBlobUrl = URL.createObjectURL(blob)
-              console.log('[v0] PDF gerado com sucesso! Iniciando download...')
-            } else {
-              console.log('[v0] Erro ao gerar PDF via API')
-            }
-          }
-        }
-      } catch (e) {
-        console.log('[v0] Erro ao buscar templates ou gerar PDF:', e)
-      }
-
       setSuccess(true)
-      
-      // Se conseguiu gerar PDF, fazer download automático
-      if (pdfBlobUrl) {
-        setTimeout(() => {
-          const a = document.createElement('a')
-          a.href = pdfBlobUrl
-          a.download = `venda-${form.operator}-${new Date().getTime()}.pdf`
-          a.click()
-          URL.revokeObjectURL(pdfBlobUrl)
-          
-          // Redirecionar após download
-          setTimeout(() => router.push('/vendas'), 1000)
-        }, 500)
-      } else {
-        // Redirecionar normalmente sem download
-        setTimeout(() => router.push('/vendas'), 2000)
-      }
+      setTimeout(() => router.push('/vendas'), 2000)
     } catch { setError('Erro de conexao'); setLoading(false) }
   }
 
