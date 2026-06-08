@@ -211,7 +211,7 @@ export default function ContratosPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
-      <div className="flex">
+      <div>
         <Sidebar userRole="parceiro" />
         <main className="w-full lg:ml-64 pt-16">
           <div className="p-4 md:p-5 max-w-7xl mx-auto w-full">
