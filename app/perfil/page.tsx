@@ -140,6 +140,7 @@ export default function PerfilPage() {
   return (
     <div className="min-h-screen" style={{ background: '#f1f5f9' }}>
       <Sidebar user={user} />
+      <div className="flex flex-1 flex-col min-w-0">
       <Navbar user={user ? { ...user, avatar_url: profile?.avatar_url || undefined } : null} />
       
       <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
@@ -223,7 +224,7 @@ export default function PerfilPage() {
           </div>
         </div>
       </main>
-
+      </div>
       {/* Avatar Picker Modal */}
       {showAvatarPicker && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">

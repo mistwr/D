@@ -77,7 +77,7 @@ export default function SaleDetailPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="flex h-screen bg-slate-100">
+      <div className="flex min-h-screen w-full bg-slate-100">
         <Sidebar user={user} />
         <div className="flex-1 flex items-center justify-center">
           <Loader className="animate-spin" size={32} />
@@ -88,7 +88,7 @@ export default function SaleDetailPage() {
 
   if (!sale) {
     return (
-      <div className="flex h-screen bg-slate-100">
+      <div className="flex min-h-screen w-full bg-slate-100">
         <Sidebar user={user} />
         <div className="flex-1 flex flex-col">
           <Navbar user={user} />
@@ -106,9 +106,9 @@ export default function SaleDetailPage() {
   const canEdit = user?.id === sale.user_id || user?.role === 'admin'
 
   return (
-    <div className="flex h-screen bg-slate-100">
+    <div className="flex min-h-screen w-full bg-slate-100">
       <Sidebar user={user} />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0">
         <Navbar user={user} />
         <div className="w-full overflow-auto">
           <div className="p-6 max-w-7xl mx-auto">

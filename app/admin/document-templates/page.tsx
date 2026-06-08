@@ -148,9 +148,9 @@ export default function DocumentTemplatesPage() {
   if (authLoading || loading) return <div className="p-4">A carregar...</div>
 
   return (
-    <div className="flex h-screen bg-white">
+    <div className="flex min-h-screen w-full bg-white">
       <Sidebar user={user} />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0">
         <Navbar user={user} />
         <div className="w-full overflow-auto p-6">
           <div className="max-w-7xl mx-auto">
