@@ -166,7 +166,7 @@ export default function LeadsPage() {
       <Navbar user={user} />
       <div>
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
-        <main className="w-full overflow-auto pt-16 lg:pt-16 lg:ml-64 w-full">
+        <main className="pt-16 lg:ml-64 min-h-screen overflow-x-hidden">
           <div className="p-4 md:p-5 max-w-7xl mx-auto w-full">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">

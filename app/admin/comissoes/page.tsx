@@ -148,7 +148,7 @@ export default function AdminComissoesPage() {
       <Navbar user={user} />
       <div>
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
-        <main className="w-full lg:ml-64 pt-16">
+        <main className="pt-16 lg:ml-64 min-h-screen overflow-x-hidden">
           <div className="p-4 md:p-5 max-w-7xl mx-auto w-full">
 
             <Link href="/admin/dashboard" className="inline-flex items-center gap-2 mb-6 text-sm font-medium" style={{ color: '#0ea5e9' }}>

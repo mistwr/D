@@ -105,7 +105,7 @@ export default function PdfTemplatesPage() {
       <Sidebar />
       <div className="flex-1 lg:ml-64">
         <Navbar />
-        <main className="pt-16 lg:pt-16 p-4 md:p-6">
+        <main className="pt-16 lg:ml-64 min-h-screen overflow-x-hidden p-4 md:p-6">
           <div className="mb-6 flex items-center gap-3">
             <Link href="/admin" className="p-2 hover:bg-slate-100 rounded-lg">
               <ArrowLeft size={20} style={{ color: '#64748b' }} />
