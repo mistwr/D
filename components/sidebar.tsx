@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2, Target, Crown, Circle, User, UserPlus, FileText, FileDown } from 'lucide-react'
+import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Network, GitBranch, Shield, Building2, Target, Crown, Circle, User, UserPlus, FileText, FileDown } from 'lucide-react'
 
 interface SidebarUser {
   role: string
@@ -101,19 +101,7 @@ export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = fals
         </div>
       </div>
 
-      {/* Quick Stats - Premium */}
-      <div className="p-4 border-b mx-3 my-3 rounded-xl" style={{ borderColor: 'rgba(0, 102, 204, 0.3)', background: 'linear-gradient(135deg, rgba(0, 102, 204, 0.1) 0%, rgba(0, 82, 163, 0.05) 100%)' }}>
-        <div className="grid grid-cols-2 gap-2">
-          <div className="rounded-lg p-3 text-center transition-all hover:shadow-lg" style={{ background: 'linear-gradient(135deg, rgba(0, 102, 204, 0.2) 0%, rgba(14, 165, 233, 0.15) 100%)', border: '1px solid rgba(0, 102, 204, 0.3)' }}>
-            <Phone size={18} className="mx-auto mb-1" style={{ color: '#22c55e' }} />
-            <p className="text-xs font-bold" style={{ color: '#22c55e' }}>Telecom</p>
-          </div>
-          <div className="rounded-lg p-3 text-center transition-all hover:shadow-lg" style={{ background: 'linear-gradient(135deg, rgba(0, 102, 204, 0.2) 0%, rgba(14, 165, 233, 0.15) 100%)', border: '1px solid rgba(0, 102, 204, 0.3)' }}>
-            <Zap size={18} className="mx-auto mb-1" style={{ color: '#fbbf24' }} />
-            <p className="text-xs font-bold" style={{ color: '#fbbf24' }}>Energia</p>
-          </div>
-        </div>
-      </div>
+      {/* Quick Stats removido - sidebar limpa e profissional */}
 
       <nav className="flex-1 flex flex-col gap-1.5 p-4 overflow-y-auto">
         <p className="mb-3 px-3 text-xs font-bold uppercase tracking-widest" style={{ color: '#0066cc', letterSpacing: '0.1em' }}>
