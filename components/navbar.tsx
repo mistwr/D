@@ -101,30 +101,33 @@ export function Navbar({ user, onLogout }: NavbarProps) {
   return (
     <>
       {/* Desktop Navbar */}
-      <nav className="fixed top-0 left-64 right-0 z-40 hidden md:flex h-16 items-center justify-between px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%)', borderBottom: '2px solid #0066cc', boxShadow: '0 4px 12px rgba(0, 102, 204, 0.1)' }}>
+      <nav className="fixed top-0 left-64 right-0 z-40 hidden md:flex h-16 items-center justify-between px-4 lg:px-6" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0' }}>
         <div className="flex items-center gap-4">
-          <h1 className="text-lg lg:text-xl font-bold truncate" style={{ color: '#003d99' }}>
-            {user?.role === 'admin' ? 'Painel de Administração' : 'Portal do Parceiro'}
+          <h1 className="text-base lg:text-lg font-semibold truncate" style={{ color: '#1e293b' }}>
+            {user?.role === 'admin' ? 'Painel de Administracao' : 'Portal do Parceiro'}
           </h1>
         </div>
         <div className="flex items-center gap-2 lg:gap-4">
           {user && (
             <>
               <NotificationsDropdown authFetch={authFetch} />
-              <div className="flex items-center gap-3 lg:gap-4 pl-4" style={{ borderLeft: '2px solid #d0e8ff' }}>
-                <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="w-9 h-9 lg:w-10 lg:h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden hover:ring-2 hover:ring-offset-2 transition-all" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)', boxShadow: '0 2px 8px rgba(0, 102, 204, 0.15)' }}>
+              <div className="flex items-center gap-2 lg:gap-3 pl-2 lg:pl-4" style={{ borderLeft: '1px solid #e2e8f0' }}>
+                <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="w-8 h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden hover:ring-2 hover:ring-sky-500 transition-all" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                   {avatarUrl ? (
-                    <Image src={avatarUrl} alt="Avatar" width={40} height={40} className="w-full h-full object-cover" />
+                    <Image src={avatarUrl} alt="Avatar" width={36} height={36} className="w-full h-full object-cover" />
                   ) : (
-                    <User size={18} className="text-white" />
+                    <>
+                      <User size={16} className="text-white lg:hidden" />
+                      <User size={18} className="text-white hidden lg:block" />
+                    </>
                   )}
                 </Link>
-                <div className="hidden lg:block">
-                  <p className="text-sm font-bold truncate max-w-[150px]" style={{ color: '#003d99' }}>{user.full_name}</p>
-                  <p className="text-xs font-medium" style={{ color: '#0066cc' }}>{user.role === 'admin' ? 'Administrador' : 'Parceiro'}</p>
+                <div className="hidden xl:block">
+                  <p className="text-sm font-semibold truncate max-w-[150px]" style={{ color: '#1e293b' }}>{user.full_name}</p>
+                  <p className="text-xs" style={{ color: '#64748b' }}>{user.role === 'admin' ? 'Administrador' : 'Parceiro'}</p>
                 </div>
               </div>
-              <button onClick={handleLogout} className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all" style={{ background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)', color: '#b91c1c', boxShadow: '0 2px 8px rgba(220, 38, 38, 0.15)' }}>
+              <button onClick={handleLogout} className="flex items-center gap-2 rounded-lg px-3 lg:px-4 py-2 text-sm font-medium transition-all hover:shadow-md" style={{ background: '#fee2e2', color: '#dc2626' }}>
                 <LogOut size={16} /> <span className="hidden lg:inline">Sair</span>
               </button>
             </>
@@ -133,25 +136,25 @@ export function Navbar({ user, onLogout }: NavbarProps) {
       </nav>
 
       {/* Mobile Navbar - with safe area */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex md:hidden h-16 items-center justify-between px-4 safe-area-top" style={{ background: 'linear-gradient(135deg, #0a1628 0%, #0f172a 100%)', borderBottom: '2px solid #0066cc', boxShadow: '0 4px 12px rgba(0, 102, 204, 0.2)' }}>
-        <div className="flex items-center gap-3">
+      <nav className="fixed top-0 left-0 right-0 z-50 flex md:hidden h-14 items-center justify-between px-3 safe-area-top" style={{ background: '#0f172a' }}>
+        <div className="flex items-center gap-2">
           <button 
             onClick={() => setOpen(!open)} 
-            className="p-2.5 rounded-lg active:scale-95 transition-transform" 
-            style={{ background: 'rgba(0, 102, 204, 0.2)' }}
+            className="p-2 rounded-lg active:scale-95 transition-transform" 
+            style={{ background: 'rgba(255,255,255,0.1)' }}
             aria-label={open ? 'Fechar menu' : 'Abrir menu'}
             aria-expanded={open}
           >
             {open ? <X size={20} className="text-white" /> : <Menu size={20} className="text-white" />}
           </button>
-          <Image src="/logo.jpg" alt="Logo" width={32} height={32} className="rounded-lg shadow-lg" />
-          <span className="font-bold text-white text-sm truncate max-w-[120px]">Soluções</span>
+          <Image src="/logo.jpg" alt="Logo" width={28} height={28} className="rounded-lg" />
+          <span className="font-semibold text-white text-sm truncate max-w-[140px]">Soluções Diferentes</span>
         </div>
         <div className="flex items-center gap-2">
           {user && (
             <>
               <NotificationsDropdownMobile authFetch={authFetch} />
-              <button onClick={handleLogout} className="p-2.5 rounded-lg active:scale-95 transition-all" style={{ background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%)', borderLeft: '2px solid rgba(220, 38, 38, 0.3)' }} aria-label="Sair">
+              <button onClick={handleLogout} className="p-2 rounded-lg active:scale-95 transition-transform" style={{ background: 'rgba(239,68,68,0.2)' }} aria-label="Sair">
                 <LogOut size={18} style={{ color: '#fca5a5' }} />
               </button>
             </>
