@@ -235,6 +235,7 @@ export default function MinhaEstruturaPage() {
           </div>
         </div>
       </main>
+      </div>
 
       {/* Modal: Novo Membro */}
       {showNovo && (
