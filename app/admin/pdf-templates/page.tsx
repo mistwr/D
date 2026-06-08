@@ -101,11 +101,12 @@ export default function PdfTemplatesPage() {
   if (!user) return null
 
   return (
-    <div style={{ display: 'flex' }}>
-      <Sidebar />
-      <div style={{ flex: 1 }}>
-        <Navbar />
-        <main className="p-6">
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+      <Navbar user={user} />
+      <div className="flex">
+        <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
+        <main className="flex-1 md:ml-64 pt-14 md:pt-16">
+          <div className="p-4 md:p-6">
           <div className="mb-6 flex items-center gap-3">
             <Link href="/admin" className="p-2 hover:bg-slate-100 rounded-lg">
               <ArrowLeft size={20} style={{ color: '#64748b' }} />
@@ -230,6 +231,7 @@ export default function PdfTemplatesPage() {
                 ))}
               </div>
             )}
+          </div>
           </div>
         </main>
       </div>
