@@ -86,7 +86,7 @@ export default function DashboardPage() {
       <Navbar user={user} />
       <div>
         <Sidebar userRole="parceiro" />
-        <main className="w-full overflow-auto pt-16 lg:pt-16 lg:ml-64 w-full">
+        <main className="pt-16 lg:ml-64 min-h-screen overflow-x-hidden">
           <div className="p-3 sm:p-4 md:p-5 max-w-7xl mx-auto">
             {/* Mensagem Motivacional */}
             {mensagemDia && (
