@@ -209,12 +209,12 @@ export default function ContratosPage() {
   const inp = { background: '#f9fafb', border: '1px solid #e2e8f0', color: '#1e293b' }
 
   return (
-    <div className="flex min-h-screen w-full" style={{ background: '#f8fafc' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
-      <div className="flex flex-1 min-w-0">
+      <div className="flex">
         <Sidebar userRole="parceiro" />
-        <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
-          <div className="p-4 md:p-5 max-w-6xl mx-auto">
+        <main className="flex-1 md:ml-64 pt-16">
+          <div className="p-4 md:p-8">
 
             {/* Cabecalho */}
             <div className="flex items-center justify-between mb-6">
@@ -510,7 +510,7 @@ export default function ContratosPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.8)' }}
           onClick={() => setViewer(null)}>
-          <div className="w-full max-w-6xl mx-auto mx-auto bg-white rounded-xl overflow-hidden" onClick={e => e.stopPropagation()}>
+          <div className="w-full max-w-7xl bg-white rounded-xl overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <p className="text-sm font-medium truncate">{viewer.file_name}</p>
               <div className="flex items-center gap-2">

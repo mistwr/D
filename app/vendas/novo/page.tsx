@@ -446,16 +446,16 @@ export default function NovaVendaPage() {
   const isEnergia = form.service_type === 'energia'
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
-      {/* Sidebar */}
+    <div className="flex h-screen bg-background">
+      {/* Sidebar - Sidebar component handles hidden/visible */}
       <Sidebar />
       
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col overflow-hidden w-full">
         <Navbar />
         
-        <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-5" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
-          <div className="max-w-6xl mx-auto">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 xs:p-3 sm:p-4 md:p-6 lg:p-12" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
+          <div className="max-w-7xl mx-auto w-full">
             {/* Header */}
             <div className="mb-4 sm:mb-6 md:mb-8">
               <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
@@ -498,7 +498,7 @@ export default function NovaVendaPage() {
               </div>
 
               {/* OPERADORA */}
-              <div className="rounded-2xl p-5 sm:p-6 md:p-5 lg:p-8 shadow-lg hover:shadow-xl transition-all" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%)', border: '1px solid #d0e8ff', borderTop: '2px solid #0066cc' }}>
+              <div className="rounded-2xl p-5 sm:p-6 md:p-7 lg:p-8 shadow-lg hover:shadow-xl transition-all" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%)', border: '1px solid #d0e8ff', borderTop: '2px solid #0066cc' }}>
                 <h2 className="text-xs font-bold mb-5 uppercase tracking-widest" style={{ color: '#003d99', fontSize: '10px', letterSpacing: '0.08em' }}>Operadora e Plano</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                   <div>
@@ -1015,7 +1015,7 @@ export default function NovaVendaPage() {
                 <X size={20} style={{ color: '#64748b' }} />
               </button>
             </div>
-            <div className="w-full overflow-auto p-4 bg-slate-50">
+            <div className="flex-1 overflow-auto p-4 bg-slate-50">
               {pdfUrl ? (
                 <iframe src={pdfUrl} className="w-full h-full rounded-lg" style={{ border: 'none', minHeight: '500px' }} />
               ) : (

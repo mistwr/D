@@ -171,28 +171,8 @@
 }
 
 /* =============================================
-   OVERFLOW & LAYOUT GUARDS (FIX DOUBLE-OFFSET BUG)
+   RESPONSIVE UTILITIES & MOBILE-FIRST DESIGN
    ============================================= */
-
-/* Ensure main content respects viewport.
-   NOTE: Do NOT set width or margin-left on `main` here.
-   These would be "unlayered" rules that override Tailwind's layered
-   `lg:ml-64` utility (unlayered styles always beat layered ones in the
-   CSS cascade), which previously caused the content to slide under the
-   fixed sidebar on desktop. The page-level Tailwind classes handle this. */
-main {
-  overflow-x: hidden;
-}
-
-@media (min-width: 768px) {
-  body {
-    overflow-x: hidden;
-  }
-}
-
-html {
-  overflow-x: hidden;
-}
 
 /* Touch-friendly targets for mobile */
 @media (max-width: 768px) {

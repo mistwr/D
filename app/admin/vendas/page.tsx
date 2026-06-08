@@ -445,12 +445,12 @@ export default function AdminVendasPage() {
   const totalFiltrado = filtered.reduce((s, v) => s + (v.amount || 0), 0)
 
   return (
-    <div className="flex min-h-screen w-full" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
       <Navbar user={user} />
-      <div className="flex flex-1 min-w-0">
+      <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
-        <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
-          <div className="p-4 md:p-5 max-w-7xl mx-auto">
+        <main className="flex-1 md:ml-64 pt-16">
+          <div className="p-4 sm:p-6 md:p-8 lg:p-12 max-w-7xl mx-auto">
             <div className="flex items-center gap-3 mb-6 md:mb-8">
               <ShoppingCart size={32} style={{ color: '#0066cc' }} />
               <div>
