@@ -138,17 +138,17 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
       <Navbar user={user} />
-      <div className="flex flex-1 min-w-0">
+      <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
-        <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
-          <div className="p-4 md:p-5 max-w-6xl mx-auto">
+        <main className="flex-1 overflow-auto" style={{ minHeight: "calc(100vh - 4rem)" }}>
+          <div className="px-2 xs:px-3 sm:px-4 md:px-6 lg:px-12 py-4 md:py-6 lg:py-8 max-w-7xl mx-auto">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 md:mb-10">
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold" style={{ color: '#003d99' }}>Dashboard Enterprise</h1>
-                <p style={{ color: '#6b7280' }} className="text-xs md:text-sm lg:text-sm mt-2">Visão completa do desempenho comercial</p>
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold" style={{ color: '#003d99' }}>Dashboard Enterprise</h1>
+                <p style={{ color: '#6b7280' }} className="text-sm md:text-base mt-2">Visão completa do desempenho comercial</p>
               </div>
               <div className="flex gap-3">
                 <button onClick={() => setShowFilters(!showFilters)}
@@ -186,21 +186,21 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Métricas Principais */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6 md:mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8 md:mb-10">
               {[
                 { label: 'Volume Total', value: `€${metrics.total.toFixed(2)}`, icon: DollarSign, color: '#0066cc', bg: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)' },
                 { label: 'Vendas', value: filtered.length, icon: BarChart3, color: '#8b5cf6', bg: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)' },
                 { label: 'Taxa Conversão', value: `${metrics.taxaConversao}%`, icon: Target, color: '#10b981', bg: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)' },
                 { label: 'Parceiros Ativos', value: metrics.parceiros, icon: Users, color: '#f59e0b', bg: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' },
               ].map(m => (
-                <div key={m.label} className="rounded-lg p-3 shadow-md hover:shadow-lg transition-all" style={{ background: '#ffffff', border: '1px solid #d0e8ff' }}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ background: m.bg }}>
-                      <m.icon size={18} style={{ color: m.color }} />
+                <div key={m.label} className="rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all transform hover:scale-105" >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-xl" style={{ background: m.bg }}>
+                      <m.icon size={28} style={{ color: m.color }} />
                     </div>
                   </div>
-                  <p className="text-lg lg:text-xl font-bold" style={{ color: '#003d99' }}>{m.value}</p>
-                  <p className="text-xs lg:text-xs mt-1 font-medium" style={{ color: '#6b7280' }}>{m.label}</p>
+                  <p className="text-3xl font-bold" style={{ color: '#003d99' }}>{m.value}</p>
+                  <p className="text-sm mt-2 font-medium" style={{ color: '#6b7280' }}>{m.label}</p>
                 </div>
               ))}
             </div>

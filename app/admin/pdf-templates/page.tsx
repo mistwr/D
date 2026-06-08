@@ -103,9 +103,9 @@ export default function PdfTemplatesPage() {
   return (
     <div style={{ display: 'flex' }}>
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0">
+      <div style={{ flex: 1 }}>
         <Navbar />
-        <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
+        <main className="p-6">
           <div className="mb-6 flex items-center gap-3">
             <Link href="/admin" className="p-2 hover:bg-slate-100 rounded-lg">
               <ArrowLeft size={20} style={{ color: '#64748b' }} />

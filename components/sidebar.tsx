@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Network, GitBranch, Shield, Building2, Target, Crown, Circle, User, UserPlus, FileText, FileDown } from 'lucide-react'
+import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2, Target, Crown, Circle, User, UserPlus, FileText, FileDown } from 'lucide-react'
 
 interface SidebarUser {
   role: string
@@ -91,9 +91,9 @@ export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = fals
   const links = role === 'admin' ? adminLinks : parceiroLinks
 
   return (
-    <aside className="hidden lg:flex lg:w-64 lg:shrink-0 flex-col overflow-y-auto shadow-xl sticky top-0 h-screen z-10" style={{ background: 'linear-gradient(180deg, #0a1628 0%, #0f172a 50%, #1a2847 100%)', borderRight: '2px solid #0066cc' }}>
-      {/* Logo - mesma altura da Navbar (h-16 = 4rem) */}
-      <div className="flex h-16 items-center gap-3 px-5 border-b flex-shrink-0" style={{ borderColor: 'rgba(0, 102, 204, 0.2)', minHeight: '4rem' }}>
+    <aside className="hidden md:flex w-64 flex-col overflow-y-auto shadow-xl" style={{ background: 'linear-gradient(180deg, #0a1628 0%, #0f172a 50%, #1a2847 100%)', borderRight: '2px solid #0066cc' }}>
+      {/* Logo */}
+      <div className="p-6 flex items-center gap-3 border-b" style={{ borderColor: 'rgba(0, 102, 204, 0.2)' }}>
         <Image src="/logo.jpg" alt="Soluções Diferentes" width={48} height={48} className="rounded-lg shadow-lg" />
         <div>
           <p className="font-bold text-white text-sm leading-tight">Soluções</p>
@@ -101,7 +101,19 @@ export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = fals
         </div>
       </div>
 
-      {/* Quick Stats removido - sidebar limpa e profissional */}
+      {/* Quick Stats - Premium */}
+      <div className="p-4 border-b mx-3 my-3 rounded-xl" style={{ borderColor: 'rgba(0, 102, 204, 0.3)', background: 'linear-gradient(135deg, rgba(0, 102, 204, 0.1) 0%, rgba(0, 82, 163, 0.05) 100%)' }}>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-lg p-3 text-center transition-all hover:shadow-lg" style={{ background: 'linear-gradient(135deg, rgba(0, 102, 204, 0.2) 0%, rgba(14, 165, 233, 0.15) 100%)', border: '1px solid rgba(0, 102, 204, 0.3)' }}>
+            <Phone size={18} className="mx-auto mb-1" style={{ color: '#22c55e' }} />
+            <p className="text-xs font-bold" style={{ color: '#22c55e' }}>Telecom</p>
+          </div>
+          <div className="rounded-lg p-3 text-center transition-all hover:shadow-lg" style={{ background: 'linear-gradient(135deg, rgba(0, 102, 204, 0.2) 0%, rgba(14, 165, 233, 0.15) 100%)', border: '1px solid rgba(0, 102, 204, 0.3)' }}>
+            <Zap size={18} className="mx-auto mb-1" style={{ color: '#fbbf24' }} />
+            <p className="text-xs font-bold" style={{ color: '#fbbf24' }}>Energia</p>
+          </div>
+        </div>
+      </div>
 
       <nav className="flex-1 flex flex-col gap-1.5 p-4 overflow-y-auto">
         <p className="mb-3 px-3 text-xs font-bold uppercase tracking-widest" style={{ color: '#0066cc', letterSpacing: '0.1em' }}>

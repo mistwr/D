@@ -100,65 +100,59 @@ export function Navbar({ user, onLogout }: NavbarProps) {
 
   return (
     <>
-      {/* Desktop Navbar — sem logo (já está na sidebar), apenas título + user */}
-      <nav className="sticky top-0 z-40 hidden lg:flex h-16 items-center justify-between px-6" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', minHeight: '4rem' }}>
-        {/* Left: Page title */}
-        <h1 className="text-lg font-bold" style={{ color: '#003d99' }}>
-          {user?.role === 'admin' ? 'Painel de Administração' : 'Portal do Parceiro'}
-        </h1>
-
-        {/* Right: Notifications + User + Logout */}
-        {user && (
-          <div className="flex items-center gap-4">
-            <NotificationsDropdown authFetch={authFetch} />
-
-            {/* Divider */}
-            <div className="h-8 w-px" style={{ background: '#e2e8f0' }} />
-            
-            {/* Avatar + Name */}
-            <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="flex items-center gap-3 rounded-lg px-2 py-1.5 transition-all hover:bg-slate-50">
-              <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)', boxShadow: '0 2px 6px rgba(0,102,204,0.2)' }}>
-                {avatarUrl ? (
-                  <Image src={avatarUrl} alt="Avatar" width={36} height={36} className="w-full h-full object-cover" />
-                ) : (
-                  <User size={18} className="text-white" />
-                )}
+      {/* Desktop Navbar */}
+      <nav className="fixed top-0 left-64 right-0 z-40 hidden md:flex h-16 items-center justify-between px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%)', borderBottom: '2px solid #0066cc', boxShadow: '0 4px 12px rgba(0, 102, 204, 0.1)' }}>
+        <div className="flex items-center gap-4">
+          <h1 className="text-lg lg:text-xl font-bold truncate" style={{ color: '#003d99' }}>
+            {user?.role === 'admin' ? 'Painel de Administração' : 'Portal do Parceiro'}
+          </h1>
+        </div>
+        <div className="flex items-center gap-2 lg:gap-4">
+          {user && (
+            <>
+              <NotificationsDropdown authFetch={authFetch} />
+              <div className="flex items-center gap-3 lg:gap-4 pl-4" style={{ borderLeft: '2px solid #d0e8ff' }}>
+                <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="w-9 h-9 lg:w-10 lg:h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden hover:ring-2 hover:ring-offset-2 transition-all" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)', boxShadow: '0 2px 8px rgba(0, 102, 204, 0.15)' }}>
+                  {avatarUrl ? (
+                    <Image src={avatarUrl} alt="Avatar" width={40} height={40} className="w-full h-full object-cover" />
+                  ) : (
+                    <User size={18} className="text-white" />
+                  )}
+                </Link>
+                <div className="hidden lg:block">
+                  <p className="text-sm font-bold truncate max-w-[150px]" style={{ color: '#003d99' }}>{user.full_name}</p>
+                  <p className="text-xs font-medium" style={{ color: '#0066cc' }}>{user.role === 'admin' ? 'Administrador' : 'Parceiro'}</p>
+                </div>
               </div>
-              <div className="flex flex-col leading-tight">
-                <span className="text-sm font-semibold truncate max-w-[160px]" style={{ color: '#1e293b' }}>{user.full_name}</span>
-                <span className="text-xs" style={{ color: '#64748b' }}>{user.role === 'admin' ? 'Administrador' : 'Parceiro'}</span>
-              </div>
-            </Link>
-
-            {/* Logout */}
-            <button onClick={handleLogout} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:scale-105 active:scale-95" style={{ background: '#fee2e2', color: '#b91c1c' }}>
-              <LogOut size={16} /> Sair
-            </button>
-          </div>
-        )}
+              <button onClick={handleLogout} className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all" style={{ background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)', color: '#b91c1c', boxShadow: '0 2px 8px rgba(220, 38, 38, 0.15)' }}>
+                <LogOut size={16} /> <span className="hidden lg:inline">Sair</span>
+              </button>
+            </>
+          )}
+        </div>
       </nav>
 
       {/* Mobile Navbar - with safe area */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex lg:hidden h-16 items-center justify-between px-4 safe-area-top" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' }}>
+      <nav className="fixed top-0 left-0 right-0 z-50 flex md:hidden h-16 items-center justify-between px-4 safe-area-top" style={{ background: 'linear-gradient(135deg, #0a1628 0%, #0f172a 100%)', borderBottom: '2px solid #0066cc', boxShadow: '0 4px 12px rgba(0, 102, 204, 0.2)' }}>
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setOpen(!open)} 
             className="p-2.5 rounded-lg active:scale-95 transition-transform" 
-            style={{ background: '#f0f4f8' }}
+            style={{ background: 'rgba(0, 102, 204, 0.2)' }}
             aria-label={open ? 'Fechar menu' : 'Abrir menu'}
             aria-expanded={open}
           >
-            {open ? <X size={20} style={{ color: '#003d99' }} /> : <Menu size={20} style={{ color: '#003d99' }} />}
+            {open ? <X size={20} className="text-white" /> : <Menu size={20} className="text-white" />}
           </button>
-          <Image src="/logo.jpg" alt="Logo" width={40} height={40} className="rounded-lg shadow-md" />
-          <span className="font-bold text-sm truncate max-w-[140px]" style={{ color: '#003d99' }}>Soluções</span>
+          <Image src="/logo.jpg" alt="Logo" width={32} height={32} className="rounded-lg shadow-lg" />
+          <span className="font-bold text-white text-sm truncate max-w-[120px]">Soluções</span>
         </div>
         <div className="flex items-center gap-2">
           {user && (
             <>
               <NotificationsDropdownMobile authFetch={authFetch} />
-              <button onClick={handleLogout} className="p-2.5 rounded-lg active:scale-95 transition-all" style={{ background: '#fee2e2' }} aria-label="Sair">
-                <LogOut size={18} style={{ color: '#b91c1c' }} />
+              <button onClick={handleLogout} className="p-2.5 rounded-lg active:scale-95 transition-all" style={{ background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%)', borderLeft: '2px solid rgba(220, 38, 38, 0.3)' }} aria-label="Sair">
+                <LogOut size={18} style={{ color: '#fca5a5' }} />
               </button>
             </>
           )}
@@ -167,37 +161,37 @@ export function Navbar({ user, onLogout }: NavbarProps) {
 
       {/* Mobile Menu Drawer - Full height with safe areas */}
       {open && (
-        <div className="fixed inset-0 z-40 lg:hidden">
+        <div className="fixed inset-0 z-40 md:hidden">
           <div 
             className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
             onClick={() => setOpen(false)} 
             aria-hidden="true"
           />
           <div 
-            className="absolute top-16 left-0 bottom-0 w-[280px] max-w-[85vw] overflow-y-auto scrollbar-hide" 
-            style={{ background: '#ffffff' }}
+            className="absolute top-14 left-0 bottom-0 w-[280px] max-w-[85vw] overflow-y-auto scrollbar-hide" 
+            style={{ background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)' }}
           >
             {/* User info on mobile */}
             {user && (
-              <div className="p-4 border-b" style={{ borderColor: '#e2e8f0' }}>
+              <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
                 <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)' }}>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
                     {avatarUrl ? (
-                      <Image src={avatarUrl} alt="Avatar" width={48} height={48} className="w-full h-full object-cover" />
+                      <Image src={avatarUrl} alt="Avatar" width={40} height={40} className="w-full h-full object-cover" />
                     ) : (
                       <User size={20} className="text-white" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate" style={{ color: '#1e293b' }}>{user.full_name}</p>
-                    <p className="text-xs mt-0.5 truncate" style={{ color: '#64748b' }}>{user.email}</p>
+                    <p className="text-sm font-semibold text-white truncate">{user.full_name}</p>
+                    <p className="text-xs truncate" style={{ color: '#94a3b8' }}>{user.email}</p>
                   </div>
                 </Link>
               </div>
             )}
 
-            <nav className="p-2 space-y-1 safe-area-inset">
-              <p className="px-4 py-2 text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>
+            <nav className="p-3 space-y-1 safe-area-inset">
+              <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>
                 {user?.role === 'admin' ? 'Administracao' : 'Menu'}
               </p>
               {mobileLinks.map(l => {
@@ -207,10 +201,10 @@ export function Navbar({ user, onLogout }: NavbarProps) {
                     key={l.href} 
                     href={l.href} 
                     onClick={() => setOpen(false)}
-                    className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium active:scale-[0.98] transition-all"
+                    className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium active:scale-[0.98] transition-all"
                     style={{ 
-                      background: active ? '#f0f4f8' : 'transparent', 
-                      color: active ? '#003d99' : '#64748b'
+                      background: active ? 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' : 'transparent', 
+                      color: active ? '#ffffff' : '#94a3b8'
                     }}
                   >
                     <l.icon size={20} />
@@ -221,7 +215,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
             </nav>
 
             {/* Footer */}
-            <div className="p-4 mt-auto border-t" style={{ borderColor: '#e2e8f0' }}>
+            <div className="p-4 mt-auto border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
               <p className="text-xs text-center" style={{ color: '#64748b' }}>Telecomunicacoes & Energia</p>
             </div>
           </div>

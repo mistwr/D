@@ -139,12 +139,12 @@ export default function VendasPage() {
   )
 
   return (
-    <div className="flex min-h-screen w-full" style={{ background: '#f8fafc' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
-      <div className="flex flex-1 min-w-0">
+      <div className="flex">
         <Sidebar userRole="parceiro" />
-        <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
-          <div className="p-3 sm:p-4 md:p-5 max-w-6xl mx-auto">
+        <main className="flex-1 overflow-auto" style={{ minHeight: "calc(100vh - 4rem)" }}>
+          <div className="p-3 sm:p-4 md:p-8">
 
             {/* Cabeçalho - responsivo */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">

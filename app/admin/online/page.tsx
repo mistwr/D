@@ -65,13 +65,12 @@ export default function OnlinePage() {
   const onlineCount = showAll ? allUsers.filter(u => u.is_online).length : onlineUsers.length
 
   return (
-    <div className="flex min-h-screen w-full" style={{ background: '#f1f5f9' }}>
+    <div className="min-h-screen" style={{ background: '#f1f5f9' }}>
       <Sidebar user={user} />
-      <div className="flex flex-1 flex-col min-w-0">
       <Navbar user={user} />
       
-      <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
-        <div className="max-w-7xl mx-auto">
+      <main className="pt-20 md:pt-20 md:pl-64 p-4 md:p-6">
+        <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
@@ -213,7 +212,6 @@ export default function OnlinePage() {
           </div>
         </div>
       </main>
-      </div>
     </div>
   )
 }

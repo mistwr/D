@@ -69,12 +69,12 @@ export default function PublicarPage() {
   const inputStyle = { background: '#fff', border: '1px solid #d1d5db', color: '#1e293b' }
 
   return (
-    <div className="flex min-h-screen w-full" style={{ background: '#f8fafc' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
-      <div className="flex flex-1 min-w-0">
+      <div className="flex">
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
-        <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
-          <div className="p-4 md:p-5 max-w-6xl mx-auto">
+        <main className="flex-1 md:ml-64 pt-16">
+          <div className="p-4 md:p-8">
             <div className="flex items-center gap-3 mb-8">
               <Send size={28} style={{ color: '#0ea5e9' }} />
               <div>

@@ -94,12 +94,12 @@ export default function DocumentosPage() {
   )
 
   return (
-    <div className="flex min-h-screen w-full" style={{ background: '#f8fafc' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       <Navbar user={user} />
-      <div className="flex flex-1 min-w-0">
+      <div className="flex">
         <Sidebar userRole="parceiro" />
-        <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
-          <div className="p-4 md:p-5 max-w-6xl mx-auto">
+        <main className="flex-1 md:ml-64 pt-16" style={{ minHeight: '100vh' }}>
+          <div className="p-4 md:p-8">
             <h1 className="text-2xl font-bold" style={{ color: '#1e293b' }}>Documentos e Contratos</h1>
             <p className="mt-1 mb-6 text-sm" style={{ color: '#64748b' }}>Carregue e consulte documentos por venda</p>
 
