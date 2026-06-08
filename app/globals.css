@@ -174,27 +174,20 @@
    OVERFLOW & LAYOUT GUARDS (FIX DOUBLE-OFFSET BUG)
    ============================================= */
 
-/* Ensure main content respects viewport */
+/* Ensure main content respects viewport.
+   NOTE: Do NOT set width or margin-left on `main` here.
+   These would be "unlayered" rules that override Tailwind's layered
+   `lg:ml-64` utility (unlayered styles always beat layered ones in the
+   CSS cascade), which previously caused the content to slide under the
+   fixed sidebar on desktop. The page-level Tailwind classes handle this. */
 main {
-  width: 100%;
   overflow-x: hidden;
 }
 
-/* On desktop (md+), main has md:ml-64 offset for fixed sidebar */
 @media (min-width: 768px) {
   body {
     overflow-x: hidden;
   }
-  
-  main {
-    /* Sidebar is now fixed, so ml-64 offset is correct */
-    margin-left: 0; /* Will be overridden by page-level md:ml-64 */
-  }
-}
-
-/* Prevent overflow on all children */
-* {
-  max-width: 100vw;
 }
 
 html {
