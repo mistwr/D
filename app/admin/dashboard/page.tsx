@@ -140,7 +140,7 @@ export default function AdminDashboardPage() {
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
       <Navbar user={user} />
-      <div className="flex">
+      <div>
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
         <main className="w-full overflow-auto pt-16 lg:pt-16 lg:ml-64">
           <div className="p-4 md:p-5 max-w-7xl mx-auto w-full">
