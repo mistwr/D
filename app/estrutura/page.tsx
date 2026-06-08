@@ -111,19 +111,21 @@ export default function MinhaEstruturaPage() {
 
   if (!canCreate) {
     return (
-      <div className="min-h-screen" style={{ background: '#f8fafc' }}>
-        <Navbar user={user} />
+      <div className="flex min-h-screen w-full" style={{ background: '#f8fafc' }}>
         <Sidebar user={user} />
-        <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
-          <div className="p-4 md:p-5 lg:p-8 max-w-4xl mx-auto">
-            <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
-              <AlertTriangle size={48} style={{ color: '#f59e0b' }} className="mx-auto mb-4" />
-              <h2 className="text-xl font-bold mb-2" style={{ color: '#1e293b' }}>Sem Permissao</h2>
-              <p style={{ color: '#64748b' }}>Nao tens permissao para criar estrutura comercial.</p>
-              <p className="text-sm mt-2" style={{ color: '#94a3b8' }}>Contacta o teu gestor para solicitar acesso.</p>
+        <div className="flex flex-1 flex-col min-w-0">
+          <Navbar user={user} />
+          <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
+            <div className="p-4 md:p-5 lg:p-8 max-w-4xl mx-auto">
+              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                <AlertTriangle size={48} style={{ color: '#f59e0b' }} className="mx-auto mb-4" />
+                <h2 className="text-xl font-bold mb-2" style={{ color: '#1e293b' }}>Sem Permissao</h2>
+                <p style={{ color: '#64748b' }}>Nao tens permissao para criar estrutura comercial.</p>
+                <p className="text-sm mt-2" style={{ color: '#94a3b8' }}>Contacta o teu gestor para solicitar acesso.</p>
+              </div>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
     )
   }
@@ -131,9 +133,10 @@ export default function MinhaEstruturaPage() {
   const inputStyle = { background: '#fff', border: '1px solid #d1d5db', color: '#1e293b' }
 
   return (
-    <div className="min-h-screen" style={{ background: '#f8fafc' }}>
-      <Navbar user={user} />
+    <div className="flex min-h-screen w-full" style={{ background: '#f8fafc' }}>
       <Sidebar user={user} />
+      <div className="flex flex-1 flex-col min-w-0">
+      <Navbar user={user} />
       <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
         <div className="p-4 md:p-5 lg:p-8 max-w-6xl mx-auto mx-auto">
           {/* Header */}

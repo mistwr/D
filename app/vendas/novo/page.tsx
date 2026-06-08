@@ -446,15 +446,15 @@ export default function NovaVendaPage() {
   const isEnergia = form.service_type === 'energia'
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Sidebar - Flex layout handles visible/hidden */}
+    <div className="flex min-h-screen w-full bg-background">
+      {/* Sidebar */}
       <Sidebar />
       
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden lg:ml-64">
+      <div className="flex-1 flex flex-col min-w-0">
         <Navbar />
         
-        <main className="pt-16 lg:ml-64 min-h-screen overflow-x-hidden p-4 md:p-5" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
+        <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-5" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%)' }}>
           <div className="max-w-6xl mx-auto">
             {/* Header */}
             <div className="mb-4 sm:mb-6 md:mb-8">
