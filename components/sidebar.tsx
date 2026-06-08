@@ -92,8 +92,8 @@ export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = fals
 
   return (
     <aside className="hidden lg:flex lg:w-64 lg:shrink-0 flex-col overflow-y-auto shadow-xl sticky top-0 h-screen z-10" style={{ background: 'linear-gradient(180deg, #0a1628 0%, #0f172a 50%, #1a2847 100%)', borderRight: '2px solid #0066cc' }}>
-      {/* Logo */}
-      <div className="p-6 flex items-center gap-3 border-b" style={{ borderColor: 'rgba(0, 102, 204, 0.2)' }}>
+      {/* Logo - mesma altura da Navbar (h-16 = 4rem) */}
+      <div className="flex h-16 items-center gap-3 px-5 border-b flex-shrink-0" style={{ borderColor: 'rgba(0, 102, 204, 0.2)', minHeight: '4rem' }}>
         <Image src="/logo.jpg" alt="Soluções Diferentes" width={48} height={48} className="rounded-lg shadow-lg" />
         <div>
           <p className="font-bold text-white text-sm leading-tight">Soluções</p>

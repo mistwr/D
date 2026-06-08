@@ -101,7 +101,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
   return (
     <>
       {/* Desktop Navbar */}
-      <nav className="sticky top-0 z-40 hidden lg:flex h-20 items-center justify-between px-8 py-4" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)' }}>
+      <nav className="sticky top-0 z-40 hidden lg:flex h-16 items-center justify-between px-6" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', minHeight: '4rem' }}>
         {/* Left: Logo + Title */}
         <div className="flex items-center gap-6">
           <Image src="/logo.jpg" alt="Logo" width={48} height={48} className="rounded-lg shadow-md flex-shrink-0" />
