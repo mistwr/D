@@ -155,7 +155,7 @@ export default function AdminContratosPage() {
       <Navbar user={user} />
       <div>
         <Sidebar userRole="admin" isSuperAdmin={user?.is_superadmin} />
-        <main className="pt-16 lg:ml-64 min-h-screen overflow-x-hidden">
+        <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
           <div className="p-4 md:p-5 max-w-6xl mx-auto">
 
             <div className="flex items-center justify-between mb-4">

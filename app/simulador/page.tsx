@@ -138,7 +138,7 @@ export default function SimuladorPage() {
       <Navbar user={user} />
       <div>
         <Sidebar userRole="parceiro" />
-        <main className="pt-16 lg:ml-64 min-h-screen overflow-x-hidden">
+        <main className="flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
           <div className="p-4 md:p-5 max-w-6xl mx-auto">
             <div className="flex items-center gap-3 mb-8">
               <Calculator size={28} style={{ color: '#0ea5e9' }} />
