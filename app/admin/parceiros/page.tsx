@@ -203,7 +203,7 @@ export default function ParceirosPage() {
   }
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" >
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
     </div>
   )
@@ -248,9 +248,9 @@ export default function ParceirosPage() {
             {/* Modal Confirmar Apagar */}
             {confirmDelete && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
-                <div className="w-full max-w-sm rounded-2xl shadow-2xl" >
+                <div className="w-full max-w-sm rounded-2xl shadow-2xl" style={{ background: '#fff' }}>
                   <div className="p-6 text-center">
-                    <div className="mx-auto mb-4 flex items-center justify-center w-12 h-12 rounded-full" >
+                    <div className="mx-auto mb-4 flex items-center justify-center w-12 h-12 rounded-full" style={{ background: '#fef2f2' }}>
                       <AlertTriangle size={24} style={{ color: '#dc2626' }} />
                     </div>
                     <h2 className="text-lg font-bold mb-2" style={{ color: '#1e293b' }}>Apagar Parceiro</h2>
@@ -261,7 +261,7 @@ export default function ParceirosPage() {
                       Esta acao e irreversivel e remove todas as vendas e dados associados.
                     </p>
                     {deleteError && (
-                      <div className="mb-4 rounded-lg p-3 text-sm" >{deleteError}</div>
+                      <div className="mb-4 rounded-lg p-3 text-sm" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>{deleteError}</div>
                     )}
                     <div className="flex gap-3">
                       <button onClick={() => { setConfirmDelete(null); setDeleteError('') }}
@@ -269,7 +269,7 @@ export default function ParceirosPage() {
                         style={{ border: '1px solid #d1d5db', color: '#475569' }}>Cancelar</button>
                       <button onClick={() => apagarParceiro(confirmDelete)} disabled={deleting}
                         className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
-                        >{deleting ? 'A apagar...' : 'Apagar'}</button>
+                        style={{ background: '#dc2626' }}>{deleting ? 'A apagar...' : 'Apagar'}</button>
                     </div>
                   </div>
                 </div>
@@ -279,7 +279,7 @@ export default function ParceirosPage() {
             {/* Modal Novo Parceiro */}
             {showNovo && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
-                <div className="w-full max-w-md rounded-2xl shadow-2xl" >
+                <div className="w-full max-w-md rounded-2xl shadow-2xl" style={{ background: '#fff' }}>
                   <div className="flex items-center justify-between p-6" style={{ borderBottom: '1px solid #e2e8f0' }}>
                     <h2 className="text-lg font-bold" style={{ color: '#1e293b' }}>Criar Novo Parceiro</h2>
                     <button onClick={() => setShowNovo(false)} className="rounded-lg p-1.5 hover:bg-gray-100">
@@ -287,8 +287,8 @@ export default function ParceirosPage() {
                     </button>
                   </div>
                   <div className="p-6 space-y-4">
-                    {novoError && <div className="rounded-lg p-3 text-sm" >{novoError}</div>}
-                    {novoSuccess && <div className="rounded-lg p-3 text-sm" >{novoSuccess}</div>}
+                    {novoError && <div className="rounded-lg p-3 text-sm" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>{novoError}</div>}
+                    {novoSuccess && <div className="rounded-lg p-3 text-sm" style={{ background: '#f0fdf4', border: '1px solid #86efac', color: '#166534' }}>{novoSuccess}</div>}
                     {[
                       { label: 'Nome Completo *', key: 'full_name', type: 'text', ph: 'Joao Silva' },
                       { label: 'Email *', key: 'email', type: 'email', ph: 'joao@empresa.com' },
@@ -328,7 +328,7 @@ export default function ParceirosPage() {
             )}
 
             {parceiros.length === 0 ? (
-              <div className="rounded-xl p-12 text-center shadow-sm" >
+              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <Users size={48} style={{ color: '#d1d5db' }} className="mx-auto mb-4" />
                 <p className="text-lg font-medium" style={{ color: '#475569' }}>Nenhum parceiro registado</p>
                 <p className="text-sm mt-1" style={{ color: '#64748b' }}>Clique em &quot;Novo Parceiro&quot; para adicionar o primeiro.</p>
@@ -337,7 +337,7 @@ export default function ParceirosPage() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Lista parceiros */}
                 <div className="lg:col-span-1">
-                  <div className="rounded-xl shadow-sm overflow-hidden" >
+                  <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                     <div className="p-4" style={{ borderBottom: '1px solid #e2e8f0' }}>
                       <h2 className="font-semibold text-sm" style={{ color: '#475569' }}>Selecionar Parceiro</h2>
                     </div>
@@ -366,7 +366,7 @@ export default function ParceirosPage() {
                             </button>
                             <button onClick={e => { e.stopPropagation(); setDeleteError(''); setConfirmDelete(p) }}
                               className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                               title="Apagar parceiro">
+                              style={{ background: '#fef2f2' }} title="Apagar parceiro">
                               <Trash2 size={15} style={{ color: '#dc2626' }} />
                             </button>
                           </div>
@@ -379,7 +379,7 @@ export default function ParceirosPage() {
                 {/* Detalhe */}
                 <div className="lg:col-span-2">
                   {!selected ? (
-                    <div className="rounded-xl p-12 text-center shadow-sm" >
+                    <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                       <Shield size={48} style={{ color: '#d1d5db' }} className="mx-auto mb-4" />
                       <p style={{ color: '#64748b' }}>Selecione um parceiro para gerir vendas, comissoes e password</p>
                     </div>
@@ -407,7 +407,7 @@ export default function ParceirosPage() {
 
                       {/* Tab: Vendas */}
                       {tab === 'vendas' && (
-                        <div className="rounded-xl shadow-sm overflow-hidden" >
+                        <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                           <div className="p-5" style={{ borderBottom: '1px solid #e2e8f0' }}>
                             <h2 className="font-bold" style={{ color: '#1e293b' }}>Vendas — {selectedParceiro?.full_name}</h2>
                           </div>
@@ -417,7 +417,7 @@ export default function ParceirosPage() {
                             <div className="overflow-x-auto">
                               <table className="w-full">
                                 <thead>
-                                  <tr >
+                                  <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e2e8f0' }}>
                                     {['Cliente', 'Servico', 'Operadora', 'Plano', 'Valor', 'Estado'].map(h => (
                                       <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>{h}</th>
                                     ))}
@@ -457,7 +457,7 @@ export default function ParceirosPage() {
                       {tab === 'comissoes' && (
                         <div className="space-y-4">
                           {/* Adicionar comissao */}
-                          <div className="rounded-xl shadow-sm" >
+                          <div className="rounded-xl shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                             <div className="p-5" style={{ borderBottom: '1px solid #e2e8f0', background: '#f9fafb' }}>
                               <h2 className="font-bold" style={{ color: '#1e293b' }}>Definir Comissao — {selectedParceiro?.full_name}</h2>
                               <p className="text-xs mt-1" style={{ color: '#64748b' }}>Valor fixo por venda, por operadora e plano</p>
@@ -515,14 +515,14 @@ export default function ParceirosPage() {
 
                           {/* Tabela comissoes guardadas */}
                           {comOps.length > 0 && (
-                            <div className="rounded-xl shadow-sm overflow-hidden" >
+                            <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                               <div className="p-4" style={{ borderBottom: '1px solid #e2e8f0' }}>
                                 <h3 className="font-semibold text-sm" style={{ color: '#475569' }}>Comissoes Definidas</h3>
                               </div>
                               <div className="overflow-x-auto">
                                 <table className="w-full">
                                   <thead>
-                                    <tr >
+                                    <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e2e8f0' }}>
                                       {['Servico', 'Operadora', 'Plano', 'Valor', ''].map(h => (
                                         <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: '#64748b' }}>{h}</th>
                                       ))}
@@ -573,14 +573,14 @@ export default function ParceirosPage() {
 
                       {/* Tab: Alterar Password */}
                       {tab === 'password' && (
-                        <div className="rounded-xl shadow-sm" >
+                        <div className="rounded-xl shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                           <div className="p-5" style={{ borderBottom: '1px solid #e2e8f0', background: '#f9fafb' }}>
                             <h2 className="font-bold" style={{ color: '#1e293b' }}>Alterar Password — {selectedParceiro?.full_name}</h2>
                             <p className="text-xs mt-1" style={{ color: '#64748b' }}>{selectedParceiro?.email}</p>
                           </div>
                           <div className="p-5 max-w-sm space-y-4">
-                            {passMsg && <div className="rounded-lg p-3 text-sm" >{passMsg}</div>}
-                            {passError && <div className="rounded-lg p-3 text-sm" >{passError}</div>}
+                            {passMsg && <div className="rounded-lg p-3 text-sm" style={{ background: '#f0fdf4', border: '1px solid #86efac', color: '#166534' }}>{passMsg}</div>}
+                            {passError && <div className="rounded-lg p-3 text-sm" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>{passError}</div>}
                             <div>
                               <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Nova Password</label>
                               <div className="relative">
@@ -604,14 +604,14 @@ export default function ParceirosPage() {
 
                       {/* Tab: Permissoes VIP */}
                       {tab === 'permissoes' && (
-                        <div className="rounded-xl shadow-sm" >
+                        <div className="rounded-xl shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                           <div className="p-5" style={{ borderBottom: '1px solid #e2e8f0', background: '#f9fafb' }}>
                             <h2 className="font-bold" style={{ color: '#1e293b' }}>Permissoes VIP — {selectedParceiro?.full_name}</h2>
                             <p className="text-xs mt-1" style={{ color: '#64748b' }}>Defina os acessos especiais para este parceiro</p>
                           </div>
                           <div className="p-5 space-y-4">
-                            {permMsg && <div className="rounded-lg p-3 text-sm" >{permMsg}</div>}
-                            {permError && <div className="rounded-lg p-3 text-sm" >{permError}</div>}
+                            {permMsg && <div className="rounded-lg p-3 text-sm" style={{ background: '#f0fdf4', border: '1px solid #86efac', color: '#166534' }}>{permMsg}</div>}
+                            {permError && <div className="rounded-lg p-3 text-sm" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>{permError}</div>}
                             
                             {/* Admin VIP */}
                             <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: selectedParceiro?.is_admin_vip ? '#fef3c7' : '#f9fafb', border: '1px solid #e2e8f0' }}>
@@ -677,7 +677,7 @@ export default function ParceirosPage() {
                             </div>
 
                             {/* Info */}
-                            <div className="p-4 rounded-lg" >
+                            <div className="p-4 rounded-lg" style={{ background: '#f1f5f9' }}>
                               <p className="text-xs" style={{ color: '#64748b' }}>
                                 <strong>Admin VIP:</strong> O parceiro tera acesso ao painel de administracao e podera ver a sua equipa e vendas.<br/>
                                 <strong>Criar Parceiros:</strong> Podera registar novos parceiros que ficarao sob a sua responsabilidade.<br/>

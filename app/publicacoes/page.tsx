@@ -32,7 +32,7 @@ export default function PublicacoesPage() {
   }, [user])
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" >
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4338ca' }} />
     </div>
   )
@@ -45,7 +45,7 @@ export default function PublicacoesPage() {
         <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-8">
             <div className="flex items-center gap-3 mb-8">
-              <div className="rounded-xl p-2.5" >
+              <div className="rounded-xl p-2.5" style={{ background: '#eef2ff' }}>
                 <Newspaper size={24} style={{ color: '#0ea5e9' }} />
               </div>
               <div>
@@ -57,7 +57,7 @@ export default function PublicacoesPage() {
             </div>
 
             {pubs.length === 0 ? (
-              <div className="rounded-xl p-12 text-center shadow-sm" >
+              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <Newspaper size={48} style={{ color: '#d1d5db' }} className="mx-auto mb-4" />
                 <p className="text-lg font-medium" style={{ color: '#475569' }}>Nenhuma publicacao</p>
                 <p className="text-sm" style={{ color: '#64748b' }}>As publicacoes da equipa aparecerao aqui.</p>
@@ -70,7 +70,7 @@ export default function PublicacoesPage() {
                   const bodyText = p.content || p.message || ''
 
                   return (
-                    <div key={p.id} className="rounded-xl p-5 shadow-sm" >
+                    <div key={p.id} className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                       <div className="flex justify-between items-start gap-4">
                         <div className="flex-1 min-w-0">
                           <h3 className="font-bold text-base mb-1" style={{ color: '#1e293b' }}>{p.title}</h3>
@@ -85,7 +85,7 @@ export default function PublicacoesPage() {
                                 target="_blank"
                                 rel="noreferrer"
                                 className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition hover:opacity-80"
-                                >
+                                style={{ background: '#eef2ff', color: '#0ea5e9', border: '1px solid #c7d2fe' }}>
                                 <ExternalLink size={13} />
                                 {displayName || 'Abrir documento'}
                               </a>
@@ -95,7 +95,7 @@ export default function PublicacoesPage() {
                                 target="_blank"
                                 rel="noreferrer"
                                 className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition hover:opacity-80"
-                                >
+                                style={{ background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0' }}>
                                 <Download size={13} /> Download
                               </a>
                             </div>

@@ -201,7 +201,7 @@ export default function ContratosPage() {
   )
 
   if (authLoading) return (
-    <div className="flex items-center justify-center min-h-screen" >
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />
     </div>
   )
@@ -238,7 +238,7 @@ export default function ContratosPage() {
               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
 
             {uploadError && (
-              <div className="mb-4 rounded-xl p-4 flex items-start gap-3" >
+              <div className="mb-4 rounded-xl p-4 flex items-start gap-3" style={{ background: '#fef2f2', border: '1px solid #fecaca' }}>
                 <X size={16} style={{ color: '#dc2626', flexShrink: 0, marginTop: 2 }} />
                 <p className="text-sm" style={{ color: '#991b1b' }}>{uploadError}</p>
                 <button onClick={() => setUploadError('')} className="ml-auto"><X size={14} /></button>
@@ -246,7 +246,7 @@ export default function ContratosPage() {
             )}
 
             {/* Tabs */}
-            <div className="flex gap-1 mb-6 rounded-xl p-1" >
+            <div className="flex gap-1 mb-6 rounded-xl p-1" style={{ background: '#e5e7eb', display: 'inline-flex' }}>
               {[
                 { key: 'vendas', label: `Vendas e Docs (${vendas.length})` },
                 { key: 'gerais', label: `Documentos Gerais (${docsGerais.length})` },
@@ -279,7 +279,7 @@ export default function ContratosPage() {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#0ea5e9' }} />
                   </div>
                 ) : filteredVendas.length === 0 ? (
-                  <div className="rounded-xl p-16 text-center" >
+                  <div className="rounded-xl p-16 text-center" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                     <Package size={40} className="mx-auto mb-3" style={{ color: '#d1d5db' }} />
                     <p className="text-sm font-medium" style={{ color: '#475569' }}>Nenhuma venda registada</p>
                     <p className="text-xs mt-1" style={{ color: '#9ca3af' }}>
@@ -297,7 +297,7 @@ export default function ContratosPage() {
 
                       return (
                         <div key={v.id} className="rounded-xl overflow-hidden"
-                          >
+                          style={{ background: '#fff', border: isOpen ? '1px solid #c7d2fe' : '1px solid #e5e7eb' }}>
 
                           {/* Linha da venda */}
                           <button onClick={() => toggleVenda(v.id)}
@@ -313,7 +313,7 @@ export default function ContratosPage() {
                                 <span className="px-2 py-0.5 rounded-full text-xs font-medium"
                                   style={st}>{STATUS_LABELS[v.status] || v.status}</span>
                                 <span className="px-2 py-0.5 rounded-full text-xs font-medium"
-                                  >
+                                  style={{ background: '#f8fafc', color: '#475569' }}>
                                   {SVC_LABELS[v.service_type] || v.service_type}
                                 </span>
                               </div>
@@ -344,7 +344,7 @@ export default function ContratosPage() {
                                       Documentos desta venda
                                     </p>
                                     <label className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer transition hover:opacity-80"
-                                      >
+                                      style={{ background: '#eef2ff', color: '#4f46e5' }}>
                                       <input type="file" className="hidden"
                                         accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                                         onChange={e => handleUploadVenda(e, v.id)}
@@ -355,7 +355,7 @@ export default function ContratosPage() {
                                   </div>
 
                                   {docs.length === 0 ? (
-                                    <div className="rounded-lg py-8 text-center" >
+                                    <div className="rounded-lg py-8 text-center" style={{ background: '#f8fafc' }}>
                                       <FileText size={28} className="mx-auto mb-2" style={{ color: '#d1d5db' }} />
                                       <p className="text-xs" style={{ color: '#9ca3af' }}>
                                         Nenhum documento anexado a esta venda
@@ -365,8 +365,8 @@ export default function ContratosPage() {
                                     <ul className="space-y-2">
                                       {docs.map(doc => (
                                         <li key={doc.id} className="flex items-center gap-3 rounded-lg px-3 py-2.5"
-                                          >
-                                          <div className="rounded p-1.5 flex-shrink-0" >
+                                          style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
+                                          <div className="rounded p-1.5 flex-shrink-0" style={{ background: '#eef2ff' }}>
                                             <FileText size={14} style={{ color: '#4f46e5' }} />
                                           </div>
                                           <div className="flex-1 min-w-0">
@@ -387,7 +387,7 @@ export default function ContratosPage() {
                                                 )}
                                                 <a href={doc.signed_url} download={doc.file_name}
                                                   className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium transition hover:opacity-80"
-                                                  >
+                                                  style={{ background: '#eef2ff', color: '#4f46e5' }}>
                                                   <Download size={12} /> Download
                                                 </a>
                                               </>
@@ -420,7 +420,7 @@ export default function ContratosPage() {
                   className="block w-full mb-6 rounded-2xl border-2 border-dashed cursor-pointer transition text-left"
                   style={{ borderColor: uploading ? '#e5e7eb' : '#c7d2fe', background: uploading ? '#fafafa' : '#fafbff' }}>
                   <div className="flex flex-col items-center justify-center py-8 gap-3">
-                    <div className="rounded-full p-3" >
+                    <div className="rounded-full p-3" style={{ background: '#eef2ff' }}>
                       <Upload size={22} style={{ color: uploading ? '#9ca3af' : '#4f46e5' }} />
                     </div>
                     <div className="text-center">
@@ -437,17 +437,17 @@ export default function ContratosPage() {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#0ea5e9' }} />
                   </div>
                 ) : docsGerais.length === 0 ? (
-                  <div className="rounded-xl p-14 text-center" >
+                  <div className="rounded-xl p-14 text-center" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                     <FileText size={36} className="mx-auto mb-3" style={{ color: '#d1d5db' }} />
                     <p className="text-sm font-medium" style={{ color: '#475569' }}>Nenhum documento geral ainda</p>
                     <p className="text-xs mt-1" style={{ color: '#9ca3af' }}>Use o botao acima para enviar PDF, Word ou imagens</p>
                   </div>
                 ) : (
-                  <div className="rounded-xl shadow-sm overflow-hidden" >
+                  <div className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                     <ul className="divide-y" style={{ borderColor: '#f3f4f6' }}>
                       {docsGerais.map(doc => (
                         <li key={doc.id} className="flex items-center gap-4 px-5 py-4">
-                          <div className="rounded-lg p-2.5 flex-shrink-0" >
+                          <div className="rounded-lg p-2.5 flex-shrink-0" style={{ background: '#eef2ff' }}>
                             <FileText size={18} style={{ color: '#4f46e5' }} />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -467,7 +467,7 @@ export default function ContratosPage() {
                             {doc.signed_url && (
                               <a href={doc.signed_url} download={doc.file_name}
                                 className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition hover:opacity-80"
-                                >
+                                style={{ background: '#eef2ff', color: '#4f46e5' }}>
                                 <Download size={13} /> Download
                               </a>
                             )}
@@ -495,7 +495,7 @@ export default function ContratosPage() {
           <div className="relative max-w-4xl max-h-[90vh]" onClick={e => e.stopPropagation()}>
             <button onClick={() => setViewer(null)}
               className="absolute -top-3 -right-3 z-10 rounded-full p-1.5 shadow-lg"
-              >
+              style={{ background: '#fff' }}>
               <X size={16} />
             </button>
             <img src={viewer.signed_url} alt={viewer.file_name}
@@ -510,13 +510,13 @@ export default function ContratosPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.8)' }}
           onClick={() => setViewer(null)}>
-          <div className="w-full max-w-7xl bg-white rounded-xl overflow-hidden" onClick={e => e.stopPropagation()}>
+          <div className="w-full max-w-5xl bg-white rounded-xl overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <p className="text-sm font-medium truncate">{viewer.file_name}</p>
               <div className="flex items-center gap-2">
                 <a href={viewer.signed_url} download={viewer.file_name}
                   className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg"
-                  >
+                  style={{ background: '#eef2ff', color: '#4f46e5' }}>
                   <Download size={13} /> Download
                 </a>
                 <button onClick={() => setViewer(null)} className="p-1.5 rounded-lg hover:bg-gray-100">

@@ -71,7 +71,7 @@ export default function MateriaisParceiroPage() {
   }
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" >
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4338ca' }} />
     </div>
   )
@@ -86,7 +86,7 @@ export default function MateriaisParceiroPage() {
         <main className="flex-1 md:ml-64 pt-16">
           <div className="p-4 md:p-8">
             <div className="flex items-center gap-3 mb-8">
-              <div className="rounded-xl p-2.5" >
+              <div className="rounded-xl p-2.5" style={{ background: '#eef2ff' }}>
                 <FolderOpen size={24} style={{ color: '#0ea5e9' }} />
               </div>
               <div>
@@ -96,7 +96,7 @@ export default function MateriaisParceiroPage() {
             </div>
 
             {ativas.length === 0 ? (
-              <div className="rounded-xl p-12 text-center shadow-sm" >
+              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <FolderOpen size={48} style={{ color: '#d1d5db' }} className="mx-auto mb-4" />
                 <p className="text-lg font-medium" style={{ color: '#475569' }}>Nenhum material disponível</p>
                 <p className="text-sm" style={{ color: '#64748b' }}>Os materiais de apoio aparecerão aqui quando disponíveis.</p>
@@ -110,7 +110,7 @@ export default function MateriaisParceiroPage() {
                   const catFich = ficheiros[c.id] ?? []
 
                   return (
-                    <div key={c.id} className="rounded-xl shadow-sm overflow-hidden" >
+                    <div key={c.id} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                       {/* Cabeçalho */}
                       <div className="flex items-center gap-4 p-5">
                         <div className="h-14 w-14 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center"
@@ -157,9 +157,9 @@ export default function MateriaisParceiroPage() {
                             <div className="grid gap-2 sm:grid-cols-2">
                               {catFich.map(f => (
                                 <div key={f.id} className="flex items-center justify-between rounded-lg p-3 gap-3"
-                                  >
+                                  style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
                                   <div className="flex items-center gap-2.5 min-w-0">
-                                    <div className="rounded-lg p-1.5 flex-shrink-0" >
+                                    <div className="rounded-lg p-1.5 flex-shrink-0" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                                       <FileText size={16} style={{ color: f.file_type === 'image' ? '#0891b2' : f.file_type === 'pdf' ? '#dc2626' : '#6b7280' }} />
                                     </div>
                                     <div className="min-w-0">
@@ -171,12 +171,12 @@ export default function MateriaisParceiroPage() {
                                     <div className="flex items-center gap-1.5 flex-shrink-0">
                                       <a href={f.signed_url} target="_blank" rel="noreferrer"
                                         className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
-                                        >
+                                        style={{ background: '#eef2ff', color: '#0ea5e9' }}>
                                         <ExternalLink size={12} /> Abrir
                                       </a>
                                       <a href={f.signed_url} download={f.file_name} target="_blank" rel="noreferrer"
                                         className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
-                                        >
+                                        style={{ background: '#f0fdf4', color: '#166534' }}>
                                         <Download size={12} /> Download
                                       </a>
                                     </div>

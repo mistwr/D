@@ -147,7 +147,7 @@ export default function CampanhasPage() {
   const currentOps = ALL_OPERADORAS[form.service_type] ?? []
 
   if (authLoading || loading) return (
-    <div className="flex items-center justify-center min-h-screen" >
+    <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8f9fb' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4338ca' }} />
     </div>
   )
@@ -170,7 +170,7 @@ export default function CampanhasPage() {
 
             <div className="flex justify-between items-center mb-8">
               <div className="flex items-center gap-3">
-                <div className="rounded-xl p-2.5" >
+                <div className="rounded-xl p-2.5" style={{ background: '#eef2ff' }}>
                   <Megaphone size={24} style={{ color: '#0ea5e9' }} />
                 </div>
                 <div>
@@ -188,7 +188,7 @@ export default function CampanhasPage() {
 
             {/* Formulário criar campanha */}
             {showForm && (
-              <form onSubmit={handleCreate} className="rounded-xl p-6 shadow-sm mb-6" >
+              <form onSubmit={handleCreate} className="rounded-xl p-6 shadow-sm mb-6" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <h2 className="font-semibold mb-5" style={{ color: '#1e293b' }}>Nova Campanha</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                   <div className="lg:col-span-2">
@@ -228,7 +228,7 @@ export default function CampanhasPage() {
             )}
 
             {campanhas.length === 0 && !showForm ? (
-              <div className="rounded-xl p-12 text-center shadow-sm" >
+              <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <Megaphone size={48} style={{ color: '#d1d5db' }} className="mx-auto mb-4" />
                 <p className="text-lg font-medium" style={{ color: '#475569' }}>Nenhuma campanha criada</p>
                 <p className="text-sm" style={{ color: '#64748b' }}>Crie a primeira campanha para organizar materiais por operadora.</p>
@@ -240,7 +240,7 @@ export default function CampanhasPage() {
                   const campPdfs = pdfs[c.id] || []
                   const svc = SVC_META[c.service_type] ?? SVC_META['telecom']
                   return (
-                    <div key={c.id} className="rounded-xl shadow-sm overflow-hidden" >
+                    <div key={c.id} className="rounded-xl shadow-sm overflow-hidden" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                       {/* Cabeçalho */}
                       <div className="p-5 flex items-center gap-4">
                         {/* Logo / upload */}
@@ -290,14 +290,14 @@ export default function CampanhasPage() {
 
                           {/* Expandir */}
                           <button onClick={() => toggleExpand(c.id)}
-                            className="rounded-lg p-1.5" >
+                            className="rounded-lg p-1.5" style={{ background: '#f8fafc', color: '#475569' }}>
                             {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                           </button>
 
                           {/* Apagar campanha */}
                           <button onClick={() => deleteCampanha(c.id)} disabled={deletingCamp === c.id}
                             className="rounded-lg p-1.5 transition-colors hover:opacity-80 disabled:opacity-40"
-                             title="Apagar campanha">
+                            style={{ background: '#fef2f2' }} title="Apagar campanha">
                             <Trash2 size={14} style={{ color: '#dc2626' }} />
                           </button>
                         </div>
@@ -323,7 +323,7 @@ export default function CampanhasPage() {
                           </div>
 
                           {campPdfs.length === 0 ? (
-                            <div className="rounded-lg p-6 text-center" >
+                            <div className="rounded-lg p-6 text-center" style={{ background: '#f9fafb', border: '1px dashed #d1d5db' }}>
                               <FileText size={28} style={{ color: '#d1d5db' }} className="mx-auto mb-2" />
                               <p className="text-sm" style={{ color: '#64748b' }}>Nenhum ficheiro — PDF, Word, Excel, CSV, imagens</p>
                             </div>
@@ -331,7 +331,7 @@ export default function CampanhasPage() {
                             <div className="flex flex-col gap-2">
                               {campPdfs.map(pdf => (
                                 <div key={pdf.id} className="flex items-center justify-between rounded-lg p-3 gap-3"
-                                  >
+                                  style={{ background: '#f9fafb', border: '1px solid #e2e8f0' }}>
                                   <div className="flex items-center gap-2.5 min-w-0">
                                     <FileText size={16} style={{ color: pdf.file_type === 'image' ? '#0891b2' : pdf.file_type === 'pdf' ? '#dc2626' : '#6b7280' }} />
                                     <div className="min-w-0">
@@ -343,20 +343,20 @@ export default function CampanhasPage() {
                                     {pdf.signed_url && (
                                       <a href={pdf.signed_url} download={pdf.file_name} target="_blank" rel="noreferrer"
                                         className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
-                                        >
+                                        style={{ background: '#eff6ff', color: '#1d4ed8' }}>
                                         <Download size={12} /> Download
                                       </a>
                                     )}
                                     {pdf.signed_url && (
                                       <a href={pdf.signed_url} target="_blank" rel="noreferrer"
                                         className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium"
-                                        
+                                        style={{ background: '#eef2ff', color: '#0ea5e9' }}
                                         title="Abrir em nova aba">
                                         <Download size={12} /> Abrir
                                       </a>
                                     )}
                                     <button onClick={() => deleteFicheiro(c.id, pdf.id)}
-                                      className="rounded-lg p-1.5" 
+                                      className="rounded-lg p-1.5" style={{ background: '#fef2f2' }}
                                       title="Apagar ficheiro">
                                       <Trash2 size={13} style={{ color: '#dc2626' }} />
                                     </button>
