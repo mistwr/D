@@ -15,14 +15,23 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const service = svc()
+  const { data: profile } = await service.from('profiles').select('role, is_superadmin').eq('id', user.id).single()
+  const isAdmin = profile?.role === 'admin' || profile?.is_superadmin === true
+
   const { searchParams } = new URL(req.url)
   const pipeline_id = searchParams.get('pipeline_id')
   const unidade_id = searchParams.get('unidade_id')
   const atribuido_a = searchParams.get('atribuido_a')
   const convertido = searchParams.get('convertido')
 
-  let query = service.from('leads').select('*, pipelines(nome, cor), pipeline_estados(nome, cor), users!leads_atribuido_a_fkey(full_name), unidades(nome)')
-    .order('score', { ascending: false })
+  let query = service.from('leads')
+    .select('*, pipelines(nome, cor), pipeline_estados(nome, cor), unidades(nome)')
+    .order('created_at', { ascending: false })
+
+  // Parceiros só veem as suas próprias leads
+  if (!isAdmin) {
+    query = query.eq('user_id', user.id)
+  }
 
   if (pipeline_id) query = query.eq('pipeline_id', pipeline_id)
   if (unidade_id) query = query.eq('unidade_id', unidade_id)
@@ -33,7 +42,7 @@ export async function GET(req: NextRequest) {
   const { data, error } = await query
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+  return NextResponse.json(data ?? [])
 }
 
 export async function POST(req: NextRequest) {
@@ -55,6 +64,8 @@ export async function POST(req: NextRequest) {
   
   const { data, error } = await service.from('leads').insert({
     ...body,
+    user_id: user.id,      // guardar sempre o parceiro que criou
+    uploaded_by: user.id,
     score,
     score_demografico: body.empresa ? 40 : 20,
     score_comportamental: 0,
