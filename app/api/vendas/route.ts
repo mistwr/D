@@ -158,15 +158,17 @@ export async function POST(req: NextRequest) {
     const { data: admins } = await service.from('profiles').select('id').eq('role', 'admin')
     
     if (admins && admins.length > 0) {
-      const notifications = admins.map(admin => ({
+      // Inserir em 'notificacoes' - tabela lida pela navbar/componente de notificações
+      const notificacoesPayload = admins.map(admin => ({
         user_id: admin.id,
         type: 'nova_venda',
         title: 'Nova Venda Registada',
         message: `${parceiroName} registou uma nova venda de ${body.service_type === 'energia' ? 'Energia' : 'Telecomunicacoes'} - ${body.client_name}`,
+        venda_id: venda.id,
+        is_read: false,
         data: { venda_id: venda.id, parceiro_id: user.id, service_type: body.service_type }
       }))
-      
-      await service.from('notifications').insert(notifications)
+      await service.from('notificacoes').insert(notificacoesPayload)
     }
   }
   
@@ -241,6 +243,33 @@ export async function PATCH(req: NextRequest) {
   if (status) updates.status = status
   Object.assign(updates, rest)
 
-  await service.from('vendas').update(updates).eq('id', id)
-  return NextResponse.json({ ok: true })
+  const { data: updated, error: updateError } = await service.from('vendas').update(updates).eq('id', id).select().single()
+  if (updateError) return NextResponse.json({ error: updateError.message }, { status: 500 })
+
+  // Notificar o parceiro quando o status muda
+  if (status && venda) {
+    const STATUS_LABELS: Record<string, string> = {
+      em_revisao: 'Em Revisão',
+      em_ativacao: 'Em Ativação',
+      ativa: 'Ativa',
+      pago: 'Pago',
+      cancelado: 'Cancelado',
+      rejeitado: 'Rejeitado',
+    }
+    const statusLabel = STATUS_LABELS[status] || status
+    // Buscar o user_id do dono da venda para notificar
+    const { data: vendaOwner } = await service.from('vendas').select('user_id, client_name').eq('id', id).single()
+    if (vendaOwner && vendaOwner.user_id !== user.id) {
+      await service.from('notificacoes').insert({
+        user_id: vendaOwner.user_id,
+        type: 'status_venda',
+        title: 'Estado da Venda Actualizado',
+        message: `A venda de ${vendaOwner.client_name} passou para "${statusLabel}"`,
+        venda_id: id,
+        is_read: false,
+      })
+    }
+  }
+
+  return NextResponse.json({ ok: true, venda: updated })
 }

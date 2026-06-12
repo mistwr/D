@@ -33,6 +33,7 @@ export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = fals
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/vendas', label: 'As Minhas Vendas', icon: ShoppingCart },
     { href: '/vendas/novo', label: 'Registar Nova Venda', icon: PlusCircle },
+    { href: '/leads', label: 'As Minhas Leads', icon: Target },
     { href: '/contratos', label: 'Os Meus Contratos', icon: FileCheck },
     { href: '/comissoes', label: 'As Minhas Comissoes', icon: Percent },
     { href: '/chargebacks', label: 'Chargebacks', icon: AlertTriangle },
