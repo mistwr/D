@@ -71,6 +71,7 @@ export default function NovaVendaPage() {
     is_dual: false,
     telco_fixo: '',
     telco_fixo_cvp: '',
+    meses_fidelizacao: '',
   })
 
   // Multiplos CPE e CUI
@@ -268,6 +269,7 @@ export default function NovaVendaPage() {
         telco_numeros: isTelecom ? filteredTelcoNumeros : [],
         telco_fixo: isTelecom ? form.telco_fixo : null,
         telco_fixo_cvp: isTelecom ? form.telco_fixo_cvp : null,
+        meses_fidelizacao: form.meses_fidelizacao ? parseInt(form.meses_fidelizacao) : null,
       }
       const res = await authFetch('/api/vendas', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -759,6 +761,21 @@ export default function NovaVendaPage() {
                         Comissao estimada: {comissaoEstimada}
                       </div>
                     )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>
+                      Meses de Fidelizacao <span className="font-normal text-xs" style={{ color: '#9ca3af' }}>(opcional)</span>
+                    </label>
+                    <select value={form.meses_fidelizacao} onChange={e => update('meses_fidelizacao', e.target.value)}
+                      className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp}>
+                      <option value="">Sem fidelizacao</option>
+                      <option value="6">6 meses</option>
+                      <option value="12">12 meses</option>
+                      <option value="18">18 meses</option>
+                      <option value="24">24 meses</option>
+                      <option value="30">30 meses</option>
+                      <option value="36">36 meses</option>
+                    </select>
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>Descricao</label>

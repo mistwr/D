@@ -145,6 +145,7 @@ export async function POST(req: NextRequest) {
     telco_numeros: body.telco_numeros || [],
     telco_fixo: body.telco_fixo || null,
     telco_fixo_cvp: body.telco_fixo_cvp || null,
+    meses_fidelizacao: body.meses_fidelizacao || null,
   }).select().single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -240,7 +241,13 @@ export async function PATCH(req: NextRequest) {
   }
 
   const updates: any = { updated_at: new Date().toISOString() }
-  if (status) updates.status = status
+  if (status) {
+    updates.status = status
+    // Quando o admin coloca em_ativacao, memorizar a data e hora automaticamente
+    if (status === 'em_ativacao') {
+      updates.ativacao_at = new Date().toISOString()
+    }
+  }
   Object.assign(updates, rest)
 
   const { data: updated, error: updateError } = await service.from('vendas').update(updates).eq('id', id).select().single()

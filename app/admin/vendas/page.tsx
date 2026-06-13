@@ -42,6 +42,8 @@ interface Venda {
   telco_numeros: {numero: string; cvp: string}[]
   telco_fixo: string; telco_fixo_cvp: string
   admin_feedback: string
+  meses_fidelizacao: number | null
+  ativacao_at: string | null
   created_at: string; parceiro_name: string; user_id: string
 }
 
