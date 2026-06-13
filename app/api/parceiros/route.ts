@@ -17,13 +17,9 @@ export async function GET(req: NextRequest) {
   const service = svc()
   const { data: profile } = await service.from('profiles').select('role, is_superadmin').eq('id', user.id).single()
   
-  console.log('[v0] GET /api/parceiros - user:', user.id, 'profile:', JSON.stringify(profile))
-  
   const isSuperAdmin = profile?.is_superadmin === true
   const isAdmin = profile?.role === 'admin'
   const isAdminVIP = isAdmin && !isSuperAdmin
-  
-  console.log('[v0] GET /api/parceiros - isSuperAdmin:', isSuperAdmin, 'isAdmin:', isAdmin, 'isAdminVIP:', isAdminVIP)
   
   if (!isAdmin) {
     return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
@@ -91,14 +87,33 @@ export async function DELETE(req: NextRequest) {
     }
   }
 
-  // Apagar o utilizador (soft delete no auth)
-  const { error: authError } = await service.auth.admin.deleteUser(id)
-  if (authError) {
-    return NextResponse.json({ error: authError.message }, { status: 500 })
+  // Apagar dados associados em cascata antes de apagar o utilizador
+  await service.from('comissoes').delete().eq('parceiro_id', id)
+  await service.from('notificacoes').delete().eq('user_id', id)
+  await service.from('contratos').delete().eq('user_id', id)
+  await service.from('leads').delete().eq('user_id', id)
+
+  // Apagar documentos de vendas do parceiro
+  const { data: vendas } = await service.from('vendas').select('id').eq('user_id', id)
+  if (vendas && vendas.length > 0) {
+    const vendaIds = vendas.map((v: any) => v.id)
+    const { data: docs } = await service.from('documentos').select('id, file_path').in('venda_id', vendaIds)
+    if (docs && docs.length > 0) {
+      const paths = docs.map((d: any) => d.file_path).filter(Boolean)
+      if (paths.length > 0) await service.storage.from('documentos').remove(paths)
+      await service.from('documentos').delete().in('venda_id', vendaIds)
+    }
+    await service.from('vendas').delete().eq('user_id', id)
   }
 
   // Apagar profile
   await service.from('profiles').delete().eq('id', id)
+
+  // Hard delete no auth para libertar o email imediatamente
+  const { error: authError } = await service.auth.admin.deleteUser(id, false)
+  if (authError) {
+    return NextResponse.json({ error: authError.message }, { status: 500 })
+  }
 
   return NextResponse.json({ ok: true })
 }

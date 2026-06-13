@@ -42,6 +42,8 @@ interface Venda {
   telco_numeros: {numero: string; cvp: string}[]
   telco_fixo: string; telco_fixo_cvp: string
   admin_feedback: string
+  meses_fidelizacao: number | null
+  ativacao_at: string | null
   created_at: string; parceiro_name: string; user_id: string
 }
 
@@ -132,6 +134,7 @@ export default function AdminVendasPage() {
     telco_numeros: [] as { numero: string; cvp: string }[],
     telco_fixo: '',
     telco_fixo_cvp: '',
+    meses_fidelizacao: '',
   })
   const [savingProduct, setSavingProduct] = useState(false)
 
@@ -190,6 +193,7 @@ export default function AdminVendasPage() {
       telco_numeros: v.telco_numeros || [],
       telco_fixo: v.telco_fixo || '',
       telco_fixo_cvp: v.telco_fixo_cvp || '',
+      meses_fidelizacao: v.meses_fidelizacao?.toString() || '',
     })
     setEditingProduct(false)
     loadDocs(v.id)
@@ -228,6 +232,7 @@ export default function AdminVendasPage() {
       telco_numeros: [],
       telco_fixo: '',
       telco_fixo_cvp: '',
+      meses_fidelizacao: '',
     })
     setEditingProduct(false)
     setShowChargebackForm(false)
@@ -336,6 +341,7 @@ export default function AdminVendasPage() {
         telco_numeros: productForm.telco_numeros,
         telco_fixo: productForm.telco_fixo,
         telco_fixo_cvp: productForm.telco_fixo_cvp,
+        meses_fidelizacao: productForm.meses_fidelizacao ? parseInt(productForm.meses_fidelizacao) : null,
       }),
     })
     if (res.ok) {
@@ -1012,6 +1018,24 @@ export default function AdminVendasPage() {
                                 </>
                               )}
 
+                              <div>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Meses Fidelizacao</label>
+                                <select
+                                  value={productForm.meses_fidelizacao}
+                                  onChange={e => setProductForm(f => ({ ...f, meses_fidelizacao: e.target.value }))}
+                                  className="w-full rounded-lg px-3 py-2 text-sm"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                >
+                                  <option value="">Sem fidelizacao</option>
+                                  <option value="6">6 meses</option>
+                                  <option value="12">12 meses</option>
+                                  <option value="18">18 meses</option>
+                                  <option value="24">24 meses</option>
+                                  <option value="30">30 meses</option>
+                                  <option value="36">36 meses</option>
+                                </select>
+                              </div>
+
                               <div className="col-span-2">
                                 <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Descricao</label>
                                 <input
@@ -1080,6 +1104,8 @@ export default function AdminVendasPage() {
                             <Field label="Operadora" value={selected.operator} />
                             <Field label="Plano" value={selected.plano} />
                             <Field label="Valor" value={selected.amount ? `${selected.amount.toLocaleString('pt-PT', { minimumFractionDigits: 2 })} EUR` : null} />
+                            <Field label="Meses Fidelizacao" value={selected.meses_fidelizacao ? `${selected.meses_fidelizacao} meses` : null} />
+                            <Field label="Data Ativacao" value={selected.ativacao_at ? new Date(selected.ativacao_at).toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : null} />
                             {/* Campos Energia */}
                             {(selected.service_type === 'energia' || selected.service_type === 'gas') && (
                               <>
