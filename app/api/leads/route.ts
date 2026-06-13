@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   const convertido = searchParams.get('convertido')
 
   let query = service.from('leads')
-    .select('*, pipelines(nome, cor), pipeline_estados(nome, cor), unidades(nome)')
+    .select('id, nome, email, telefone, empresa, nif, morada, cidade, servico, operadora, notas, score, convertido, created_at, pipelines(nome, cor), pipeline_estados(nome, cor), unidades(nome)')
     .order('created_at', { ascending: false })
 
   // Parceiros só veem as suas próprias leads
