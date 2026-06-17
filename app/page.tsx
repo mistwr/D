@@ -75,21 +75,23 @@ export default function Home() {
         <h1 className="text-4xl font-bold mb-3" style={{ color: '#1e293b' }}>Soluções Diferentes</h1>
         <p className="text-lg" style={{ color: '#64748b' }}>CRM Inteligente para Gestão de Vendas</p>
       </div>
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Link href="/sobre" className="px-6 py-3 rounded-lg font-medium text-center" style={{ background: '#f8fafc', color: '#0ea5e9' }}>
-          Saber Mais
-        </Link>
-        <Link href="/login" className="px-6 py-3 rounded-lg font-medium text-center" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', color: 'white' }}>
-          Entrar
-        </Link>
-        <Link href="/register" className="px-6 py-3 rounded-lg font-medium text-center" style={{ background: '#e5e7eb', color: '#1e293b' }}>
-          Registar
-        </Link>
+      <div className="flex flex-col gap-6 max-w-md">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Link href="/sobre" className="px-6 py-3 rounded-lg font-medium text-center" style={{ background: '#f8fafc', color: '#0ea5e9' }}>
+            Saber Mais
+          </Link>
+          <Link href="/login" className="px-6 py-3 rounded-lg font-medium text-center" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', color: 'white' }}>
+            Entrar
+          </Link>
+          <Link href="/register" className="px-6 py-3 rounded-lg font-medium text-center" style={{ background: '#e5e7eb', color: '#1e293b' }}>
+            Registar
+          </Link>
+        </div>
         <a 
           href="https://coberturasolucoesdiferentesv1-dzzbne45m.vercel.app/" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="px-6 py-3 rounded-lg font-medium text-center" 
+          className="px-6 py-3 rounded-lg font-medium text-center w-full" 
           style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: 'white' }}
         >
           📡 Cobertura Telecom
