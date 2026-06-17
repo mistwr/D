@@ -109,9 +109,16 @@ export function NotificationsDropdown({ authFetch }: NotificationsDropdownProps)
       >
         <Bell size={20} style={{ color: '#64748b' }} />
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold text-white px-1" style={{ background: '#f97316' }}>
-            {unreadCount > 99 ? '99+' : unreadCount}
-          </span>
+          <>
+            {/* Ponto vermelho estilo Facebook */}
+            <span className="absolute -top-0 -right-0 w-3 h-3 rounded-full bg-red-500 border-2 border-white shadow-md" />
+            {/* Badge com número */}
+            {unreadCount > 0 && (
+              <span className="absolute -bottom-1 -right-1 min-w-[20px] h-[20px] flex items-center justify-center rounded-full text-[11px] font-bold text-white px-1 shadow-md" style={{ background: '#ef4444' }}>
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </>
         )}
       </button>
 
@@ -252,9 +259,16 @@ export function NotificationsDropdownMobile({ authFetch }: NotificationsDropdown
       >
         <Bell size={18} className="text-white" />
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] flex items-center justify-center rounded-full text-[9px] font-bold text-white px-0.5" style={{ background: '#f97316' }}>
-            {unreadCount > 99 ? '99+' : unreadCount}
-          </span>
+          <>
+            {/* Ponto vermelho estilo Facebook */}
+            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-red-500 border-2 border-white shadow-md" />
+            {/* Badge com número */}
+            {unreadCount > 0 && (
+              <span className="absolute -bottom-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[9px] font-bold text-white px-0.5 shadow-md" style={{ background: '#ef4444' }}>
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </>
         )}
       </button>
 
