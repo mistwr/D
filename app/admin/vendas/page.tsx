@@ -353,7 +353,7 @@ export default function AdminVendasPage() {
         service_type: productForm.service_type,
         operator: productForm.operator,
         plano: productForm.plano,
-        amount: productForm.amount ? parseFloat(productForm.amount) : null,
+        amount: productForm.amount ? parseFloat(productForm.amount) : selected.amount,
         description: productForm.description,
         notes: productForm.notes,
         energia_tipo: productForm.energia_tipo,
@@ -367,9 +367,10 @@ export default function AdminVendasPage() {
         telco_numeros: productForm.telco_numeros,
         telco_fixo: productForm.telco_fixo,
         telco_fixo_cvp: productForm.telco_fixo_cvp,
+        meses_fidelizacao: productForm.meses_fidelizacao ? parseInt(productForm.meses_fidelizacao) : selected.meses_fidelizacao,
       }
-      setVendas(prev => prev.map(v => v.id === selected.id ? { ...v, ...updatedData } : v))
-      setSelected(updatedData)
+      setVendas(prev => prev.map(v => v.id === selected.id ? { ...v, ...updatedData } as Venda : v))
+      setSelected({ ...selected, ...updatedData } as Venda)
       setEditingProduct(false)
     }
     setSavingProduct(false)
@@ -1092,6 +1093,7 @@ export default function AdminVendasPage() {
                                     telco_numeros: selected.telco_numeros || [],
                                     telco_fixo: selected.telco_fixo || '',
                                     telco_fixo_cvp: selected.telco_fixo_cvp || '',
+                                    meses_fidelizacao: selected.meses_fidelizacao?.toString() || '',
                                   })
                                 }}
                                 className="rounded-lg px-4 py-2 text-sm font-medium transition hover:opacity-70"
