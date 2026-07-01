@@ -7,8 +7,9 @@ import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import {
   Megaphone, Plus, Wifi, WifiOff, FileUp, FileText, Zap, Flame,
-  ChevronDown, ChevronUp, Trash2, Download, ImagePlus, Shield, X
+  ChevronDown, ChevronUp, Trash2, Download, ImagePlus, Shield, X, FileSpreadsheet
 } from 'lucide-react'
+import { CampanhasExcelImport, type ImportedCampanha } from '@/components/campanhas-excel-import'
 
 interface CampanhaPDF { id: string; file_name: string; file_type: string; file_size: number; signed_url: string | null; created_at: string }
 interface Campanha { id: string; title: string; operator: string; service_type: string; description: string; status: string; logo_url: string; logo_path: string; created_at: string; pdf_count: number }
@@ -47,6 +48,7 @@ export default function CampanhasPage() {
   const [uploadingLogo, setUploadingLogo] = useState<string | null>(null)
   const [deletingCamp, setDeletingCamp] = useState<string | null>(null)
   const [msg, setMsg] = useState<{ text: string; type: 'ok' | 'err' } | null>(null)
+  const [showExcelImport, setShowExcelImport] = useState(false)
 
   function flash(text: string, type: 'ok' | 'err' = 'ok') {
     setMsg({ text, type })
@@ -59,6 +61,37 @@ export default function CampanhasPage() {
       .then(c => { setCampanhas(c.campanhas || []); setLoading(false) })
       .catch(() => setLoading(false))
   }, [user, authFetch])
+
+  async function handleExcelImport(rows: ImportedCampanha[]): Promise<{ imported: number; errors: string[] }> {
+    let imported = 0
+    const errors: string[] = []
+    for (const row of rows) {
+      try {
+        const res = await authFetch('/api/campanhas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: row.title,
+            operator: row.operator,
+            service_type: row.service_type,
+            description: row.description || '',
+            status: row.status || 'ativa',
+          }),
+        })
+        const data = await res.json()
+        if (data.campanha) {
+          setCampanhas(prev => [{ ...data.campanha, pdf_count: 0, logo_url: '' }, ...prev])
+          imported++
+        } else {
+          errors.push(`${row.title}: ${data.error || 'Erro desconhecido'}`)
+        }
+      } catch (e) {
+        errors.push(`${row.title}: erro de ligacao`)
+      }
+    }
+    if (imported > 0) flash(`${imported} campanhas importadas com sucesso`)
+    return { imported, errors }
+  }
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault()
@@ -178,12 +211,21 @@ export default function CampanhasPage() {
                   <p className="text-sm" style={{ color: '#64748b' }}>Gerir campanhas e materiais por operadora</p>
                 </div>
               </div>
-              <button onClick={() => setShowForm(!showForm)}
-                className="flex items-center gap-2 rounded-lg px-4 py-2.5 font-medium text-white text-sm"
-                style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
-                {showForm ? <X size={16} /> : <Plus size={16} />}
-                {showForm ? 'Cancelar' : 'Nova Campanha'}
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowExcelImport(true)}
+                  className="flex items-center gap-2 rounded-lg px-3 py-2.5 font-medium text-sm"
+                  style={{ border: '1px solid #d1d5db', color: '#475569', background: '#fff' }}
+                  title="Importar campanhas via Excel">
+                  <FileSpreadsheet size={16} style={{ color: '#16a34a' }} />
+                  <span className="hidden sm:inline">Importar Excel</span>
+                </button>
+                <button onClick={() => setShowForm(!showForm)}
+                  className="flex items-center gap-2 rounded-lg px-4 py-2.5 font-medium text-white text-sm"
+                  style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
+                  {showForm ? <X size={16} /> : <Plus size={16} />}
+                  {showForm ? 'Cancelar' : 'Nova Campanha'}
+                </button>
+              </div>
             </div>
 
             {/* Formulário criar campanha */}
@@ -375,6 +417,13 @@ export default function CampanhasPage() {
           </div>
         </main>
       </div>
+
+      {showExcelImport && (
+        <CampanhasExcelImport
+          onImport={handleExcelImport}
+          onClose={() => setShowExcelImport(false)}
+        />
+      )}
     </div>
   )
 }

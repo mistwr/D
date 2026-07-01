@@ -4,7 +4,8 @@ import { useEffect, useState, useMemo } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { DollarSign, TrendingUp, Users, Clock, Search, Filter, Calendar, Building2, Download, BarChart3, Target, Award } from 'lucide-react'
+import { DollarSign, TrendingUp, Users, Clock, Search, Filter, Calendar, Building2, Download, BarChart3, Target, Award, Zap, Wifi, Phone, PhoneOff, ShoppingBag, Bell } from 'lucide-react'
+import Link from 'next/link'
 
 interface Venda {
   id: string; client_name: string; client_email: string; client_nif: string; amount: number
@@ -27,6 +28,7 @@ export default function AdminDashboardPage() {
   const [vendas, setVendas] = useState<Venda[]>([])
   const [unidades, setUnidades] = useState<Unidade[]>([])
   const [dataLoading, setDataLoading] = useState(true)
+  const [alertaCounts, setAlertaCounts] = useState<Record<string, number>>({})
 
   // Filtros
   const [search, setSearch] = useState('')
@@ -41,13 +43,18 @@ export default function AdminDashboardPage() {
     if (!user) return
     async function loadData() {
       try {
-        const [vRes, uRes] = await Promise.all([
+        const [vRes, uRes, aRes] = await Promise.all([
           authFetch('/api/vendas'),
-          authFetch('/api/unidades')
+          authFetch('/api/unidades'),
+          authFetch('/api/alertas'),
         ])
         const vData = await vRes.json()
         setVendas(vData.vendas || [])
         if (uRes.ok) setUnidades(await uRes.json())
+        if (aRes.ok) {
+          const aData = await aRes.json()
+          setAlertaCounts(aData.counts || {})
+        }
       } catch { /* silencioso */ }
       setDataLoading(false)
     }
@@ -229,6 +236,42 @@ export default function AdminDashboardPage() {
                   <p className="text-sm text-white/80">€{metrics.topParceiro[1].toFixed(2)}</p>
                 </div>
               )}
+            </div>
+
+            {/* Alertas de Acao */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Bell size={16} style={{ color: '#f97316' }} />
+                  <h2 className="text-sm font-semibold" style={{ color: '#1e293b' }}>Alertas de Acao</h2>
+                </div>
+                <Link href="/admin/alertas" className="text-xs font-medium hover:underline" style={{ color: '#0ea5e9' }}>
+                  Ver tudo
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                {[
+                  { key: 'energia',               label: 'Energia Contactar', icon: Zap,           color: '#f97316', bg: '#fff7ed' },
+                  { key: 'telecom',               label: 'Telecom Contactar', icon: Wifi,          color: '#0ea5e9', bg: '#e0f2fe' },
+                  { key: 'pendente_chamada',       label: 'Pend. Chamada',     icon: Phone,         color: '#0e7490', bg: '#cffafe' },
+                  { key: 'pendente_ativacao_sms',  label: 'Pend. Ativ. SMS',   icon: ShoppingBag,   color: '#6d28d9', bg: '#ede9fe' },
+                  { key: 'cliente_nao_atende',     label: 'Nao Atende',        icon: PhoneOff,      color: '#b45309', bg: '#fef3c7' },
+                  { key: 'novas_hoje',             label: 'Novas Hoje',        icon: ShoppingBag,   color: '#16a34a', bg: '#dcfce7' },
+                ].map(({ key, label, icon: Icon, color, bg }) => {
+                  const count = alertaCounts[key] ?? 0
+                  return (
+                    <Link key={key} href="/admin/alertas"
+                      className="rounded-xl p-4 transition-all hover:shadow-md block"
+                      style={{ background: '#fff', border: count > 0 ? `2px solid ${color}` : '1px solid #e2e8f0' }}>
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg mb-2" style={{ background: bg }}>
+                        <Icon size={15} style={{ color }} />
+                      </div>
+                      <p className="text-xl font-bold" style={{ color: count > 0 ? color : '#1e293b' }}>{count}</p>
+                      <p className="text-xs mt-0.5 leading-tight" style={{ color: '#64748b' }}>{label}</p>
+                    </Link>
+                  )
+                })}
+              </div>
             </div>
 
             {/* Filtros Expandidos */}

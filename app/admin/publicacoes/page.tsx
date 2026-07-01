@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { Newspaper, Plus, Trash2, X, FileText, Users, Globe, Send } from 'lucide-react'
+import { Newspaper, Plus, Trash2, X, FileText, Users, Globe, Send, CheckSquare, Square, CheckCheck } from 'lucide-react'
 
 interface Parceiro { id: string; full_name: string; email: string }
 interface Publicacao {
@@ -24,6 +24,8 @@ export default function AdminPublicacoesPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [bulkDeleting, setBulkDeleting] = useState(false)
 
   const [form, setForm] = useState({
     title: '',
@@ -79,6 +81,40 @@ export default function AdminPublicacoesPage() {
       body: JSON.stringify({ id }),
     })
     setPubs(prev => prev.filter(p => p.id !== id))
+    setSelected(prev => { const s = new Set(prev); s.delete(id); return s })
+  }
+
+  async function deleteBulk() {
+    if (!selected.size) return
+    if (!confirm(`Tem a certeza que quer eliminar ${selected.size} publicacao${selected.size !== 1 ? 'es' : ''}?`)) return
+    setBulkDeleting(true)
+    const ids = Array.from(selected)
+    await Promise.all(ids.map(id =>
+      authFetch('/api/publicacoes', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+    ))
+    setPubs(prev => prev.filter(p => !selected.has(p.id)))
+    setSelected(new Set())
+    setBulkDeleting(false)
+  }
+
+  function toggleSelect(id: string) {
+    setSelected(prev => {
+      const s = new Set(prev)
+      if (s.has(id)) s.delete(id); else s.add(id)
+      return s
+    })
+  }
+
+  function toggleSelectAll() {
+    if (selected.size === pubs.length) {
+      setSelected(new Set())
+    } else {
+      setSelected(new Set(pubs.map(p => p.id)))
+    }
   }
 
   function toggleParceiro(id: string) {
@@ -121,6 +157,32 @@ export default function AdminPublicacoesPage() {
               </button>
             </div>
 
+            {/* Bulk action bar */}
+            {pubs.length > 0 && (
+              <div className="flex items-center gap-3 mb-3">
+                <button onClick={toggleSelectAll} className="flex items-center gap-2 text-sm font-medium" style={{ color: '#475569' }}>
+                  {selected.size === pubs.length && pubs.length > 0
+                    ? <CheckCheck size={16} style={{ color: '#0ea5e9' }} />
+                    : selected.size > 0
+                    ? <CheckSquare size={16} style={{ color: '#0ea5e9' }} />
+                    : <Square size={16} style={{ color: '#9ca3af' }} />
+                  }
+                  {selected.size === 0 ? 'Selecionar tudo' : `${selected.size} selecionada${selected.size !== 1 ? 's' : ''}`}
+                </button>
+                {selected.size > 0 && (
+                  <button
+                    onClick={deleteBulk}
+                    disabled={bulkDeleting}
+                    className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+                    style={{ background: '#dc2626' }}
+                  >
+                    <Trash2 size={14} />
+                    {bulkDeleting ? 'A eliminar...' : `Eliminar (${selected.size})`}
+                  </button>
+                )}
+              </div>
+            )}
+
             {/* Lista */}
             {pubs.length === 0 ? (
               <div className="rounded-xl p-16 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
@@ -130,40 +192,48 @@ export default function AdminPublicacoesPage() {
             ) : (
               <div className="flex flex-col gap-3">
                 {pubs.map(p => (
-                  <div key={p.id} className="rounded-xl p-5 shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-bold text-sm" style={{ color: '#1e293b' }}>{p.title}</h3>
-                          <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: p.parceiro_id ? '#eef2ff' : '#f0fdf4', color: p.parceiro_id ? '#4338ca' : '#166534' }}>
-                            {p.parceiro_id ? 'Especifico' : 'Todos'}
-                          </span>
-                        </div>
-                        {(p.content || p.message) && (
-                          <p className="text-sm" style={{ color: '#64748b' }}>{p.content || p.message}</p>
-                        )}
-                        {(p.file_name || p.file_path) && (
-                          <div className="mt-2 flex items-center gap-2">
-                            <FileText size={13} style={{ color: '#64748b' }} />
-                            {p.signed_url ? (
-                              <a href={p.signed_url} target="_blank" rel="noreferrer"
-                                className="text-xs font-medium hover:underline" style={{ color: '#0ea5e9' }}>
-                                {p.file_name || p.file_path}
-                              </a>
-                            ) : (
-                              <span className="text-xs" style={{ color: '#9ca3af' }}>{p.file_name || p.file_path}</span>
-                            )}
-                          </div>
-                        )}
-                        <p className="text-xs mt-2" style={{ color: '#9ca3af' }}>
-                          {p.author_name && `por ${p.author_name} · `}
-                          {new Date(p.created_at).toLocaleDateString('pt-PT')}
-                        </p>
-                      </div>
-                      <button onClick={() => deletePub(p.id)}
-                        className="rounded-lg p-2 transition hover:bg-red-50 flex-shrink-0">
-                        <Trash2 size={16} style={{ color: '#dc2626' }} />
+                  <div key={p.id} className="rounded-xl p-5 shadow-sm transition-all" style={{ background: '#fff', border: selected.has(p.id) ? '2px solid #0ea5e9' : '1px solid #e2e8f0' }}>
+                    <div className="flex items-start gap-3">
+                      <button onClick={() => toggleSelect(p.id)} className="flex-shrink-0 mt-0.5">
+                        {selected.has(p.id)
+                          ? <CheckSquare size={18} style={{ color: '#0ea5e9' }} />
+                          : <Square size={18} style={{ color: '#d1d5db' }} />
+                        }
                       </button>
+                      <div className="flex-1 min-w-0 flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-bold text-sm" style={{ color: '#1e293b' }}>{p.title}</h3>
+                            <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: p.parceiro_id ? '#eef2ff' : '#f0fdf4', color: p.parceiro_id ? '#4338ca' : '#166534' }}>
+                              {p.parceiro_id ? 'Especifico' : 'Todos'}
+                            </span>
+                          </div>
+                          {(p.content || p.message) && (
+                            <p className="text-sm" style={{ color: '#64748b' }}>{p.content || p.message}</p>
+                          )}
+                          {(p.file_name || p.file_path) && (
+                            <div className="mt-2 flex items-center gap-2">
+                              <FileText size={13} style={{ color: '#64748b' }} />
+                              {p.signed_url ? (
+                                <a href={p.signed_url} target="_blank" rel="noreferrer"
+                                  className="text-xs font-medium hover:underline" style={{ color: '#0ea5e9' }}>
+                                  {p.file_name || p.file_path}
+                                </a>
+                              ) : (
+                                <span className="text-xs" style={{ color: '#9ca3af' }}>{p.file_name || p.file_path}</span>
+                              )}
+                            </div>
+                          )}
+                          <p className="text-xs mt-2" style={{ color: '#9ca3af' }}>
+                            {p.author_name && `por ${p.author_name} · `}
+                            {new Date(p.created_at).toLocaleDateString('pt-PT')}
+                          </p>
+                        </div>
+                        <button onClick={() => deletePub(p.id)}
+                          className="rounded-lg p-2 transition hover:bg-red-50 flex-shrink-0">
+                          <Trash2 size={16} style={{ color: '#dc2626' }} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

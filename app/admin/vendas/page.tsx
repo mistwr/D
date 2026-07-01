@@ -17,7 +17,10 @@ const STATUS_LABELS: Record<string, { label: string; color: string; bg: string }
   pago:          { label: 'Pago',           color: '#065f46', bg: '#bbf7d0' },
   cancelado:     { label: 'Cancelado',      color: '#991b1b', bg: '#fee2e2' },
   rejeitado:     { label: 'Rejeitado',      color: '#7f1d1d', bg: '#fecaca' },
-  chargeback:    { label: 'Chargeback',     color: '#7c2d12', bg: '#ffedd5' },
+  chargeback:              { label: 'Chargeback',              color: '#7c2d12', bg: '#ffedd5' },
+  pendente_ativacao_sms:   { label: 'Pendente Ativacao SMS',   color: '#6d28d9', bg: '#ede9fe' },
+  pendente_chamada:        { label: 'Pendente de Chamada',     color: '#0e7490', bg: '#cffafe' },
+  cliente_nao_atende:      { label: 'Cliente Nao Atende',      color: '#b45309', bg: '#fef3c7' },
 }
 
 const STATUSES = Object.keys(STATUS_LABELS)
@@ -350,7 +353,7 @@ export default function AdminVendasPage() {
         service_type: productForm.service_type,
         operator: productForm.operator,
         plano: productForm.plano,
-        amount: productForm.amount ? parseFloat(productForm.amount) : null,
+        amount: productForm.amount ? parseFloat(productForm.amount) : selected.amount,
         description: productForm.description,
         notes: productForm.notes,
         energia_tipo: productForm.energia_tipo,
@@ -364,9 +367,10 @@ export default function AdminVendasPage() {
         telco_numeros: productForm.telco_numeros,
         telco_fixo: productForm.telco_fixo,
         telco_fixo_cvp: productForm.telco_fixo_cvp,
+        meses_fidelizacao: productForm.meses_fidelizacao ? parseInt(productForm.meses_fidelizacao) : selected.meses_fidelizacao,
       }
-      setVendas(prev => prev.map(v => v.id === selected.id ? { ...v, ...updatedData } : v))
-      setSelected(updatedData)
+      setVendas(prev => prev.map(v => v.id === selected.id ? { ...v, ...updatedData } as Venda : v))
+      setSelected({ ...selected, ...updatedData } as Venda)
       setEditingProduct(false)
     }
     setSavingProduct(false)
@@ -498,7 +502,7 @@ export default function AdminVendasPage() {
 
                 {/* Stats */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-                  {['pendente', 'em_revisao', 'em_ativacao', 'ativa', 'pago'].map(s => {
+                  {['pendente', 'em_revisao', 'em_ativacao', 'ativa', 'pago', 'pendente_ativacao_sms', 'pendente_chamada', 'cliente_nao_atende'].map(s => {
                     const count = vendas.filter(v => v.status === s).length
                     const st = STATUS_LABELS[s]
                     return (
@@ -1089,6 +1093,7 @@ export default function AdminVendasPage() {
                                     telco_numeros: selected.telco_numeros || [],
                                     telco_fixo: selected.telco_fixo || '',
                                     telco_fixo_cvp: selected.telco_fixo_cvp || '',
+                                    meses_fidelizacao: selected.meses_fidelizacao?.toString() || '',
                                   })
                                 }}
                                 className="rounded-lg px-4 py-2 text-sm font-medium transition hover:opacity-70"
