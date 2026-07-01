@@ -74,11 +74,18 @@ export default function DashboardPage() {
   ]
 
   const statusStyles: Record<string, { bg: string; color: string }> = {
-    pendente: { bg: '#fef3c7', color: '#92400e' },
-    em_revisao: { bg: '#dbeafe', color: '#1e40af' },
-    processado: { bg: '#ede9fe', color: '#6d28d9' },
-    pago: { bg: '#d1fae5', color: '#065f46' },
-    cancelado: { bg: '#fee2e2', color: '#991b1b' },
+    pendente:               { bg: '#fef3c7', color: '#92400e' },
+    em_revisao:             { bg: '#dbeafe', color: '#1e40af' },
+    em_ativacao:            { bg: '#fed7aa', color: '#7c2d12' },
+    ativa:                  { bg: '#d1fae5', color: '#065f46' },
+    processado:             { bg: '#ede9fe', color: '#6d28d9' },
+    pago:                   { bg: '#bbf7d0', color: '#065f46' },
+    cancelado:              { bg: '#fee2e2', color: '#991b1b' },
+    rejeitado:              { bg: '#fecaca', color: '#7f1d1d' },
+    chargeback:             { bg: '#ffedd5', color: '#7c2d12' },
+    pendente_ativacao_sms:  { bg: '#ede9fe', color: '#6d28d9' },
+    pendente_chamada:       { bg: '#cffafe', color: '#0e7490' },
+    cliente_nao_atende:     { bg: '#fef3c7', color: '#b45309' },
   }
 
   return (

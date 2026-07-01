@@ -72,6 +72,8 @@ export default function NovaVendaPage() {
     telco_fixo: '',
     telco_fixo_cvp: '',
     meses_fidelizacao: '',
+    codigo_postal: '',
+    localidade: '',
   })
 
   // Multiplos CPE e CUI
@@ -243,6 +245,8 @@ export default function NovaVendaPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.client_nif.trim()) { setError('O NIF do cliente e obrigatorio'); return }
+    if (!form.codigo_postal.trim()) { setError('O Codigo Postal e obrigatorio'); return }
+    if (!form.localidade.trim()) { setError('A Localidade e obrigatoria'); return }
     if (form.service_type === 'energia' && form.operator === 'Iberdrola' && !form.client_birthdate) {
       setError('A data de nascimento e obrigatoria para Iberdrola'); return
     }
@@ -270,6 +274,8 @@ export default function NovaVendaPage() {
         telco_fixo: isTelecom ? form.telco_fixo : null,
         telco_fixo_cvp: isTelecom ? form.telco_fixo_cvp : null,
         meses_fidelizacao: form.meses_fidelizacao ? parseInt(form.meses_fidelizacao) : null,
+        codigo_postal: form.codigo_postal.trim() || null,
+        localidade: form.localidade.trim() || null,
       }
       const res = await authFetch('/api/vendas', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -734,6 +740,30 @@ export default function NovaVendaPage() {
                     </label>
                     <input type="email" value={form.client_email} onChange={e => update('client_email', e.target.value)}
                       className="w-full rounded-lg px-3 py-2.5 text-sm" style={inp} placeholder="email@exemplo.pt" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>
+                      Codigo Postal *
+                    </label>
+                    <input type="text" value={form.codigo_postal} onChange={e => update('codigo_postal', e.target.value)}
+                      className="w-full rounded-lg px-3 py-2.5 text-sm"
+                      style={{ ...inp, borderColor: form.codigo_postal ? '#d1d5db' : '#fbbf24', background: form.codigo_postal ? '#ffffff' : '#fffbeb' }}
+                      placeholder="4000-001" />
+                    {!form.codigo_postal && (
+                      <p className="mt-1 text-xs" style={{ color: '#d97706' }}>Campo obrigatorio</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>
+                      Localidade *
+                    </label>
+                    <input type="text" value={form.localidade} onChange={e => update('localidade', e.target.value)}
+                      className="w-full rounded-lg px-3 py-2.5 text-sm"
+                      style={{ ...inp, borderColor: form.localidade ? '#d1d5db' : '#fbbf24', background: form.localidade ? '#ffffff' : '#fffbeb' }}
+                      placeholder="Porto" />
+                    {!form.localidade && (
+                      <p className="mt-1 text-xs" style={{ color: '#d97706' }}>Campo obrigatorio</p>
+                    )}
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>

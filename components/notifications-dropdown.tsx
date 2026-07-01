@@ -1,10 +1,34 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Bell, CheckCheck, ShoppingCart, User, AlertTriangle, X } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { pt } from 'date-fns/locale'
 import { createClient } from '@supabase/supabase-js'
+
+// Lightweight in-component chime — avoids importing the hook to keep this component self-contained
+function playNotifChime(enabled: boolean) {
+  if (!enabled) return
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
+    const freqs = [880, 1108, 1320]
+    freqs.forEach((freq, i) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = 'sine'
+      osc.frequency.value = freq
+      const t = ctx.currentTime + i * 0.12
+      gain.gain.setValueAtTime(0, t)
+      gain.gain.linearRampToValueAtTime(0.18, t + 0.02)
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22)
+      osc.start(t)
+      osc.stop(t + 0.25)
+    })
+    setTimeout(() => ctx.close(), 1000)
+  } catch { /* Audio not available */ }
+}
 
 interface Notification {
   id: string
@@ -33,8 +57,18 @@ export function NotificationsDropdown({ authFetch }: NotificationsDropdownProps)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [soundEnabled, setSoundEnabled] = useState(true)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const supabaseRef = useRef<any>(null)
+  const isInitialRef = useRef(true)
+
+  // Load sound preference once
+  useEffect(() => {
+    authFetch('/api/preferences')
+      .then(r => r.json())
+      .then(d => setSoundEnabled(d.notificacoes_sonoras ?? true))
+      .catch(() => {})
+  }, [])
 
   const fetchNotifications = async () => {
     try {
@@ -94,6 +128,8 @@ export function NotificationsDropdown({ authFetch }: NotificationsDropdownProps)
               
               setNotifications(prev => [newNotification, ...prev])
               setUnreadCount(prev => prev + 1)
+              // Chime on new sale
+              setSoundEnabled(prev => { if (newNotification.type === 'nova_venda') playNotifChime(prev); return prev })
             }
           )
           .on(

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { User, Camera, Check, X, Loader2 } from 'lucide-react'
+import { User, Camera, Check, X, Loader2, Bell, BellOff } from 'lucide-react'
 import Image from 'next/image'
 
 const AVATAR_OPTIONS = [
@@ -35,6 +35,8 @@ export default function PerfilPage() {
   } | null>(null)
   const [saving, setSaving] = useState(false)
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
+  const [notifSonoras, setNotifSonoras] = useState(true)
+  const [savingNotif, setSavingNotif] = useState(false)
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
@@ -47,15 +49,40 @@ export default function PerfilPage() {
 
   const fetchProfile = async () => {
     try {
-      const res = await authFetch('/api/avatar')
-      if (res.ok) {
-        const data = await res.json()
+      const [avatarRes, prefRes] = await Promise.all([
+        authFetch('/api/avatar'),
+        authFetch('/api/preferences'),
+      ])
+      if (avatarRes.ok) {
+        const data = await avatarRes.json()
         setProfile(data.profile)
         setSelectedAvatar(data.profile?.avatar_url)
+      }
+      if (prefRes.ok) {
+        const pref = await prefRes.json()
+        setNotifSonoras(pref.notificacoes_sonoras ?? true)
       }
     } catch (error) {
       console.error('Error fetching profile:', error)
     }
+  }
+
+  const toggleNotifSonoras = async () => {
+    setSavingNotif(true)
+    const newVal = !notifSonoras
+    setNotifSonoras(newVal)
+    try {
+      await authFetch('/api/preferences', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificacoes_sonoras: newVal }),
+      })
+      setMessage({ type: 'success', text: newVal ? 'Notificacoes sonoras ativadas!' : 'Notificacoes sonoras desativadas!' })
+      setTimeout(() => setMessage(null), 3000)
+    } catch {
+      setNotifSonoras(!newVal)
+    }
+    setSavingNotif(false)
   }
 
   const handleSaveAvatar = async (avatarUrl: string | null) => {
@@ -207,6 +234,34 @@ export default function PerfilPage() {
                   <p className="mt-1 text-slate-800">{profile.company_name}</p>
                 </div>
               )}
+              {/* Sound notifications toggle */}
+              <div className="pt-2" style={{ borderTop: '1px solid #f1f5f9' }}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg" style={{ background: notifSonoras ? '#e0f2fe' : '#f1f5f9' }}>
+                      {notifSonoras
+                        ? <Bell size={18} style={{ color: '#0ea5e9' }} />
+                        : <BellOff size={18} style={{ color: '#94a3b8' }} />
+                      }
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-700">Notificacoes Sonoras</p>
+                      <p className="text-xs text-slate-400">Toque ao receber uma nova venda</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={toggleNotifSonoras}
+                    disabled={savingNotif}
+                    className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:opacity-50"
+                    style={{ background: notifSonoras ? '#0ea5e9' : '#d1d5db' }}
+                  >
+                    <span
+                      className="inline-block h-4 w-4 rounded-full bg-white shadow transition-transform"
+                      style={{ transform: notifSonoras ? 'translateX(24px)' : 'translateX(4px)' }}
+                    />
+                  </button>
+                </div>
+              </div>
               <div>
                 <label className="text-sm font-medium text-slate-500">Tipo de Conta</label>
                 <p className="mt-1">

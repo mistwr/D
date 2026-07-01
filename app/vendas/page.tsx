@@ -55,7 +55,12 @@ const STATUS_COLORS: Record<string, { bg: string; color: string; label: string }
   em_ativacao_depois_revisao: { bg: '#e9d5ff', color: '#6d28d9', label: 'Em Ativação Depois Revisão' },
   processado: { bg: '#ede9fe', color: '#6d28d9', label: 'Processado' },
   pago:       { bg: '#d1fae5', color: '#065f46', label: 'Pago' },
-  cancelado:  { bg: '#fee2e2', color: '#991b1b', label: 'Cancelado' },
+  cancelado:              { bg: '#fee2e2', color: '#991b1b', label: 'Cancelado' },
+  rejeitado:              { bg: '#fecaca', color: '#7f1d1d', label: 'Rejeitado' },
+  chargeback:             { bg: '#ffedd5', color: '#7c2d12', label: 'Chargeback' },
+  pendente_ativacao_sms:  { bg: '#ede9fe', color: '#6d28d9', label: 'Pendente Ativacao SMS' },
+  pendente_chamada:       { bg: '#cffafe', color: '#0e7490', label: 'Pendente de Chamada' },
+  cliente_nao_atende:     { bg: '#fef3c7', color: '#b45309', label: 'Cliente Nao Atende' },
 }
 
 const SERVICE_LABELS: Record<string, string> = {

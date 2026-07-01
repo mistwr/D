@@ -113,6 +113,10 @@ export async function POST(req: NextRequest) {
   const { data: profile } = await service.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
 
+  // Validate required fields
+  if (!body.codigo_postal?.trim()) return NextResponse.json({ error: 'O Codigo Postal e obrigatorio' }, { status: 400 })
+  if (!body.localidade?.trim()) return NextResponse.json({ error: 'A Localidade e obrigatoria' }, { status: 400 })
+
   const { data: venda, error } = await service.from('vendas').insert({
     user_id: isAdmin && body.user_id ? body.user_id : user.id,
     client_name: body.client_name || '',
@@ -146,9 +150,31 @@ export async function POST(req: NextRequest) {
     telco_fixo: body.telco_fixo || null,
     telco_fixo_cvp: body.telco_fixo_cvp || null,
     meses_fidelizacao: body.meses_fidelizacao || null,
+    codigo_postal: body.codigo_postal?.trim() || null,
+    localidade: body.localidade?.trim() || null,
   }).select().single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // Auto-calculate fidelizacao dates
+  if (venda) {
+    const vendaDate = new Date(venda.created_at || new Date())
+    const updates: Record<string, any> = {}
+    if (body.service_type === 'energia' || body.service_type === 'gas') {
+      const contacto = new Date(vendaDate)
+      contacto.setMonth(contacto.getMonth() + 4)
+      updates.data_contacto_energia = contacto.toISOString().split('T')[0]
+      updates.estado_fidelizacao = 'aguardar'
+    } else if (body.service_type === 'telecom') {
+      const fidelizacao = new Date(vendaDate)
+      fidelizacao.setMonth(fidelizacao.getMonth() + 22)
+      updates.data_fidelizacao_telecom = fidelizacao.toISOString().split('T')[0]
+      updates.estado_fidelizacao = 'aguardar'
+    }
+    if (Object.keys(updates).length > 0) {
+      await service.from('vendas').update(updates).eq('id', venda.id)
+    }
+  }
   
   // Criar notificação para todos os admins quando um parceiro regista uma venda
   if (!isAdmin && venda) {

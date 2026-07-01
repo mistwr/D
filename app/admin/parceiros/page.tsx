@@ -21,7 +21,7 @@ const SERVICO_LABEL: Record<string, string> = {
   energia: 'Energia', gas: 'Gas', seguros: 'Seguros', telecom: 'Telecom',
 }
 
-interface Parceiro { id: string; full_name: string; email: string; company_name: string; is_admin_vip?: boolean; pode_criar_estrutura?: boolean; pode_criar_parceiros?: boolean }
+interface Parceiro { id: string; full_name: string; email: string; company_name: string; phone?: string; nif?: string; morada?: string; cidade?: string; estado?: string; equipa?: string; is_admin_vip?: boolean; pode_criar_estrutura?: boolean; pode_criar_parceiros?: boolean }
 interface Venda { id: string; user_id: string; client_name: string; amount: number; status: string; service_type: string; operator: string; plano?: string }
 interface ComissaoOp { servico: string; operadora: string; plano: string; valor_comissao: number; modelo?: string; num_mensalidades?: number; valor_mensal?: number; percentagem?: number }
 interface NovoForm { email: string; password: string; full_name: string; company_name: string; phone: string }
@@ -56,6 +56,13 @@ export default function ParceirosPage() {
   const [novoError, setNovoError] = useState('')
   const [novoSuccess, setNovoSuccess] = useState('')
   const [showPass, setShowPass] = useState(false)
+
+  // Editar parceiro
+  const [editParceiro, setEditParceiro] = useState<Parceiro | null>(null)
+  const [editForm, setEditForm] = useState({ full_name: '', email: '', company_name: '', phone: '', nif: '', morada: '', cidade: '', estado: '', equipa: '' })
+  const [editLoading, setEditLoading] = useState(false)
+  const [editError, setEditError] = useState('')
+  const [editSuccess, setEditSuccess] = useState('')
 
   // Apagar
   const [confirmDelete, setConfirmDelete] = useState<Parceiro | null>(null)
@@ -162,6 +169,39 @@ export default function ParceirosPage() {
     if (selected === parceiro.id) setSelected(null)
     const p = await authFetch('/api/parceiros').then(r => r.json())
     setParceiros(p.parceiros || [])
+  }
+
+  function openEditModal(p: Parceiro) {
+    setEditParceiro(p)
+    setEditForm({
+      full_name: p.full_name || '',
+      email: p.email || '',
+      company_name: p.company_name || '',
+      phone: p.phone || '',
+      nif: p.nif || '',
+      morada: p.morada || '',
+      cidade: p.cidade || '',
+      estado: p.estado || '',
+      equipa: p.equipa || '',
+    })
+    setEditError('')
+    setEditSuccess('')
+  }
+
+  async function guardarEditParceiro() {
+    if (!editParceiro) return
+    setEditLoading(true); setEditError(''); setEditSuccess('')
+    const res = await authFetch('/api/parceiros', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: editParceiro.id, ...editForm }),
+    })
+    const data = await res.json()
+    setEditLoading(false)
+    if (!res.ok) { setEditError(data.error || 'Erro ao guardar'); return }
+    setEditSuccess('Parceiro atualizado!')
+    setParceiros(prev => prev.map(p => p.id === editParceiro.id ? { ...p, ...editForm } : p))
+    setTimeout(() => { setEditParceiro(null); setEditSuccess('') }, 1500)
   }
 
   async function criarParceiro() {
@@ -276,6 +316,58 @@ export default function ParceirosPage() {
               </div>
             )}
 
+            {/* Modal Editar Parceiro */}
+            {editParceiro && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                <div className="w-full max-w-lg rounded-2xl shadow-2xl max-h-[90vh] flex flex-col" style={{ background: '#fff' }}>
+                  <div className="flex items-center justify-between p-6 flex-shrink-0" style={{ borderBottom: '1px solid #e2e8f0' }}>
+                    <h2 className="text-lg font-bold" style={{ color: '#1e293b' }}>Editar Parceiro</h2>
+                    <button onClick={() => setEditParceiro(null)} className="rounded-lg p-1.5 hover:bg-gray-100">
+                      <X size={20} style={{ color: '#64748b' }} />
+                    </button>
+                  </div>
+                  <div className="p-6 overflow-y-auto flex-1 space-y-4">
+                    {editError && <div className="rounded-lg p-3 text-sm" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>{editError}</div>}
+                    {editSuccess && <div className="rounded-lg p-3 text-sm" style={{ background: '#f0fdf4', border: '1px solid #86efac', color: '#166534' }}>{editSuccess}</div>}
+                    <div className="grid grid-cols-2 gap-4">
+                      {[
+                        { label: 'Nome Completo *', key: 'full_name', type: 'text', ph: 'Joao Silva', col: 2 },
+                        { label: 'Email', key: 'email', type: 'email', ph: 'joao@empresa.com', col: 2 },
+                        { label: 'Empresa', key: 'company_name', type: 'text', ph: 'Nome da empresa', col: 1 },
+                        { label: 'Telefone', key: 'phone', type: 'tel', ph: '+351 912 345 678', col: 1 },
+                        { label: 'NIF', key: 'nif', type: 'text', ph: '123456789', col: 1 },
+                        { label: 'Equipa', key: 'equipa', type: 'text', ph: 'Equipa Norte', col: 1 },
+                        { label: 'Morada', key: 'morada', type: 'text', ph: 'Rua das Flores, 123', col: 2 },
+                        { label: 'Cidade', key: 'cidade', type: 'text', ph: 'Lisboa', col: 1 },
+                        { label: 'Estado', key: 'estado', type: 'text', ph: 'ativo', col: 1 },
+                      ].map(f => (
+                        <div key={f.key} className={f.col === 2 ? 'col-span-2' : 'col-span-1'}>
+                          <label className="block text-sm font-medium mb-1.5" style={{ color: '#475569' }}>{f.label}</label>
+                          <input
+                            type={f.type}
+                            value={(editForm as any)[f.key]}
+                            onChange={e => setEditForm(prev => ({ ...prev, [f.key]: e.target.value }))}
+                            className="w-full rounded-lg px-3 py-2.5 text-sm outline-none"
+                            placeholder={f.ph}
+                            style={{ border: '1px solid #d1d5db', color: '#1e293b' }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex gap-3 pt-2">
+                      <button onClick={() => setEditParceiro(null)} className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium"
+                        style={{ border: '1px solid #d1d5db', color: '#475569' }}>Cancelar</button>
+                      <button onClick={guardarEditParceiro} disabled={editLoading}
+                        className="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+                        style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
+                        {editLoading ? 'A guardar...' : 'Guardar Alteracoes'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Modal Novo Parceiro */}
             {showNovo && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
@@ -364,11 +456,18 @@ export default function ParceirosPage() {
                                 <span className="text-xs font-medium" style={{ color: '#059669' }}>€{getTotal(p.id).toFixed(2)}</span>
                               </div>
                             </button>
-                            <button onClick={e => { e.stopPropagation(); setDeleteError(''); setConfirmDelete(p) }}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                              style={{ background: '#fef2f2' }} title="Apagar parceiro">
-                              <Trash2 size={15} style={{ color: '#dc2626' }} />
-                            </button>
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button onClick={e => { e.stopPropagation(); openEditModal(p) }}
+                                className="rounded-lg p-1.5"
+                                style={{ background: '#eff6ff' }} title="Editar parceiro">
+                                <Pencil size={13} style={{ color: '#2563eb' }} />
+                              </button>
+                              <button onClick={e => { e.stopPropagation(); setDeleteError(''); setConfirmDelete(p) }}
+                                className="rounded-lg p-1.5"
+                                style={{ background: '#fef2f2' }} title="Apagar parceiro">
+                                <Trash2 size={14} style={{ color: '#dc2626' }} />
+                              </button>
+                            </div>
                           </div>
                         )
                       })}

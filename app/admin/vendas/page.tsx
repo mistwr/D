@@ -17,7 +17,10 @@ const STATUS_LABELS: Record<string, { label: string; color: string; bg: string }
   pago:          { label: 'Pago',           color: '#065f46', bg: '#bbf7d0' },
   cancelado:     { label: 'Cancelado',      color: '#991b1b', bg: '#fee2e2' },
   rejeitado:     { label: 'Rejeitado',      color: '#7f1d1d', bg: '#fecaca' },
-  chargeback:    { label: 'Chargeback',     color: '#7c2d12', bg: '#ffedd5' },
+  chargeback:              { label: 'Chargeback',              color: '#7c2d12', bg: '#ffedd5' },
+  pendente_ativacao_sms:   { label: 'Pendente Ativacao SMS',   color: '#6d28d9', bg: '#ede9fe' },
+  pendente_chamada:        { label: 'Pendente de Chamada',     color: '#0e7490', bg: '#cffafe' },
+  cliente_nao_atende:      { label: 'Cliente Nao Atende',      color: '#b45309', bg: '#fef3c7' },
 }
 
 const STATUSES = Object.keys(STATUS_LABELS)
@@ -498,7 +501,7 @@ export default function AdminVendasPage() {
 
                 {/* Stats */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-                  {['pendente', 'em_revisao', 'em_ativacao', 'ativa', 'pago'].map(s => {
+                  {['pendente', 'em_revisao', 'em_ativacao', 'ativa', 'pago', 'pendente_ativacao_sms', 'pendente_chamada', 'cliente_nao_atende'].map(s => {
                     const count = vendas.filter(v => v.status === s).length
                     const st = STATUS_LABELS[s]
                     return (

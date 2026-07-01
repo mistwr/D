@@ -61,6 +61,50 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ parceiros: enriched })
 }
 
+export async function PATCH(req: NextRequest) {
+  const { user } = await getAuthUser(req)
+  if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
+
+  const service = svc()
+  const { data: profile } = await service.from('profiles').select('role, is_superadmin').eq('id', user.id).single()
+  if (!profile || profile.role !== 'admin') return NextResponse.json({ error: 'Apenas admin' }, { status: 403 })
+
+  const body = await req.json()
+  const { id, full_name, company_name, phone, nif, morada, cidade, estado, equipa, supervisor_id } = body
+  if (!id) return NextResponse.json({ error: 'id obrigatorio' }, { status: 400 })
+
+  // Admin VIP only edits parceiros they created
+  const isSuperAdmin = profile.is_superadmin === true
+  if (!isSuperAdmin) {
+    const { data: parceiro } = await service.from('profiles').select('created_by').eq('id', id).single()
+    if (parceiro?.created_by !== user.id) {
+      return NextResponse.json({ error: 'Sem permissao para editar este parceiro' }, { status: 403 })
+    }
+  }
+
+  const updates: Record<string, any> = {}
+  if (full_name !== undefined) updates.full_name = full_name
+  if (company_name !== undefined) updates.company_name = company_name
+  if (phone !== undefined) updates.phone = phone
+  if (nif !== undefined) updates.nif = nif
+  if (morada !== undefined) updates.morada = morada
+  if (cidade !== undefined) updates.cidade = cidade
+  if (estado !== undefined) updates.estado = estado
+  if (equipa !== undefined) updates.equipa = equipa
+  if (supervisor_id !== undefined) updates.supervisor_id = supervisor_id
+
+  const { data, error } = await service.from('profiles').update(updates).eq('id', id).select().single()
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // Update email in auth if provided
+  if (body.email) {
+    const { error: authErr } = await service.auth.admin.updateUserById(id, { email: body.email })
+    if (authErr) return NextResponse.json({ error: authErr.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ parceiro: data })
+}
+
 export async function DELETE(req: NextRequest) {
   const { user } = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
