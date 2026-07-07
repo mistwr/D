@@ -61,12 +61,17 @@ export function NotificationsDropdown({ authFetch }: NotificationsDropdownProps)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const supabaseRef = useRef<any>(null)
   const isInitialRef = useRef(true)
+  const soundEnabledRef = useRef(true)
 
   // Load sound preference once
   useEffect(() => {
     authFetch('/api/preferences')
       .then(r => r.json())
-      .then(d => setSoundEnabled(d.notificacoes_sonoras ?? true))
+      .then(d => {
+        const enabled = d.notificacoes_sonoras ?? true
+        setSoundEnabled(enabled)
+        soundEnabledRef.current = enabled
+      })
       .catch(() => {})
   }, [])
 
@@ -117,6 +122,7 @@ export function NotificationsDropdown({ authFetch }: NotificationsDropdownProps)
               filter: `user_id=eq.${userId}`,
             },
             (payload: any) => {
+              console.log('[v0] Nova notificacao recebida:', payload.new)
               const newNotification: Notification = {
                 id: payload.new.id,
                 type: payload.new.type,
@@ -129,7 +135,10 @@ export function NotificationsDropdown({ authFetch }: NotificationsDropdownProps)
               setNotifications(prev => [newNotification, ...prev])
               setUnreadCount(prev => prev + 1)
               // Chime on new sale
-              setSoundEnabled(prev => { if (newNotification.type === 'nova_venda') playNotifChime(prev); return prev })
+              if (newNotification.type === 'nova_venda' && soundEnabledRef.current) {
+                console.log('[v0] Tocando chime para nova venda')
+                playNotifChime(true)
+              }
             }
           )
           .on(
@@ -166,6 +175,11 @@ export function NotificationsDropdown({ authFetch }: NotificationsDropdownProps)
       }
     }
   }, [])
+
+  // Sync soundEnabled state to ref for use in realtime handlers
+  useEffect(() => {
+    soundEnabledRef.current = soundEnabled
+  }, [soundEnabled])
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

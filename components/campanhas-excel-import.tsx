@@ -118,10 +118,17 @@ export function CampanhasExcelImport({ onImport, onClose }: ExcelImportProps) {
 
   async function handleImport() {
     setImporting(true)
-    const res = await onImport(preview)
-    setResult(res)
-    setStep('result')
-    setImporting(false)
+    try {
+      const res = await onImport(preview)
+      setResult(res)
+      setStep('result')
+    } catch (err) {
+      console.error('Import error:', err)
+      setResult({ imported: 0, errors: ['Erro ao importar: ' + String(err)] })
+      setStep('result')
+    } finally {
+      setImporting(false)
+    }
   }
 
   const inp = { background: '#fff', border: '1px solid #d1d5db', color: '#1e293b' }
