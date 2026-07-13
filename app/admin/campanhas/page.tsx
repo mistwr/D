@@ -213,28 +213,62 @@ export default function CampanhasPage() {
         }
 
         // Create signed URL for display
-        const { data: signed } = await supabase.storage
-          .from('campanhas')
-          .createSignedUrl(filePath, 3600)
+        let signedUrl: string | null = null
+        try {
+          const { data: signed, error: signError } = await supabase.storage
+            .from('campanhas')
+            .createSignedUrl(filePath, 3600)
+          if (signError) {
+            console.log('[v0] Erro ao criar signed URL:', signError.message)
+          } else {
+            signedUrl = signed?.signedUrl ?? null
+          }
+        } catch (signErr) {
+          console.log('[v0] Exception criando signed URL:', signErr)
+        }
 
         // Save metadata to DB via API (only metadata, no file)
         const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
         const fileType = ext === 'pdf' ? 'pdf' : ['jpg','jpeg','png','gif','webp'].includes(ext) ? 'image' : ['doc','docx'].includes(ext) ? 'doc' : 'other'
 
-        const res = await authFetch('/api/campanhas/ficheiros/meta', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            campanha_id: campanhaId,
-            file_name: file.name,
-            file_path: filePath,
-            file_type: fileType,
-            file_size: file.size,
-          }),
-        })
+        console.log('[v0] Enviando metadados para:', campanhaId, file.name)
+        
+        // Add 30s timeout to prevent hanging
+        const controller = new AbortController()
+        const timeout = setTimeout(() => {
+          console.log('[v0] Timeout atingido para metadados de', file.name)
+          controller.abort()
+        }, 30000)
+        
+        let res: Response
+        try {
+          res = await authFetch('/api/campanhas/ficheiros/meta', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            body: JSON.stringify({
+              campanha_id: campanhaId,
+              file_name: file.name,
+              file_path: filePath,
+              file_type: fileType,
+              file_size: file.size,
+            }),
+          })
+        } finally {
+          clearTimeout(timeout)
+        }
+        
+        if (!res.ok) {
+          const errData = await res.text()
+          console.log('[v0] Erro ao guardar metadados:', res.status, errData)
+          flash(`Erro ao guardar metadados (HTTP ${res.status})`, 'err')
+          continue
+        }
+        
         const data = await res.json()
+        console.log('[v0] Resposta metadados:', data)
         if (data.ficheiro) {
-          const ficheiro = { ...data.ficheiro, signed_url: signed?.signedUrl ?? null }
+          const ficheiro = { ...data.ficheiro, signed_url: signedUrl }
           setPdfs(prev => ({ ...prev, [campanhaId]: [ficheiro, ...(prev[campanhaId] ?? [])] }))
           setCampanhas(prev => prev.map(c => c.id === campanhaId ? { ...c, pdf_count: (c.pdf_count ?? 0) + 1 } : c))
           flash('Ficheiro carregado com sucesso!')
