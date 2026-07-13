@@ -1,14 +1,12 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Bell, CheckCheck, ShoppingCart, User, AlertTriangle, X } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { pt } from 'date-fns/locale'
 import { createClient } from '@supabase/supabase-js'
 
-// Lightweight in-component chime — avoids importing the hook to keep this component self-contained
-function playNotifChime(enabled: boolean) {
-  if (!enabled) return
+function playNotifChime() {
   try {
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
     const freqs = [880, 1108, 1320]
@@ -52,180 +50,136 @@ const getNotificationIcon = (type: string) => {
   }
 }
 
-export function NotificationsDropdown({ authFetch }: NotificationsDropdownProps) {
-  const [open, setOpen] = useState(false)
+function useNotifications(authFetch: NotificationsDropdownProps['authFetch']) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [soundEnabled, setSoundEnabled] = useState(true)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-  const supabaseRef = useRef<any>(null)
-  const isInitialRef = useRef(true)
   const soundEnabledRef = useRef(true)
+  const supabaseRef = useRef<any>(null)
 
-  // Load sound preference once
   useEffect(() => {
     authFetch('/api/preferences')
       .then(r => r.json())
-      .then(d => {
-        const enabled = d.notificacoes_sonoras ?? true
-        setSoundEnabled(enabled)
-        soundEnabledRef.current = enabled
-      })
+      .then(d => { soundEnabledRef.current = d.notificacoes_sonoras ?? true })
       .catch(() => {})
-  }, [])
-
-  const fetchNotifications = async () => {
-    try {
-      const res = await authFetch('/api/notifications')
-      if (res.ok) {
-        const data = await res.json()
-        setNotifications(data.notifications || [])
-        setUnreadCount(data.unreadCount || 0)
-      }
-    } catch (error) {
-      console.error('Error fetching notifications:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    fetchNotifications()
-    
-    const setupRealtime = async () => {
+    const fetchNotifications = async () => {
       try {
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-        
-        if (!supabaseUrl || !supabaseKey) return
-        
-        const supabase = createClient(supabaseUrl, supabaseKey)
-        supabaseRef.current = supabase
-        
-        const userRes = await authFetch('/api/auth/me')
-        if (!userRes.ok) return
-        
-        const userData = await userRes.json()
-        const userId = userData.user?.id
-        
-        if (!userId) return
-        
-        const subscription = supabase
-          .channel(`notifications:${userId}`)
-          .on(
-            'postgres_changes',
-            {
-              event: 'INSERT',
-              schema: 'public',
-              table: 'notifications',
-              filter: `user_id=eq.${userId}`,
-            },
-            (payload: any) => {
-              console.log('[v0] Nova notificacao recebida:', payload.new)
-              const newNotification: Notification = {
-                id: payload.new.id,
-                type: payload.new.type,
-                title: payload.new.title,
-                message: payload.new.message,
-                read: payload.new.read || false,
-                created_at: payload.new.created_at,
-              }
-              
-              setNotifications(prev => [newNotification, ...prev])
-              setUnreadCount(prev => prev + 1)
-              // Chime on new sale
-              if (newNotification.type === 'nova_venda' && soundEnabledRef.current) {
-                console.log('[v0] Tocando chime para nova venda')
-                playNotifChime(true)
-              }
-            }
-          )
-          .on(
-            'postgres_changes',
-            {
-              event: 'UPDATE',
-              schema: 'public',
-              table: 'notifications',
-              filter: `user_id=eq.${userId}`,
-            },
-            (payload: any) => {
-              if (payload.new.read) {
-                setUnreadCount(prev => Math.max(0, prev - 1))
-              }
-              setNotifications(prev =>
-                prev.map(n => n.id === payload.new.id ? { ...n, read: payload.new.read } : n)
-              )
-            }
-          )
-          .subscribe()
-      } catch (error) {
-        console.error('Error setting up realtime:', error)
+        const res = await authFetch('/api/notifications')
+        if (res.ok) {
+          const data = await res.json()
+          setNotifications(data.notifications || [])
+          setUnreadCount(data.unreadCount || 0)
+        }
+      } catch { /* silencioso */ } finally {
+        setLoading(false)
       }
     }
-    
+
+    fetchNotifications()
+
+    const setupRealtime = async () => {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      if (!supabaseUrl || !supabaseKey) return
+
+      // Create client and restore session so realtime filter respects RLS
+      const supabase = createClient(supabaseUrl, supabaseKey)
+      supabaseRef.current = supabase
+
+      const { data: { session } } = await supabase.auth.getSession()
+      const userId = session?.user?.id
+      if (!userId) return
+
+      // Ensure the realtime client is authenticated
+      if (session?.access_token) {
+        await supabase.auth.setSession({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token ?? '',
+        })
+      }
+
+      supabase
+        .channel(`notifications-${userId}`)
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${userId}`,
+        }, (payload: any) => {
+          const n: Notification = {
+            id: payload.new.id,
+            type: payload.new.type,
+            title: payload.new.title,
+            message: payload.new.message,
+            read: payload.new.read || false,
+            created_at: payload.new.created_at,
+          }
+          setNotifications(prev => [n, ...prev])
+          setUnreadCount(prev => prev + 1)
+          if (n.type === 'nova_venda' && soundEnabledRef.current) playNotifChime()
+        })
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${userId}`,
+        }, (payload: any) => {
+          setNotifications(prev => prev.map(n => n.id === payload.new.id ? { ...n, read: payload.new.read } : n))
+          if (payload.new.read) setUnreadCount(prev => Math.max(0, prev - 1))
+        })
+        .subscribe()
+    }
+
     setupRealtime()
-    
-    const pollInterval = setInterval(fetchNotifications, 60000)
-    
+    const poll = setInterval(fetchNotifications, 60000)
     return () => {
-      clearInterval(pollInterval)
-      if (supabaseRef.current) {
-        supabaseRef.current.removeAllChannels()
-      }
+      clearInterval(poll)
+      supabaseRef.current?.removeAllChannels()
     }
-  }, [])
-
-  // Sync soundEnabled state to ref for use in realtime handlers
-  useEffect(() => {
-    soundEnabledRef.current = soundEnabled
-  }, [soundEnabled])
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const markAsRead = async (id: string) => {
-    try {
-      await authFetch('/api/notifications', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      })
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
-      setUnreadCount(prev => Math.max(0, prev - 1))
-    } catch (error) {
-      console.error('Error marking notification as read:', error)
-    }
+    await authFetch('/api/notifications', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    }).catch(() => {})
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
+    setUnreadCount(prev => Math.max(0, prev - 1))
   }
 
   const markAllAsRead = async () => {
-    try {
-      await authFetch('/api/notifications', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ markAll: true })
-      })
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-      setUnreadCount(0)
-    } catch (error) {
-      console.error('Error marking all as read:', error)
-    }
+    await authFetch('/api/notifications', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ markAll: true }),
+    }).catch(() => {})
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+    setUnreadCount(0)
   }
+
+  return { notifications, unreadCount, loading, markAsRead, markAllAsRead }
+}
+
+export function NotificationsDropdown({ authFetch }: NotificationsDropdownProps) {
+  const [open, setOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications(authFetch)
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
+  }, [])
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <button 
-        onClick={() => setOpen(!open)} 
-        className="relative p-2 rounded-full transition-colors hover:bg-slate-100"
-        aria-label="Notificacoes"
-      >
+      <button onClick={() => setOpen(!open)} className="relative p-2 rounded-full transition-colors hover:bg-slate-100" aria-label="Notificacoes">
         <Bell size={20} style={{ color: '#64748b' }} />
         {unreadCount > 0 && (
           <>
@@ -242,16 +196,12 @@ export function NotificationsDropdown({ authFetch }: NotificationsDropdownProps)
           <div className="flex items-center justify-between p-3 border-b border-slate-100">
             <h3 className="font-semibold text-slate-800">Notificacoes</h3>
             {unreadCount > 0 && (
-              <button 
-                onClick={markAllAsRead}
-                className="flex items-center gap-1 text-xs text-sky-600 hover:text-sky-700 font-medium"
-              >
+              <button onClick={markAllAsRead} className="flex items-center gap-1 text-xs text-sky-600 hover:text-sky-700 font-medium">
                 <CheckCheck size={14} />
                 Marcar todas como lidas
               </button>
             )}
           </div>
-
           <div className="overflow-y-auto max-h-[320px]">
             {loading ? (
               <div className="p-4 text-center text-slate-500 text-sm">A carregar...</div>
@@ -261,28 +211,22 @@ export function NotificationsDropdown({ authFetch }: NotificationsDropdownProps)
                 <p className="text-slate-500 text-sm">Sem notificacoes</p>
               </div>
             ) : (
-              notifications.map(notification => (
-                <div 
-                  key={notification.id}
-                  className={`p-3 border-b border-slate-50 hover:bg-slate-50 cursor-pointer transition-colors ${!notification.read ? 'bg-sky-50/50' : ''}`}
-                  onClick={() => !notification.read && markAsRead(notification.id)}
-                >
+              notifications.map(n => (
+                <div key={n.id}
+                  className={`p-3 border-b border-slate-50 hover:bg-slate-50 cursor-pointer transition-colors ${!n.read ? 'bg-sky-50/50' : ''}`}
+                  onClick={() => !n.read && markAsRead(n.id)}>
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
-                      {getNotificationIcon(notification.type)}
+                      {getNotificationIcon(n.type)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <p className={`text-sm ${!notification.read ? 'font-semibold text-slate-800' : 'text-slate-700'}`}>
-                          {notification.title}
-                        </p>
-                        {!notification.read && (
-                          <span className="w-2 h-2 rounded-full bg-sky-500 flex-shrink-0 mt-1.5" />
-                        )}
+                        <p className={`text-sm ${!n.read ? 'font-semibold text-slate-800' : 'text-slate-700'}`}>{n.title}</p>
+                        {!n.read && <span className="w-2 h-2 rounded-full bg-sky-500 flex-shrink-0 mt-1.5" />}
                       </div>
-                      <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{notification.message}</p>
+                      <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{n.message}</p>
                       <p className="text-[10px] text-slate-400 mt-1">
-                        {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: pt })}
+                        {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: pt })}
                       </p>
                     </div>
                   </div>
@@ -298,142 +242,11 @@ export function NotificationsDropdown({ authFetch }: NotificationsDropdownProps)
 
 export function NotificationsDropdownMobile({ authFetch }: NotificationsDropdownProps) {
   const [open, setOpen] = useState(false)
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
-  const [loading, setLoading] = useState(true)
-  const supabaseRef = useRef<any>(null)
-
-  const fetchNotifications = async () => {
-    try {
-      const res = await authFetch('/api/notifications')
-      if (res.ok) {
-        const data = await res.json()
-        setNotifications(data.notifications || [])
-        setUnreadCount(data.unreadCount || 0)
-      }
-    } catch (error) {
-      console.error('Error fetching notifications:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchNotifications()
-    
-    const setupRealtime = async () => {
-      try {
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-        
-        if (!supabaseUrl || !supabaseKey) return
-        
-        const supabase = createClient(supabaseUrl, supabaseKey)
-        supabaseRef.current = supabase
-        
-        const userRes = await authFetch('/api/auth/me')
-        if (!userRes.ok) return
-        
-        const userData = await userRes.json()
-        const userId = userData.user?.id
-        
-        if (!userId) return
-        
-        const subscription = supabase
-          .channel(`notifications:${userId}`)
-          .on(
-            'postgres_changes',
-            {
-              event: 'INSERT',
-              schema: 'public',
-              table: 'notifications',
-              filter: `user_id=eq.${userId}`,
-            },
-            (payload: any) => {
-              const newNotification: Notification = {
-                id: payload.new.id,
-                type: payload.new.type,
-                title: payload.new.title,
-                message: payload.new.message,
-                read: payload.new.read || false,
-                created_at: payload.new.created_at,
-              }
-              
-              setNotifications(prev => [newNotification, ...prev])
-              setUnreadCount(prev => prev + 1)
-            }
-          )
-          .on(
-            'postgres_changes',
-            {
-              event: 'UPDATE',
-              schema: 'public',
-              table: 'notifications',
-              filter: `user_id=eq.${userId}`,
-            },
-            (payload: any) => {
-              if (payload.new.read) {
-                setUnreadCount(prev => Math.max(0, prev - 1))
-              }
-              setNotifications(prev =>
-                prev.map(n => n.id === payload.new.id ? { ...n, read: payload.new.read } : n)
-              )
-            }
-          )
-          .subscribe()
-      } catch (error) {
-        console.error('Error setting up realtime:', error)
-      }
-    }
-    
-    setupRealtime()
-    
-    const pollInterval = setInterval(fetchNotifications, 60000)
-    
-    return () => {
-      clearInterval(pollInterval)
-      if (supabaseRef.current) {
-        supabaseRef.current.removeAllChannels()
-      }
-    }
-  }, [])
-
-  const markAsRead = async (id: string) => {
-    try {
-      await authFetch('/api/notifications', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      })
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
-      setUnreadCount(prev => Math.max(0, prev - 1))
-    } catch (error) {
-      console.error('Error marking notification as read:', error)
-    }
-  }
-
-  const markAllAsRead = async () => {
-    try {
-      await authFetch('/api/notifications', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ markAll: true })
-      })
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-      setUnreadCount(0)
-    } catch (error) {
-      console.error('Error marking all as read:', error)
-    }
-  }
+  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications(authFetch)
 
   return (
     <>
-      <button 
-        onClick={() => setOpen(true)}
-        className="relative p-2 rounded-lg" 
-        style={{ background: 'rgba(255,255,255,0.1)' }} 
-        aria-label="Notificacoes"
-      >
+      <button onClick={() => setOpen(true)} className="relative p-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.1)' }} aria-label="Notificacoes">
         <Bell size={18} className="text-white" />
         {unreadCount > 0 && (
           <>
@@ -446,25 +259,19 @@ export function NotificationsDropdownMobile({ authFetch }: NotificationsDropdown
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-[60] bg-white">
-          <div className="flex items-center justify-between p-4 border-b border-slate-200 safe-area-top" style={{ background: '#0f172a' }}>
+        <div className="fixed inset-0 z-[60] bg-white flex flex-col">
+          <div className="flex items-center justify-between p-4 border-b border-slate-200" style={{ background: '#0f172a' }}>
             <h2 className="text-lg font-semibold text-white">Notificacoes</h2>
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
-                <button 
-                  onClick={markAllAsRead}
-                  className="text-xs text-sky-400 font-medium"
-                >
-                  Marcar todas lidas
-                </button>
+                <button onClick={markAllAsRead} className="text-xs text-sky-400 font-medium">Marcar todas lidas</button>
               )}
               <button onClick={() => setOpen(false)} className="p-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.1)' }}>
                 <X size={20} className="text-white" />
               </button>
             </div>
           </div>
-
-          <div className="overflow-y-auto h-[calc(100vh-60px)]">
+          <div className="overflow-y-auto flex-1">
             {loading ? (
               <div className="p-8 text-center text-slate-500">A carregar...</div>
             ) : notifications.length === 0 ? (
@@ -473,26 +280,22 @@ export function NotificationsDropdownMobile({ authFetch }: NotificationsDropdown
                 <p className="text-slate-500">Sem notificacoes</p>
               </div>
             ) : (
-              notifications.map(notification => (
-                <div 
-                  key={notification.id}
-                  className={`p-4 border-b border-slate-100 active:bg-slate-50 ${!notification.read ? 'bg-sky-50/50' : ''}`}
-                  onClick={() => !notification.read && markAsRead(notification.id)}
-                >
+              notifications.map(n => (
+                <div key={n.id}
+                  className={`p-4 border-b border-slate-100 active:bg-slate-50 ${!n.read ? 'bg-sky-50/50' : ''}`}
+                  onClick={() => !n.read && markAsRead(n.id)}>
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
-                      {getNotificationIcon(notification.type)}
+                      {getNotificationIcon(n.type)}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-start justify-between gap-2">
-                        <p className={`text-sm ${!notification.read ? 'font-semibold text-slate-800' : 'text-slate-700'}`}>
-                          {notification.title}
-                        </p>
-                        {!notification.read && <span className="w-2 h-2 rounded-full bg-sky-500 flex-shrink-0 mt-1.5" />}
+                        <p className={`text-sm ${!n.read ? 'font-semibold text-slate-800' : 'text-slate-700'}`}>{n.title}</p>
+                        {!n.read && <span className="w-2 h-2 rounded-full bg-sky-500 flex-shrink-0 mt-1.5" />}
                       </div>
-                      <p className="text-sm text-slate-500 mt-1">{notification.message}</p>
+                      <p className="text-sm text-slate-500 mt-1">{n.message}</p>
                       <p className="text-xs text-slate-400 mt-2">
-                        {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: pt })}
+                        {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: pt })}
                       </p>
                     </div>
                   </div>

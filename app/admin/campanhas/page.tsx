@@ -10,6 +10,14 @@ import {
   ChevronDown, ChevronUp, Trash2, Download, ImagePlus, Shield, X, FileSpreadsheet
 } from 'lucide-react'
 import { CampanhasExcelImport, type ImportedCampanha } from '@/components/campanhas-excel-import'
+import { createClient } from '@supabase/supabase-js'
+
+function getSupabaseClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
 
 interface CampanhaPDF { id: string; file_name: string; file_type: string; file_size: number; signed_url: string | null; created_at: string }
 interface Campanha { id: string; title: string; operator: string; service_type: string; description: string; status: string; logo_url: string; logo_path: string; created_at: string; pdf_count: number }
@@ -57,10 +65,15 @@ export default function CampanhasPage() {
 
   useEffect(() => {
     if (!user) return
-    authFetch('/api/campanhas').then(r => r.json())
+    setLoading(true)
+    authFetch('/api/campanhas')
+      .then(r => {
+        if (!r.ok) return r.json().then((e: any) => Promise.reject(new Error(e.error || `HTTP ${r.status}`)))
+        return r.json()
+      })
       .then(c => { setCampanhas(c.campanhas || []); setLoading(false) })
-      .catch(() => setLoading(false))
-  }, [user, authFetch])
+      .catch(err => { flash(String(err.message || 'Erro ao carregar campanhas'), 'err'); setLoading(false) })
+  }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleExcelImport(rows: ImportedCampanha[]): Promise<{ imported: number; errors: string[] }> {
     let imported = 0
@@ -128,16 +141,38 @@ export default function CampanhasPage() {
 
   async function handleLogoUpload(campanhaId: string, file: File) {
     setUploadingLogo(campanhaId)
-    const fd = new FormData()
-    fd.append('campanha_id', campanhaId)
-    fd.append('file', file)
-    const res = await authFetch('/api/campanhas', { method: 'POST', body: fd })
-    const data = await res.json()
-    if (data.logo_url) {
-      setCampanhas(prev => prev.map(c => c.id === campanhaId ? { ...c, logo_url: data.logo_url } : c))
-      flash('Logo actualizado')
-    } else {
-      flash(data.error || 'Erro no upload', 'err')
+    const supabase = getSupabaseClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { flash('Sessao expirada, faca login novamente', 'err'); setUploadingLogo(null); return }
+
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase() ?? 'png'
+      const filePath = `logos/${campanhaId}.${ext}`
+      // Remove old logo if exists
+      await supabase.storage.from('campanhas').remove([filePath])
+      const { error: uploadError } = await supabase.storage
+        .from('campanhas')
+        .upload(filePath, file, { contentType: file.type, upsert: true })
+      if (uploadError) { flash(`Erro no logo: ${uploadError.message}`, 'err'); setUploadingLogo(null); return }
+
+      const { data: publicUrl } = supabase.storage.from('campanhas').getPublicUrl(filePath)
+      const logoUrl = publicUrl.publicUrl
+
+      // Save logo_url to campanhas table
+      const res = await authFetch('/api/campanhas/logo', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: campanhaId, logo_url: logoUrl, logo_path: filePath }),
+      })
+      const data = await res.json()
+      if (data.ok) {
+        setCampanhas(prev => prev.map(c => c.id === campanhaId ? { ...c, logo_url: logoUrl, logo_path: filePath } : c))
+        flash('Logo actualizado')
+      } else {
+        flash(data.error || 'Erro ao guardar logo', 'err')
+      }
+    } catch (err) {
+      flash(`Erro inesperado: ${String(err)}`, 'err')
     }
     setUploadingLogo(null)
   }
@@ -155,15 +190,59 @@ export default function CampanhasPage() {
     const files = e.target.files
     if (!files || files.length === 0) return
     setUploading(campanhaId)
+
+    const supabase = getSupabaseClient()
+    // Get current session token for auth
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { flash('Sessao expirada, por favor faca login novamente', 'err'); setUploading(null); return }
+
     for (let i = 0; i < files.length; i++) {
-      const fd = new FormData()
-      fd.append('campanha_id', campanhaId)
-      fd.append('file', files[i])
-      const res = await authFetch('/api/campanhas/ficheiros', { method: 'POST', body: fd })
-      const data = await res.json()
-      if (data.ficheiro) {
-        setPdfs(prev => ({ ...prev, [campanhaId]: [data.ficheiro, ...(prev[campanhaId] ?? [])] }))
-        setCampanhas(prev => prev.map(c => c.id === campanhaId ? { ...c, pdf_count: (c.pdf_count ?? 0) + 1 } : c))
+      const file = files[i]
+      try {
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+        const filePath = `${campanhaId}/${Date.now()}-${safeName}`
+
+        // Upload directly to Supabase Storage
+        const { error: uploadError } = await supabase.storage
+          .from('campanhas')
+          .upload(filePath, file, { contentType: file.type, upsert: false })
+
+        if (uploadError) {
+          flash(`Erro no upload: ${uploadError.message}`, 'err')
+          continue
+        }
+
+        // Create signed URL for display
+        const { data: signed } = await supabase.storage
+          .from('campanhas')
+          .createSignedUrl(filePath, 3600)
+
+        // Save metadata to DB via API (only metadata, no file)
+        const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
+        const fileType = ext === 'pdf' ? 'pdf' : ['jpg','jpeg','png','gif','webp'].includes(ext) ? 'image' : ['doc','docx'].includes(ext) ? 'doc' : 'other'
+
+        const res = await authFetch('/api/campanhas/ficheiros/meta', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            campanha_id: campanhaId,
+            file_name: file.name,
+            file_path: filePath,
+            file_type: fileType,
+            file_size: file.size,
+          }),
+        })
+        const data = await res.json()
+        if (data.ficheiro) {
+          const ficheiro = { ...data.ficheiro, signed_url: signed?.signedUrl ?? null }
+          setPdfs(prev => ({ ...prev, [campanhaId]: [ficheiro, ...(prev[campanhaId] ?? [])] }))
+          setCampanhas(prev => prev.map(c => c.id === campanhaId ? { ...c, pdf_count: (c.pdf_count ?? 0) + 1 } : c))
+          flash('Ficheiro carregado com sucesso!')
+        } else {
+          flash(data.error || 'Erro ao guardar metadados do ficheiro', 'err')
+        }
+      } catch (err) {
+        flash(`Erro inesperado: ${String(err)}`, 'err')
       }
     }
     setUploading(null)
