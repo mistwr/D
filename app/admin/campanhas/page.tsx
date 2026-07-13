@@ -65,10 +65,15 @@ export default function CampanhasPage() {
 
   useEffect(() => {
     if (!user) return
-    authFetch('/api/campanhas').then(r => r.json())
+    setLoading(true)
+    authFetch('/api/campanhas')
+      .then(r => {
+        if (!r.ok) return r.json().then((e: any) => Promise.reject(new Error(e.error || `HTTP ${r.status}`)))
+        return r.json()
+      })
       .then(c => { setCampanhas(c.campanhas || []); setLoading(false) })
-      .catch(() => setLoading(false))
-  }, [user, authFetch])
+      .catch(err => { flash(String(err.message || 'Erro ao carregar campanhas'), 'err'); setLoading(false) })
+  }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleExcelImport(rows: ImportedCampanha[]): Promise<{ imported: number; errors: string[] }> {
     let imported = 0
