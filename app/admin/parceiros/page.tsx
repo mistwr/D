@@ -157,18 +157,26 @@ export default function ParceirosPage() {
 
   async function apagarParceiro(parceiro: Parceiro) {
     setDeleting(true); setDeleteError('')
-    const res = await authFetch('/api/parceiros', { 
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: parceiro.id })
-    })
-    const data = await res.json()
-    setDeleting(false)
-    if (!res.ok) { setDeleteError(data.error || 'Erro ao apagar'); return }
-    setConfirmDelete(null)
-    if (selected === parceiro.id) setSelected(null)
-    const p = await authFetch('/api/parceiros').then(r => r.json())
-    setParceiros(p.parceiros || [])
+    try {
+      const res = await authFetch('/api/parceiros', { 
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: parceiro.id })
+      })
+      const data = await res.json()
+      setDeleting(false)
+      if (!res.ok) { 
+        setDeleteError(data.error || `Erro ao apagar (HTTP ${res.status})`); 
+        return 
+      }
+      setConfirmDelete(null)
+      if (selected === parceiro.id) setSelected(null)
+      const p = await authFetch('/api/parceiros').then(r => r.json())
+      setParceiros(p.parceiros || [])
+    } catch (err) {
+      setDeleting(false)
+      setDeleteError(String(err) || 'Erro inesperado ao apagar parceiro')
+    }
   }
 
   function openEditModal(p: Parceiro) {
@@ -191,17 +199,27 @@ export default function ParceirosPage() {
   async function guardarEditParceiro() {
     if (!editParceiro) return
     setEditLoading(true); setEditError(''); setEditSuccess('')
-    const res = await authFetch('/api/parceiros', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: editParceiro.id, ...editForm }),
-    })
-    const data = await res.json()
-    setEditLoading(false)
-    if (!res.ok) { setEditError(data.error || 'Erro ao guardar'); return }
-    setEditSuccess('Parceiro atualizado!')
-    setParceiros(prev => prev.map(p => p.id === editParceiro.id ? { ...p, ...editForm } : p))
-    setTimeout(() => { setEditParceiro(null); setEditSuccess('') }, 1500)
+    try {
+      const res = await authFetch('/api/parceiros', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: editParceiro.id, ...editForm }),
+      })
+      const data = await res.json()
+      setEditLoading(false)
+      if (!res.ok) { 
+        setEditError(data.error || `Erro ao guardar (HTTP ${res.status})`); 
+        return 
+      }
+      setEditSuccess('Parceiro atualizado!')
+      // Atualizar state local com os dados respondidos pela API (mais fiáveis que editForm)
+      const updated = data.parceiro || { ...editParceiro, ...editForm }
+      setParceiros(prev => prev.map(p => p.id === editParceiro.id ? { ...p, ...updated } : p))
+      setTimeout(() => { setEditParceiro(null); setEditSuccess('') }, 1500)
+    } catch (err) {
+      setEditLoading(false)
+      setEditError(String(err) || 'Erro inesperado ao guardar parceiro')
+    }
   }
 
   async function criarParceiro() {

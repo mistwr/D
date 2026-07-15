@@ -98,8 +98,13 @@ export async function PATCH(req: NextRequest) {
 
   // Update email in auth if provided
   if (body.email) {
-    const { error: authErr } = await service.auth.admin.updateUserById(id, { email: body.email })
-    if (authErr) return NextResponse.json({ error: authErr.message }, { status: 500 })
+    try {
+      const { error: authErr } = await service.auth.admin.updateUserById(id, { email: body.email })
+      if (authErr) return NextResponse.json({ error: `Email update failed: ${authErr.message}` }, { status: 500 })
+    } catch (authException) {
+      console.error('[v0] Auth email update exception:', authException)
+      return NextResponse.json({ error: `Failed to update email: ${String(authException)}` }, { status: 500 })
+    }
   }
 
   return NextResponse.json({ parceiro: data })
