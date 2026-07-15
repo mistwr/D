@@ -10,14 +10,7 @@ import {
   ChevronDown, ChevronUp, Trash2, Download, ImagePlus, Shield, X, FileSpreadsheet
 } from 'lucide-react'
 import { CampanhasExcelImport, type ImportedCampanha } from '@/components/campanhas-excel-import'
-import { createClient } from '@supabase/supabase-js'
 
-function getSupabaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-}
 
 interface CampanhaPDF { id: string; file_name: string; file_type: string; file_size: number; signed_url: string | null; created_at: string }
 interface Campanha { id: string; title: string; operator: string; service_type: string; description: string; status: string; logo_url: string; logo_path: string; created_at: string; pdf_count: number }
@@ -191,89 +184,35 @@ export default function CampanhasPage() {
     if (!files || files.length === 0) return
     setUploading(campanhaId)
 
-    const supabase = getSupabaseClient()
-    // Get current session token for auth
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) { flash('Sessao expirada, por favor faca login novamente', 'err'); setUploading(null); return }
-
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       try {
-        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
-        const filePath = `${campanhaId}/${Date.now()}-${safeName}`
-
-        // Upload directly to Supabase Storage
-        const { error: uploadError } = await supabase.storage
-          .from('campanhas')
-          .upload(filePath, file, { contentType: file.type, upsert: false })
-
-        if (uploadError) {
-          flash(`Erro no upload: ${uploadError.message}`, 'err')
-          continue
-        }
-
-        // Create signed URL for display
-        let signedUrl: string | null = null
-        try {
-          const { data: signed, error: signError } = await supabase.storage
-            .from('campanhas')
-            .createSignedUrl(filePath, 3600)
-          if (signError) {
-            console.log('[v0] Erro ao criar signed URL:', signError.message)
-          } else {
-            signedUrl = signed?.signedUrl ?? null
-          }
-        } catch (signErr) {
-          console.log('[v0] Exception criando signed URL:', signErr)
-        }
-
-        // Save metadata to DB via API (only metadata, no file)
-        const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
-        const fileType = ext === 'pdf' ? 'pdf' : ['jpg','jpeg','png','gif','webp'].includes(ext) ? 'image' : ['doc','docx'].includes(ext) ? 'doc' : 'other'
-
-        console.log('[v0] Enviando metadados para:', campanhaId, file.name)
+        const fd = new FormData()
+        fd.append('campanha_id', campanhaId)
+        fd.append('file', file)
         
-        // Add 30s timeout to prevent hanging
-        const controller = new AbortController()
-        const timeout = setTimeout(() => {
-          console.log('[v0] Timeout atingido para metadados de', file.name)
-          controller.abort()
-        }, 30000)
-        
-        let res: Response
-        try {
-          res = await authFetch('/api/campanhas/ficheiros/meta', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            signal: controller.signal,
-            body: JSON.stringify({
-              campanha_id: campanhaId,
-              file_name: file.name,
-              file_path: filePath,
-              file_type: fileType,
-              file_size: file.size,
-            }),
-          })
-        } finally {
-          clearTimeout(timeout)
-        }
+        console.log('[v0] Upload iniciado para:', file.name)
+        const res = await authFetch('/api/campanhas/ficheiros', { 
+          method: 'POST', 
+          body: fd 
+        })
         
         if (!res.ok) {
-          const errData = await res.text()
-          console.log('[v0] Erro ao guardar metadados:', res.status, errData)
-          flash(`Erro ao guardar metadados (HTTP ${res.status})`, 'err')
+          const errText = await res.text()
+          console.log('[v0] Erro HTTP:', res.status, errText)
+          flash(`Erro ao fazer upload (HTTP ${res.status})`, 'err')
           continue
         }
         
         const data = await res.json()
-        console.log('[v0] Resposta metadados:', data)
+        console.log('[v0] Upload concluido:', data)
+        
         if (data.ficheiro) {
-          const ficheiro = { ...data.ficheiro, signed_url: signedUrl }
-          setPdfs(prev => ({ ...prev, [campanhaId]: [ficheiro, ...(prev[campanhaId] ?? [])] }))
+          setPdfs(prev => ({ ...prev, [campanhaId]: [data.ficheiro, ...(prev[campanhaId] ?? [])] }))
           setCampanhas(prev => prev.map(c => c.id === campanhaId ? { ...c, pdf_count: (c.pdf_count ?? 0) + 1 } : c))
           flash('Ficheiro carregado com sucesso!')
         } else {
-          flash(data.error || 'Erro ao guardar metadados do ficheiro', 'err')
+          flash(data.error || 'Erro ao guardar ficheiro', 'err')
         }
       } catch (err) {
         flash(`Erro inesperado: ${String(err)}`, 'err')
