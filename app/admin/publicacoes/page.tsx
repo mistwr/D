@@ -50,6 +50,16 @@ export default function AdminPublicacoesPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.title.trim()) { setError('O titulo e obrigatorio'); return }
+    
+    // Validação de tamanho de ficheiro
+    if (file) {
+      const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+      if (file.size > MAX_FILE_SIZE) {
+        setError(`Ficheiro demasiado grande: ${(file.size / 1024 / 1024).toFixed(1)}MB. Máximo permitido: 10MB`)
+        return
+      }
+    }
+    
     setSending(true)
     setError('')
     setSuccess('')

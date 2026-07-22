@@ -187,6 +187,13 @@ export default function CampanhasPage() {
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       try {
+        // Validação de tamanho máximo: 25MB
+        const MAX_FILE_SIZE = 25 * 1024 * 1024 // 25MB
+        if (file.size > MAX_FILE_SIZE) {
+          flash(`Ficheiro demasiado grande: ${(file.size / 1024 / 1024).toFixed(1)}MB. Máximo permitido: 25MB`, 'err')
+          continue
+        }
+        
         const fd = new FormData()
         fd.append('campanha_id', campanhaId)
         fd.append('file', file)
