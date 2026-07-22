@@ -37,6 +37,14 @@ export async function POST(req: NextRequest) {
 
     // Upload do ficheiro se existir
     if (file && file.size > 0) {
+      // Validação de tamanho máximo: 10MB
+      const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+      if (file.size > MAX_FILE_SIZE) {
+        return NextResponse.json({ 
+          error: `Ficheiro demasiado grande: ${(file.size / 1024 / 1024).toFixed(1)}MB. Máximo permitido: 10MB` 
+        }, { status: 413 })
+      }
+
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
       filePath = `publicacoes/${Date.now()}-${safeName}`
       fileName = file.name

@@ -56,6 +56,14 @@ export async function POST(req: NextRequest) {
 
   if (!campanhaId || !file) return NextResponse.json({ error: 'campanha_id e ficheiro sao obrigatorios' }, { status: 400 })
 
+  // Validação de tamanho máximo: 25MB
+  const MAX_FILE_SIZE = 25 * 1024 * 1024 // 25MB
+  if (file.size > MAX_FILE_SIZE) {
+    return NextResponse.json({ 
+      error: `Ficheiro demasiado grande: ${(file.size / 1024 / 1024).toFixed(1)}MB. Máximo permitido: 25MB` 
+    }, { status: 413 })
+  }
+
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
   const filePath = `${campanhaId}/${Date.now()}-${safeName}`
 
