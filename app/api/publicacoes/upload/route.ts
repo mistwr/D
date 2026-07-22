@@ -36,11 +36,16 @@ export async function POST(req: NextRequest) {
     filePath = `publicacoes/${Date.now()}-${safeName}`
     fileName = file.name
     const bytes = await file.arrayBuffer()
+    console.log('[v0] Upload publicacoes:', { filePath, fileName, fileSize: file.size, contentType: file.type })
     const { error: uploadErr } = await svc.storage.from('publicacoes').upload(filePath, bytes, {
       contentType: file.type,
       upsert: false,
     })
-    if (uploadErr) return NextResponse.json({ error: uploadErr.message }, { status: 500 })
+    if (uploadErr) {
+      console.error('[v0] Upload error:', uploadErr)
+      return NextResponse.json({ error: `Upload error: ${uploadErr.message}` }, { status: 500 })
+    }
+    console.log('[v0] Upload successful')
   }
 
   // Determinar destinatários
