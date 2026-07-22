@@ -53,24 +53,62 @@ export default function AdminPublicacoesPage() {
     setSending(true)
     setError('')
     setSuccess('')
-    const fd = new FormData()
-    fd.append('title', form.title)
-    fd.append('content', form.content)
-    if (form.destino === 'parceiros' && form.parceiroIds.length > 0) {
-      fd.append('parceiro_ids', form.parceiroIds.join(','))
+    
+    try {
+      const fd = new FormData()
+      fd.append('title', form.title)
+      fd.append('content', form.content)
+      if (form.destino === 'parceiros' && form.parceiroIds.length > 0) {
+        fd.append('parceiro_ids', form.parceiroIds.join(','))
+      }
+      if (file) fd.append('file', file)
+      
+      // Add 60s timeout to prevent hanging
+      const controller = new AbortController()
+      const timeout = setTimeout(() => {
+        console.log('[v0] Timeout publicacoes upload')
+        controller.abort()
+      }, 60000)
+      
+      let res: Response
+      try {
+        res = await authFetch('/api/publicacoes/upload', { 
+          method: 'POST', 
+          body: fd,
+          signal: controller.signal 
+        })
+      } finally {
+        clearTimeout(timeout)
+      }
+      
+      if (!res.ok) {
+        const errText = await res.text()
+        console.log('[v0] Upload error:', res.status, errText)
+        try {
+          const errData = JSON.parse(errText)
+          setError(errData.error || `Erro ao publicar (HTTP ${res.status})`)
+        } catch {
+          setError(`Erro ao publicar (HTTP ${res.status}): ${errText}`)
+        }
+        setSending(false)
+        return
+      }
+      
+      const data = await res.json()
+      setSending(false)
+      setSuccess(`Publicacao enviada com sucesso!`)
+      setForm({ title: '', content: '', destino: 'todos', parceiroIds: [] })
+      setFile(null)
+      setShowForm(false)
+      
+      // Recarregar lista
+      const pubsRes = await authFetch('/api/publicacoes').then(r => r.json())
+      setPubs(pubsRes.publicacoes || [])
+    } catch (err) {
+      setSending(false)
+      console.error('[v0] Exception publicacoes upload:', err)
+      setError(`Erro inesperado: ${String(err)}`)
     }
-    if (file) fd.append('file', file)
-    const res = await authFetch('/api/publicacoes/upload', { method: 'POST', body: fd })
-    const data = await res.json()
-    setSending(false)
-    if (!res.ok) { setError(data.error || 'Erro ao publicar'); return }
-    setSuccess(`Publicacao enviada com sucesso!`)
-    setForm({ title: '', content: '', destino: 'todos', parceiroIds: [] })
-    setFile(null)
-    setShowForm(false)
-    // Recarregar lista
-    const pubsRes = await authFetch('/api/publicacoes').then(r => r.json())
-    setPubs(pubsRes.publicacoes || [])
   }
 
   async function deletePub(id: string) {
