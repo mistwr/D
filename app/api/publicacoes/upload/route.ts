@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     filePath = `publicacoes/${Date.now()}-${safeName}`
     fileName = file.name
     const bytes = await file.arrayBuffer()
-    const { error: uploadErr } = await svc.storage.from('campanhas').upload(filePath, bytes, {
+    const { error: uploadErr } = await svc.storage.from('publicacoes').upload(filePath, bytes, {
       contentType: file.type,
       upsert: false,
     })

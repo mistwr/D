@@ -142,27 +142,44 @@ export async function DELETE(req: NextRequest) {
   await service.from('contratos').delete().eq('user_id', id)
   await service.from('leads').delete().eq('user_id', id)
 
-  // Apagar documentos de vendas do parceiro
-  const { data: vendas } = await service.from('vendas').select('id').eq('user_id', id)
-  if (vendas && vendas.length > 0) {
-    const vendaIds = vendas.map((v: any) => v.id)
-    const { data: docs } = await service.from('documentos').select('id, file_path').in('venda_id', vendaIds)
-    if (docs && docs.length > 0) {
-      const paths = docs.map((d: any) => d.file_path).filter(Boolean)
-      if (paths.length > 0) await service.storage.from('documentos').remove(paths)
-      await service.from('documentos').delete().in('venda_id', vendaIds)
+  try {
+    // Apagar documentos de vendas do parceiro
+    const { data: vendas, error: vendasErr } = await service.from('vendas').select('id').eq('user_id', id)
+    if (vendasErr) {
+      console.error('[v0] Erro ao buscar vendas:', vendasErr.message)
     }
-    await service.from('vendas').delete().eq('user_id', id)
+    if (vendas && vendas.length > 0) {
+      const vendaIds = vendas.map((v: any) => v.id)
+      const { data: docs, error: docsErr } = await service.from('documentos').select('id, file_path').in('venda_id', vendaIds)
+      if (docsErr) console.error('[v0] Erro ao buscar documentos:', docsErr.message)
+      if (docs && docs.length > 0) {
+        const paths = docs.map((d: any) => d.file_path).filter(Boolean)
+        if (paths.length > 0) {
+          const { error: removeErr } = await service.storage.from('documentos').remove(paths)
+          if (removeErr) console.error('[v0] Erro ao remover storage:', removeErr.message)
+        }
+        const { error: delDocsErr } = await service.from('documentos').delete().in('venda_id', vendaIds)
+        if (delDocsErr) console.error('[v0] Erro ao deletar docs:', delDocsErr.message)
+      }
+      const { error: delVendasErr } = await service.from('vendas').delete().eq('user_id', id)
+      if (delVendasErr) console.error('[v0] Erro ao deletar vendas:', delVendasErr.message)
+    }
+
+    // Apagar profile (pode falhar se FK constraints, tudo bem pois profile é soft-deleted ao deletar user)
+    const { error: profileErr } = await service.from('profiles').delete().eq('id', id)
+    if (profileErr) console.warn('[v0] Aviso ao deletar profile:', profileErr.message)
+
+    // Hard delete no auth para libertar o email imediatamente
+    // deleteUser(id) sem segundo parâmetro - false nao é valido
+    const { error: authError } = await service.auth.admin.deleteUser(id)
+    if (authError) {
+      console.error('[v0] Erro ao deletar auth user:', authError.message)
+      return NextResponse.json({ error: `Auth delete error: ${authError.message}` }, { status: 500 })
+    }
+
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    console.error('[v0] Exception ao apagar parceiro:', err)
+    return NextResponse.json({ error: `Unexpected error: ${String(err)}` }, { status: 500 })
   }
-
-  // Apagar profile
-  await service.from('profiles').delete().eq('id', id)
-
-  // Hard delete no auth para libertar o email imediatamente
-  const { error: authError } = await service.auth.admin.deleteUser(id, false)
-  if (authError) {
-    return NextResponse.json({ error: authError.message }, { status: 500 })
-  }
-
-  return NextResponse.json({ ok: true })
 }
