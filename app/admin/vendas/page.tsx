@@ -36,6 +36,7 @@ interface Venda {
   client_name: string; client_email: string; client_phone: string
   client_nif: string; client_cc: string; client_iban: string
   client_address: string
+  codigo_postal: string; localidade: string
   amount: number; status: string; service_type: string
   operator: string; plano: string; description: string
   notes: string; is_dual: boolean; energia_tipo: string
@@ -767,6 +768,8 @@ export default function AdminVendasPage() {
                             <Field label="Telemovel" value={selected.client_phone} />
                             <Field label="Email" value={selected.client_email} />
                             <Field label="IBAN" value={selected.client_iban} />
+                            <Field label="Codigo Postal" value={selected.codigo_postal || 'Nao definido'} />
+                            <Field label="Localidade" value={selected.localidade || 'Nao definida'} />
                             <div className="col-span-2">
                               <Field label="Morada" value={selected.client_address || 'Sem morada definida'} />
                             </div>
