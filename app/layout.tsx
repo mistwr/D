@@ -43,7 +43,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt" className={`${inter.variable} bg-background`}>
+    <html lang="pt" className={`${inter.variable} bg-background light`}>
       <body className="antialiased font-sans">
         {children}
         <Toaster position="top-right" richColors closeButton />

@@ -25,8 +25,8 @@ export function WebsiteFooter() {
             </p>
             <div className="mt-6 space-y-1 text-sm text-slate-400">
               <p>geral@parcendi.pt</p>
-              <p>+351 253 000 000</p>
-              <p>Barcelos, Portugal</p>
+              <p>+351 961 383 587</p>
+              <p className="text-xs leading-relaxed max-w-xs">Rua Nova do Seixo 964<br />São Mamede de Infesta<br />Porto, Portugal</p>
             </div>
           </div>
 
