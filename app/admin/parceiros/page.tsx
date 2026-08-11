@@ -6,7 +6,7 @@ import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
 import {
   Users, ShoppingCart, Mail, Building2, Percent, Save, Zap, Flame,
-  Plus, X, Eye, EyeOff, Trash2, AlertTriangle, KeyRound, Shield, Pencil, Crown, Network, UserPlus,
+  Plus, X, Eye, EyeOff, Trash2, AlertTriangle, KeyRound, Shield, Pencil, Crown, Network, UserPlus, Search,
 } from 'lucide-react'
 
 const SERVICOS = ['energia', 'gas', 'seguros', 'telecom'] as const
@@ -33,6 +33,7 @@ export default function ParceirosPage() {
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<string | null>(null)
   const [tab, setTab] = useState<'vendas' | 'comissoes' | 'password' | 'permissoes'>('vendas')
+  const [search, setSearch] = useState('')
 
   // Permissoes VIP
   const [permLoading, setPermLoading] = useState(false)
@@ -303,6 +304,19 @@ export default function ParceirosPage() {
               </button>
             </div>
 
+            {/* Pesquisa */}
+            <div className="relative mb-6" style={{ maxWidth: 420 }}>
+              <Search size={16} className="absolute" style={{ left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+              <input
+                type="text"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Pesquisar por nome, email ou empresa..."
+                className="w-full rounded-lg text-sm outline-none"
+                style={{ padding: '10px 12px 10px 36px', border: '1.5px solid #e2e8f0', background: '#fff', color: '#1e293b' }}
+              />
+            </div>
+
             {/* Modal Confirmar Apagar */}
             {confirmDelete && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
@@ -437,11 +451,24 @@ export default function ParceirosPage() {
               </div>
             )}
 
-            {parceiros.length === 0 ? (
+            {(() => {
+              const q = search.trim().toLowerCase()
+              const parceirosFiltrados = q
+                ? parceiros.filter(p =>
+                    p.full_name?.toLowerCase().includes(q) ||
+                    p.email?.toLowerCase().includes(q) ||
+                    p.company_name?.toLowerCase().includes(q)
+                  )
+                : parceiros
+              return parceirosFiltrados.length === 0 ? (
               <div className="rounded-xl p-12 text-center shadow-sm" style={{ background: '#fff', border: '1px solid #e2e8f0' }}>
                 <Users size={48} style={{ color: '#d1d5db' }} className="mx-auto mb-4" />
-                <p className="text-lg font-medium" style={{ color: '#475569' }}>Nenhum parceiro registado</p>
-                <p className="text-sm mt-1" style={{ color: '#64748b' }}>Clique em &quot;Novo Parceiro&quot; para adicionar o primeiro.</p>
+                <p className="text-lg font-medium" style={{ color: '#475569' }}>
+                  {q ? 'Nenhum parceiro encontrado' : 'Nenhum parceiro registado'}
+                </p>
+                <p className="text-sm mt-1" style={{ color: '#64748b' }}>
+                  {q ? 'Tenta outro termo de pesquisa.' : 'Clique em "Novo Parceiro" para adicionar o primeiro.'}
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -452,7 +479,7 @@ export default function ParceirosPage() {
                       <h2 className="font-semibold text-sm" style={{ color: '#475569' }}>Selecionar Parceiro</h2>
                     </div>
                     <div className="max-h-[600px] overflow-y-auto">
-                      {parceiros.map(p => {
+                      {parceirosFiltrados.map(p => {
                         const isActive = selected === p.id
                         return (
                           <div key={p.id} className="relative group"
@@ -808,7 +835,8 @@ export default function ParceirosPage() {
                   )}
                 </div>
               </div>
-            )}
+            )
+            })()}
           </div>
         </main>
       </div>
