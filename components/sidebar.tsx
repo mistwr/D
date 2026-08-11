@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2, Target, Crown, Circle, User, UserPlus, FileText, FileDown, Facebook } from 'lucide-react'
+import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2, Target, Crown, Circle, User, UserPlus, FileText, FileDown, Facebook, PhoneCall, ExternalLink } from 'lucide-react'
 
 interface SidebarUser {
   role: string
@@ -137,6 +137,22 @@ export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = fals
           )
         })}
       </nav>
+
+      {/* SD Dialer */}
+      <div className="px-4 pb-2">
+        <a
+          href="https://imaginative-flan-e3a8a5.netlify.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200"
+          style={{ background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)', color: '#ffffff', boxShadow: '0 4px 12px rgba(34,197,94,0.25)' }}
+        >
+          <span className="flex items-center gap-2">
+            <PhoneCall size={17} /> SD Dialer
+          </span>
+          <ExternalLink size={14} style={{ opacity: 0.85 }} />
+        </a>
+      </div>
 
       {/* Footer */}
       <div className="p-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
