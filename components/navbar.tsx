@@ -1,6 +1,6 @@
 'use client'
 
-import { LogOut, Menu, X, User, LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, FolderOpen, Calculator, Percent, FileCheck, Newspaper, AlertTriangle, Users, Upload, FileSpreadsheet, KeyRound, Target, Network, GitBranch, Shield, Building2, Circle } from 'lucide-react'
+import { LogOut, Menu, X, User, LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, FolderOpen, Calculator, Percent, FileCheck, Newspaper, AlertTriangle, Users, Upload, FileSpreadsheet, KeyRound, Target, Network, GitBranch, Shield, Building2, Circle, PhoneCall, ExternalLink } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -194,6 +194,18 @@ export function Navbar({ user, onLogout }: NavbarProps) {
             )}
 
             <nav className="p-3 space-y-1 safe-area-inset">
+              <a
+                href="https://imaginative-flan-e3a8a5.netlify.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between gap-2 rounded-xl px-4 py-3.5 text-sm font-semibold active:scale-[0.98] transition-all mb-2"
+                style={{ background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)', color: '#ffffff' }}
+              >
+                <span className="flex items-center gap-3">
+                  <PhoneCall size={20} /> SD Dialer
+                </span>
+                <ExternalLink size={16} style={{ opacity: 0.85 }} />
+              </a>
               <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>
                 {user?.role === 'admin' ? 'Administracao' : 'Menu'}
               </p>
