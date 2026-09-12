@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Loader2, Eye, EyeOff } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 
 type FormValues = {
   first_name: string
@@ -31,7 +30,6 @@ function validate(data: FormValues) {
 export function SignupForm() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
-  const supabase = createClient()
 
   const {
     register,
@@ -46,22 +44,32 @@ export function SignupForm() {
       Object.entries(fieldErrors).forEach(([k, v]) => setError(k as keyof FormValues, v!))
       return
     }
-    const { error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-      options: {
-        data: {
+
+    try {
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           first_name: data.first_name,
           last_name: data.last_name,
-        },
-      },
-    })
-    if (error) {
-      toast.error(error.message)
-      return
+          email: data.email,
+          password: data.password,
+        }),
+      })
+
+      const result = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        toast.error(result?.error || 'Não foi possível criar a conta.')
+        return
+      }
+
+      toast.success(result?.needs_email_confirmation
+        ? 'Conta criada! Verifique o seu email para confirmar o registo.'
+        : 'Conta criada com sucesso!')
+      router.push('/auth/login')
+    } catch {
+      toast.error('Falha de ligação ao servidor. Tente novamente.')
     }
-    toast.success('Conta criada! Verifique o seu email para confirmar o registo.')
-    router.push('/auth/login')
   }
 
   return (
