@@ -14,8 +14,8 @@ export default async function NegociosPage() {
       .from('deals')
       .select(`
         id, title, segment, stage, value, commission_value, created_at,
-        clients!deals_client_id_fkey (id, name),
-        profiles!deals_assigned_to_fkey (first_name, last_name)
+        parcendi_clients!parcendi_deals_client_id_fkey (id, name),
+        parcendi_profiles!parcendi_deals_assigned_to_fkey (first_name, last_name)
       `)
       .order('created_at', { ascending: false })
       .limit(200),
@@ -23,14 +23,16 @@ export default async function NegociosPage() {
     supabase.from('profiles').select('id, first_name, last_name').eq('is_active', true),
   ])
 
+  const normalized = (dealsRes.data ?? []).map((deal: any) => ({
+    ...deal,
+    clients: deal.parcendi_clients ?? null,
+    profiles: deal.parcendi_profiles ?? null,
+  }))
+
   return (
-    <div className="p-6 lg:p-8">
-      <PageHeader
-        title="Negócios"
-        description="Todos os negócios em curso e fechados"
-        action={<NewNegocioButton clients={clientsRes.data ?? []} profiles={profilesRes.data ?? []} />}
-      />
-      <NegociosTable deals={dealsRes.data ?? []} />
+    <div className="min-w-0 p-4 pt-20 sm:p-6 md:pt-6 lg:p-8">
+      <PageHeader title="Negócios" description="Todos os negócios em curso e fechados" action={<NewNegocioButton clients={clientsRes.data ?? []} profiles={profilesRes.data ?? []} />} />
+      <NegociosTable deals={normalized} />
     </div>
   )
 }
