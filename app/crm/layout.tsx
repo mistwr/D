@@ -15,9 +15,9 @@ export default async function CRMLayout({ children }: { children: React.ReactNod
     .single()
 
   return (
-    <div className="flex h-screen overflow-hidden bg-secondary">
+    <div className="flex min-h-dvh bg-secondary md:h-screen md:overflow-hidden">
       <CRMSidebar profile={profile} />
-      <main className="flex-1 overflow-y-auto">
+      <main className="min-w-0 flex-1 pt-14 md:overflow-y-auto md:pt-0">
         {children}
       </main>
     </div>
