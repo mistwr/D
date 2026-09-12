@@ -17,24 +17,18 @@ export async function generateMetadata({ params }: { params: Promise<{ segment: 
 
 export default async function PipelinePage({ params }: { params: Promise<{ segment: string }> }) {
   const { segment } = await params
-
   if (!VALID_SEGMENTS.includes(segment as Segment)) notFound()
 
   const supabase = await createClient()
 
   const [stagesRes, dealsRes, clientsRes, profilesRes] = await Promise.all([
-    supabase
-      .from('pipeline_stages')
-      .select('*')
-      .eq('segment', segment)
-      .eq('is_active', true)
-      .order('position'),
+    supabase.from('pipeline_stages').select('*').eq('segment', segment).eq('is_active', true).order('position'),
     supabase
       .from('deals')
       .select(`
-        id, title, stage, value, commission_value, created_at,
-        clients!deals_client_id_fkey (name),
-        profiles!deals_assigned_to_fkey (first_name, last_name)
+        id, title, stage, stage_id, value, commission_value, created_at,
+        clients:parcendi_clients!parcendi_deals_client_id_fkey (name),
+        profiles:parcendi_profiles!parcendi_deals_assigned_to_fkey (first_name, last_name)
       `)
       .eq('segment', segment)
       .order('created_at', { ascending: false }),
@@ -45,7 +39,7 @@ export default async function PipelinePage({ params }: { params: Promise<{ segme
   const label = SEGMENT_LABELS[segment as Segment]
 
   return (
-    <div className="p-6 lg:p-8 h-full flex flex-col">
+    <div className="flex h-full min-w-0 flex-col p-4 pt-20 sm:p-6 md:pt-6 lg:p-8">
       <PageHeader
         title={`Pipeline — ${label}`}
         description={`${dealsRes.data?.length ?? 0} negócios no funil de ${label}`}
@@ -57,11 +51,7 @@ export default async function PipelinePage({ params }: { params: Promise<{ segme
           />
         }
       />
-      <KanbanBoard
-        stages={stagesRes.data ?? []}
-        deals={dealsRes.data ?? []}
-        segment={segment as Segment}
-      />
+      <KanbanBoard stages={stagesRes.data ?? []} deals={dealsRes.data ?? []} segment={segment as Segment} />
     </div>
   )
 }
