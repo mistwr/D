@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod'
+import {
+  PARCENDI_SUPABASE_PUBLISHABLE_KEY,
+  PARCENDI_SUPABASE_URL,
+} from '@/lib/supabase/parcendi'
 
 const schema = z.object({
   name: z.string().min(2),
@@ -17,48 +21,29 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     const data = schema.parse(body)
-    const supabase = createAdminClient()
     const segment = data.segment && allowedSegments.has(data.segment) ? data.segment : 'telecom'
-    const now = new Date().toISOString()
 
-    const { data: lead, error: leadError } = await (supabase.from('leads') as any)
-      .insert({
-        name: data.name,
-        email: data.email,
-        phone: data.phone ?? null,
-        origin: 'website',
-        segment,
-        status: 'nova',
-        score: 90,
-        notes: data.message,
-        rgpd_consent: true,
-        rgpd_consent_date: now,
-        source_campaign: 'consultoria-site',
-        source_medium: 'website',
-        converted: false,
-      })
-      .select('id')
-      .single()
+    const supabase = createClient(
+      PARCENDI_SUPABASE_URL,
+      PARCENDI_SUPABASE_PUBLISHABLE_KEY,
+      { auth: { autoRefreshToken: false, persistSession: false } },
+    )
 
-    if (leadError) {
-      console.error('[contact api] lead error', leadError)
+    const { data: leadId, error } = await supabase.rpc('parcendi_submit_contact', {
+      p_name: data.name,
+      p_email: data.email,
+      p_phone: data.phone ?? null,
+      p_segment: segment,
+      p_message: data.message,
+      p_rgpd_consent: true,
+    })
+
+    if (error) {
+      console.error('[contact api] Indigo RPC error', error)
       return NextResponse.json({ error: 'Lead database error' }, { status: 500 })
     }
 
-    const { error: submissionError } = await (supabase.from('contact_submissions') as any).insert({
-      name: data.name,
-      email: data.email,
-      phone: data.phone ?? null,
-      segment,
-      message: data.message,
-      rgpd_consent: true,
-      origin: 'website',
-      page: '/contactos',
-    })
-
-    if (submissionError) console.error('[contact api] submission mirror error', submissionError)
-
-    return NextResponse.json({ success: true, lead_id: lead.id, temperature: 'hot' })
+    return NextResponse.json({ success: true, lead_id: leadId, temperature: 'hot' })
   } catch (err) {
     console.error('[contact api] validation error', err)
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
