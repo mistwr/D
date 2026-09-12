@@ -13,8 +13,8 @@ export default async function LeadsPage() {
     .from('leads')
     .select(`
       *,
-      profiles!leads_assigned_to_fkey(first_name, last_name),
-      units(name)
+      parcendi_profiles!parcendi_leads_assigned_to_fkey(first_name, last_name),
+      parcendi_units!parcendi_leads_unit_id_fkey(name)
     `)
     .order('created_at', { ascending: false })
     .limit(100)
@@ -24,14 +24,12 @@ export default async function LeadsPage() {
     .select('id, first_name, last_name')
     .eq('is_active', true)
 
+  const normalized = (leads ?? []).map((lead: any) => ({ ...lead, profiles: lead.parcendi_profiles ?? null, units: lead.parcendi_units ?? null }))
+
   return (
-    <div className="p-6 lg:p-8">
-      <PageHeader
-        title="Leads"
-        description="Gestão de todas as leads por segmento"
-        action={<NewLeadButton profiles={profiles ?? []} />}
-      />
-      <LeadsTable leads={leads ?? []} />
+    <div className="min-w-0 p-4 pt-20 sm:p-6 md:pt-6 lg:p-8">
+      <PageHeader title="Leads" description="Gestão de todas as leads por segmento" action={<NewLeadButton profiles={profiles ?? []} />} />
+      <LeadsTable leads={normalized} />
     </div>
   )
 }
