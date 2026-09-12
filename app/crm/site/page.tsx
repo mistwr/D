@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { PageHeader } from '@/components/crm/page-header'
-import { SiteManager } from '@/components/crm/site-manager'
+import { SiteManagerV2 } from '@/components/crm/site-manager-v2'
 
 export const metadata: Metadata = { title: 'Site e Branding — CRM PARCENDi' }
 
@@ -34,7 +34,7 @@ export default async function SiteAdminPage() {
         title="Site e Branding"
         description="Gere cores, logótipo, conteúdos, campanhas e integrações sem mexer no código"
       />
-      <SiteManager settings={settings ?? null} campaigns={campaigns ?? []} userId={user.id} />
+      <SiteManagerV2 settings={settings ?? null} campaigns={campaigns ?? []} userId={user.id} />
     </div>
   )
 }
