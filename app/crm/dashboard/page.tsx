@@ -19,11 +19,8 @@ export default async function DashboardPage() {
     supabase.from('tasks').select('id, status', { count: 'exact' }).eq('status', 'pendente'),
   ])
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const leads = (leadsResult.data ?? []) as any[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const deals = (dealsResult.data ?? []) as any[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const commissions = (commissionsResult.data ?? []) as any[]
   const pendingTasksCount = tasksResult.count ?? 0
 
@@ -35,69 +32,29 @@ export default async function DashboardPage() {
     .reduce((s: number, c: any) => s + (c.net_value ?? 0), 0)
 
   return (
-    <div className="p-6 lg:p-8">
-      <PageHeader
-        title="Dashboard"
-        description="Visão geral do CRM PARCENDi"
-      />
+    <div className="w-full max-w-full overflow-x-hidden p-4 sm:p-6 lg:p-8">
+      <PageHeader title="Dashboard" description="Visão geral do CRM PARCENDi" />
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatsCard
-          title="Total de Leads"
-          value={totalLeads}
-          icon={Users}
-          iconColor="#0057FF"
-          iconBg="#E8F0FF"
-          trend={12}
-          trendLabel="vs. mês anterior"
-        />
-        <StatsCard
-          title="Negócios Ativos"
-          value={totalDeals}
-          icon={GitBranch}
-          iconColor="#10B981"
-          iconBg="#ECFDF5"
-          trend={8}
-          trendLabel="vs. mês anterior"
-        />
-        <StatsCard
-          title="Negócios Fechados"
-          value={closedDeals}
-          icon={TrendingUp}
-          iconColor="#F59E0B"
-          iconBg="#FFFBEB"
-          trend={5}
-          trendLabel="vs. mês anterior"
-        />
-        <StatsCard
-          title="Comissões Acumuladas"
-          value={formatCurrency(totalCommissions)}
-          icon={DollarSign}
-          iconColor="#8B5CF6"
-          iconBg="#F5F3FF"
-        />
+      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:mb-8 lg:grid-cols-4">
+        <StatsCard title="Total de Leads" value={totalLeads} icon={Users} iconColor="#0057FF" iconBg="#E8F0FF" trend={12} trendLabel="vs. mês anterior" />
+        <StatsCard title="Negócios Ativos" value={totalDeals} icon={GitBranch} iconColor="#10B981" iconBg="#ECFDF5" trend={8} trendLabel="vs. mês anterior" />
+        <StatsCard title="Negócios Fechados" value={closedDeals} icon={TrendingUp} iconColor="#F59E0B" iconBg="#FFFBEB" trend={5} trendLabel="vs. mês anterior" />
+        <StatsCard title="Comissões Acumuladas" value={formatCurrency(totalCommissions)} icon={DollarSign} iconColor="#8B5CF6" iconBg="#F5F3FF" />
       </div>
 
-      {/* Pending tasks alert */}
       {pendingTasksCount > 0 && (
-        <div className="mb-6 flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
-          <CheckSquare size={18} className="text-amber-600 shrink-0" />
-          <p className="text-sm text-amber-800">
+        <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 sm:items-center">
+          <CheckSquare size={18} className="mt-0.5 shrink-0 text-amber-600 sm:mt-0" />
+          <p className="text-sm leading-5 text-amber-800">
             Tem <strong>{pendingTasksCount}</strong> {pendingTasksCount === 1 ? 'tarefa pendente' : 'tarefas pendentes'}.{' '}
-            <a href="/crm/tarefas" className="underline font-medium">Ver tarefas</a>
+            <a href="/crm/tarefas" className="font-medium underline">Ver tarefas</a>
           </p>
         </div>
       )}
 
-      {/* Charts & Recent */}
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <DashboardCharts leads={leads} deals={deals} />
-        </div>
-        <div>
-          <RecentActivity leads={leads.slice(0, 8)} deals={deals.slice(0, 8)} />
-        </div>
+      <div className="grid min-w-0 gap-5 lg:grid-cols-3 lg:gap-6">
+        <div className="min-w-0 lg:col-span-2"><DashboardCharts leads={leads} deals={deals} /></div>
+        <div className="min-w-0"><RecentActivity leads={leads.slice(0, 8)} deals={deals.slice(0, 8)} /></div>
       </div>
     </div>
   )
