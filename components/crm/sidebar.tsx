@@ -8,7 +8,7 @@ import {
   FileText, DollarSign, ArrowLeftRight, RefreshCw, Handshake,
   Building2, ScrollText, Settings, LogOut, ChevronLeft, ChevronRight,
   Zap, Wifi, CreditCard, Home, Shield, Bell, ChevronDown, UserCog,
-  Menu, X, Palette,
+  Menu, X, Palette, Bot,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
@@ -18,6 +18,7 @@ import { initials, fullName } from '@/lib/format'
 
 const mainNav = [
   { href: '/crm/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/crm/sofia', label: 'Sofia em Direto', icon: Bot },
   { href: '/crm/leads', label: 'Leads', icon: Users },
   { href: '/crm/clientes', label: 'Clientes', icon: Briefcase },
   { href: '/crm/negocios', label: 'Negócios', icon: GitBranch },
