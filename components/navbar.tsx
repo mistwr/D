@@ -113,13 +113,13 @@ export function Navbar({ user, onLogout }: NavbarProps) {
             <>
               <NotificationsDropdown authFetch={authFetch} />
               <div className="flex items-center gap-2 lg:gap-3 pl-2 lg:pl-4" style={{ borderLeft: '1px solid #e2e8f0' }}>
-                <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="w-8 h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden hover:ring-2 hover:ring-sky-500 transition-all" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #f1cf76 0%, #d6a84b 100%)' }}>
+                <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="w-8 h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden hover:ring-2 hover:ring-amber-400 transition-all" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #f1cf76 0%, #d6a84b 100%)' }}>
                   {avatarUrl ? (
                     <Image src={avatarUrl} alt="Avatar" width={36} height={36} className="w-full h-full object-cover" />
                   ) : (
                     <>
-                      <User size={16} className="text-white lg:hidden" />
-                      <User size={18} className="text-white hidden lg:block" />
+                      <User size={16} className="lg:hidden" style={{ color: '#17130b' }} />
+                      <User size={18} className="hidden lg:block" style={{ color: '#17130b' }} />
                     </>
                   )}
                 </Link>
@@ -178,11 +178,11 @@ export function Navbar({ user, onLogout }: NavbarProps) {
             {user && (
               <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
                 <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #f1cf76 0%, #d6a84b 100%)' }}>
                     {avatarUrl ? (
                       <Image src={avatarUrl} alt="Avatar" width={40} height={40} className="w-full h-full object-cover" />
                     ) : (
-                      <User size={20} className="text-white" />
+                      <User size={20} style={{ color: '#17130b' }} />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
