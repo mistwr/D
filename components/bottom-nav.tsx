@@ -42,11 +42,11 @@ export function BottomNav({ userRole = 'parceiro', onMenuClick }: BottomNavProps
             >
               <div 
                 className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
-                style={{ background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)' }}
+                style={{ background: 'linear-gradient(135deg, #f1cf76 0%, #d6a84b 100%)' }}
               >
-                <item.icon size={24} className="text-white" />
+                <item.icon size={24} style={{ color: '#17130b' }} />
               </div>
-              <span className="text-[10px] mt-1 font-medium" style={{ color: '#f97316' }}>{item.label}</span>
+              <span className="text-[10px] mt-1 font-medium" style={{ color: '#9a6b1a' }}>{item.label}</span>
             </Link>
           )
         }
@@ -59,11 +59,11 @@ export function BottomNav({ userRole = 'parceiro', onMenuClick }: BottomNavProps
           >
             <item.icon 
               size={22} 
-              style={{ color: active ? '#0ea5e9' : '#94a3b8' }} 
+              style={{ color: active ? '#9a6b1a' : '#94a3b8' }} 
             />
             <span 
               className="text-[10px] mt-1 font-medium"
-              style={{ color: active ? '#0ea5e9' : '#94a3b8' }}
+              style={{ color: active ? '#9a6b1a' : '#94a3b8' }}
             >
               {item.label}
             </span>
