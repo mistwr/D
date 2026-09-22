@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { ArrowRight, BarChart3, FileText, Users, Zap, Smartphone, Brain, Shield } from 'lucide-react'
+import { LuminBrand } from '@/components/lumin-brand'
 
 export default function SobrePage() {
   return (
@@ -9,12 +10,12 @@ export default function SobrePage() {
       {/* Navbar */}
       <nav className="border-b" style={{ borderColor: '#e5e7eb' }}>
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold" style={{ color: '#0ea5e9' }}>Soluções Diferentes</h1>
+          <LuminBrand compact />
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm font-medium px-4 py-2 rounded-lg" style={{ color: '#0ea5e9', background: '#f8fafc' }}>
+            <Link href="/login" className="text-sm font-medium px-4 py-2 rounded-lg" style={{ color: '#9a6b1a', background: '#fffaf0' }}>
               Entrar
             </Link>
-            <Link href="/register" className="text-sm font-medium px-4 py-2 rounded-lg" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', color: 'white' }}>
+            <Link href="/register" className="text-sm font-medium px-4 py-2 rounded-lg" style={{ background: 'linear-gradient(135deg, #f1cf76 0%, #d6a84b 100%)', color: '#17130b' }}>
               Registar
             </Link>
           </div>
@@ -24,7 +25,7 @@ export default function SobrePage() {
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-6 py-20 text-center">
         <div className="mb-8 flex justify-center">
-          <span className="inline-block px-4 py-1 rounded-full text-sm font-medium" style={{ background: '#ede9fe', color: '#0ea5e9' }}>
+          <span className="inline-block px-4 py-1 rounded-full text-sm font-medium" style={{ background: '#fff7e6', color: '#9a6b1a' }}>
             Transformando a gestão de vendas
           </span>
         </div>
@@ -32,10 +33,10 @@ export default function SobrePage() {
           CRM Inteligente para Parceiros de Energia e Telecom
         </h2>
         <p className="text-xl mb-8 text-balance" style={{ color: '#64748b', maxWidth: '700px', margin: '0 auto' }}>
-          Plataforma completa para registar vendas, gerenciar documentos, simular comissões e acompanhar campanhas em tempo real. Potenciado por IA para insights inteligentes.
+          Plataforma completa para registar vendas, gerenciar documentos, simular comissões e acompanhar campanhas em tempo real. Potenciado pela Lumin AI para automação, análise e evolução contínua.
         </p>
         <div className="flex gap-4 justify-center flex-wrap">
-          <Link href="/register" className="px-8 py-3 rounded-lg font-semibold flex items-center gap-2" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', color: 'white' }}>
+          <Link href="/register" className="px-8 py-3 rounded-lg font-semibold flex items-center gap-2" style={{ background: 'linear-gradient(135deg, #f1cf76 0%, #d6a84b 100%)', color: '#17130b' }}>
             Começar Agora <ArrowRight size={18} />
           </Link>
           <Link href="#features" className="px-8 py-3 rounded-lg font-semibold" style={{ background: '#f8fafc', color: '#1e293b' }}>
@@ -59,7 +60,7 @@ export default function SobrePage() {
             { icon: <BarChart3 size={24} />, title: 'Relatórios & Exportação', desc: 'Gere relatórios detalhados, exporte dados em CSV/Excel' },
           ].map((f, i) => (
             <div key={i} className="p-6 rounded-lg border" style={{ borderColor: '#e5e7eb', background: '#fafbfc' }}>
-              <div className="mb-4 p-3 rounded-lg w-fit" style={{ background: '#ede9fe', color: '#0ea5e9' }}>
+              <div className="mb-4 p-3 rounded-lg w-fit" style={{ background: '#fff7e6', color: '#9a6b1a' }}>
                 {f.icon}
               </div>
               <h4 className="font-semibold mb-2" style={{ color: '#1e293b' }}>{f.title}</h4>
@@ -79,7 +80,7 @@ export default function SobrePage() {
             { num: '3', title: 'Compartilhar & Ganhar', desc: 'Parceiros veem simulador de comissões, compartilham campanhas por WhatsApp, e acompanham ganhos em tempo real.' },
           ].map((s, i) => (
             <div key={i} className="p-8 rounded-lg border-2" style={{ borderColor: '#e5e7eb', background: 'white' }}>
-              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-6 font-bold text-lg" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', color: 'white' }}>
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-6 font-bold text-lg" style={{ background: 'linear-gradient(135deg, #f1cf76 0%, #d6a84b 100%)', color: '#17130b' }}>
                 {s.num}
               </div>
               <h4 className="font-semibold mb-3 text-lg" style={{ color: '#1e293b' }}>{s.title}</h4>
@@ -137,10 +138,10 @@ export default function SobrePage() {
 
       {/* CTA Final */}
       <section className="max-w-4xl mx-auto px-6 py-20 border-t" style={{ borderColor: '#e5e7eb' }}>
-        <div className="rounded-lg p-12 text-center" style={{ background: '#ede9fe' }}>
-          <h3 className="text-3xl font-bold mb-4" style={{ color: '#0ea5e9' }}>Pronto para Aumentar as suas Vendas?</h3>
-          <p className="text-lg mb-8" style={{ color: '#6366f1' }}>Junte-se a parceiros que já estão a usar o Soluções Diferentes para gerir e crescer.</p>
-          <Link href="/register" className="inline-block px-8 py-4 rounded-lg font-semibold" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', color: 'white' }}>
+        <div className="rounded-lg p-12 text-center" style={{ background: '#fff7e6' }}>
+          <h3 className="text-3xl font-bold mb-4" style={{ color: '#7a5a18' }}>Pronto para Aumentar as suas Vendas?</h3>
+          <p className="text-lg mb-8" style={{ color: '#7a6b52' }}>Tecnologia Lumin AI ao serviço da operação comercial da Soluções Diferentes.</p>
+          <Link href="/register" className="inline-block px-8 py-4 rounded-lg font-semibold" style={{ background: 'linear-gradient(135deg, #f1cf76 0%, #d6a84b 100%)', color: '#17130b' }}>
             Começar Agora - É Grátis
           </Link>
         </div>
@@ -149,7 +150,7 @@ export default function SobrePage() {
       {/* Footer */}
       <footer className="border-t" style={{ borderColor: '#e5e7eb', background: '#f9fafb' }}>
         <div className="max-w-6xl mx-auto px-6 py-8 text-center">
-          <p style={{ color: '#64748b' }}>&copy; 2025 Soluções Diferentes. Todos os direitos reservados.</p>
+          <p style={{ color: '#64748b' }}>&copy; 2026 Soluções Diferentes · Tecnologia Lumin AI.</p>
         </div>
       </footer>
     </div>
