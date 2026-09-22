@@ -1,6 +1,6 @@
 'use client'
 
-import { LogOut, Menu, X, User, LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, FolderOpen, Calculator, Percent, FileCheck, Newspaper, AlertTriangle, Users, Upload, FileSpreadsheet, KeyRound, Target, Network, GitBranch, Shield, Building2, Circle, PhoneCall, ExternalLink } from 'lucide-react'
+import { LogOut, Menu, X, User, LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, FolderOpen, Calculator, Percent, FileCheck, Newspaper, AlertTriangle, Users, Upload, FileSpreadsheet, KeyRound, Target, Network, GitBranch, Shield, Building2, Circle, PhoneCall, ExternalLink, Bot, Sparkles } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -194,6 +194,26 @@ export function Navbar({ user, onLogout }: NavbarProps) {
             )}
 
             <nav className="p-3 space-y-1 safe-area-inset">
+              <a
+                href="https://rebornaaqi.vercel.app/?utm_source=crm_solucoes&utm_medium=partner&utm_campaign=lumin_growth&utm_content=mobile_robot"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between gap-2 rounded-xl px-4 py-3.5 text-sm font-semibold active:scale-[0.98] transition-all mb-2"
+                style={{ background: 'rgba(231,185,95,0.12)', color: '#f1cf76', border: '1px solid rgba(231,185,95,0.22)' }}
+              >
+                <span className="flex items-center gap-3"><Bot size={20} /> Falar com o Lumin</span>
+                <ExternalLink size={16} style={{ opacity: 0.8 }} />
+              </a>
+              <a
+                href="https://luminai.pt/simulacao-gratis/?utm_source=crm_solucoes&utm_medium=partner&utm_campaign=lumin_growth&utm_content=mobile_simulacao"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between gap-2 rounded-xl px-4 py-3 text-sm font-medium active:scale-[0.98] transition-all mb-2"
+                style={{ color: '#c8bead' }}
+              >
+                <span className="flex items-center gap-3"><Sparkles size={19} /> Simulação grátis</span>
+                <ExternalLink size={15} style={{ opacity: 0.65 }} />
+              </a>
               <a
                 href="https://imaginative-flan-e3a8a5.netlify.app"
                 target="_blank"
