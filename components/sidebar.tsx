@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
+import { LuminBrand } from './lumin-brand'
 import { usePathname } from 'next/navigation'
 import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2, Target, Crown, Circle, User, UserPlus, FileText, FileDown, Facebook, PhoneCall, ExternalLink } from 'lucide-react'
 
@@ -94,14 +94,10 @@ export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = fals
   const links = role === 'admin' ? adminLinks : parceiroLinks
 
   return (
-    <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 flex-col overflow-y-auto shadow-lg" style={{ background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)' }}>
-      {/* Logo */}
-      <div className="p-5 flex items-center gap-3 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-        <Image src="/logo.jpg" alt="Soluções Diferentes" width={48} height={48} className="rounded-lg" />
-        <div>
-          <p className="font-bold text-white text-sm leading-tight">Soluções</p>
-          <p className="font-bold text-sm leading-tight" style={{ color: '#22c55e' }}>Diferentes</p>
-        </div>
+    <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 flex-col overflow-y-auto shadow-lg" style={{ background: 'linear-gradient(180deg, #050812 0%, #0b0a08 58%, #11100d 100%)' }}>
+      {/* Lumin AI + cliente */}
+      <div className="p-5 border-b" style={{ borderColor: 'rgba(231,185,95,0.16)' }}>
+        <LuminBrand inverse />
       </div>
 
       {/* Quick Stats */}
@@ -127,9 +123,9 @@ export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = fals
           return (
             <Link key={l.href} href={l.href} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200"
               style={{ 
-                background: active ? 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' : 'transparent', 
-                color: active ? '#ffffff' : '#94a3b8',
-                boxShadow: active ? '0 4px 12px rgba(14,165,233,0.3)' : 'none'
+                background: active ? 'linear-gradient(135deg, #f1cf76 0%, #d6a84b 100%)' : 'transparent', 
+                color: active ? '#17130b' : '#a7a29a',
+                boxShadow: active ? '0 6px 18px rgba(214,168,75,0.22)' : 'none'
               }}>
               <l.icon size={18} />
               {l.label}
@@ -156,7 +152,7 @@ export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = fals
 
       {/* Footer */}
       <div className="p-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-        <p className="text-xs text-center" style={{ color: '#64748b' }}>Telecomunicações & Energia</p>
+        <p className="text-[11px] text-center" style={{ color: '#8c816d' }}>Lumin AI · CRM Soluções Diferentes</p>
       </div>
     </aside>
   )
