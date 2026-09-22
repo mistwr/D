@@ -23,7 +23,7 @@ export function LuminBrand({
         alt="Lumin AI"
         width={compact ? 34 : 48}
         height={compact ? 34 : 48}
-        className={`${compact ? 'h-8.5 w-8.5' : 'h-12 w-12'} rounded-xl shadow-lg`}
+        className={`${compact ? 'h-9 w-9' : 'h-12 w-12'} rounded-xl shadow-lg`}
         priority
       />
       <div className="min-w-0">
