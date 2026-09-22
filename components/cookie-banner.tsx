@@ -86,8 +86,8 @@ export function CookieBanner() {
       >
         {/* Header */}
         <div className="flex items-start gap-4 px-6 pt-6 pb-4">
-          <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#eef2ff' }}>
-            <Cookie size={20} style={{ color: '#0ea5e9' }} />
+          <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#fff7e6' }}>
+            <Cookie size={20} style={{ color: '#9a6b1a' }} />
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="text-base font-semibold" style={{ color: '#1e293b' }}>
@@ -95,7 +95,7 @@ export function CookieBanner() {
             </h2>
             <p className="text-sm mt-1 leading-relaxed" style={{ color: '#64748b' }}>
               Utilizamos cookies para garantir o funcionamento da plataforma e melhorar a sua experiência. Os cookies estritamente necessários não podem ser desactivados.{' '}
-              <Link href="/rgpd" className="underline font-medium" style={{ color: '#0ea5e9' }}>
+              <Link href="/rgpd" className="underline font-medium" style={{ color: '#9a6b1a' }}>
                 Saiba mais na nossa Política de Privacidade e Cookies.
               </Link>
             </p>
@@ -154,7 +154,7 @@ export function CookieBanner() {
                     className="sr-only peer"
                   />
                   <div className="w-10 h-6 rounded-full transition peer-checked:bg-indigo-600 peer-focus:ring-2 peer-focus:ring-indigo-300"
-                    style={{ background: analytics ? '#4338ca' : '#d1d5db' }}>
+                    style={{ background: analytics ? '#d6a84b' : '#d1d5db' }}>
                     <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${analytics ? 'left-5' : 'left-1'}`} />
                   </div>
                 </label>
@@ -176,7 +176,7 @@ export function CookieBanner() {
                     className="sr-only peer"
                   />
                   <div className="w-10 h-6 rounded-full transition"
-                    style={{ background: marketing ? '#4338ca' : '#d1d5db' }}>
+                    style={{ background: marketing ? '#d6a84b' : '#d1d5db' }}>
                     <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${marketing ? 'left-5' : 'left-1'}`} />
                   </div>
                 </label>
@@ -200,7 +200,7 @@ export function CookieBanner() {
               onClick={() => save(true, analytics, marketing)}
               disabled={saving}
               className="flex-1 rounded-xl py-2.5 text-sm font-semibold border transition hover:opacity-80 disabled:opacity-50"
-              style={{ background: '#eef2ff', color: '#0ea5e9', border: '1px solid #c7d2fe' }}
+              style={{ background: '#fff7e6', color: '#7a5a18', border: '1px solid #ead3a0' }}
             >
               Guardar preferencias
             </button>
@@ -209,7 +209,7 @@ export function CookieBanner() {
             onClick={() => save(true, true, true)}
             disabled={saving}
             className="flex-1 rounded-xl py-2.5 text-sm font-semibold transition hover:opacity-80 disabled:opacity-50"
-            style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', color: '#fff' }}
+            style={{ background: 'linear-gradient(135deg, #f1cf76 0%, #d6a84b 100%)', color: '#17130b' }}
           >
             Aceitar todos
           </button>
