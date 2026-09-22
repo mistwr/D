@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import { Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { LuminBrand } from '@/components/lumin-brand'
 
 // Imagens locais — energia, telecom e cidade
 const SLIDES = [
@@ -91,16 +91,8 @@ export default function LoginPage() {
 
         {/* Conteudo sobre o slideshow */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 3, display: 'flex', flexDirection: 'column', padding: '40px' }}>
-          {/* Logo topo esquerdo */}
-          <div className="flex items-center gap-3">
-            <div className="h-14 w-14 rounded-xl overflow-hidden flex-shrink-0 shadow-lg" style={{ border: '2px solid rgba(255,255,255,0.2)' }}>
-              <Image src="/logo.jpg" alt="Soluções Diferentes" width={56} height={56} className="object-cover h-full w-full" />
-            </div>
-            <div>
-              <p className="text-white font-bold text-lg leading-tight">Soluções Diferentes</p>
-              <p className="text-sm" style={{ color: 'rgba(255,255,255,0.65)' }}>Telecomunicações & Energia</p>
-            </div>
-          </div>
+          {/* Branding Lumin AI + cliente */}
+          <LuminBrand inverse />
 
           {/* Texto central */}
           <div className="flex-1 flex flex-col justify-center max-w-lg">
@@ -112,7 +104,7 @@ export default function LoginPage() {
                 {SLIDES[current].caption}
               </h2>
               <p className="text-base leading-relaxed" style={{ color: 'rgba(255,255,255,0.72)' }}>
-                A plataforma CRM da Soluções Diferentes que une parceiros, energia e telecomunicações numa só experiência.
+                CRM desenvolvido pela Lumin AI para a Soluções Diferentes, unindo parceiros, energia e telecomunicações numa só experiência.
               </p>
             </div>
           </div>
@@ -127,7 +119,7 @@ export default function LoginPage() {
                 style={{
                   width: i === current ? 24 : 8,
                   height: 8,
-                  background: i === current ? '#ffffff' : 'rgba(255,255,255,0.35)',
+                  background: i === current ? '#e7b95f' : 'rgba(255,255,255,0.28)',
                 }}
                 aria-label={`Slide ${i + 1}`}
               />
@@ -140,22 +132,12 @@ export default function LoginPage() {
       </div>
 
       {/* ---- LADO DIREITO: Formulario ---- */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12 lg:py-10 safe-area-inset" style={{ background: '#ffffff' }}>
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12 lg:py-10 safe-area-inset" style={{ background: '#fbfaf7' }}>
         <div className="w-full max-w-[380px]">
 
-          {/* Branding mobile (so visivel sem o painel esquerdo) */}
-          <div className="mb-6 sm:mb-8 flex flex-col items-center lg:items-start">
-            <div className="flex items-center gap-3 mb-1">
-              <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl overflow-hidden flex-shrink-0 shadow-md lg:hidden">
-                <Image src="/logo.jpg" alt="Soluções Diferentes" width={56} height={56} className="object-cover h-full w-full" />
-              </div>
-              <div>
-                <h1 className="text-lg sm:text-xl font-bold" style={{ color: '#0f172a' }}>
-                  Soluções Diferentes
-                </h1>
-                <p className="text-xs" style={{ color: '#64748b' }}>Telecomunicações & Energia</p>
-              </div>
-            </div>
+          {/* Branding mobile */}
+          <div className="mb-6 sm:mb-8 flex justify-center lg:justify-start">
+            <LuminBrand />
           </div>
 
           <div className="mb-5 sm:mb-6 text-center lg:text-left">
@@ -212,16 +194,16 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 w-full rounded-xl py-4 font-semibold text-white transition-all shadow-lg hover:shadow-xl disabled:opacity-60 active:scale-[0.98]"
-              style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', minHeight: '48px' }}
+              className="mt-2 w-full rounded-xl py-4 font-semibold transition-all shadow-lg hover:shadow-xl disabled:opacity-60 active:scale-[0.98]"
+              style={{ background: 'linear-gradient(135deg, #f1cf76 0%, #d6a84b 100%)', color: '#17130b', minHeight: '48px', boxShadow: '0 12px 30px rgba(214,168,75,0.22)' }}
             >
               {loading ? 'A entrar...' : 'Entrar'}
             </button>
           </form>
 
           {/* Badge */}
-          <div className="mt-8 flex items-center justify-center gap-2 rounded-xl py-3 px-4" style={{ background: '#f0f9ff', border: '1px solid #bae6fd' }}>
-            <span className="text-xs font-medium" style={{ color: '#0369a1' }}>Plataforma CRM Soluções Diferentes</span>
+          <div className="mt-8 flex items-center justify-center gap-2 rounded-xl py-3 px-4" style={{ background: '#fff9ec', border: '1px solid #ead3a0' }}>
+            <span className="text-xs font-semibold" style={{ color: '#7a5a18' }}>LUMIN AI · CRM para Soluções Diferentes</span>
           </div>
 
           <p className="mt-4 text-center text-xs" style={{ color: '#9ca3af' }}>
@@ -230,7 +212,7 @@ export default function LoginPage() {
 
           <p className="mt-3 text-center text-xs" style={{ color: '#9ca3af' }}>
             Ao aceder esta plataforma está a aceitar a nossa{' '}
-            <a href="/rgpd" className="underline hover:opacity-80 transition" style={{ color: '#0ea5e9' }}>
+            <a href="/rgpd" className="underline hover:opacity-80 transition" style={{ color: '#9a6b1a' }}>
               Política de Privacidade e Cookies
             </a>
           </p>
