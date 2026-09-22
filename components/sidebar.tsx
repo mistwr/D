@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { LuminBrand } from './lumin-brand'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2, Target, Crown, Circle, User, UserPlus, FileText, FileDown, Facebook, PhoneCall, ExternalLink } from 'lucide-react'
+import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2, Target, Crown, Circle, User, UserPlus, FileText, FileDown, Facebook, PhoneCall, ExternalLink, Bot, Sparkles } from 'lucide-react'
 
 interface SidebarUser {
   role: string
@@ -134,6 +134,30 @@ export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = fals
         })}
       </nav>
 
+      {/* Lumin AI - value first, no hard sell */}
+      <div className="px-4 pb-2 space-y-2">
+        <a
+          href="https://rebornaaqi.vercel.app/?utm_source=crm_solucoes&utm_medium=partner&utm_campaign=lumin_growth&utm_content=sidebar_robot"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200"
+          style={{ background: 'rgba(231,185,95,0.10)', color: '#f1cf76', border: '1px solid rgba(231,185,95,0.22)' }}
+        >
+          <span className="flex items-center gap-2"><Bot size={17} /> Falar com o Lumin</span>
+          <ExternalLink size={14} style={{ opacity: 0.8 }} />
+        </a>
+        <a
+          href="https://luminai.pt/simulacao-gratis/?utm_source=crm_solucoes&utm_medium=partner&utm_campaign=lumin_growth&utm_content=sidebar_simulacao"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200"
+          style={{ color: '#b8b0a2' }}
+        >
+          <span className="flex items-center gap-2"><Sparkles size={16} /> Simulação grátis</span>
+          <ExternalLink size={13} style={{ opacity: 0.65 }} />
+        </a>
+      </div>
+
       {/* SD Dialer */}
       <div className="px-4 pb-2">
         <a
@@ -152,7 +176,7 @@ export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = fals
 
       {/* Footer */}
       <div className="p-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-        <p className="text-[11px] text-center" style={{ color: '#8c816d' }}>Lumin AI · CRM Soluções Diferentes</p>
+        <a href="https://luminai.pt/?utm_source=crm_solucoes&utm_medium=partner&utm_campaign=lumin_growth&utm_content=sidebar_brand" target="_blank" rel="noopener noreferrer" className="block text-[11px] text-center hover:opacity-90" style={{ color: '#8c816d' }}>Lumin AI · CRM Soluções Diferentes</a>
       </div>
     </aside>
   )

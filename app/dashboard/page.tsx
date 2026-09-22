@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
-import { Plus, TrendingUp, Users, DollarSign, Clock, Calculator } from 'lucide-react'
+import { Plus, TrendingUp, Users, DollarSign, Clock, Calculator, Sparkles, Bot, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 interface Venda { id: string; client_name: string; client_email: string; amount: number; status: string; created_at: string }
@@ -144,6 +144,43 @@ export default function DashboardPage() {
                   <p className="text-xs sm:text-sm mt-0.5 sm:mt-1 truncate" style={{ color: '#64748b' }}>{m.label}</p>
                 </div>
               ))}
+            </div>
+
+            {/* Lumin AI discovery card */}
+            <div className="mb-6 sm:mb-8 rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #07090f 0%, #15100a 100%)', border: '1px solid rgba(231,185,95,0.28)', boxShadow: '0 16px 40px rgba(0,0,0,0.14)' }}>
+              <div className="p-5 sm:p-6 md:p-7">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+                  <div className="max-w-2xl">
+                    <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mb-3 text-xs font-semibold" style={{ background: 'rgba(231,185,95,0.10)', color: '#f1cf76', border: '1px solid rgba(231,185,95,0.20)' }}>
+                      <Sparkles size={14} /> Uma ajuda extra quando precisar
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Leve a Lumin AI para o seu próprio negócio</h2>
+                    <p className="text-sm sm:text-base leading-relaxed" style={{ color: '#b8b0a2' }}>
+                      Use IA para preparar respostas, criar conteúdo, organizar ideias e acelerar tarefas. Pode experimentar primeiro ou fazer uma simulação gratuita para perceber onde faria mais diferença no seu dia a dia.
+                    </p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-3 lg:min-w-[320px]">
+                    <a
+                      href="https://rebornaaqi.vercel.app/?utm_source=crm_solucoes&utm_medium=partner&utm_campaign=lumin_growth&utm_content=dashboard_robot"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 font-semibold transition-all hover:opacity-90 active:scale-[0.98]"
+                      style={{ background: 'linear-gradient(135deg, #f1cf76 0%, #d6a84b 100%)', color: '#17130b' }}
+                    >
+                      <Bot size={18} /> Experimentar o Lumin
+                    </a>
+                    <a
+                      href="https://luminai.pt/simulacao-gratis/?utm_source=crm_solucoes&utm_medium=partner&utm_campaign=lumin_growth&utm_content=dashboard_simulacao"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 font-semibold transition-all hover:bg-white/10 active:scale-[0.98]"
+                      style={{ color: '#f1cf76', border: '1px solid rgba(231,185,95,0.34)' }}
+                    >
+                      Simulação grátis <ArrowRight size={17} />
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Vendas */}
