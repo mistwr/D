@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { NotificationsDropdown, NotificationsDropdownMobile } from './notifications-dropdown'
 import { createClient } from '@/lib/supabase/client'
+import { LuminBrand } from './lumin-brand'
 
 interface NavbarProps {
   user: { full_name: string; role: string; email: string; id?: string; avatar_url?: string } | null
@@ -112,7 +113,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
             <>
               <NotificationsDropdown authFetch={authFetch} />
               <div className="flex items-center gap-2 lg:gap-3 pl-2 lg:pl-4" style={{ borderLeft: '1px solid #e2e8f0' }}>
-                <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="w-8 h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden hover:ring-2 hover:ring-sky-500 transition-all" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
+                <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="w-8 h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden hover:ring-2 hover:ring-sky-500 transition-all" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #f1cf76 0%, #d6a84b 100%)' }}>
                   {avatarUrl ? (
                     <Image src={avatarUrl} alt="Avatar" width={36} height={36} className="w-full h-full object-cover" />
                   ) : (
@@ -136,7 +137,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
       </nav>
 
       {/* Mobile Navbar - with safe area */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex md:hidden h-14 items-center justify-between px-3 safe-area-top" style={{ background: '#0f172a' }}>
+      <nav className="fixed top-0 left-0 right-0 z-50 flex md:hidden h-14 items-center justify-between px-3 safe-area-top" style={{ background: '#050812', borderBottom: '1px solid rgba(231,185,95,0.12)' }}>
         <div className="flex items-center gap-2">
           <button 
             onClick={() => setOpen(!open)} 
@@ -147,8 +148,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
           >
             {open ? <X size={20} className="text-white" /> : <Menu size={20} className="text-white" />}
           </button>
-          <Image src="/logo.jpg" alt="Logo" width={28} height={28} className="rounded-lg" />
-          <span className="font-semibold text-white text-sm truncate max-w-[140px]">Soluções Diferentes</span>
+          <LuminBrand compact inverse showPartner={false} />
         </div>
         <div className="flex items-center gap-2">
           {user && (
@@ -172,7 +172,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
           />
           <div 
             className="absolute top-14 left-0 bottom-0 w-[280px] max-w-[85vw] overflow-y-auto scrollbar-hide" 
-            style={{ background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)' }}
+            style={{ background: 'linear-gradient(180deg, #050812 0%, #11100d 100%)' }}
           >
             {/* User info on mobile */}
             {user && (
@@ -218,8 +218,8 @@ export function Navbar({ user, onLogout }: NavbarProps) {
                     onClick={() => setOpen(false)}
                     className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium active:scale-[0.98] transition-all"
                     style={{ 
-                      background: active ? 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' : 'transparent', 
-                      color: active ? '#ffffff' : '#94a3b8'
+                      background: active ? 'linear-gradient(135deg, #f1cf76 0%, #d6a84b 100%)' : 'transparent', 
+                      color: active ? '#17130b' : '#a7a29a'
                     }}
                   >
                     <l.icon size={20} />
@@ -231,7 +231,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
 
             {/* Footer */}
             <div className="p-4 mt-auto border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-              <p className="text-xs text-center" style={{ color: '#64748b' }}>Telecomunicacoes & Energia</p>
+              <p className="text-[11px] text-center" style={{ color: '#8c816d' }}>Lumin AI · CRM Soluções Diferentes</p>
             </div>
           </div>
         </div>
