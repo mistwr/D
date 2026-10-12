@@ -79,6 +79,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
     { href: '/admin/materiais', label: 'Materiais', icon: FolderOpen },
     { href: '/admin/publicacoes', label: 'Publicacoes', icon: Newspaper },
     { href: '/admin/comissoes', label: 'Comissoes', icon: Percent },
+    { href: '/admin/fidelizacoes', label: 'Fidelizações', icon: FileCheck },
     { href: '/admin/contratos', label: 'Contratos', icon: FileCheck },
     { href: '/admin/documentos', label: 'Documentos', icon: Upload },
     { href: '/admin/import', label: 'Import/Export', icon: FileSpreadsheet },

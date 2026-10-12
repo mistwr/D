@@ -65,6 +65,7 @@ export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = fals
     { href: '/admin/contratos', label: 'Contratos', icon: FileCheck },
     { href: '/admin/estrutura', label: 'Minha Equipa', icon: Network },
     { href: '/admin/facebook-leads', label: 'Facebook Leads', icon: Facebook },
+    { href: '/admin/fidelizacoes', label: 'Fidelizações', icon: FileCheck },
     { href: '/admin/alertas', label: 'Centro de Alertas', icon: AlertTriangle },
     { href: '/admin/online', label: 'Online', icon: Circle },
     { href: '/admin/perfil', label: 'Meu Perfil', icon: User },
