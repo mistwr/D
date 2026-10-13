@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 19844)
-Total output lines: 1395
-
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
@@ -746,7 +743,125 @@ export default function AdminVendasPage() {
                               <button
                                 onClick={saveClientData}
                                 disabled={savingClient || !clientForm.client_name.trim()}
-                                className="flex-1 rounded-lg py-2 text-sm font-semibold text-white transition hover:opacity-90 dis…1844 tokens truncated…    <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Tipo Energia</label>
+                                className="flex-1 rounded-lg py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                                style={{ background: '#059669' }}
+                              >
+                                {savingClient ? 'A guardar...' : 'Guardar Alteracoes'}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditingClient(false)
+                                  setClientForm({
+                                    client_name: selected.client_name || '',
+                                    client_nif: selected.client_nif || '',
+                                    client_cc: selected.client_cc || '',
+                                    client_phone: selected.client_phone || '',
+                                    client_email: selected.client_email || '',
+                                    client_iban: selected.client_iban || '',
+                                    client_address: selected.client_address || '',
+                                  })
+                                }}
+                                className="rounded-lg px-4 py-2 text-sm font-medium transition hover:opacity-70"
+                                style={{ background: '#f8fafc', color: '#475569' }}
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                            <Field label="Nome" value={selected.client_name} />
+                            <Field label="NIF" value={selected.client_nif} />
+                            <Field label="CC / BI" value={selected.client_cc} />
+                            <Field label="Telemovel" value={selected.client_phone} />
+                            <Field label="Email" value={selected.client_email} />
+                            <Field label="IBAN" value={selected.client_iban} />
+                            <Field label="Codigo Postal" value={selected.codigo_postal || 'Nao definido'} />
+                            <Field label="Localidade" value={selected.localidade || 'Nao definida'} />
+                            <div className="col-span-2">
+                              <Field label="Morada" value={selected.client_address || 'Sem morada definida'} />
+                            </div>
+                          </div>
+                        )}
+                      </section>
+
+                      {/* Dados do Produto */}
+                      <section className="px-5 py-4" style={{ borderBottom: '1px solid #f3f4f6' }}>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <Package size={14} style={{ color: '#0ea5e9' }} />
+                            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#0ea5e9' }}>Dados do Produto</p>
+                          </div>
+                          {!editingProduct && (
+                            <button
+                              onClick={() => setEditingProduct(true)}
+                              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition hover:opacity-80"
+                              style={{ background: '#eef2ff', color: '#0ea5e9' }}
+                            >
+                              <Edit3 size={12} />
+                              Editar Produto
+                            </button>
+                          )}
+                        </div>
+
+                        {editingProduct ? (
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                              {/* Campos Base */}
+                              <div>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Tipo de Servico</label>
+                                <select
+                                  value={productForm.service_type}
+                                  onChange={e => setProductForm(f => ({ ...f, service_type: e.target.value }))}
+                                  className="w-full rounded-lg px-3 py-2 text-sm"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                >
+                                  <option value="">Selecionar...</option>
+                                  <option value="energia">Energia</option>
+                                  <option value="gas">Gas</option>
+                                  <option value="telecom">Telecom</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Operadora</label>
+                                <input
+                                  type="text"
+                                  value={productForm.operator}
+                                  onChange={e => setProductForm(f => ({ ...f, operator: e.target.value }))}
+                                  className="w-full rounded-lg px-3 py-2 text-sm"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                  placeholder="Nome da operadora"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Plano</label>
+                                <input
+                                  type="text"
+                                  value={productForm.plano}
+                                  onChange={e => setProductForm(f => ({ ...f, plano: e.target.value }))}
+                                  className="w-full rounded-lg px-3 py-2 text-sm"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                  placeholder="Nome do plano"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Valor (EUR)</label>
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  value={productForm.amount}
+                                  onChange={e => setProductForm(f => ({ ...f, amount: e.target.value }))}
+                                  className="w-full rounded-lg px-3 py-2 text-sm"
+                                  style={{ border: '1px solid #d1d5db', background: '#fff' }}
+                                  placeholder="0.00"
+                                />
+                              </div>
+
+                              {/* Campos Energia/Gas */}
+                              {(productForm.service_type === 'energia' || productForm.service_type === 'gas') && (
+                                <>
+                                  <div>
+                                    <label className="block text-xs font-medium mb-1" style={{ color: '#475569' }}>Tipo Energia</label>
                                     <select
                                       value={productForm.energia_tipo}
                                       onChange={e => setProductForm(f => ({ ...f, energia_tipo: e.target.value }))}
