@@ -14,6 +14,26 @@ interface Venda {
   operator?: string; service_type?: string
 }
 interface Unidade { id: string; nome: string }
+interface PeriodTotals { count: number; amount: number }
+interface OperatorSummary {
+  operator: string
+  today: PeriodTotals
+  week: PeriodTotals
+  month: PeriodTotals
+}
+
+function getPeriodStarts(now: Date) {
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const week = new Date(today)
+  week.setDate(week.getDate() - ((week.getDay() + 6) % 7))
+  const month = new Date(now.getFullYear(), now.getMonth(), 1)
+  const year = new Date(now.getFullYear(), 0, 1)
+  return { now, today, week, month, year }
+}
+
+function formatEuro(value: number) {
+  return `€${value.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+}
 
 const ST: Record<string, { bg: string; color: string; label: string }> = {
   pendente:   { bg: '#fef3c7', color: '#92400e',  label: 'Pendente'   },
@@ -56,20 +76,18 @@ export default function AdminDashboardPage() {
     return ()=>{active=false}
   }, [user,authFetch,loadVersion])
 
-  // Calcular período
+  // Calcular o período usando a hora local e semanas de segunda-feira a domingo
   const periodoFilter = useMemo(() => {
-    const now = new Date()
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()))
-    const startOfYear = new Date(now.getFullYear(), 0, 1)
+    const { now, today, week, month, year } = getPeriodStarts(new Date())
     
     return (date: string) => {
       const d = new Date(date)
+      if (Number.isNaN(d.getTime())) return false
       switch (filterPeriodo) {
-        case 'hoje': return d.toDateString() === new Date().toDateString()
-        case 'semana': return d >= startOfWeek
-        case 'mes': return d >= startOfMonth
-        case 'ano': return d >= startOfYear
+        case 'hoje': return d >= today && d <= now
+        case 'semana': return d >= week && d <= now
+        case 'mes': return d >= month && d <= now
+        case 'ano': return d >= year && d <= now
         default: return true
       }
     }
@@ -112,6 +130,48 @@ export default function AdminDashboardPage() {
 
     return { total, pendentes, pagos, parceiros, telecom, energia, taxaConversao, topParceiro }
   }, [filtered])
+
+  // Resultados por operadora: hoje, semana atual (segunda a domingo) e mês atual
+  const operatorResults = useMemo(() => {
+    const { now, today, week, month } = getPeriodStarts(new Date())
+    const byOperator: Record<string, OperatorSummary> = {}
+    const totals = {
+      today: { count: 0, amount: 0 },
+      week: { count: 0, amount: 0 },
+      month: { count: 0, amount: 0 },
+    }
+
+    for (const venda of vendas) {
+      const createdAt = new Date(venda.created_at)
+      if (Number.isNaN(createdAt.getTime()) || createdAt > now) continue
+
+      const operator = venda.operator?.trim() || 'Sem operadora'
+      const summary = byOperator[operator] ??= {
+        operator,
+        today: { count: 0, amount: 0 },
+        week: { count: 0, amount: 0 },
+        month: { count: 0, amount: 0 },
+      }
+      const amount = Number(venda.amount) || 0
+      const add = (period: PeriodTotals, total: PeriodTotals) => {
+        period.count += 1
+        period.amount += amount
+        total.count += 1
+        total.amount += amount
+      }
+
+      if (createdAt >= today) add(summary.today, totals.today)
+      if (createdAt >= week) add(summary.week, totals.week)
+      if (createdAt >= month) add(summary.month, totals.month)
+    }
+
+    const rows = Object.values(byOperator).sort((a, b) =>
+      b.month.amount - a.month.amount ||
+      b.month.count - a.month.count ||
+      a.operator.localeCompare(b.operator, 'pt-PT')
+    )
+    return { rows, totals }
+  }, [vendas])
 
   // Export CSV
   function exportCSV() {
@@ -234,6 +294,68 @@ export default function AdminDashboardPage() {
                 </div>
               )}
             </div>
+
+            {/* Resultados por operadora */}
+            <section className="rounded-2xl p-4 md:p-5 mb-6 shadow-sm" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                <div>
+                  <h2 className="text-lg font-semibold" style={{ color: '#1e293b' }}>Resultados por operadora</h2>
+                  <p className="text-sm" style={{ color: '#64748b' }}>Vendas registadas pela data de criação, em todos os estados.</p>
+                </div>
+                <span className="text-xs font-medium rounded-full px-3 py-1" style={{ background: '#f1f5f9', color: '#475569' }}>
+                  {operatorResults.rows.length} {operatorResults.rows.length === 1 ? 'operadora' : 'operadoras'}
+                </span>
+              </div>
+
+              {operatorResults.rows.length === 0 ? (
+                <p className="py-8 text-center text-sm" style={{ color: '#94a3b8' }}>Ainda não há vendas para apresentar.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[620px] text-sm">
+                    <thead style={{ background: '#f8fafc' }}>
+                      <tr>
+                        {['Operadora', 'Hoje', 'Esta semana', 'Este mês'].map(label => (
+                          <th key={label} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748b' }}>{label}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {operatorResults.rows.map(row => {
+                        const periods: Array<{ key: string; value: PeriodTotals }> = [
+                          { key: 'today', value: row.today },
+                          { key: 'week', value: row.week },
+                          { key: 'month', value: row.month },
+                        ]
+                        return (
+                          <tr key={row.operator} style={{ borderTop: '1px solid #f1f5f9' }}>
+                            <td className="px-4 py-3 font-semibold" style={{ color: '#1e293b' }}>{row.operator}</td>
+                            {periods.map(({ key, value }) => (
+                              <td key={key} className="px-4 py-3">
+                                <span className="font-semibold" style={{ color: '#1e293b' }}>{value.count} {value.count === 1 ? 'venda' : 'vendas'}</span>
+                                <span className="block text-xs mt-1" style={{ color: '#64748b' }}>{formatEuro(value.amount)}</span>
+                              </td>
+                            ))}
+                          </tr>
+                        )
+                      })}
+                      <tr style={{ borderTop: '2px solid #e2e8f0', background: '#f8fafc' }}>
+                        <td className="px-4 py-3 font-bold" style={{ color: '#1e293b' }}>Total</td>
+                        {[
+                          { key: 'today', value: operatorResults.totals.today },
+                          { key: 'week', value: operatorResults.totals.week },
+                          { key: 'month', value: operatorResults.totals.month },
+                        ].map(({ key, value }) => (
+                          <td key={key} className="px-4 py-3">
+                            <span className="font-bold" style={{ color: '#1e293b' }}>{value.count} {value.count === 1 ? 'venda' : 'vendas'}</span>
+                            <span className="block text-xs mt-1 font-semibold" style={{ color: '#0284c7' }}>{formatEuro(value.amount)}</span>
+                          </td>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
 
             {/* Alertas de Acao */}
             <div className="mb-6">
