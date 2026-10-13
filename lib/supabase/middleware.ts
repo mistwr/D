@@ -22,7 +22,9 @@ export async function updateSession(request: NextRequest) {
   )
 
   // Refresh session
-  const { data: { user } } = await supabase.auth.getUser()
+  const bearer=request.headers.get('authorization')?.replace(/^Bearer /i,'').trim()
+  const { data, error } = await supabase.auth.getClaims(bearer || undefined)
+  const user=!error&&data?.claims?.sub ? {id:data.claims.sub} : null
 
   const { pathname } = request.nextUrl
   const publicRoutes = ['/', '/login', '/sobre']

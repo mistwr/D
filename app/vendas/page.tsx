@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { readJSON, loadWithState } from '@/lib/utils/request'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
@@ -69,6 +70,8 @@ const SERVICE_LABELS: Record<string, string> = {
 
 export default function VendasPage() {
   const { user, loading: authLoading, authFetch } = useAuth('parceiro')
+  const [loadError,setLoadError]=useState('')
+  const [loadVersion,setLoadVersion]=useState(0)
   const [vendas, setVendas] = useState<Venda[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -84,11 +87,15 @@ export default function VendasPage() {
 
   useEffect(() => {
     if (!user) return
-    authFetch('/api/vendas')
-      .then(r => r.json())
-      .then(d => setVendas(d.vendas || []))
-      .finally(() => setLoading(false))
-  }, [user, authFetch])
+    let active=true
+    setLoading(true);setLoadError('')
+    void loadWithState(()=>authFetch('/api/vendas').then(readJSON),{
+      success:d=>{if(active)setVendas(d.vendas||[])},
+      failure:message=>{if(active)setLoadError(message)},
+      finished:()=>{if(active)setLoading(false)},
+    })
+    return ()=>{active=false}
+  }, [user, authFetch, loadVersion])
 
   async function openDocs(venda: Venda) {
     setSelectedVenda(venda)
@@ -126,6 +133,8 @@ export default function VendasPage() {
     })
     setDocs(prev => prev.filter(d => d.id !== docId))
   }
+
+  if(loadError)return <div className="min-h-screen bg-slate-50"><Navbar user={user}/><Sidebar userRole={user?.role}/><main className="p-6 pt-24 md:ml-64"><p role="alert" className="mb-4 text-red-700">{loadError}</p><button className="rounded-lg bg-sky-600 px-4 py-2 text-white" onClick={()=>setLoadVersion(v=>v+1)}>Tentar novamente</button></main></div>
 
   const filtered = vendas.filter(v => {
     const q = search.toLowerCase()

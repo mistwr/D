@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import {readJSON,loadWithState} from '@/lib/utils/request'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
@@ -12,6 +13,7 @@ interface NovoForm { email: string; password: string; full_name: string; company
 export default function MinhaEstruturaPage() {
   const { user, loading: authLoading, authFetch } = useAuth()
   const [membros, setMembros] = useState<Membro[]>([])
+  const [initialError,setInitialError]=useState<Error|null>(null)
   const [loading, setLoading] = useState(true)
   const [permissoes, setPermissoes] = useState({ pode_criar_estrutura: false, pode_criar_parceiros: false })
 
@@ -31,25 +33,12 @@ export default function MinhaEstruturaPage() {
   useEffect(() => {
     if (!user) return
     async function load() {
-      const safeJson = async (res: Response) => {
-        if (!res.ok) return null
-        const text = await res.text()
-        if (!text) return null
-        try { return JSON.parse(text) } catch { return null }
-      }
-      // Buscar permissoes do utilizador
-      const perfil = await authFetch('/api/profile').then(safeJson)
-      setPermissoes({
-        pode_criar_estrutura: perfil?.profile?.pode_criar_estrutura || false,
-        pode_criar_parceiros: perfil?.profile?.pode_criar_parceiros || false,
-      })
-      
+      setPermissoes({pode_criar_estrutura:user!.pode_criar_estrutura||false,pode_criar_parceiros:user!.pode_criar_parceiros||false})
       // Buscar membros da estrutura (parceiros criados por este utilizador)
-      const res = await authFetch('/api/estrutura/membros').then(safeJson)
+      const res = await authFetch('/api/estrutura/membros').then(readJSON)
       setMembros(res?.membros || [])
-      setLoading(false)
     }
-    load()
+    void loadWithState(load,{success:()=>{},failure:m=>setInitialError(new Error(m)),finished:()=>setLoading(false)})
   }, [user, authFetch])
 
   async function criarMembro() {
@@ -97,6 +86,7 @@ export default function MinhaEstruturaPage() {
     setMembros(m.membros || [])
   }
 
+  if(initialError)throw initialError
   if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#f8fafc' }}>

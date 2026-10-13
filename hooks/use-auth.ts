@@ -1,7 +1,9 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { authFetch } from '@/lib/auth-fetch'
+import { withTimeout } from '@/lib/utils/request'
 import { createClient } from '@/lib/supabase/client'
 
 export interface AuthUser {
@@ -19,6 +21,7 @@ export interface AuthUser {
 export function useAuth(requiredRole?: 'admin' | 'parceiro') {
   const router = useRouter()
   const [user, setUser] = useState<AuthUser | null>(null)
+  const [failure,setFailure] = useState<Error|null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -27,35 +30,27 @@ export function useAuth(requiredRole?: 'admin' | 'parceiro') {
 
     const checkAuth = async () => {
       try {
-        console.log('[v0] useAuth: checking session...')
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        const { data: { session }, error: sessionError } = await withTimeout(supabase.auth.getSession(),8000)
 
-        if (sessionError) {
-          console.log('[v0] useAuth: session error', sessionError.message)
-        }
+        if (sessionError) throw sessionError
 
         if (!session) {
-          console.log('[v0] useAuth: no session, redirecting to login')
           if (isMounted) router.replace('/login')
           return
         }
 
-        console.log('[v0] useAuth: session found for', session.user.email)
 
-        const { data: profile, error: profileError } = await supabase
+        const { data: profile, error: profileError } = await withTimeout(supabase
           .from('profiles')
           .select('role, full_name, company_name, phone, is_superadmin, pode_criar_estrutura, pode_criar_parceiros, avatar_url')
           .eq('id', session.user.id)
-          .single()
+          .single(),10000)
 
-        console.log('[v0] useAuth: profile result', profile, profileError?.message)
 
         if (!isMounted) return
 
         if (profileError || !profile) {
-          console.log('[v0] useAuth: no profile found, redirecting to login')
-          if (isMounted) router.replace('/login')
-          return
+          throw new Error('Não foi possível carregar o teu perfil. Tenta novamente.')
         }
 
         const authUser: AuthUser = {
@@ -70,19 +65,15 @@ export function useAuth(requiredRole?: 'admin' | 'parceiro') {
           avatar_url: profile?.avatar_url ?? undefined,
         }
 
-        console.log('[v0] useAuth: authUser created', authUser.email, authUser.role)
 
         if (requiredRole && authUser.role !== requiredRole) {
-          console.log('[v0] useAuth: role mismatch, redirecting')
           router.replace(authUser.role === 'admin' ? '/admin/dashboard' : '/dashboard')
           return
         }
 
-        console.log('[v0] useAuth: setting user')
         setUser(authUser)
       } catch (err) {
-        console.log('[v0] useAuth: catch error', err)
-        if (isMounted) router.replace('/login')
+        if (isMounted) setFailure(err instanceof Error?err:new Error('Não foi possível confirmar a sessão.'))
       } finally {
         if (isMounted) setLoading(false)
       }
@@ -100,15 +91,6 @@ export function useAuth(requiredRole?: 'admin' | 'parceiro') {
     }
   }, [router, requiredRole])
 
-  /** Fetch wrapper que envia sempre Authorization: Bearer <token> */
-  const authFetch = useCallback(async (url: string, options: RequestInit = {}) => {
-    const supabase = createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    const token = session?.access_token
-    const headers: Record<string, string> = { ...(options.headers as Record<string, string> ?? {}) }
-    if (token) headers['Authorization'] = `Bearer ${token}`
-    return fetch(url, { ...options, credentials: 'include', headers })
-  }, [])
-
+  if (failure) throw failure
   return { user, loading, authFetch }
 }

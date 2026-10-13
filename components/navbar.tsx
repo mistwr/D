@@ -5,8 +5,8 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { NotificationsDropdown, NotificationsDropdownMobile } from './notifications-dropdown'
-import { createClient } from '@/lib/supabase/client'
+import { NotificationsDropdown, NotificationsDropdownMobile, useCRMNotifications } from './notifications-dropdown'
+import { authFetch } from '@/lib/auth-fetch'
 import { LuminBrand } from './lumin-brand'
 
 interface NavbarProps {
@@ -17,17 +17,8 @@ interface NavbarProps {
 export function Navbar({ user, onLogout }: NavbarProps) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  const notificationState=useCRMNotifications(authFetch,user?.id??null)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatar_url || null)
-
-  // Auth fetch helper
-  const authFetch = useCallback(async (url: string, options: RequestInit = {}) => {
-    const supabase = createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    const token = session?.access_token
-    const headers: Record<string, string> = { ...(options.headers as Record<string, string> ?? {}) }
-    if (token) headers['Authorization'] = `Bearer ${token}`
-    return fetch(url, { ...options, credentials: 'include', headers })
-  }, [])
 
   // Update presence heartbeat
   useEffect(() => {
@@ -112,7 +103,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
         <div className="flex items-center gap-2 lg:gap-4">
           {user && (
             <>
-              <NotificationsDropdown authFetch={authFetch} />
+              <NotificationsDropdown state={notificationState} />
               <div className="flex items-center gap-2 lg:gap-3 pl-2 lg:pl-4" style={{ borderLeft: '1px solid #e2e8f0' }}>
                 <Link href={user.role === 'admin' ? '/admin/perfil' : '/perfil'} className="w-8 h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden hover:ring-2 hover:ring-amber-400 transition-all" style={{ background: avatarUrl ? 'transparent' : 'linear-gradient(135deg, #f1cf76 0%, #d6a84b 100%)' }}>
                   {avatarUrl ? (
@@ -154,7 +145,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
         <div className="flex items-center gap-2">
           {user && (
             <>
-              <NotificationsDropdownMobile authFetch={authFetch} />
+              <NotificationsDropdownMobile state={notificationState} />
               <button onClick={handleLogout} className="p-2 rounded-lg active:scale-95 transition-transform" style={{ background: 'rgba(239,68,68,0.2)' }} aria-label="Sair">
                 <LogOut size={18} style={{ color: '#fca5a5' }} />
               </button>

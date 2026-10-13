@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import {readJSON,loadWithState} from '@/lib/utils/request'
 import { useAuth } from '@/hooks/use-auth'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
@@ -12,6 +13,7 @@ interface Parceiro { id: string; full_name: string; email: string; company_name:
 export default function AdminPasswordsPage() {
   const { user, loading: authLoading, authFetch } = useAuth('admin')
   const [parceiros, setParceiros] = useState<Parceiro[]>([])
+  const [initialError,setInitialError]=useState<Error|null>(null)
   const [loading, setLoading] = useState(true)
 
   // Alterar password de parceiro
@@ -30,12 +32,11 @@ export default function AdminPasswordsPage() {
   const [errorM, setErrorM] = useState('')
 
   useEffect(() => {
-    if (!user) return
-    authFetch('/api/vendas?parceiros=1').then(r => r.json()).then(res => {
+    if(!user)return
+    void loadWithState(()=>authFetch('/api/vendas?parceiros=1').then(readJSON).then(res => {
       setParceiros(res.parceiros || [])
-      setLoading(false)
-    })
-  }, [user, authFetch])
+    }), {success:()=>{},failure:m=>setInitialError(new Error(m)),finished:()=>setLoading(false)})
+  }, [user,authFetch])
 
   async function changeParceiroPass() {
     setErrorP(''); setSuccessP('')
@@ -70,6 +71,7 @@ export default function AdminPasswordsPage() {
     setTimeout(() => setSuccessM(''), 3000)
   }
 
+  if(initialError)throw initialError
   if (authLoading || loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />

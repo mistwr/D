@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import {readJSON,loadWithState} from '@/lib/utils/request'
 import { useAuth } from '@/hooks/use-auth'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
@@ -14,6 +15,7 @@ export default function PublicarPage() {
   const { user, loading: authLoading, authFetch } = useAuth('admin')
   const [parceiros, setParceiros] = useState<Parceiro[]>([])
   const [publicacoes, setPublicacoes] = useState<Publicacao[]>([])
+  const [initialError,setInitialError]=useState<Error|null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedParceiros, setSelectedParceiros] = useState<string[]>([])
   const [form, setForm] = useState({ title: '', message: '' })
@@ -22,16 +24,15 @@ export default function PublicarPage() {
   const [success, setSuccess] = useState(false)
 
   useEffect(() => {
-    if (!user) return
-    Promise.all([
-      authFetch('/api/vendas?parceiros=1').then(r => r.json()),
-      authFetch('/api/publicacoes').then(r => r.json()),
+    if(!user)return
+    void loadWithState(()=>Promise.all([
+      authFetch('/api/vendas?parceiros=1').then(readJSON),
+      authFetch('/api/publicacoes').then(readJSON),
     ]).then(([p, pub]) => {
       setParceiros(p.parceiros || [])
       setPublicacoes(pub.publicacoes || [])
-      setLoading(false)
-    })
-  }, [user, authFetch])
+    }), {success:()=>{},failure:m=>setInitialError(new Error(m)),finished:()=>setLoading(false)})
+  }, [user,authFetch])
 
   function toggleParceiro(id: string) {
     setSelectedParceiros(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
@@ -60,6 +61,7 @@ export default function PublicarPage() {
     setTimeout(() => setSuccess(false), 3000)
   }
 
+  if(initialError)throw initialError
   if (authLoading || loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />

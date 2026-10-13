@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import {readJSON,loadWithState} from '@/lib/utils/request'
 import { useAuth } from '@/hooks/use-auth'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
@@ -19,6 +20,7 @@ export default function AdminPublicacoesPage() {
   const fileRef = useRef<HTMLInputElement>(null)
   const [pubs, setPubs] = useState<Publicacao[]>([])
   const [parceiros, setParceiros] = useState<Parceiro[]>([])
+  const [initialError,setInitialError]=useState<Error|null>(null)
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
@@ -36,16 +38,15 @@ export default function AdminPublicacoesPage() {
   const [file, setFile] = useState<File | null>(null)
 
   useEffect(() => {
-    if (!user) return
-    Promise.all([
-      authFetch('/api/publicacoes').then(r => r.json()),
-      authFetch('/api/vendas?parceiros=1').then(r => r.json()),
+    if(!user)return
+    void loadWithState(()=>Promise.all([
+      authFetch('/api/publicacoes').then(readJSON),
+      authFetch('/api/vendas?parceiros=1').then(readJSON),
     ]).then(([pubsRes, parcRes]) => {
       setPubs(pubsRes.publicacoes || [])
       setParceiros(parcRes.parceiros || [])
-      setLoading(false)
-    })
-  }, [user, authFetch])
+    }), {success:()=>{},failure:m=>setInitialError(new Error(m)),finished:()=>setLoading(false)})
+  }, [user,authFetch])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -174,6 +175,7 @@ export default function AdminPublicacoesPage() {
     }))
   }
 
+  if(initialError)throw initialError
   if (authLoading || loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />

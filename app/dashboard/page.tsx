@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { readJSON, loadWithState } from '@/lib/utils/request'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
@@ -16,37 +17,26 @@ export default function DashboardPage() {
   const { user, loading: authLoading, authFetch } = useAuth('parceiro')
   const [vendas, setVendas] = useState<Venda[]>([])
   const [comCalc, setComCalc] = useState<ComCalculo | null>(null)
+  const [loadError,setLoadError]=useState('')
+  const [loadVersion,setLoadVersion]=useState(0)
   const [dataLoading, setDataLoading] = useState(true)
   const [mensagemDia, setMensagemDia] = useState<Mensagem | null>(null)
   const [chargebacks, setChargebacks] = useState<Chargeback[]>([])
 
   useEffect(() => {
-    if (!user) return // Espera que useAuth complete
-
-    async function loadData() {
-      try {
-        const [vRes, cRes, mRes, chRes] = await Promise.all([
-          authFetch('/api/vendas'),
-          authFetch('/api/comissoes'),
-          authFetch('/api/mensagens'),
-          authFetch('/api/chargebacks')
-        ])
-        const vData = await vRes.json()
-        const cData = await cRes.json()
-        const mData = await mRes.json()
-        const chData = await chRes.json()
-        setVendas(vData.vendas || [])
-        if (cData.calculo) setComCalc(cData.calculo)
-        if (mData.mensagem) setMensagemDia(mData.mensagem)
-        setChargebacks(chData.chargebacks || [])
-      } catch {
-        // silencioso
-      }
-      setDataLoading(false)
-    }
-
-    loadData()
-  }, [user])
+    if (!user) return
+    let active=true
+    setDataLoading(true);setLoadError('')
+    void loadWithState(()=>authFetch('/api/vendas?summary=1').then(readJSON),{
+      success:d=>{if(active)setVendas(d.vendas||[])},
+      failure:message=>{if(active)setLoadError(message)},
+      finished:()=>{if(active)setDataLoading(false)},
+    })
+    void authFetch('/api/comissoes').then(readJSON).then(d=>{if(active&&d.calculo)setComCalc(d.calculo)}).catch(()=>{})
+    void authFetch('/api/mensagens').then(readJSON).then(d=>{if(active&&d.mensagem)setMensagemDia(d.mensagem)}).catch(()=>{})
+    void authFetch('/api/chargebacks').then(readJSON).then(d=>{if(active)setChargebacks(d.chargebacks||[])}).catch(()=>{})
+    return ()=>{active=false}
+  }, [user,authFetch,loadVersion])
 
   if (authLoading || dataLoading) {
     return (
@@ -55,6 +45,8 @@ export default function DashboardPage() {
       </div>
     )
   }
+
+  if(loadError)return <div className="min-h-screen bg-slate-50"><Navbar user={user}/><Sidebar userRole={user?.role}/><main className="p-6 pt-24 md:ml-64"><p role="alert" className="mb-4 text-red-700">{loadError}</p><button className="rounded-lg bg-sky-600 px-4 py-2 text-white" onClick={()=>setLoadVersion(v=>v+1)}>Tentar novamente</button></main></div>
 
   if (!user) {
     return <div>Erro de autenticação</div>

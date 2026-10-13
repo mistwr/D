@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import {readJSON,loadWithState} from '@/lib/utils/request'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
@@ -18,18 +19,19 @@ interface Chargeback {
 export default function ChargebacksParceiroPage() {
   const { user, authFetch } = useAuth('parceiro')
   const [chargebacks, setChargebacks] = useState<Chargeback[]>([])
+  const [initialError,setInitialError]=useState<Error|null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!user) return
-    authFetch('/api/chargebacks').then(r => r.json()).then(d => {
+    if(!user)return
+    void loadWithState(()=>authFetch('/api/chargebacks').then(readJSON).then(d => {
       setChargebacks(d.chargebacks || [])
-      setLoading(false)
-    })
-  }, [user, authFetch])
+    }), {success:()=>{},failure:m=>setInitialError(new Error(m)),finished:()=>setLoading(false)})
+  }, [user,authFetch])
 
   const total = chargebacks.reduce((s, c) => s + c.valor, 0)
 
+  if(initialError)throw initialError
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import {readJSON,loadWithState} from '@/lib/utils/request'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
@@ -30,6 +31,7 @@ export default function ParceirosPage() {
   const { user, loading: authLoading, authFetch } = useAuth('admin')
   const [parceiros, setParceiros] = useState<Parceiro[]>([])
   const [vendas, setVendas] = useState<Venda[]>([])
+  const [initialError,setInitialError]=useState<Error|null>(null)
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<string | null>(null)
   const [tab, setTab] = useState<'vendas' | 'comissoes' | 'password' | 'permissoes'>('vendas')
@@ -81,14 +83,13 @@ export default function ParceirosPage() {
     if (!user) return
     async function load() {
       const [p, v] = await Promise.all([
-        authFetch('/api/parceiros').then(r => r.json()),
-        authFetch('/api/vendas').then(r => r.json()),
+        authFetch('/api/parceiros').then(readJSON),
+        authFetch('/api/vendas').then(readJSON),
       ])
       setParceiros(p.parceiros || [])
       setVendas(v.vendas || [])
-      setLoading(false)
     }
-    load()
+    void loadWithState(load,{success:()=>{},failure:m=>setInitialError(new Error(m)),finished:()=>setLoading(false)})
   }, [user, authFetch])
 
   async function loadComissoes(pid: string) {
@@ -261,6 +262,7 @@ export default function ParceirosPage() {
     setTimeout(() => setPassMsg(''), 4000)
   }
 
+  if(initialError)throw initialError
   if (authLoading || loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} />

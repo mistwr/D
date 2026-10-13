@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useMemo } from 'react'
+import { readJSON, loadWithState } from '@/lib/utils/request'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
@@ -27,6 +28,8 @@ export default function AdminDashboardPage() {
   const { user, loading: authLoading, authFetch } = useAuth('admin')
   const [vendas, setVendas] = useState<Venda[]>([])
   const [unidades, setUnidades] = useState<Unidade[]>([])
+  const [loadError,setLoadError]=useState('')
+  const [loadVersion,setLoadVersion]=useState(0)
   const [dataLoading, setDataLoading] = useState(true)
   const [alertaCounts, setAlertaCounts] = useState<Record<string, number>>({})
 
@@ -41,25 +44,17 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     if (!user) return
-    async function loadData() {
-      try {
-        const [vRes, uRes, aRes] = await Promise.all([
-          authFetch('/api/vendas'),
-          authFetch('/api/unidades'),
-          authFetch('/api/alertas'),
-        ])
-        const vData = await vRes.json()
-        setVendas(vData.vendas || [])
-        if (uRes.ok) setUnidades(await uRes.json())
-        if (aRes.ok) {
-          const aData = await aRes.json()
-          setAlertaCounts(aData.counts || {})
-        }
-      } catch { /* silencioso */ }
-      setDataLoading(false)
-    }
-    loadData()
-  }, [user])
+    let active=true
+    setDataLoading(true);setLoadError('')
+    void loadWithState(()=>authFetch('/api/vendas?summary=1').then(readJSON),{
+      success:d=>{if(active)setVendas(d.vendas||[])},
+      failure:message=>{if(active)setLoadError(message)},
+      finished:()=>{if(active)setDataLoading(false)},
+    })
+    void authFetch('/api/unidades').then(readJSON).then(d=>{if(active)setUnidades(d)}).catch(()=>{})
+    void authFetch('/api/alertas').then(readJSON).then(d=>{if(active)setAlertaCounts(d.counts||{})}).catch(()=>{})
+    return ()=>{active=false}
+  }, [user,authFetch,loadVersion])
 
   // Calcular período
   const periodoFilter = useMemo(() => {
@@ -136,6 +131,8 @@ export default function AdminDashboardPage() {
   if (authLoading || dataLoading) {
     return <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}><div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#0ea5e9' }} /></div>
   }
+
+  if(loadError)return <div className="min-h-screen bg-slate-50"><Navbar user={user}/><Sidebar userRole={user?.role}/><main className="p-6 pt-24 md:ml-64"><p role="alert" className="mb-4 text-red-700">{loadError}</p><button className="rounded-lg bg-sky-600 px-4 py-2 text-white" onClick={()=>setLoadVersion(v=>v+1)}>Tentar novamente</button></main></div>
 
   if (!user) return <div>Erro de autenticacao</div>
 

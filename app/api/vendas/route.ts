@@ -80,7 +80,8 @@ export async function GET(req: NextRequest) {
   }
 
   // Todas as vendas
-  let query = service.from('vendas').select('*').order('created_at', { ascending: false })
+  const columns=sp.get('summary')==='1'?'id,client_name,client_email,client_nif,amount,status,user_id,created_at,operator,service_type':'*'
+  let query = service.from('vendas').select(columns).order('created_at', { ascending: false })
   if (!isAdmin) {
     query = query.eq('user_id', user.id)
   } else if (isAdminVIP && allowedParceiroIds.length > 0) {

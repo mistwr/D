@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import {readJSON,loadWithState} from '@/lib/utils/request'
 import { useAuth } from '@/hooks/use-auth'
 import { Navbar } from '@/components/navbar'
 import { Sidebar } from '@/components/sidebar'
@@ -32,6 +33,7 @@ interface FormRow { servico: Servico; operadora: string; plano: string; modelo: 
 
 export default function AdminComissoesPage() {
   const { user, loading: authLoading, authFetch } = useAuth('admin')
+  const [initialError,setInitialError]=useState<Error|null>(null)
   const [loading, setLoading] = useState(true)
   const [parceiros, setParceiros] = useState<Parceiro[]>([])
   const [selectedParceiro, setSelectedParceiro] = useState<string>('')
@@ -47,19 +49,16 @@ export default function AdminComissoesPage() {
   const [msgType, setMsgType] = useState<'ok' | 'err'>('ok')
 
   useEffect(() => {
-    if (!user) return
-    authFetch('/api/vendas?parceiros=1').then(r => r.json()).then(res => {
+    if(!user)return
+    void loadWithState(()=>authFetch('/api/vendas?parceiros=1').then(readJSON).then(res => {
       setParceiros(res.parceiros ?? [])
-      setLoading(false)
-    })
-  }, [user, authFetch])
+    }), {success:()=>{},failure:m=>setInitialError(new Error(m)),finished:()=>setLoading(false)})
+  }, [user,authFetch])
 
   async function loadComissoes(pid: string) {
     if (!pid) { setComissoes([]); return }
     setLoadingCom(true)
-    const res = await authFetch(`/api/comissoes/operadora?parceiro_id=${pid}`).then(r => r.json())
-    setComissoes(res.comissoes ?? [])
-    setLoadingCom(false)
+    await loadWithState(()=>authFetch(`/api/comissoes/operadora?parceiro_id=${pid}`).then(readJSON),{success:res=>setComissoes(res.comissoes??[]),failure:m=>{setMsg(m);setMsgType('err')},finished:()=>setLoadingCom(false)})
   }
 
   async function handleSelectParceiro(pid: string) {
@@ -137,6 +136,7 @@ export default function AdminComissoesPage() {
   const tabData = comissoes.filter(c => c.servico === tab)
   const parceiroSelecionado = parceiros.find(p => p.id === selectedParceiro)
 
+  if(initialError)throw initialError
   if (authLoading || loading) return (
     <div className="flex items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
       <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: '#4338ca' }} />

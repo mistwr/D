@@ -4,29 +4,10 @@ import { useState, useEffect, useRef } from 'react'
 import { Bell, CheckCheck, ShoppingCart, User, AlertTriangle, X } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { pt } from 'date-fns/locale'
-import { createClient } from '@supabase/supabase-js'
-
-function playNotifChime() {
-  try {
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
-    const freqs = [880, 1108, 1320]
-    freqs.forEach((freq, i) => {
-      const osc = ctx.createOscillator()
-      const gain = ctx.createGain()
-      osc.connect(gain)
-      gain.connect(ctx.destination)
-      osc.type = 'sine'
-      osc.frequency.value = freq
-      const t = ctx.currentTime + i * 0.12
-      gain.gain.setValueAtTime(0, t)
-      gain.gain.linearRampToValueAtTime(0.18, t + 0.02)
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22)
-      osc.start(t)
-      osc.stop(t + 0.25)
-    })
-    setTimeout(() => ctx.close(), 1000)
-  } catch { /* Audio not available */ }
-}
+import useSWR from 'swr'
+import {createClient} from '@/lib/supabase/client'
+import {readJSON} from '@/lib/utils/request'
+import {useNotificationSound} from '@/lib/hooks/useNotificationSound'
 
 interface Notification {
   id: string
@@ -37,9 +18,8 @@ interface Notification {
   created_at: string
 }
 
-interface NotificationsDropdownProps {
-  authFetch: (url: string, options?: RequestInit) => Promise<Response>
-}
+type AuthFetch=(url:string,options?:RequestInit)=>Promise<Response>
+interface NotificationsDropdownProps {state:ReturnType<typeof useCRMNotifications>}
 
 const getNotificationIcon = (type: string) => {
   switch (type) {
@@ -50,124 +30,51 @@ const getNotificationIcon = (type: string) => {
   }
 }
 
-function useNotifications(authFetch: NotificationsDropdownProps['authFetch']) {
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
-  const [loading, setLoading] = useState(true)
-  const soundEnabledRef = useRef(true)
-  const supabaseRef = useRef<any>(null)
-
-  useEffect(() => {
-    authFetch('/api/preferences')
-      .then(r => r.json())
-      .then(d => { soundEnabledRef.current = d.notificacoes_sonoras ?? true })
-      .catch(() => {})
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const res = await authFetch('/api/notifications')
-        if (res.ok) {
-          const data = await res.json()
-          setNotifications(data.notifications || [])
-          setUnreadCount(data.unreadCount || 0)
-        }
-      } catch { /* silencioso */ } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchNotifications()
-
-    const setupRealtime = async () => {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-      if (!supabaseUrl || !supabaseKey) return
-
-      // Create client and restore session so realtime filter respects RLS
-      const supabase = createClient(supabaseUrl, supabaseKey)
-      supabaseRef.current = supabase
-
-      const { data: { session } } = await supabase.auth.getSession()
-      const userId = session?.user?.id
-      if (!userId) return
-
-      // Ensure the realtime client is authenticated
-      if (session?.access_token) {
-        await supabase.auth.setSession({
-          access_token: session.access_token,
-          refresh_token: session.refresh_token ?? '',
-        })
-      }
-
-      supabase
-        .channel(`notifications-${userId}`)
-        .on('postgres_changes', {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${userId}`,
-        }, (payload: any) => {
-          const n: Notification = {
-            id: payload.new.id,
-            type: payload.new.type,
-            title: payload.new.title,
-            message: payload.new.message,
-            read: payload.new.read || false,
-            created_at: payload.new.created_at,
-          }
-          setNotifications(prev => [n, ...prev])
-          setUnreadCount(prev => prev + 1)
-          if (n.type === 'nova_venda' && soundEnabledRef.current) playNotifChime()
-        })
-        .on('postgres_changes', {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${userId}`,
-        }, (payload: any) => {
-          setNotifications(prev => prev.map(n => n.id === payload.new.id ? { ...n, read: payload.new.read } : n))
-          if (payload.new.read) setUnreadCount(prev => Math.max(0, prev - 1))
-        })
-        .subscribe()
-    }
-
-    setupRealtime()
-    const poll = setInterval(fetchNotifications, 60000)
-    return () => {
-      clearInterval(poll)
-      supabaseRef.current?.removeAllChannels()
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const markAsRead = async (id: string) => {
-    await authFetch('/api/notifications', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    }).catch(() => {})
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
-    setUnreadCount(prev => Math.max(0, prev - 1))
+export function useCRMNotifications(authFetch:AuthFetch,userId:string|null) {
+  const {data,isLoading,error,mutate}=useSWR(userId?['crm-notifications',userId]:null,()=>authFetch('/api/notifications').then(readJSON),{refreshInterval:15000,dedupingInterval:3000})
+  const {data:preferences,mutate:mutatePreferences}=useSWR(userId?['crm-notification-preferences',userId]:null,()=>authFetch('/api/preferences').then(readJSON))
+  const notifications:Notification[]=data?.notifications||[]
+  const unreadCount=data?.unread_count??data?.unreadCount??notifications.filter(n=>!n.read).length
+  useEffect(()=>{
+    if(!userId)return
+    const supabase=createClient()
+    const channel=supabase.channel('crm-notifications:'+userId).on('postgres_changes',{event:'*',schema:'public',table:'notifications',filter:'user_id=eq.'+userId},()=>{void mutate()}).subscribe()
+    return ()=>{void supabase.removeChannel(channel)}
+  },[userId,mutate])
+  const sound=useNotificationSound(userId,notifications,data!==undefined)
+  const [actionError,setActionError]=useState('')
+  useEffect(()=>{if(preferences?.notificacoes_sonoras===false)sound.mute()},[preferences?.notificacoes_sonoras,sound.mute])
+  async function changePreference(enabled:boolean) {
+    setActionError('')
+    if(enabled)void sound.testSound();else sound.mute()
+    try {
+      await authFetch('/api/preferences',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({notificacoes_sonoras:enabled})}).then(readJSON)
+      await mutatePreferences({notificacoes_sonoras:enabled},false)
+    }catch(e){setActionError(e instanceof Error?e.message:'Não foi possível guardar a preferência.')}
   }
-
-  const markAllAsRead = async () => {
-    await authFetch('/api/notifications', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ markAll: true }),
-    }).catch(() => {})
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-    setUnreadCount(0)
+  async function markAsRead(id:string) {
+    try {
+      await authFetch('/api/notifications',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})}).then(readJSON)
+      await mutate()
+    }catch(e){setActionError(e instanceof Error?e.message:'Não foi possível atualizar.')}
   }
-
-  return { notifications, unreadCount, loading, markAsRead, markAllAsRead }
+  async function markAllAsRead() {
+    try {
+      await authFetch('/api/notifications',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({mark_all:true})}).then(readJSON)
+      await mutate()
+    }catch(e){setActionError(e instanceof Error?e.message:'Não foi possível atualizar.')}
+  }
+  return {notifications,unreadCount,loading:isLoading,markAsRead,markAllAsRead,sound,changePreference,error:actionError||(error?'Não foi possível carregar as notificações.':'')}
 }
 
-export function NotificationsDropdown({ authFetch }: NotificationsDropdownProps) {
+function SoundControls({state}:{state:ReturnType<typeof useCRMNotifications>}) {
+  return <div className="border-b bg-slate-50 p-3"><button type="button" className="rounded border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-700" onClick={()=>void state.changePreference(true)}>{state.sound.enabled&&state.sound.ready?'Testar som':'Ativar som'}</button>{state.sound.enabled&&<button type="button" className="ml-3 text-xs text-slate-500" onClick={()=>void state.changePreference(false)}>Silenciar</button>}<p role="status" className="mt-2 text-xs text-slate-500">{state.sound.message||'Alertas sonoros com o CRM aberto.'}</p>{state.error&&<p role="alert" className="mt-2 text-xs text-red-700">{state.error}</p>}</div>
+}
+
+export function NotificationsDropdown({ state }: NotificationsDropdownProps) {
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications(authFetch)
+  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = state
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -202,6 +109,7 @@ export function NotificationsDropdown({ authFetch }: NotificationsDropdownProps)
               </button>
             )}
           </div>
+          <SoundControls state={state}/>
           <div className="overflow-y-auto max-h-[320px]">
             {loading ? (
               <div className="p-4 text-center text-slate-500 text-sm">A carregar...</div>
@@ -240,9 +148,9 @@ export function NotificationsDropdown({ authFetch }: NotificationsDropdownProps)
   )
 }
 
-export function NotificationsDropdownMobile({ authFetch }: NotificationsDropdownProps) {
+export function NotificationsDropdownMobile({ state }: NotificationsDropdownProps) {
   const [open, setOpen] = useState(false)
-  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications(authFetch)
+  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = state
 
   return (
     <>
@@ -271,6 +179,7 @@ export function NotificationsDropdownMobile({ authFetch }: NotificationsDropdown
               </button>
             </div>
           </div>
+          <SoundControls state={state}/>
           <div className="overflow-y-auto flex-1">
             {loading ? (
               <div className="p-8 text-center text-slate-500">A carregar...</div>
