@@ -1,6 +1,6 @@
 'use client'
 
-import { LogOut, Menu, X, User, LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, FolderOpen, Calculator, Percent, FileCheck, Newspaper, AlertTriangle, Users, Upload, FileSpreadsheet, KeyRound, Target, Network, GitBranch, Shield, Building2, Circle, PhoneCall, ExternalLink, Bot, Sparkles } from 'lucide-react'
+import { LogOut, Menu, X, User, LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, FolderOpen, Calculator, Percent, FileCheck, Newspaper, AlertTriangle, Users, Upload, FileSpreadsheet, KeyRound, Target, Network, GitBranch, Shield, Building2, Circle, PhoneCall, ExternalLink, Bot, Sparkles, ClipboardCheck } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -65,6 +65,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/parceiros', label: 'Parceiros', icon: Users },
     { href: '/admin/vendas', label: 'Vendas', icon: ShoppingCart },
+    { href: '/admin/backoffice', label: 'Backoffice Operadoras', icon: ClipboardCheck },
     { href: '/admin/chargebacks', label: 'Chargebacks', icon: AlertTriangle },
     { href: '/admin/campanhas', label: 'Campanhas', icon: Megaphone },
     { href: '/admin/materiais', label: 'Materiais', icon: FolderOpen },
