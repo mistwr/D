@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { LuminBrand } from './lumin-brand'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2, Target, Crown, Circle, User, UserPlus, FileText, FileDown, Facebook, PhoneCall, ExternalLink, Bot, Sparkles } from 'lucide-react'
+import { LayoutDashboard, ShoppingCart, PlusCircle, Megaphone, Users, Upload, FolderOpen, FileSpreadsheet, Calculator, Percent, FileCheck, KeyRound, Newspaper, AlertTriangle, Zap, Phone, Network, GitBranch, Shield, Building2, Target, Crown, Circle, User, UserPlus, FileText, FileDown, Facebook, PhoneCall, ExternalLink, Bot, Sparkles, ClipboardCheck } from 'lucide-react'
 
 interface SidebarUser {
   role: string
@@ -57,6 +57,7 @@ export function Sidebar({ user, userRole, isSuperAdmin = false, podeGerir = fals
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/parceiros', label: 'Parceiros', icon: Users },
     { href: '/admin/vendas', label: 'Vendas', icon: ShoppingCart },
+    { href: '/admin/backoffice', label: 'Backoffice Operadoras', icon: ClipboardCheck },
     { href: '/admin/chargebacks', label: 'Chargebacks', icon: AlertTriangle },
     { href: '/admin/campanhas', label: 'Campanhas', icon: Megaphone },
     { href: '/admin/materiais', label: 'Materiais de Apoio', icon: FolderOpen },
