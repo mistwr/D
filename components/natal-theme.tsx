@@ -25,7 +25,14 @@ export function NatalTheme() {
           <span key={i} style={{ position: 'absolute', top: -10, left: `${f.left}%`, width: f.size, height: f.size, borderRadius: '50%', background: '#e7b95f', opacity: f.op, animation: `natalCair ${f.dur}s linear ${f.delay}s infinite` }} />
         ))}
       </div>
-      <style>{`@keyframes natalCair{to{transform:translate3d(20px,105vh,0)}}@media (prefers-reduced-motion:reduce){.natal-neve{display:none}}`}</style>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/natal/treno.svg" alt="" aria-hidden className="natal-treno" />
+      <style>{`@keyframes natalCair{to{transform:translate3d(20px,105vh,0)}}
+.natal-treno{position:fixed;top:10px;left:0;width:260px;pointer-events:none;z-index:58;opacity:0;filter:drop-shadow(0 0 8px rgba(231,185,95,.45));animation:natalVoo 45s cubic-bezier(.45,.05,.55,.95) 4s infinite}
+@keyframes natalVoo{0%{transform:translate(-300px,30px) rotate(-3deg);opacity:0}3%{opacity:.85}24%{transform:translate(105vw,-6px) rotate(-6deg);opacity:.85}26%,100%{transform:translate(110vw,-8px);opacity:0}}
+.natal-pn-mini{display:inline-block;width:18px;height:21px;animation:natalBalanco 4s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes natalBalanco{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+@media (prefers-reduced-motion:reduce){.natal-neve,.natal-treno{display:none}.natal-pn-mini{animation:none}}`}</style>
     </>
   )
 }
@@ -36,7 +43,9 @@ export function NatalTag({ inverse = false }: { inverse?: boolean }) {
   if (!ativo) return null
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 3, fontSize: 10, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: inverse ? '#e7b95f' : '#a8741e' }}>
-      🎄 Boas Festas
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/natal/pai-natal.svg" alt="" aria-hidden className="natal-pn-mini" />
+      Boas Festas
     </span>
   )
 }
