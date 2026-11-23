@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 90" role="img" aria-label="Trenó do Pai Natal">
+  <defs>
+    <linearGradient id="trG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F6DB8C"/><stop offset="1" stop-color="#C9962F"/></linearGradient>
+    <symbol id="rena" viewBox="0 0 60 40">
+      <ellipse cx="25" cy="22" rx="13" ry="5.6"/>
+      <path d="M33 19 L37 21 L44 11 L40 9 Z"/>
+      <ellipse cx="45" cy="9.5" rx="5" ry="2.9" transform="rotate(-15 45 9.5)"/>
+      <ellipse cx="13" cy="19" rx="3" ry="2"/>
+      <g fill="none" stroke-linecap="round" stroke-width="2.2" stroke="currentColor">
+        <path d="M34 24 L44 29 L47 27"/><path d="M31 26 L39 33"/>
+        <path d="M16 24 L6 28 L3 26"/><path d="M19 26 L11 33"/>
+      </g>
+      <g fill="none" stroke-linecap="round" stroke-width="1.3" stroke="currentColor">
+        <path d="M42 7 L38 1 M40 4 L36 3"/><path d="M45 7 L47 1 M46 4 L50 3"/>
+      </g>
+    </symbol>
+  </defs>
+  <g fill="url(#trG)" color="#E3B651">
+    <use href="#rena" x="232" y="14" width="60" height="40"/>
+    <use href="#rena" x="290" y="8" width="60" height="40"/>
+    <use href="#rena" x="348" y="2" width="60" height="40"/>
+    <path d="M150 52 C190 44 230 36 400 22" stroke="#E3B651" stroke-width="1" fill="none" opacity=".7"/>
+    <!-- trenó -->
+    <path d="M70 40 C70 30 80 28 92 30 L150 34 C160 35 160 46 154 54 L148 64 L84 64 C74 64 70 56 70 48 Z"/>
+    <path d="M62 74 L156 74 C168 74 172 66 170 60" stroke="#E3B651" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+    <path d="M90 64 L88 74 M140 64 L142 74" stroke="#E3B651" stroke-width="3" stroke-linecap="round"/>
+    <!-- Pai Natal -->
+    <circle cx="118" cy="20" r="7"/>
+    <path d="M111 18 C112 8 122 5 130 9 L136 6 L133 14 C130 12 126 13 125 15 Z"/>
+    <path d="M106 34 C106 24 130 24 132 34 Z"/>
+    <!-- saco -->
+    <path d="M78 32 C76 18 92 12 98 22 C100 26 98 32 98 34 Z"/>
+  </g>
+</svg>

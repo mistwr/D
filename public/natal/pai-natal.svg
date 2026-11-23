@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 230" role="img" aria-label="Pai Natal">
+  <defs>
+    <linearGradient id="pnG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C8202B"/><stop offset="1" stop-color="#7A0F17"/></linearGradient>
+    <radialGradient id="pnC" cx="0.5" cy="0.4" r="0.65"><stop offset="0" stop-color="#F6D2B4"/><stop offset="1" stop-color="#DFA781"/></radialGradient>
+    <linearGradient id="pnB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E4E9F0"/></linearGradient>
+    <linearGradient id="pnO" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F3D27A"/><stop offset="1" stop-color="#B8892B"/></linearGradient>
+  </defs>
+  <path d="M46 98 C54 52 94 24 134 26 C160 28 178 42 184 62 C172 54 160 52 150 58 C162 72 166 86 162 98 Z" fill="url(#pnG)"/>
+  <path d="M70 70 C86 46 112 36 134 36" stroke="#E8505A" stroke-width="4" fill="none" stroke-linecap="round" opacity=".45"/>
+  <circle cx="184" cy="66" r="12" fill="url(#pnB)"/>
+  <rect x="38" y="90" width="130" height="24" rx="12" fill="url(#pnB)"/>
+  <ellipse cx="103" cy="133" rx="39" ry="32" fill="url(#pnC)"/>
+  <ellipse cx="80" cy="141" rx="8" ry="5" fill="#E77B74" opacity=".35"/>
+  <ellipse cx="126" cy="141" rx="8" ry="5" fill="#E77B74" opacity=".35"/>
+  <ellipse cx="89" cy="127" rx="3.6" ry="4.4" fill="#2A1B16"/>
+  <ellipse cx="117" cy="127" rx="3.6" ry="4.4" fill="#2A1B16"/>
+  <circle cx="90.2" cy="125.6" r="1.2" fill="#fff"/><circle cx="118.2" cy="125.6" r="1.2" fill="#fff"/>
+  <path d="M79 117 q10 -5 19 -1" stroke="url(#pnB)" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M108 116 q10 -4 19 1" stroke="url(#pnB)" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M58 138 C56 178 76 208 103 216 C130 208 150 178 148 138 C138 156 124 161 103 161 C82 161 68 156 58 138 Z" fill="url(#pnB)"/>
+  <path d="M70 168 q8 9 15 3 M93 190 q10 7 20 0 M121 171 q8 -2 13 -8" stroke="#D5DCE6" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M103 149 C92 140 76 142 69 153 C81 156 92 155 103 151 C114 155 125 156 137 153 C130 142 114 140 103 149 Z" fill="#fff"/>
+  <ellipse cx="103" cy="141" rx="6.5" ry="5.5" fill="#D98068"/>
+  <circle cx="20" cy="40" r="2" fill="url(#pnO)"/><circle cx="30" cy="190" r="1.6" fill="url(#pnO)"/><circle cx="182" cy="160" r="2.2" fill="url(#pnO)"/>
+</svg>
