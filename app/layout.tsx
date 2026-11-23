@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { CookieBanner } from '@/components/cookie-banner'
+import { NatalTheme } from '@/components/natal-theme'
 import './globals.css'
 
 const _geist = Geist({ subsets: ['latin'] })
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-PT">
       <body className="font-sans antialiased bg-background text-foreground">
+        <NatalTheme />
         {children}
         <CookieBanner />
       </body>
