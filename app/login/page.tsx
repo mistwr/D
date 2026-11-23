@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { LuminBrand } from '@/components/lumin-brand'
+import PaiNatalInterativo from '@/components/pai-natal-interativo'
+import { epocaNatal } from '@/components/natal-theme'
 
 // Imagens locais — energia, telecom e cidade
 const SLIDES = [
@@ -13,6 +15,8 @@ const SLIDES = [
 ]
 
 export default function LoginPage() {
+  const [natal, setNatal] = useState(false)
+  useEffect(() => { setNatal(epocaNatal()) }, [])
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -89,6 +93,12 @@ export default function LoginPage() {
           zIndex: 2,
         }} />
 
+        {natal && (
+          <div style={{ position: 'absolute', right: 40, bottom: 64, zIndex: 4 }}>
+            <PaiNatalInterativo tamanho={150} balao="esquerda" saudar={1800}
+              mensagens={['Boas Festas, equipa! Que dezembro seja o melhor mês do ano.', 'Cada contrato fechado é uma família a pagar menos no Natal.', 'Entra, que as vendas não se fecham sozinhas!', 'Juntos Somos + — e no Natal ainda mais.']} />
+          </div>
+        )}
         {/* Conteudo sobre o slideshow */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 3, display: 'flex', flexDirection: 'column', padding: '40px' }}>
           {/* Branding Lumin AI + cliente */}
