@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { NatalTag } from './natal-theme'
 
 type LuminBrandProps = {
   compact?: boolean
@@ -40,6 +41,7 @@ export function LuminBrand({
             CRM · Soluções Diferentes
           </p>
         )}
+        {!compact && <NatalTag inverse={inverse} />}
       </div>
     </div>
   )
